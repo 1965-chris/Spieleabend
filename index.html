@@ -167,6 +167,7 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .leer h3{color:var(--tinte);font-family:var(--rund);font-size:20px;margin:10px 0 6px}
 .leer p{margin:0 0 16px}
 .leer .figuren{display:flex;justify-content:center;gap:4px}
+.leer .mini-wuerfel{margin:0 auto}
 
 /* ---------- Knöpfe ---------- */
 .knopf{
@@ -194,7 +195,36 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
   position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--karte);border-top:1px solid var(--linie);
   padding-bottom:env(safe-area-inset-bottom);
 }
-.tabs-innen{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--tabhoehe)}
+.tabs-innen{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tabhoehe)}
+.tab-ic{position:relative;display:inline-grid}
+.tab-zahl{position:absolute;top:-5px;right:-10px;min-width:18px;height:18px;border-radius:9px;background:var(--rot);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--karte);line-height:1}
+.tab-zahl[hidden]{display:none}
+/* Termine */
+.termin-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--leise);font-size:14.5px;margin:0 0 8px}
+.termin-notiz{white-space:pre-wrap;margin:0 0 10px;font-size:15px}
+.option{border-top:1px solid var(--linie);padding:12px 0}
+.option-kopf{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.option-zeit{font-weight:800;font-family:var(--rund);font-size:17px}
+.option-zahl{margin-left:auto;font-size:13.5px;color:var(--leise);white-space:nowrap}
+.beste{font-size:12px;font-weight:700;color:var(--filz);background:var(--filz-hell);border-radius:999px;padding:2px 8px}
+.balken{height:7px;border-radius:4px;background:var(--grund);overflow:hidden;margin:8px 0 10px;display:flex}
+.balken i{display:block;height:100%}
+.balken .ja{background:#2E9E5B}
+.balken .vl{background:var(--gelb)}
+.chip.stimme{gap:5px}
+.chip.stimme b{font-size:15px;line-height:1;width:14px;text-align:center}
+.chip.stimme[data-a="ja"]{background:color-mix(in srgb, #2E9E5B 18%, var(--karte));border-color:#2E9E5B}
+.chip.stimme[data-a="vielleicht"]{background:color-mix(in srgb, var(--gelb) 25%, var(--karte));border-color:var(--gelb)}
+.chip.stimme[data-a="nein"]{background:color-mix(in srgb, var(--rot) 12%, var(--karte));border-color:color-mix(in srgb, var(--rot) 55%, transparent);color:var(--leise)}
+.stimm-liste{font-size:13.5px;color:var(--leise);margin:8px 0 0;line-height:1.5}
+.fest-karte{background:color-mix(in srgb, #2E9E5B 13%, var(--karte));border:1.5px solid color-mix(in srgb, #2E9E5B 45%, transparent);border-radius:14px;padding:12px 14px;margin:0 0 10px}
+.fest-karte b{font-family:var(--rund);font-size:18px}
+.termin-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.termin-knoepfe .knopf{min-height:42px;font-size:14.5px;padding:0 10px}
+.termin-mark{font-size:12px;font-weight:700;color:#fff;background:var(--rot);border-radius:999px;padding:2px 8px;margin-left:6px}
+.zeit-reihe{display:flex;gap:8px;margin-bottom:8px}
+.zeit-reihe .eingabe{flex:1;min-width:0}
+.zeit-reihe .knopf-rund{width:46px;height:46px;border-radius:12px}
 .tabs button{appearance:none;border:0;background:none;color:var(--leise);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 .tabs button .ic{width:25px;height:25px}
 .tabs button[aria-current="page"]{color:var(--filz)}
@@ -465,6 +495,13 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
     <div id="runde-inhalt"></div>
   </section>
 
+  <!-- Termine -->
+  <section class="seite" id="seite-termine" aria-label="Termine">
+    <h2 class="seiten-titel">Termine</h2>
+    <p class="unterzeile">Spieleabend planen: Termine vorschlagen, alle stimmen in der App ab, dann steht der Termin fest.</p>
+    <div id="termine-inhalt"></div>
+  </section>
+
   <!-- Haushalte -->
   <section class="seite" id="seite-haushalte" aria-label="Haushalte">
     <h2 class="seiten-titel">Haushalte</h2>
@@ -485,6 +522,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div class="tabs-innen">
     <button type="button" data-seite="spiele" aria-current="page"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></svg>Spiele</button>
     <button type="button" data-seite="runde"><svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg>Spielrunde</button>
+    <button type="button" data-seite="termine"><span class="tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.6-4.6"/></svg><span class="tab-zahl" id="termine-zahl" hidden></span></span>Termine</button>
     <button type="button" data-seite="haushalte"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>Haushalte</button>
     <button type="button" data-seite="einstellungen"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Einstellungen</button>
   </div>
@@ -499,7 +537,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.44';
+const VERSION = 'v1.50';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -542,9 +580,11 @@ function speichern(){ schreiben(LS.daten, D); }
 function geraetKennung(){ if (!E.geraetId){ E.geraetId = neueId('g'); einstSpeichern(); } }
 function datenVorbereiten(){
   D.verwaltung = verwaltungNorm(D.verwaltung); if (!D.metaV) D.metaV = {};
+  if (!D.termine) D.termine = {}; if (!D.metaT) D.metaT = {};
   if ((D.datenstand || 1) < DATENSTAND){
     for (const m of Object.values(D.meta)) m.sha = null;
     D.metaV.sha = null; D.datenstand = DATENSTAND;
+    for (const m of Object.values(D.metaT)) m.sha = null;
   }
 }
 function einstSpeichern(){ schreiben(LS.einst, E); }
@@ -822,7 +862,7 @@ async function repoPruefen(){
 }
 async function verzeichnisLesen(){
   const r = await gh('GET', `/contents/daten?ref=${encodeURIComponent(E.branch)}`);
-  const liste = new Map();
+  const liste = new Map(); liste.termine = new Map();
   if (r.status === 404) return liste;
   if (!r.ok) throw await fehlerAus(r, 'Datenordner');
   const j = await r.json();
@@ -831,6 +871,8 @@ async function verzeichnisLesen(){
     const m = /^haushalt-([A-Za-z0-9_-]+)\.json$/.exec(d.name);
     if (m && d.type === 'file') liste.set(m[1], d.sha);
     if (d.name === 'verwaltung.json' && d.type === 'file') liste.verwaltung = d.sha;
+    const t = /^termin-([A-Za-z0-9_-]+)\.json$/.exec(d.name);
+    if (t && d.type === 'file') liste.termine.set(t[1], d.sha);
   }
   return liste;
 }
@@ -977,6 +1019,27 @@ async function sync(anlass){
         D.metaV.sha = fern.sha; D.metaV.aufServer = true; neuZeichnen = true;
       }
     }
+    // Termin-Umfragen (daten/termin-<id>.json)
+    for (const [id, sha] of liste.termine){
+      const m = D.metaT[id] || (D.metaT[id] = {});
+      if (m.sha === sha && D.termine[id]){ m.aufServer = true; continue; }
+      const fern = await terminLesen(id);
+      if (!fern.daten) continue;
+      appPruefen(fern.daten.app);
+      const lokal = D.termine[id];
+      if (lokal && m.dirty){
+        D.termine[id] = terminMischen(lokal, fern.daten);
+        if (JSON.stringify(terminForm(D.termine[id])) === JSON.stringify(terminForm(fern.daten))) m.dirty = false;
+      } else D.termine[id] = terminNorm(fern.daten);
+      m.sha = fern.sha; m.aufServer = true; neuZeichnen = true;
+    }
+    if (liste.size || liste.termine.size){
+      for (const id of Object.keys(D.termine)){
+        const m = D.metaT[id] || {};
+        if (liste.termine.has(id) || !m.aufServer) continue;
+        delete D.termine[id]; delete D.metaT[id]; neuZeichnen = true;   // woanders gelöscht – auch mit eigener Stimme nicht wiederbeleben
+      }
+    }
     // 2) Auf GitHub gelöschte Haushalte auch hier entfernen (mit Sicherung gegen leere Antworten)
     if (!(liste.size === 0 && bekannt.length > 1)){
       for (const id of Object.keys(D.haushalte)){
@@ -992,13 +1055,14 @@ async function sync(anlass){
 
     // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen.
     //    Benutzt ein anderes Gerät schon eine neuere App-Version, wird nichts hochgeladen, damit nichts verloren geht.
-    const wartet = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || O.hoch.length;
+    const wartet = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT).some(m => m.dirty) || O.hoch.length;
     if (S.neuereApp && E.token && wartet) throw new Error(`Hochladen angehalten: Ein anderes Gerät benutzt schon Version ${S.neuereApp}. Bitte die App neu laden – deine Änderungen bleiben so lange hier gespeichert.`);
     if (E.token){
       st.fotos = await fotosHochladen();
       let gemischt = false;
       for (const id of Object.keys(D.haushalte)) if ((D.meta[id] || {}).dirty){ if (await haushaltHochladen(id)) gemischt = true; st.hoch++; }
       if (D.metaV.dirty){ if (await verwaltungHochladen()) gemischt = true; st.hoch++; }
+      for (const id of Object.keys(D.termine)) if ((D.metaT[id] || {}).dirty){ if (await terminHochladen(id)) gemischt = true; st.hoch++; }
       if (gemischt) renderAlles();
       await fotosAufraeumen();
     }
@@ -1026,7 +1090,7 @@ function syncZustand(){
   if (!E.owner || !E.repo) return { k:'aus', t:'Nicht verbunden' };
   if (S.laeuft) return { k:'laeuft', t:'Gleicht ab …' };
   if (navigator.onLine === false) return { k:'aus', t:'Offline' };
-  const offen = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || O.hoch.length > 0;
+  const offen = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT || {}).some(m => m.dirty) || O.hoch.length > 0;
   if (offen && !E.token) return { k:'aus', t:'Nur auf diesem Gerät' };
   if (S.fehler) return { k:'fehler', t:'Nicht abgeglichen' };
   if (offen) return { k:'laeuft', t:'Wartet …' };
@@ -1906,6 +1970,411 @@ function wuerfeln(){
   tick();
 }
 
+/* ---------- Termine: Spieleabend planen und abstimmen ----------
+   Jede Umfrage ist eine eigene Datei daten/termin-<id>.json. Jede Person stimmt pro Termin mit ja, vielleicht oder nein.
+   Stimmen werden einzeln zusammengeführt – stimmen zwei Geräte gleichzeitig ab, bleibt beides erhalten. */
+const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festStand','geloescht']);
+const ANTWORTEN = ['', 'ja', 'vielleicht', 'nein'];
+const ANTWORT_ZEICHEN = { '':'○', ja:'✓', vielleicht:'?', nein:'✗' };
+function zwei(n){ return String(n).padStart(2, '0'); }
+function zeitGueltig(z){ return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(String(z || '')); }
+function terminNorm(t){
+  t = t || {};
+  const g = {};
+  if (t.geloescht && typeof t.geloescht === 'object') for (const [k, v] of Object.entries(t.geloescht)){ const n = zahl(v); if (n) g[k] = n; }
+  const stimmen = {};
+  if (t.stimmen && typeof t.stimmen === 'object') for (const [k, v] of Object.entries(t.stimmen)) if (v && ANTWORTEN.includes(v.a) && k.includes('|')) stimmen[k] = { a:v.a, stand:zahl(v.stand) || 0 };
+  return {
+    ...unbekannte(t, TERMIN_FELDER),
+    id:String(t.id), titel:String(t.titel || 'Spieleabend').slice(0, 60), notiz:String(t.notiz || '').slice(0, 300), ort:String(t.ort || '').slice(0, 80),
+    gastgeber:String(t.gastgeber || ''), erstelltVon:String(t.erstelltVon || ''), erstellt:zahl(t.erstellt) || 0, stand:zahl(t.stand) || 0,
+    haushalte:Array.isArray(t.haushalte) ? [...new Set(t.haushalte.map(String))].sort() : [],
+    optionen:(Array.isArray(t.optionen) ? t.optionen : []).filter(o => o && o.id && zeitGueltig(o.zeit))
+      .map(o => ({ id:String(o.id), zeit:o.zeit, stand:zahl(o.stand) || 0 })).sort((a, b) => a.zeit.localeCompare(b.zeit) || a.id.localeCompare(b.id)),
+    stimmen, festgelegt:String(t.festgelegt || ''), festStand:zahl(t.festStand) || 0, geloescht:g
+  };
+}
+function terminForm(t){ return { format:1, app:VERSION, ...terminNorm(t) }; }
+function terminMischen(lokal, fern){
+  const A = terminNorm(lokal), B = terminNorm(fern);
+  const kopf = A.stand >= B.stand ? A : B, fest = A.festStand >= B.festStand ? A : B;
+  const tomb = { ...B.geloescht }; for (const [k, v] of Object.entries(A.geloescht)) tomb[k] = Math.max(tomb[k] || 0, v);
+  const o = new Map(); for (const x of B.optionen) o.set(x.id, x);
+  for (const x of A.optionen){ const y = o.get(x.id); if (!y || x.stand > y.stand) o.set(x.id, x); }
+  const st = { ...B.stimmen };
+  for (const [k, v] of Object.entries(A.stimmen)) if (!st[k] || v.stand > st[k].stand) st[k] = v;
+  return terminNorm({
+    ...unbekannte(B, TERMIN_FELDER), ...unbekannte(A, TERMIN_FELDER),
+    id:A.id, titel:kopf.titel, notiz:kopf.notiz, ort:kopf.ort, gastgeber:kopf.gastgeber, erstelltVon:A.erstelltVon || B.erstelltVon,
+    erstellt:A.erstellt || B.erstellt, stand:kopf.stand, haushalte:kopf.haushalte,
+    optionen:[...o.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), stimmen:st,
+    festgelegt:fest.festgelegt, festStand:fest.festStand, geloescht:tomb
+  });
+}
+function markiereT(id, notiz){
+  const m = D.metaT[id] || (D.metaT[id] = {});
+  m.dirty = true; m.zaehler = (m.zaehler || 0) + 1; m.notizen = [...(m.notizen || []), notiz].slice(-6);
+}
+function terminDatei(id){ return `daten/termin-${id}.json`; }
+async function terminLesen(id){
+  const r = await gh('GET', `/contents/${terminDatei(id)}?ref=${encodeURIComponent(E.branch)}`);
+  if (r.status === 404) return { daten:null, sha:null };
+  if (!r.ok) throw await fehlerAus(r, 'Termin lesen');
+  const j = await r.json();
+  let daten;
+  try{ daten = JSON.parse(textAusB64(j.content)); }catch(e){ throw new Error(`Die Datei ${terminDatei(id)} ist beschädigt.`); }
+  daten.id = id;
+  return { daten, sha:j.sha };
+}
+async function terminHochladen(id){
+  const m = D.metaT[id] || (D.metaT[id] = {});
+  let gemischt = false;
+  for (let versuch = 0; versuch < 5; versuch++){
+    const t = D.termine[id]; if (!t) return gemischt;
+    const stand = m.zaehler || 0, notiz = (m.notizen || []).join(', ').slice(0, 140) || 'Termin geändert';
+    const body = { message:`${t.titel}: ${notiz}`, content:b64AusText(JSON.stringify(terminForm(t), null, 1)), branch:E.branch };
+    if (m.sha) body.sha = m.sha;
+    const r = await gh('PUT', `/contents/${terminDatei(id)}`, body);
+    if (r.ok){
+      const j = await r.json();
+      m.sha = j.content && j.content.sha; m.aufServer = true; m.dirty = (m.zaehler || 0) !== stand; if (!m.dirty) m.notizen = [];
+      speichern(); if (m.dirty) continue; return gemischt;
+    }
+    if (r.status === 409 || r.status === 422){
+      const fern = await terminLesen(id);
+      if (fern.daten){ D.termine[id] = terminMischen(D.termine[id], fern.daten); m.sha = fern.sha; gemischt = true; }
+      else if (m.aufServer){ delete D.termine[id]; delete D.metaT[id]; speichern(); return true; }   // inzwischen gelöscht
+      else m.sha = null;
+      speichern(); continue;
+    }
+    throw await fehlerAus(r, 'Termin speichern');
+  }
+  throw new Error('Der Termin ließ sich nicht speichern.');
+}
+
+/* Wer sieht eine Umfrage, wer darf sie ändern, wer stimmt ab */
+function terminSichtbar(t){
+  // Eine Umfrage sehen nur die eingeladenen Haushalte (und der Admin)
+  if (E.admin || !t.haushalte.length) return true;
+  return meinHaushaltGueltig() && (t.haushalte.includes(E.meinHaushalt) || t.erstelltVon === E.meinHaushalt);
+}
+function darfTermin(t){ return E.admin || !rechteAktiv() || (meinHaushaltGueltig() && t.erstelltVon === E.meinHaushalt); }
+function terminTeilnehmer(t){
+  const ids = t.haushalte.length ? t.haushalte : Object.keys(D.haushalte);
+  return ids.map(id => D.haushalte[id]).filter(Boolean)
+    .sort((a, b) => (a.id === E.meinHaushalt ? -1 : b.id === E.meinHaushalt ? 1 : 0) || a.name.localeCompare(b.name, 'de'))
+    .map(h => ({ h, leute:(h.spieler && h.spieler.length) ? h.spieler.map(x => ({ pid:x.id, name:x.name })) : [{ pid:'hh:' + h.id, name:h.name }] }));
+}
+function stimmeVon(t, optId, pid){ const s = t.stimmen[`${optId}|${pid}`]; return s ? s.a : ''; }
+function optionAuswertung(t, o){
+  const w = { ja:0, vl:0, nein:0, gesamt:0, namen:{ ja:[], vielleicht:[], nein:[] } };
+  for (const g of terminTeilnehmer(t)) for (const p of g.leute){
+    w.gesamt++;
+    const a = stimmeVon(t, o.id, p.pid);
+    if (a === 'ja') w.ja++; if (a === 'vielleicht') w.vl++; if (a === 'nein') w.nein++;
+    if (a) w.namen[a].push(p.name);
+  }
+  return w;
+}
+function terminZeitText(z){
+  const d = new Date(z);
+  return `${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}, ${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}. um ${zwei(d.getHours())}:${zwei(d.getMinutes())} Uhr`;
+}
+function terminVorbei(t){
+  const grenze = Date.now() - 12 * 3600e3;
+  if (t.festgelegt){ const o = t.optionen.find(x => x.id === t.festgelegt); return o ? new Date(o.zeit).getTime() < grenze : false; }
+  return t.optionen.length > 0 && t.optionen.every(o => new Date(o.zeit).getTime() < grenze);
+}
+function meineTerminGruppe(t){ return meinHaushaltGueltig() ? terminTeilnehmer(t).find(g => g.h.id === E.meinHaushalt) : null; }
+function nochNichtAbgestimmt(t){
+  if (t.festgelegt || terminVorbei(t) || !terminSichtbar(t)) return false;
+  const g = meineTerminGruppe(t); if (!g) return false;
+  return !t.optionen.some(o => g.leute.some(p => stimmeVon(t, o.id, p.pid)));
+}
+function termineZahlZeigen(){
+  const el = $('#termine-zahl'); if (!el) return;
+  const n = Object.values(D.termine || {}).filter(nochNichtAbgestimmt).length;
+  el.textContent = n; el.hidden = !n;
+}
+
+/* ---------- Seite: Termine ---------- */
+function renderTermine(){
+  const el = $('#termine-inhalt'); if (!el) return;
+  const alle = Object.values(D.termine).filter(terminSichtbar);
+  const erste = t => (t.optionen.find(o => o.id === t.festgelegt) || t.optionen[0] || { zeit:'9999' }).zeit;
+  const aktuell = alle.filter(t => !terminVorbei(t)).sort((a, b) => erste(a).localeCompare(erste(b)));
+  const alt = alle.filter(terminVorbei).sort((a, b) => erste(b).localeCompare(erste(a)));
+  const kannAnlegen = E.admin || meinHaushaltGueltig();
+  el.innerHTML = `
+    ${kannAnlegen ? `<button class="knopf breit" type="button" data-t="neu" style="margin-bottom:14px">${ic('plus')}Spieleabend planen</button>`
+      : `<p class="hinweis">Wähle zuerst deinen Haushalt, dann kannst du abstimmen und selbst einladen.</p>`}
+    ${aktuell.length ? aktuell.map(terminKarteHtml).join('')
+      : `<div class="leer" style="padding-top:10px">${wuerfelHtml('mini-wuerfel', 4)}<h3>Noch nichts geplant</h3><p>Schlag ein paar Termine vor – die anderen stimmen in der App ab.</p></div>`}
+    ${alt.length ? `<div style="margin-top:6px">${klapp('termine-alt', 'Vergangene Spieleabende', alt.map(terminKarteHtml).join(''), { klasse:'leicht', klein:`${alt.length}` })}</div>` : ''}`;
+  termineZahlZeigen();
+}
+function terminKarteHtml(t){
+  const fest = t.optionen.find(o => o.id === t.festgelegt);
+  const gast = D.haushalte[t.gastgeber];
+  const meine = meineTerminGruppe(t);
+  const auswertung = t.optionen.map(o => ({ o, w:optionAuswertung(t, o) }));
+  const punkte = x => x.w.ja * 2 + x.w.vl;
+  const beste = Math.max(0, ...auswertung.map(punkte));
+  const offen = nochNichtAbgestimmt(t);
+  const klein = fest ? `✓ ${terminZeitText(fest.zeit).split(' um ')[0]}` : `${t.optionen.length} Termin${t.optionen.length === 1 ? '' : 'e'}`;
+  const optionen = auswertung.map(x => {
+    const { o, w } = x;
+    const pJa = w.gesamt ? Math.round(w.ja / w.gesamt * 100) : 0, pVl = w.gesamt ? Math.round(w.vl / w.gesamt * 100) : 0;
+    const namen = ['ja', 'vielleicht', 'nein'].filter(a => w.namen[a].length)
+      .map(a => `${a === 'ja' ? 'Ja' : a === 'vielleicht' ? 'Vielleicht' : 'Nein'}: ${esc(w.namen[a].join(', '))}`).join('<br>');
+    return `<div class="option">
+      <div class="option-kopf"><span class="option-zeit">${esc(terminZeitText(o.zeit))}</span>
+        ${fest && fest.id === o.id ? '<span class="beste">festgelegt</span>' : (!fest && beste > 0 && punkte(x) === beste ? '<span class="beste">beste Wahl</span>' : '')}
+        <span class="option-zahl">${w.ja} ja${w.vl ? `, ${w.vl} vielleicht` : ''}</span></div>
+      <div class="balken"><i class="ja" style="width:${pJa}%"></i><i class="vl" style="width:${pVl}%"></i></div>
+      ${meine && !fest ? `<div class="chips">${meine.leute.map(p => { const a = stimmeVon(t, o.id, p.pid);
+          return `<button type="button" class="chip stimme" data-t="stimme" data-id="${esc(t.id)}" data-opt="${esc(o.id)}" data-pid="${esc(p.pid)}" data-a="${a}"><b>${ANTWORT_ZEICHEN[a]}</b>${esc(p.name)}</button>`; }).join('')}</div>` : ''}
+      ${namen ? `<p class="stimm-liste">${namen}</p>` : ''}
+    </div>`;
+  }).join('');
+  const darf = darfTermin(t);
+  return `<details class="klapp block termin" data-klapp="termin-${esc(t.id)}" id="termin-${esc(t.id)}"${klappAuf('termin-' + t.id, true) ? ' open' : ''}>
+    <summary><span class="klapp-titel">${esc(t.titel)}${offen ? '<span class="termin-mark">abstimmen</span>' : ''}</span><small>${esc(klein)}</small>${ic('pfeil')}</summary>
+    <div class="innen">
+      <p class="termin-meta">${gast ? `${figur(gast.farbe, 15)}bei ${esc(gast.name)}` : ''}${t.ort ? `${gast ? ', ' : ''}${esc(t.ort)}` : ''}</p>
+      ${t.notiz ? `<p class="termin-notiz">${esc(t.notiz)}</p>` : ''}
+      ${fest ? `<div class="fest-karte"><b>${esc(terminZeitText(fest.zeit))}</b><br><span class="text-leise text-klein">Der Termin steht fest.</span></div>` : ''}
+      ${meine && !fest ? '<p class="block-hinweis" style="margin:0 0 4px">Tippe deine Namen an: ✓ kann, ? vielleicht, ✗ kann nicht.</p>' : ''}
+      ${optionen || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
+      <div class="termin-knoepfe">
+        ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
+                  <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
+               : `<button class="knopf zweit" type="button" data-t="teilen" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>
+                  ${darf ? `<button class="knopf" type="button" data-t="festlegen" data-id="${esc(t.id)}">Termin festlegen</button>` : ''}`}
+        ${darf && fest ? `<button class="knopf rahmen" type="button" data-t="oeffnen" data-id="${esc(t.id)}">Wieder öffnen</button>` : ''}
+        ${darf ? `<button class="knopf rahmen" type="button" data-t="bearbeiten" data-id="${esc(t.id)}">${ic('stift')}Bearbeiten</button>
+                  <button class="knopf gefahr" type="button" data-t="loeschen" data-id="${esc(t.id)}">${ic('muell')}Löschen</button>` : ''}
+      </div>
+    </div></details>`;
+}
+function terminKlick(e){
+  const b = e.target.closest('[data-t]'); if (!b) return;
+  const was = b.dataset.t, t = D.termine[b.dataset.id];
+  if (was === 'neu') return terminFormular();
+  if (!t) return;
+  if (was === 'stimme') return stimmeSetzen(t, b.dataset.opt, b.dataset.pid);
+  if (was === 'teilen') return teilenSheet('Einladung teilen', terminEinladungText(t));
+  if (was === 'teilen-fest') return teilenSheet('Termin teilen', terminFestText(t));
+  if (was === 'kalender') return kalenderDatei(t);
+  if (was === 'festlegen') return terminFestlegen(t);
+  if (was === 'oeffnen') return terminWiederOeffnen(t);
+  if (was === 'bearbeiten') return terminFormular(t);
+  if (was === 'loeschen') return terminLoeschen(t);
+}
+function stimmeSetzen(t, optId, pid){
+  const g = meineTerminGruppe(t);
+  if (!g || t.festgelegt || !g.leute.some(p => p.pid === pid)) return;
+  const key = `${optId}|${pid}`, alt = (t.stimmen[key] || {}).a || '';
+  t.stimmen[key] = { a:ANTWORTEN[(ANTWORTEN.indexOf(alt) + 1) % ANTWORTEN.length], stand:Date.now() };
+  markiereT(t.id, 'abgestimmt'); speichern(); renderTermine(); syncBald();
+}
+
+/* Texte zum Verschicken */
+function terminLink(t){
+  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : `https://${E.owner}.github.io/${E.repo}/`;
+  return `${basis}#termin=${t.id}`;
+}
+function terminWo(t){ const gast = D.haushalte[t.gastgeber]; return [gast ? `bei ${gast.name}` : '', t.ort].filter(Boolean).join(', '); }
+function terminEinladungText(t){
+  return [
+    `🎲 ${t.titel} – wann habt ihr Zeit?`,
+    terminWo(t) ? `📍 ${terminWo(t)}` : '',
+    '',
+    'Zur Auswahl:',
+    ...t.optionen.map((o, i) => `${i + 1}. ${terminZeitText(o.zeit)}`),
+    t.notiz ? `\n${t.notiz}` : '',
+    '',
+    'Bitte in der Spieleabend-App unter „Termine“ für jeden von euch abstimmen (✓ kann, ? vielleicht, ✗ kann nicht).',
+    `👉 ${terminLink(t)}`
+  ].filter((z, i, a) => z !== '' || (a[i - 1] !== '' && i > 0)).join('\n');
+}
+function terminFestText(t){
+  const o = t.optionen.find(x => x.id === t.festgelegt); if (!o) return '';
+  const w = optionAuswertung(t, o);
+  return [
+    `🎲 Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
+    w.namen.ja.length ? `Dabei: ${w.namen.ja.join(', ')}` : '',
+    'Wir freuen uns!',
+    `👉 ${terminLink(t)}`
+  ].filter(Boolean).join('\n');
+}
+async function teilen(text){
+  if (navigator.share){
+    try{ await navigator.share({ title:'Spieleabend', text }); return true; }catch(e){ if (e.name === 'AbortError') return false; }
+  }
+  try{ await navigator.clipboard.writeText(text); toast('Text kopiert – jetzt in WhatsApp einfügen'); return true; }
+  catch(e){ return false; }
+}
+function teilenSheet(titel, text){
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(titel)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Dieser Text geht zum Beispiel per WhatsApp an alle:</p>
+    <textarea class="eingabe" readonly style="min-height:200px;font-size:14.5px">${esc(text)}</textarea>
+    <button class="knopf breit" type="button" data-senden style="margin-top:12px">${ic('teilen')}Jetzt teilen</button>`);
+  $('[data-senden]', s).addEventListener('click', async () => {
+    if (await teilen(text)) s.schliessen();
+    else { const f = $('textarea', s); f.focus(); f.select(); toast('Bitte den Text markieren und kopieren.'); }
+  });
+}
+
+/* Anlegen und bearbeiten */
+function naechsterSamstag(){
+  const d = new Date(); d.setDate(d.getDate() + (((6 - d.getDay()) + 7) % 7 || 7));
+  return `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}T19:00`;
+}
+function eineWocheSpaeter(z){
+  const d = new Date(z); d.setDate(d.getDate() + 7);
+  return `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}T${zwei(d.getHours())}:${zwei(d.getMinutes())}`;
+}
+function terminFormular(t){
+  const neu = !t;
+  if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
+  if (!neu && !darfTermin(t)) return;
+  const sichtbar = haushaltListe();
+  const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id,
+    haushalte:sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }] };
+  const kreise = meineKreise();
+  const zeile = o => `<div class="zeit-reihe" data-zeile="${esc(o.id)}"><input class="eingabe" type="datetime-local" value="${esc(o.zeit)}" data-zeit>
+    <button class="knopf-rund" type="button" data-weg-zeit aria-label="Termin entfernen">${ic('x')}</button></div>`;
+  const s = sheet(`<form novalidate>
+    <div class="sheet-kopf"><h2>${neu ? 'Spieleabend planen' : 'Termine bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <label class="feld"><span class="feld-titel">Titel</span><input class="eingabe" name="titel" value="${esc(w.titel)}" maxlength="60" autocomplete="off"></label>
+    ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Gastgeber</span>${figurChipsHtml('gastgeber', [w.gastgeber], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
+    <label class="feld"><span class="feld-titel">Ort (wenn nötig)</span><input class="eingabe" name="ort" value="${esc(w.ort)}" maxlength="80" placeholder="z. B. im Gemeinschaftsraum" autocomplete="off"></label>
+    <div class="feld"><span class="feld-titel">Mögliche Termine</span>
+      <div data-zeiten>${w.optionen.map(zeile).join('')}</div>
+      <button class="knopf zweit breit" type="button" data-mehr>${ic('plus')}Weiteren Termin</button></div>
+    ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Wer ist eingeladen?</span>
+      ${kreise.length ? `<p class="text-leise text-klein" style="margin:0 0 6px">Spielkreis:</p>${chipsHtml('t-kreis', kreise.map(k => ({ w:k.id, t:k.name })), [], { mehrfach:false })}<div style="height:10px"></div>` : ''}
+      ${figurChipsHtml('eingeladen', w.haushalte.length ? w.haushalte : sichtbar.map(h => h.id), { liste:sichtbar })}</div>` : ''}
+    <label class="feld"><span class="feld-titel">Notiz (wenn nötig)</span><textarea class="eingabe" name="notiz" maxlength="300" placeholder="z. B. Jeder bringt ein Spiel mit.">${esc(w.notiz)}</textarea></label>
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">${neu ? 'Anlegen' : 'Speichern'}</button></div>
+  </form>`, { klasse:'gross' });
+  const form = $('form', s), zeiten = $('[data-zeiten]', s);
+  const zeilenPruefen = () => $$('[data-weg-zeit]', zeiten).forEach(b => b.style.visibility = $$('[data-zeile]', zeiten).length > 1 ? 'visible' : 'hidden');
+  zeilenPruefen();
+  $('[data-mehr]', s).addEventListener('click', () => {
+    if ($$('[data-zeile]', zeiten).length >= 10){ toast('Höchstens 10 Termine.', 'fehler'); return; }
+    const werte = $$('[data-zeit]', zeiten).map(x => x.value).filter(zeitGueltig).sort();
+    zeiten.insertAdjacentHTML('beforeend', zeile({ id:neueId('o'), zeit:werte.length ? eineWocheSpaeter(werte[werte.length - 1]) : naechsterSamstag() }));
+    zeilenPruefen();
+  });
+  zeiten.addEventListener('click', e => { const b = e.target.closest('[data-weg-zeit]'); if (b && $$('[data-zeile]', zeiten).length > 1){ b.closest('[data-zeile]').remove(); zeilenPruefen(); } });
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe === 'eingeladen'){ $$('[data-gruppe="t-kreis"] .chip', s).forEach(c => c.setAttribute('aria-pressed', 'false')); return; }
+    if (e.target.dataset.gruppe !== 't-kreis') return;
+    const k = kreise.find(x => x.id === e.detail[0]); if (!k) return;
+    $$('[data-gruppe="eingeladen"] .chip', s).forEach(c => c.setAttribute('aria-pressed', k.haushalte.includes(c.dataset.wert)));
+  });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const jetzt = Date.now();
+    const zeilen = $$('[data-zeile]', zeiten).map(z => ({ id:z.dataset.zeile, zeit:$('[data-zeit]', z).value.slice(0, 16) })).filter(x => zeitGueltig(x.zeit));
+    if (!zeilen.length){ toast('Bitte mindestens einen Termin mit Datum und Uhrzeit eintragen.', 'fehler'); return; }
+    const gg = $('[data-gruppe="gastgeber"]', s), ein = $('[data-gruppe="eingeladen"]', s);
+    const gastgeber = gg ? gewaehlteChips(gg)[0] : w.gastgeber;
+    let haushalte = ein ? gewaehlteChips(ein) : sichtbar.map(h => h.id);
+    for (const id of w.haushalte) if (!sichtbar.some(h => h.id === id) && !haushalte.includes(id)) haushalte.push(id);   // hier nicht sichtbare bleiben eingeladen
+    for (const pflicht of [gastgeber, E.meinHaushalt]) if (pflicht && D.haushalte[pflicht] && !haushalte.includes(pflicht)) haushalte.push(pflicht);
+    const alteOpt = new Map(w.optionen.map(o => [o.id, o]));
+    const optionen = zeilen.map(z => { const alt = alteOpt.get(z.id); return { id:z.id, zeit:z.zeit, stand:alt && alt.zeit === z.zeit ? alt.stand : jetzt }; });
+    const geloescht = { ...(w.geloescht || {}) };
+    for (const o of w.optionen) if (!optionen.some(x => x.id === o.id)) geloescht[o.id] = jetzt;
+    const id = neu ? neueId('t') : w.id;
+    const fertig = terminNorm({
+      ...w, id, titel:feldVon(form, 'titel').value.trim() || 'Spieleabend', ort:feldVon(form, 'ort').value.trim(), notiz:feldVon(form, 'notiz').value.trim(),
+      gastgeber, haushalte, optionen, geloescht, stand:jetzt,
+      erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : gastgeber) : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
+      festgelegt:w.festgelegt && optionen.some(o => o.id === w.festgelegt) ? w.festgelegt : '', festStand:w.festStand || 0
+    });
+    D.termine[id] = fertig;
+    markiereT(id, neu ? 'Termine vorgeschlagen' : 'Termine geändert');
+    KL['termin-' + id] = true; schreiben(LS.klapp, KL);
+    speichern(); s.schliessen(); renderAlles(); syncBald();
+    if (neu) setTimeout(() => teilenSheet('Einladung verschicken', terminEinladungText(fertig)), 260);
+    else toast('Gespeichert');
+  });
+}
+function terminFestlegen(t){
+  if (!darfTermin(t)) return;
+  const s = sheet(`<div class="sheet-kopf"><h2>Termin festlegen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Welcher Termin soll es werden?</p>
+    <div style="display:flex;flex-direction:column;gap:8px">${t.optionen.map(o => { const w = optionAuswertung(t, o);
+      return `<button class="treffer" type="button" data-wahl="${esc(o.id)}"><span class="treffer-text"><b>${esc(terminZeitText(o.zeit))}</b><span>${w.ja} ja, ${w.vl} vielleicht, ${w.nein} nein</span></span></button>`; }).join('')}</div>`);
+  s.addEventListener('click', e => {
+    const b = e.target.closest('[data-wahl]'); if (!b) return;
+    t.festgelegt = b.dataset.wahl; t.festStand = Date.now();
+    markiereT(t.id, 'Termin festgelegt'); speichern(); s.schliessen(); renderAlles(); syncBald();
+    setTimeout(() => teilenSheet('Allen Bescheid geben', terminFestText(t)), 260);
+  });
+}
+function terminWiederOeffnen(t){
+  if (!darfTermin(t)) return;
+  t.festgelegt = ''; t.festStand = Date.now();
+  markiereT(t.id, 'Abstimmung wieder geöffnet'); speichern(); renderAlles(); syncBald(); toast('Abstimmung ist wieder offen');
+}
+async function terminLoeschen(t){
+  if (!darfTermin(t)) return;
+  if (!await frage(`„${t.titel}“ löschen?`, 'Die Umfrage mit allen Stimmen verschwindet auf allen Geräten.', 'Löschen')) return;
+  const m = D.metaT[t.id] || {};
+  if (m.aufServer){
+    if (!E.token){ toast('Zum Löschen braucht diese App den Schlüssel.', 'fehler'); return; }
+    try{
+      const r = await gh('GET', `/contents/${terminDatei(t.id)}?ref=${encodeURIComponent(E.branch)}`);
+      if (r.ok){
+        const j = await r.json();
+        const d = await gh('DELETE', `/contents/${terminDatei(t.id)}`, { message:`${t.titel}: Umfrage gelöscht`, sha:j.sha, branch:E.branch });
+        if (!d.ok && d.status !== 404) throw await fehlerAus(d, 'Löschen');
+      } else if (r.status !== 404) throw await fehlerAus(r, 'Löschen');
+    }catch(e){ toast(e.message, 'fehler'); return; }
+  }
+  delete D.termine[t.id]; delete D.metaT[t.id];
+  speichern(); renderAlles(); toast('Umfrage gelöscht');
+}
+function kalenderDatei(t){
+  const o = t.optionen.find(x => x.id === t.festgelegt); if (!o) return;
+  const fmt = d => `${d.getFullYear()}${zwei(d.getMonth() + 1)}${zwei(d.getDate())}T${zwei(d.getHours())}${zwei(d.getMinutes())}00`;
+  const start = new Date(o.zeit), ende = new Date(start.getTime() + 3 * 3600e3);
+  const icsText = v => String(v || '').replace(/\\/g, '\\\\').replace(/[,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const jetzt = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Spieleabend//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    `UID:${t.id}-${o.id}@spieleabend`, `DTSTAMP:${jetzt}`, `DTSTART:${fmt(start)}`, `DTEND:${fmt(ende)}`,
+    `SUMMARY:${icsText(t.titel)}`, `LOCATION:${icsText(terminWo(t))}`, `DESCRIPTION:${icsText([t.notiz, terminLink(t)].filter(Boolean).join('\n'))}`,
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' }));
+  a.download = `spieleabend-${o.zeit.slice(0, 10)}.ics`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+/* Link aus der Einladung in einem Browser, in dem die App nicht eingerichtet ist (z. B. iPhone: WhatsApp öffnet Safari, nicht die App) */
+function terminLinkOhneApp(){
+  const s = sheet(`<div class="sheet-kopf"><h2>Abstimmen in der App</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p style="margin-top:-4px">Die Umfrage findest du in deiner <b>Spieleabend-App</b>:</p>
+    <ul style="padding-left:20px;margin:8px 0 12px;line-height:1.5">
+      <li><b>iPhone / iPad:</b> Diese Seite schließen, die App über ihr Symbol auf dem Home-Bildschirm öffnen und unten auf <b>Termine</b> tippen. Links aus WhatsApp öffnen sich nämlich in Safari, nicht in der App.</li>
+      <li style="margin-top:6px"><b>Android:</b> Die App über ihr Symbol öffnen und unten auf <b>Termine</b> tippen.</li></ul>
+    <p class="text-leise">Noch keine App? Dann zuerst den Einladungslink öffnen, den du bekommen hast.</p>
+    <button class="knopf rahmen breit" type="button" data-link style="margin-top:6px">Einladungslink einfügen</button>`);
+  $('[data-link]', s).addEventListener('click', () => { s.schliessen(); setTimeout(willkommen, 260); });
+}
+/* Link „…#termin=<id>“ öffnet die Termine und klappt die Umfrage auf */
+function terminLinkPruefen(){
+  const m = /termin=([A-Za-z0-9_-]+)/.exec(location.hash || ''); if (!m) return;
+  KL['termin-' + m[1]] = true; schreiben(LS.klapp, KL);
+  if (istStandalone()) history.replaceState(null, '', location.pathname + location.search);
+  seiteZeigen('termine');
+  setTimeout(() => { const el = document.getElementById('termin-' + m[1]); if (el) el.scrollIntoView({ block:'start' }); }, 400);
+}
+
 /* ---------- Seite: Haushalte ---------- */
 function renderHaushalte(){
   const el = $('#haushalte-inhalt');
@@ -2160,7 +2629,8 @@ function renderEinstellungen(){
 const HILFE = [
   { id:'ueberblick', titel:'So funktioniert der Spieleabend', text:`
     <p>Jeder Haushalt trägt seine Spiele mit Foto ein. Alle Geräte gleichen sich automatisch über GitHub ab.</p>
-    <p>Beim Spieleabend sagt ihr der App unter <b>Spielrunde</b>, wie viele ihr seid und wer mitspielt. Sie zeigt, welche Spiele passen – und würfelt auf Wunsch eins aus.</p>` },
+    <p>Beim Spieleabend sagt ihr der App unter <b>Spielrunde</b>, wie viele ihr seid und wer mitspielt. Sie zeigt, welche Spiele passen – und würfelt auf Wunsch eins aus.</p>
+    <p>Unter <b>Termine</b> verabredet ihr euch: Termine vorschlagen, jeder stimmt in der App ab, dann steht der Abend fest.</p>` },
   { id:'spiele', titel:'Spiel eintragen', seite:'spiele', text:`
     <ul><li>Unten rechts auf <b>+</b> tippen.</li>
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
@@ -2177,6 +2647,14 @@ const HILFE = [
     <li><b>Weitere Wünsche</b>: verfügbare Zeit und Art des Spiels.</li>
     <li>Hat mehr als ein Haushalt dasselbe Spiel, erscheint es nur einmal – mit allen Spielfiguren.</li>
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
+  { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', text:`
+    <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Gastgeber, mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
+    <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen und einem Link – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
+    <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
+    <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
+    <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
+    <li>Die rote Zahl am Reiter <b>Termine</b> zeigt, wo dein Haushalt noch nicht abgestimmt hat.</li>
+    <li>Eine Umfrage sehen nur die eingeladenen Haushalte. Vergangene Abende rutschen nach unten unter <b>Vergangene Spieleabende</b>.</li></ul>` },
   { id:'haushalte', titel:'Haushalte und weitere Geräte', seite:'haushalte', text:`
     <p>Jeder Haushalt hat eine Spielfigur in eigener Farbe. Antippen klappt ihn auf: Mitspieler, Spiele, Name &amp; Farbe ändern, löschen.</p>
     <p><b>Mitspieler</b>: Über <b>+ Mitspieler</b> trägst du die Namen ein – mehrere auf einmal mit Komma getrennt. Einen Namen antippen, um ihn zu ändern oder zu entfernen.</p>
@@ -2247,6 +2725,17 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.50', datum:'23.10.2026', neu:[
+    'Neuer Bereich „Termine“: Spieleabend planen, mehrere Termine vorschlagen und die Einladung per WhatsApp &amp; Co. verschicken',
+    'Jede Person stimmt einzeln ab (✓ kann, ? vielleicht, ✗ kann nicht) – die App zeigt die beste Wahl',
+    'Jeder Haushalt kann einladen; festlegen, ändern und löschen dürfen der Einladende und der Admin',
+    'Festgelegter Termin: „In den Kalender“ und Text „Es steht fest …“ zum Teilen',
+    'Rote Zahl am Reiter „Termine“, solange dein Haushalt noch nicht abgestimmt hat'] },
+  { v:'v1.46', datum:'23.10.2026', neu:[
+    'Einladung mit Schritt-für-Schritt-Anleitung: iPhone/iPad mit Safari, Android mit Chrome',
+    'Hinweis zum Installieren jetzt auch auf Android – mit Knopf „Installieren“, wo Chrome das anbietet'] },
+  { v:'v1.45', datum:'23.10.2026', neu:[
+    'Fernabmeldung wirkt jetzt auch bei geöffneter App – nach etwa 20 Sekunden, ohne Neustart'] },
   { v:'v1.44', datum:'23.10.2026', neu:[
     'Admin-Geräte: Der Admin sieht, auf welchen Geräten er angemeldet ist',
     'Andere Geräte lassen sich aus der Ferne als Admin abmelden – einzeln oder alle auf einmal'] },
@@ -2433,6 +2922,19 @@ function adminAustragen(id){
   V.adminGeraete = V.adminGeraete.filter(x => x.id !== id);
   V.geloescht[id] = Date.now();
 }
+/* Auf Admin-Geräten alle 20 Sekunden kurz nachsehen, ob sich die Verwaltung geändert hat (z. B. Fernabmeldung).
+   Das ist nur ein kleiner Abruf; nur wenn sich etwas geändert hat, folgt ein richtiger Abgleich. */
+const ADMIN_PRUEF_MS = 20000;
+let adminWacheLaeuft = false;
+async function adminWache(){
+  if (!E.admin || !E.token || S.laeuft || adminWacheLaeuft || document.visibilityState !== 'visible' || navigator.onLine === false) return;
+  adminWacheLaeuft = true;
+  try{
+    const r = await fetch(api(`/contents/${V_DATEI}?ref=${encodeURIComponent(E.branch)}`), { headers:{ ...kopfzeilen() }, cache:'no-store' });
+    if (r.ok){ const j = await r.json(); if (j.sha && j.sha !== D.metaV.sha) sync('Admin-Prüfung'); }
+  }catch(e){ /* beim nächsten Mal wieder */ }
+  finally{ adminWacheLaeuft = false; }
+}
 /* Nach jedem Abgleich: Wurde dieses Gerät aus der Ferne abgemeldet? Ältere Anmeldungen (vor v1.44) tragen sich ein. */
 function adminSitzungPruefen(){
   if (!E.admin) return;
@@ -2477,7 +2979,7 @@ async function verwaltungAktion(was, kreisId){
   }
   if (was === 'fern-ab' && E.admin && kreisId){
     const g = V.adminGeraete.find(x => x.id === kreisId); if (!g) return;
-    if (!await frage(`${g.name} abmelden?`, 'Das Gerät ist beim nächsten Abgleich kein Admin mehr – meist sofort, spätestens wenn die App dort wieder geöffnet wird.', 'Abmelden')) return;
+    if (!await frage(`${g.name} abmelden?`, 'Ist die App dort gerade offen, ist das Gerät in etwa 20 Sekunden kein Admin mehr – sonst beim nächsten Öffnen.', 'Abmelden')) return;
     adminAustragen(kreisId); aendern(`${g.name} als Admin abgemeldet`); toast('Abmeldung wird verschickt');
   }
   if (was === 'fern-alle' && E.admin){
@@ -2526,13 +3028,30 @@ async function verbindungSpeichern(){
   }catch(e){ toast(e.message, 'fehler'); }
   renderAlles();
 }
+function einladungsText(){
+  return [
+    '🎲 Hier ist unsere Spieleabend-App!',
+    '',
+    '📱 iPhone / iPad (mit Safari):',
+    '1. Den Link unten antippen. Er muss in Safari aufgehen – öffnet er sich in WhatsApp oder einem anderen Browser, dort „In Safari öffnen“ wählen.',
+    '2. In Safari auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben). Bei neueren iPhones steckt es hinter „•••“.',
+    '3. „Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.',
+    '',
+    '🤖 Android (mit Chrome):',
+    '1. Den Link unten antippen und in Chrome öffnen.',
+    '2. Oben rechts auf die drei Punkte ⋮ tippen.',
+    '3. „Zum Startbildschirm hinzufügen“ oder „App installieren“ wählen und bestätigen.',
+    '',
+    'Danach die App immer über das neue Symbol öffnen. Fragt sie beim ersten Start nach der Einladung: diesen Link noch einmal lang drücken, kopieren und in das Feld einfügen.'
+  ].join('\n');
+}
 async function einladen(){
   const link = einladungsLink();
-  const text = 'Hier ist unsere Spieleabend-App. Link öffnen, dann über „Teilen“ → „Zum Home-Bildschirm“ als App speichern. Fragt die App nach dem Link, ihn einfach noch einmal einfügen.';
+  const text = einladungsText();
   if (navigator.share){
     try{ await navigator.share({ title:'Spieleabend', text, url:link }); return; }catch(e){ if (e.name === 'AbortError') return; }
   }
-  try{ await navigator.clipboard.writeText(`${text}\n${link}`); toast('Einladung kopiert – jetzt in WhatsApp einfügen'); }
+  try{ await navigator.clipboard.writeText(`${text}\n\n${link}`); toast('Einladung kopiert – jetzt in WhatsApp einfügen'); }
   catch(e){
     const s = sheet(`<div class="sheet-kopf"><h2>Einladungslink</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
       <p class="text-leise">Link markieren und kopieren:</p><textarea class="eingabe" readonly style="min-height:120px;font-size:13px">${esc(link)}</textarea>`);
@@ -2540,7 +3059,7 @@ async function einladen(){
   }
 }
 function sicherungHerunterladen(){
-  const daten = { format:'spieleabend-sicherung', version:VERSION, erstellt:new Date().toISOString(), haushalte:Object.values(D.haushalte).map(dateiForm), verwaltung:verwaltungNorm(D.verwaltung) };
+  const daten = { format:'spieleabend-sicherung', version:VERSION, erstellt:new Date().toISOString(), haushalte:Object.values(D.haushalte).map(dateiForm), verwaltung:verwaltungNorm(D.verwaltung), termine:Object.values(D.termine).map(terminNorm) };
   const blob = new Blob([JSON.stringify(daten, null, 1)], { type:'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `spieleabend-sicherung-${new Date().toISOString().slice(0,10)}.json`;
@@ -2559,6 +3078,11 @@ async function sicherungEinspielen(datei){
       markiere(h.id, 'aus Sicherung eingespielt'); n++;
     }
     if (j.verwaltung && typeof j.verwaltung === 'object'){ D.verwaltung = verwaltungMischen(D.verwaltung, j.verwaltung); markiereV('Spielkreise aus Sicherung'); }
+    for (const roh of (Array.isArray(j.termine) ? j.termine : [])){
+      if (!roh || !roh.id) continue;
+      D.termine[roh.id] = D.termine[roh.id] ? terminMischen(D.termine[roh.id], roh) : terminNorm(roh);
+      markiereT(roh.id, 'aus Sicherung eingespielt');
+    }
     speichern(); renderAlles(); syncBald();
     toast(`${n} Haushalt${n === 1 ? '' : 'e'} eingespielt`);
   }catch(e){ toast(e.message || 'Die Datei ließ sich nicht lesen.', 'fehler'); }
@@ -2569,6 +3093,8 @@ async function allesNeuLaden(){
   for (const id of Object.keys(D.haushalte)) if (!(D.meta[id] || {}).dirty){ delete D.haushalte[id]; delete D.meta[id]; }
   for (const m of Object.values(D.meta)) m.sha = null;
   D.metaV.sha = null;
+  for (const id of Object.keys(D.termine)) if (!(D.metaT[id] || {}).dirty){ delete D.termine[id]; delete D.metaT[id]; }
+  for (const m of Object.values(D.metaT)) m.sha = null;
   speichern(); renderAlles(); await sync('von Hand');
 }
 
@@ -2652,13 +3178,28 @@ function updateHinweis(neu){
     <button class="knopf" type="button" id="update-laden" style="min-height:38px;padding:0 14px;flex:none">Jetzt laden</button></div>`;
   $('#update-laden').addEventListener('click', () => location.reload());
 }
+let installAngebot = null;            // Android/Chrome: eigenes „Installieren“-Angebot des Browsers
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installAngebot = e; installHinweis(); });
 function installHinweis(){
-  const el = $('#install-hinweis');
-  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (!ios || istStandalone() || lesen(LS.hinweis, false)){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="hinweis install"><p>Tipp: Über <b>Teilen</b> → <b>Zum Home-Bildschirm</b> wird der Spieleabend zur App auf deinem iPhone.</p>
+  const el = $('#install-hinweis'); if (!el) return;
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  if ((!ios && !android && !installAngebot) || istStandalone() || lesen(LS.hinweis, false)){ el.innerHTML = ''; return; }
+  const text = ios
+    ? 'So wird der Spieleabend zur App: In <b>Safari</b> auf <b>Teilen</b> tippen (Quadrat mit Pfeil – bei neueren iPhones hinter <b>•••</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.'
+    : installAngebot ? 'Den Spieleabend als App auf den Startbildschirm holen?'
+    : 'So wird der Spieleabend zur App: In <b>Chrome</b> oben rechts auf <b>⋮</b> tippen, dann <b>Zum Startbildschirm hinzufügen</b> oder <b>App installieren</b>.';
+  el.innerHTML = `<div class="hinweis install"><p>${text}</p>
+    ${installAngebot ? '<button class="knopf" type="button" id="install-ja" style="min-height:38px;padding:0 14px;flex:none">Installieren</button>' : ''}
     <button class="knopf-rund" type="button" aria-label="Hinweis ausblenden" id="install-zu">${ic('x')}</button></div>`;
   $('#install-zu').addEventListener('click', () => { schreiben(LS.hinweis, true); el.innerHTML = ''; });
+  const ja = $('#install-ja');
+  if (ja) ja.addEventListener('click', async () => {
+    const angebot = installAngebot; installAngebot = null;
+    try{ angebot.prompt(); await angebot.userChoice; }catch(e){}
+    installHinweis();
+  });
 }
 
 /* ---------- Navigation & Verdrahtung ---------- */
@@ -2676,9 +3217,11 @@ function renderSeite(name){
   if (name === 'runde') renderRunde();
   if (name === 'haushalte') renderHaushalte();
   if (name === 'einstellungen') renderEinstellungen();
+  if (name === 'termine') renderTermine();
 }
 function renderAlles(){
   renderSpiele();
+  termineZahlZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
@@ -2749,13 +3292,15 @@ function verdrahten(){
   });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
-    if (Date.now() - S.letzter > 60000) sync('App geöffnet');
+    if (Date.now() - S.letzter > 60000) sync('App geöffnet'); else adminWache();
     updatePruefen();
   });
   addEventListener('online', () => sync('wieder online'));
   addEventListener('offline', statusZeigen);
-  addEventListener('hashchange', () => { if (einladungPruefen()){ renderAlles(); sync('Einladung'); } });
+  addEventListener('hashchange', () => { if (einladungPruefen()){ renderAlles(); sync('Einladung'); } terminLinkPruefen(); });
+  $('#termine-inhalt').addEventListener('click', terminKlick);
   setInterval(() => { if (document.visibilityState === 'visible') sync('regelmäßig'); }, 5 * 60 * 1000);
+  setInterval(adminWache, ADMIN_PRUEF_MS);
 }
 
 function start(){
@@ -2764,7 +3309,8 @@ function start(){
   verdrahten();
   installHinweis();
   seiteZeigen('spiele');
-  if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(willkommen, 350);
+  terminLinkPruefen();
+  if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(/termin=/.test(location.hash) ? terminLinkOhneApp : willkommen, 350);
   sync(eingeladen ? 'Einladung' : 'Start');
   setTimeout(updatePruefen, 2500);
 }
