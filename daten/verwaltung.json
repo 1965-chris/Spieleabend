@@ -8,8 +8,10 @@
   {
    "id": "kmvl9j0zyt6wq",
    "name": "Spieleabend Baumberg",
-   "haushalte": [],
-   "stand": 1792785824650
+   "haushalte": [
+    "hmvl3fteujlp7"
+   ],
+   "stand": 1792786105525
   },
   {
    "id": "kmvl9jqd69inu",
