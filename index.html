@@ -537,7 +537,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.50';
+const VERSION = 'v1.51';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2180,10 +2180,6 @@ function stimmeSetzen(t, optId, pid){
 }
 
 /* Texte zum Verschicken */
-function terminLink(t){
-  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : `https://${E.owner}.github.io/${E.repo}/`;
-  return `${basis}#termin=${t.id}`;
-}
 function terminWo(t){ const gast = D.haushalte[t.gastgeber]; return [gast ? `bei ${gast.name}` : '', t.ort].filter(Boolean).join(', '); }
 function terminEinladungText(t){
   return [
@@ -2194,8 +2190,7 @@ function terminEinladungText(t){
     ...t.optionen.map((o, i) => `${i + 1}. ${terminZeitText(o.zeit)}`),
     t.notiz ? `\n${t.notiz}` : '',
     '',
-    'Bitte in der Spieleabend-App unter „Termine“ für jeden von euch abstimmen (✓ kann, ? vielleicht, ✗ kann nicht).',
-    `👉 ${terminLink(t)}`
+    'Bitte in der Spieleabend-App unter „Termine“ für jeden von euch abstimmen (✓ kann, ? vielleicht, ✗ kann nicht).'
   ].filter((z, i, a) => z !== '' || (a[i - 1] !== '' && i > 0)).join('\n');
 }
 function terminFestText(t){
@@ -2204,8 +2199,7 @@ function terminFestText(t){
   return [
     `🎲 Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
     w.namen.ja.length ? `Dabei: ${w.namen.ja.join(', ')}` : '',
-    'Wir freuen uns!',
-    `👉 ${terminLink(t)}`
+    'Wir freuen uns!'
   ].filter(Boolean).join('\n');
 }
 async function teilen(text){
@@ -2348,7 +2342,7 @@ function kalenderDatei(t){
   const jetzt = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Spieleabend//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
     `UID:${t.id}-${o.id}@spieleabend`, `DTSTAMP:${jetzt}`, `DTSTART:${fmt(start)}`, `DTEND:${fmt(ende)}`,
-    `SUMMARY:${icsText(t.titel)}`, `LOCATION:${icsText(terminWo(t))}`, `DESCRIPTION:${icsText([t.notiz, terminLink(t)].filter(Boolean).join('\n'))}`,
+    `SUMMARY:${icsText(t.titel)}`, `LOCATION:${icsText(terminWo(t))}`, ...(t.notiz ? [`DESCRIPTION:${icsText(t.notiz)}`] : []),
     'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' }));
@@ -2649,7 +2643,7 @@ const HILFE = [
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
   { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', text:`
     <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Gastgeber, mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
-    <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen und einem Link – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
+    <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
     <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
     <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
     <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
@@ -2725,6 +2719,8 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.51', datum:'23.10.2026', neu:[
+    'Einladungstext, „Es steht fest …“ und Kalendereintrag ohne Link – die GitHub-Adresse bleibt unter euch'] },
   { v:'v1.50', datum:'23.10.2026', neu:[
     'Neuer Bereich „Termine“: Spieleabend planen, mehrere Termine vorschlagen und die Einladung per WhatsApp &amp; Co. verschicken',
     'Jede Person stimmt einzeln ab (✓ kann, ? vielleicht, ✗ kann nicht) – die App zeigt die beste Wahl',
