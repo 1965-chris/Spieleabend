@@ -1,0 +1,17 @@
+{
+ "format": 1,
+ "app": "v1.50",
+ "id": "hmvlf82o4u91q",
+ "name": "F",
+ "farbe": "#EB7A2F",
+ "stand": 1792787223172,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmvlf82o55swt",
+   "name": "Familie Mättig / Tipp Haan",
+   "stand": 1792787223173
+  }
+ ],
+ "geloescht": {}
+}
