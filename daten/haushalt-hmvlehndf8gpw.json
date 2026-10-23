@@ -1,0 +1,22 @@
+{
+ "format": 1,
+ "app": "v1.50",
+ "id": "hmvlehndf8gpw",
+ "name": "Familie Wodarz Baumberg",
+ "farbe": "#E0A100",
+ "stand": 1792785990292,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmvlehndgkxwl",
+   "name": "Anke",
+   "stand": 1792785990292
+  },
+  {
+   "id": "pmvlehndgo9xg",
+   "name": "Jörg",
+   "stand": 1792785990292
+  }
+ ],
+ "geloescht": {}
+}
