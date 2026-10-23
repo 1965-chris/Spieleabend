@@ -1,0 +1,21 @@
+{
+ "format": 1,
+ "id": "hmvl9u7o6tmzz",
+ "name": "Familie Wodarz",
+ "farbe": "#D64545",
+ "stand": 1792778178390,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmvl9u7o7a8up",
+   "name": "Anke",
+   "stand": 1792778178391
+  },
+  {
+   "id": "pmvl9u7o7tco8",
+   "name": "Jörg",
+   "stand": 1792778178391
+  }
+ ],
+ "geloescht": {}
+}
