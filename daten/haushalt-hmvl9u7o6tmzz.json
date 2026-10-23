@@ -4,7 +4,26 @@
  "name": "Familie Wodarz",
  "farbe": "#D64545",
  "stand": 1792778178390,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smvlaa24wphp0",
+   "name": "Monopoly",
+   "bild": "bilder/smvlaa24wphp0-mvlaa24w.jpg",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Monopoly (englisch für „Monopol“) ist ein US-amerikanisches Brettspiel. Ziel des Spiels ist es, ein Grundstücksimperium aufzubauen und alle anderen Mitspieler in die Insolvenz zu treiben. Dazu erwirbt man möglichst viele Besitzrechte, um von den Mitspielern Mieten zu erhalten, wenn diese durch Würfeln auf gewissen Feldern landen.\nVon Elizabeth Magie,, Charles Darrow, erschienen 1933 bei Eigenverlag (ca. 1933),.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Parker Brothers, Public domain, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Monopoly",
+   "erstellt": 1792778917712,
+   "geaendert": 1792778917712
+  }
+ ],
  "spieler": [
   {
    "id": "pmvl9u7o7a8up",
