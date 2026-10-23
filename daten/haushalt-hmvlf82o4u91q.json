@@ -8,11 +8,6 @@
  "spiele": [],
  "spieler": [
   {
-   "id": "pmvlf82o55swt",
-   "name": "Familie Mättig / Tipp Haan",
-   "stand": 1792787223173
-  },
-  {
    "id": "pmvlf8xro0ld8",
    "name": "Magnus",
    "stand": 1792787263476
@@ -23,5 +18,7 @@
    "stand": 1792787263476
   }
  ],
- "geloescht": {}
+ "geloescht": {
+  "pmvlf82o55swt": 1792787383350
+ }
 }
