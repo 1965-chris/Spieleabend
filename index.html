@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1F3F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12161C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spieleabend">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Spieleabend</title>
+<style>
+:root{
+  --grund:#F1F3F0; --karte:#FFFFFF; --tinte:#1C2230; --leise:#5E6776; --linie:#DADFD7;
+  --filz:#1E6B52; --filz-hell:#E2EEE8; --filz-tinte:#FFFFFF;
+  --gelb:#F2B705; --gelb-tinte:#2A2200; --rot:#C93C3C;
+  --schatten:0 1px 2px rgba(20,30,25,.06), 0 6px 18px rgba(20,30,25,.07);
+  --rund: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --tabhoehe: 64px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --grund:#12161C; --karte:#1B2129; --tinte:#ECEFF3; --leise:#9AA3B0; --linie:#2B333E;
+    --filz:#47B98D; --filz-hell:#17332A; --filz-tinte:#08170F;
+    --gelb:#F5C542; --gelb-tinte:#241C00; --rot:#E46565;
+    --schatten:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--grund); color:var(--tinte);
+  font:16px/1.45 var(--text);
+  padding-bottom:calc(var(--tabhoehe) + env(safe-area-inset-bottom) + 24px);
+  -webkit-tap-highlight-color:transparent;
+}
+body.modal-offen{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid color-mix(in srgb, var(--filz) 60%, transparent); outline-offset:2px}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.figur{flex:none}
+.versteckt{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Kopf ---------- */
+.kopf{
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--grund) 92%, transparent);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+}
+.kopf-innen{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.titel{margin:0;font-family:var(--rund);font-weight:800;font-size:27px;letter-spacing:-.015em;display:flex;align-items:center;gap:9px}
+.titel .marke{width:30px;height:30px;border-radius:9px;background:var(--filz);display:grid;place-items:center}
+.titel .marke svg{width:22px;height:22px}
+.sync{
+  appearance:none;border:1px solid var(--linie);background:var(--karte);border-radius:999px;
+  padding:6px 11px 6px 9px;font-size:13px;color:var(--leise);display:inline-flex;align-items:center;gap:7px;white-space:nowrap
+}
+.sync i{width:9px;height:9px;border-radius:50%;background:#9AA3B0;display:block}
+.sync[data-k="ok"] i{background:#2E9E5B}
+.sync[data-k="laeuft"] i{background:var(--gelb);animation:puls 1s ease-in-out infinite}
+.sync[data-k="fehler"] i{background:var(--rot)}
+@keyframes puls{50%{opacity:.35}}
+
+main{max-width:1000px;margin:0 auto;padding:0 16px}
+.seite{display:none}
+.seite.aktiv{display:block}
+.seiten-titel{font-family:var(--rund);font-weight:800;font-size:25px;letter-spacing:-.01em;margin:6px 0 4px}
+.unterzeile{color:var(--leise);margin:0 0 18px}
+
+/* ---------- Suche & Filter ---------- */
+.suchreihe{display:flex;gap:8px;margin:2px 0 10px}
+.suche{flex:1;position:relative}
+.suche .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--leise)}
+.suche input{
+  width:100%;height:44px;border-radius:12px;border:1.5px solid var(--linie);background:var(--karte);
+  padding:0 12px 0 40px;font-size:16px
+}
+.suche input:focus{border-color:var(--filz);outline:none}
+.knopf-filter{
+  height:44px;border-radius:12px;border:1.5px solid var(--linie);background:var(--karte);
+  padding:0 13px;display:inline-flex;align-items:center;gap:6px;font-weight:600
+}
+.knopf-filter b{background:var(--filz);color:var(--filz-tinte);border-radius:999px;font-size:12px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px}
+.filter-leiste{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.filter-leiste:empty{display:none}
+.filter-leiste::-webkit-scrollbar{display:none}
+.zaehler{color:var(--leise);font-size:14px;margin:4px 0 12px}
+
+/* ---------- Chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  appearance:none;border:1.5px solid var(--linie);background:var(--karte);border-radius:999px;
+  padding:7px 13px;font-size:15px;line-height:1.2;display:inline-flex;align-items:center;gap:6px;white-space:nowrap
+}
+.chip[aria-pressed="true"]{background:var(--filz);border-color:var(--filz);color:var(--filz-tinte);font-weight:600}
+.chip.weg{background:var(--filz-hell);border-color:transparent;color:var(--tinte);font-weight:500}
+.chip.weg .ic{width:15px;height:15px}
+.chip.figur-chip[aria-pressed="true"]{background:color-mix(in srgb, var(--hf) 16%, var(--karte));border-color:var(--hf);color:var(--tinte)}
+.chip.figur-chip[aria-pressed="false"]{color:var(--leise)}
+.chip.figur-chip[aria-pressed="false"] .figur{opacity:.35}
+
+/* ---------- Spielraster ---------- */
+.raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:14px}
+.karte{
+  appearance:none;text-align:left;padding:0;border:0;background:var(--karte);border-radius:14px;overflow:hidden;
+  box-shadow:var(--schatten);display:flex;flex-direction:column;position:relative
+}
+@media (prefers-color-scheme: dark){ .karte{border:1px solid var(--linie)} }
+.karte:active{transform:scale(.98)}
+.karte-bild,.zeile-bild,.detail-bild,.foto-vorschau{
+  position:relative;display:grid;place-items:center;overflow:hidden;
+  background:color-mix(in srgb, var(--hf, #888) 22%, var(--karte));
+}
+.karte-bild{aspect-ratio:1/1}
+.karte-bild img,.zeile-bild img,.detail-bild img,.foto-vorschau img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.platzhalter{font-family:var(--rund);font-weight:800;font-size:54px;color:color-mix(in srgb, var(--hf, #888) 75%, var(--tinte));opacity:.75;line-height:1}
+.hat-bild .platzhalter{visibility:hidden}
+.karte-text{padding:9px 11px 11px;display:flex;flex-direction:column;gap:5px;flex:1}
+.karte-name{font-weight:700;font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+.fakten{display:flex;flex-wrap:wrap;gap:4px 11px;font-size:13.5px;color:var(--leise)}
+.fakten span{display:inline-flex;align-items:center;gap:4px}
+.fakten .ic{width:15px;height:15px}
+.karte-haushalt{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--leise);margin-top:auto;padding-top:2px}
+
+/* ---------- Leere Zustände ---------- */
+.leer{text-align:center;padding:36px 16px 12px;color:var(--leise);max-width:420px;margin:0 auto}
+.leer h3{color:var(--tinte);font-family:var(--rund);font-size:20px;margin:10px 0 6px}
+.leer p{margin:0 0 16px}
+.leer .figuren{display:flex;justify-content:center;gap:4px}
+
+/* ---------- Knöpfe ---------- */
+.knopf{
+  appearance:none;border:0;border-radius:12px;min-height:46px;padding:0 18px;font-weight:650;font-size:16px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--filz);color:var(--filz-tinte)
+}
+.knopf.zweit{background:var(--filz-hell);color:var(--tinte)}
+.knopf.rahmen{background:transparent;border:1.5px solid var(--linie);color:var(--tinte)}
+.knopf.gefahr{background:transparent;border:1.5px solid color-mix(in srgb, var(--rot) 45%, transparent);color:var(--rot)}
+.knopf.gefahr-voll{background:var(--rot);color:#fff}
+.knopf.breit{width:100%}
+.knopf:disabled{opacity:.5}
+.knopf-rund{appearance:none;border:0;background:var(--filz-hell);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none}
+.knopfreihe{display:flex;gap:10px;flex-wrap:wrap}
+.knopfreihe .knopf{flex:1}
+.plus{
+  position:fixed;right:max(16px, calc((100vw - 1000px)/2 + 16px));bottom:calc(var(--tabhoehe) + env(safe-area-inset-bottom) + 16px);z-index:15;
+  width:58px;height:58px;border-radius:50%;border:0;background:var(--filz);color:var(--filz-tinte);display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(20,60,45,.35)
+}
+.plus .ic{width:28px;height:28px;stroke-width:2.2}
+
+/* ---------- Tableiste ---------- */
+.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--karte);border-top:1px solid var(--linie);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabs-innen{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--tabhoehe)}
+.tabs button{appearance:none;border:0;background:none;color:var(--leise);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.tabs button .ic{width:25px;height:25px}
+.tabs button[aria-current="page"]{color:var(--filz)}
+
+/* ---------- Spielrunde ---------- */
+.block{background:var(--karte);border-radius:16px;padding:14px 14px 16px;margin-bottom:12px;box-shadow:var(--schatten)}
+@media (prefers-color-scheme: dark){ .block{border:1px solid var(--linie)} }
+.block-titel{font-weight:700;margin:0 0 10px;font-size:16px}
+.block-zeile{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.block-zeile .block-titel{margin:0}
+.block-hinweis{font-size:13.5px;color:var(--leise);margin:8px 0 0}
+.ergebnis-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 12px}
+.ergebnis-kopf p{margin:0;font-size:17px}
+.ergebnis-kopf b{font-family:var(--rund);font-size:26px;font-weight:800;margin-right:3px}
+.wuerfel-knopf{
+  appearance:none;border:0;background:var(--gelb);color:var(--gelb-tinte);border-radius:16px;min-height:52px;padding:0 18px 0 12px;
+  font-family:var(--rund);font-weight:800;font-size:18px;display:inline-flex;align-items:center;gap:10px;
+  box-shadow:0 3px 0 color-mix(in srgb, var(--gelb) 60%, #000)
+}
+.wuerfel-knopf:active{transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb, var(--gelb) 60%, #000)}
+.wuerfel-knopf:disabled{opacity:.45}
+.mini-wuerfel{width:34px;height:34px;background:#fff;border-radius:9px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:5px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.mini-wuerfel i{width:6px;height:6px;border-radius:50%;background:#1C2230;place-self:center;visibility:hidden}
+.mini-wuerfel i.an{visibility:visible}
+.zeilen{display:flex;flex-direction:column;gap:10px}
+.zeile{
+  appearance:none;border:0;text-align:left;background:var(--karte);border-radius:14px;box-shadow:var(--schatten);
+  display:flex;gap:12px;padding:8px;align-items:center
+}
+@media (prefers-color-scheme: dark){ .zeile{border:1px solid var(--linie)} }
+.zeile-bild{width:72px;height:72px;border-radius:10px;flex:none}
+.zeile-bild .platzhalter{font-size:30px}
+.zeile-text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.zeile-name{font-weight:700}
+.zeile-haushalte{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:13px;color:var(--leise)}
+.zeile-haushalte span{display:inline-flex;align-items:center;gap:4px}
+
+/* ---------- Haushalte ---------- */
+.hh-liste{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.hh{
+  appearance:none;border:0;text-align:left;background:var(--karte);border-radius:14px;box-shadow:var(--schatten);
+  display:flex;align-items:center;gap:14px;padding:14px
+}
+@media (prefers-color-scheme: dark){ .hh{border:1px solid var(--linie)} }
+.hh-figur{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb, var(--hf) 18%, var(--karte));flex:none}
+.hh-text{display:flex;flex-direction:column;flex:1;min-width:0}
+.hh-name{font-weight:700;font-size:17px}
+.hh-info{font-size:14px;color:var(--leise)}
+.marke-mein{font-size:12px;font-weight:700;color:var(--filz);background:var(--filz-hell);border-radius:999px;padding:3px 9px;white-space:nowrap}
+
+/* ---------- Einstellungen ---------- */
+.feld{display:block;margin-bottom:14px}
+.feld-titel{display:block;font-weight:600;font-size:14px;color:var(--leise);margin-bottom:6px}
+.eingabe{
+  width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--linie);background:var(--karte);
+  padding:10px 12px;font-size:16px
+}
+textarea.eingabe{min-height:96px;resize:vertical;line-height:1.4}
+.eingabe:focus{border-color:var(--filz);outline:none}
+.schluessel-reihe{display:flex;gap:8px}
+.schluessel-reihe .eingabe{flex:1;font-family:ui-monospace,Menlo,monospace;font-size:14px}
+.text-leise{color:var(--leise);font-size:14px}
+.text-klein{font-size:13.5px}
+.verlauf{list-style:none;margin:10px 0 0;padding:0;font-size:13.5px}
+.verlauf li{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--linie)}
+.verlauf time{color:var(--leise);flex:none;font-variant-numeric:tabular-nums}
+.verlauf .nein{color:var(--rot)}
+details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5px;margin-top:10px}
+.fuss{text-align:center;color:var(--leise);font-size:13px;margin:18px 0 6px}
+.hinweis{background:var(--filz-hell);border-radius:12px;padding:11px 13px;font-size:14px;margin:0 0 12px}
+.hinweis.warn{background:color-mix(in srgb, var(--gelb) 22%, var(--karte))}
+
+/* ---------- Sheets ---------- */
+.sheet-hg{
+  position:fixed;inset:0;z-index:50;background:rgba(10,14,20,.45);display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;transition:opacity .2s
+}
+.sheet-hg.offen{opacity:1}
+.sheet{
+  background:var(--karte);width:100%;max-width:560px;max-height:calc(100% - env(safe-area-inset-top) - 12px);overflow:auto;
+  border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));
+  transform:translateY(40px);transition:transform .22s ease;overscroll-behavior:contain;-webkit-overflow-scrolling:touch
+}
+.sheet-hg.offen .sheet{transform:none}
+.sheet.gross{min-height:calc(100% - env(safe-area-inset-top) - 12px)}
+@media (min-width:700px){
+  .sheet-hg{align-items:center;padding:24px}
+  .sheet{border-radius:22px;padding-bottom:18px}
+  .sheet.gross{min-height:0}
+}
+.sheet-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sheet-kopf h2{margin:0;font-family:var(--rund);font-size:22px;font-weight:800}
+.sheet-fuss{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));background:var(--karte);padding:12px 0 calc(4px + env(safe-area-inset-bottom));margin-top:8px;display:flex;gap:10px}
+.sheet-fuss .knopf{flex:1}
+@media (min-width:700px){ .sheet-fuss{bottom:-18px;padding-bottom:4px} }
+
+/* Formular */
+.foto-feld{margin-bottom:16px}
+.foto-leer{
+  width:100%;aspect-ratio:4/3;max-height:260px;border:2px dashed var(--linie);border-radius:16px;background:var(--grund);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--leise);font-weight:600
+}
+.foto-leer .ic{width:36px;height:36px;stroke-width:1.5}
+.foto-vorschau{width:100%;aspect-ratio:4/3;max-height:300px;border-radius:16px}
+.foto-knoepfe{display:flex;gap:8px;margin-top:8px}
+.foto-knoepfe .knopf{flex:1;min-height:40px;font-size:15px}
+.zwei-spalten{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--linie);border-radius:12px;overflow:hidden;background:var(--karte)}
+.stepper button{appearance:none;border:0;background:var(--grund);width:46px;height:46px;font-size:24px;line-height:1;font-weight:500;color:var(--tinte)}
+.stepper button:active{background:var(--filz-hell)}
+.stepper output{min-width:62px;text-align:center;font-family:var(--rund);font-weight:800;font-size:19px;padding:0 4px}
+.stepper.gross button{width:56px;height:56px;font-size:28px}
+.stepper.gross output{min-width:76px;font-size:26px}
+
+/* Detail */
+.detail-bild{width:100%;aspect-ratio:4/3;max-height:340px;border-radius:16px;margin-bottom:14px}
+.detail-bild .platzhalter{font-size:90px}
+.detail-name{font-family:var(--rund);font-size:26px;font-weight:800;margin:0 0 4px;line-height:1.15}
+.detail-haushalt{display:flex;align-items:center;gap:6px;color:var(--leise);margin:0 0 14px;flex-wrap:wrap}
+.fakten-gross{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.fakten-gross div{background:var(--grund);border-radius:12px;padding:10px 6px;text-align:center}
+.fakten-gross b{display:block;font-family:var(--rund);font-size:21px;font-weight:800}
+.fakten-gross span{font-size:13px;color:var(--leise)}
+.detail-text{white-space:pre-wrap;margin:12px 0}
+.detail-bemerkung{background:color-mix(in srgb, var(--gelb) 18%, var(--karte));border-radius:12px;padding:10px 12px;font-size:15px;margin:12px 0}
+
+/* Würfel-Overlay */
+.wurf{position:fixed;inset:0;z-index:60;background:rgba(10,14,20,.6);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s}
+.wurf.offen{opacity:1}
+.wurf-karte{background:var(--karte);border-radius:24px;width:100%;max-width:380px;padding:22px 18px 18px;text-align:center}
+.grosser-wuerfel{
+  width:104px;height:104px;margin:6px auto 18px;background:#fff;border-radius:24px;display:grid;
+  grid-template:repeat(3,1fr)/repeat(3,1fr);padding:16px;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.1), 0 10px 24px rgba(0,0,0,.25)
+}
+.grosser-wuerfel i{width:17px;height:17px;border-radius:50%;background:#1C2230;place-self:center;visibility:hidden}
+.grosser-wuerfel i.an{visibility:visible}
+.grosser-wuerfel.rollt{animation:rollen .45s linear infinite}
+@keyframes rollen{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(90deg) translateY(-10px)}50%{transform:rotate(180deg) translateY(0)}75%{transform:rotate(270deg) translateY(-10px)}100%{transform:rotate(360deg) translateY(0)}}
+.wurf-name{font-family:var(--rund);font-weight:800;font-size:24px;min-height:62px;display:flex;align-items:center;justify-content:center;line-height:1.15}
+.wurf-ergebnis .detail-bild{max-height:220px}
+.wurf-ergebnis .fakten{justify-content:center;margin:6px 0 4px;font-size:14.5px}
+.wurf-ergebnis .zeile-haushalte{justify-content:center;margin-bottom:16px}
+.wurf-knoepfe{display:flex;flex-direction:column;gap:8px}
+.wurf-ergebnis{animation:auftauchen .28s ease-out}
+@keyframes auftauchen{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.wunsch summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--tinte);font-weight:700;font-size:16px;margin:0}
+.wunsch summary::-webkit-details-marker{display:none}
+.wunsch summary .ic{transition:transform .2s;color:var(--leise)}
+.wunsch[open] summary .ic{transform:rotate(90deg)}
+.wunsch summary small{font-weight:500;color:var(--filz);font-size:14px;margin-left:auto}
+.wunsch .innen{padding-top:14px}
+.block .trenner{border:0;border-top:1px solid var(--linie);margin:14px 0}
+@media (prefers-reduced-motion: reduce){ .grosser-wuerfel.rollt{animation:none} .sheet,.sheet-hg,.wurf{transition:none} }
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 64px);transform:translate(-50%,-20px);
+  background:var(--tinte);color:var(--grund);padding:11px 16px;border-radius:12px;font-size:15px;z-index:80;
+  opacity:0;transition:opacity .2s, transform .2s;max-width:calc(100% - 32px);text-align:center;pointer-events:none
+}
+.toast.zeigen{opacity:1;transform:translate(-50%,0)}
+.toast.fehler{background:var(--rot);color:#fff}
+
+/* Installationshinweis */
+.install{display:flex;gap:10px;align-items:flex-start}
+.install p{margin:0;flex:1}
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="kopf-innen">
+    <h1 class="titel"><span class="marke" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5.3" r="3.5" fill="#fff"/><path fill="#fff" d="M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z"/></svg></span>Spieleabend</h1>
+    <button class="sync" id="sync-knopf" type="button" data-k="aus"><i></i><span>…</span></button>
+  </div>
+</header>
+
+<main>
+  <div id="install-hinweis"></div>
+
+  <!-- Spiele -->
+  <section class="seite aktiv" id="seite-spiele" aria-label="Alle Spiele">
+    <div class="suchreihe">
+      <label class="suche"><span class="sr">Spiel suchen</span>
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/></svg>
+        <input id="suche" type="search" placeholder="Spiel suchen" autocomplete="off" enterkeyhint="search">
+      </label>
+      <button class="knopf-filter" id="filter-auf" type="button"></button>
+    </div>
+    <div class="filter-leiste" id="filter-leiste"></div>
+    <p class="zaehler" id="spiele-zahl"></p>
+    <div class="raster" id="spiele-raster"></div>
+    <div id="spiele-leer"></div>
+  </section>
+
+  <!-- Spielrunde -->
+  <section class="seite" id="seite-runde" aria-label="Spielrunde">
+    <h2 class="seiten-titel">Was spielen wir heute?</h2>
+    <p class="unterzeile">Sag, wer dabei ist – die App zeigt, welche Spiele für eure Runde passen.</p>
+    <div id="runde-inhalt"></div>
+  </section>
+
+  <!-- Haushalte -->
+  <section class="seite" id="seite-haushalte" aria-label="Haushalte">
+    <h2 class="seiten-titel">Haushalte</h2>
+    <p class="unterzeile">Jeder Haushalt hat seine eigene Spielfigur und Spieleliste.</p>
+    <div id="haushalte-inhalt"></div>
+  </section>
+
+  <!-- Einstellungen -->
+  <section class="seite" id="seite-einstellungen" aria-label="Einstellungen">
+    <h2 class="seiten-titel">Einstellungen</h2>
+    <div id="einstellungen-inhalt"></div>
+  </section>
+</main>
+
+<button class="plus" id="plus" type="button" aria-label="Spiel eintragen"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+
+<nav class="tabs" aria-label="Bereiche">
+  <div class="tabs-innen">
+    <button type="button" data-seite="spiele" aria-current="page"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></svg>Spiele</button>
+    <button type="button" data-seite="runde"><svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg>Spielrunde</button>
+    <button type="button" data-seite="haushalte"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>Haushalte</button>
+    <button type="button" data-seite="einstellungen"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Einstellungen</button>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Spieleabend – Spielesammlung mehrerer Haushalte
+   Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
+   Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
+   ===================================================================== */
+const VERSION = 'v1.00';
+
+const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
+const FARBEN = [
+  {n:'Rot',c:'#D64545'},{n:'Blau',c:'#2F6FDE'},{n:'Gelb',c:'#E0A100'},{n:'Grün',c:'#2E9E5B'},
+  {n:'Lila',c:'#8E5BD8'},{n:'Orange',c:'#EB7A2F'},{n:'Türkis',c:'#1A9AA0'},{n:'Pink',c:'#D6589B'}
+];
+const DAUERN = [15,30,45,60,90,120,180];
+const LS = {
+  daten:'spieleabend.daten', einst:'spieleabend.einst', filter:'spieleabend.filter', runde:'spieleabend.runde',
+  log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis'
+};
+
+/* ---------- Speicher ---------- */
+function lesen(k, def){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; }catch(e){ return def; } }
+function schreiben(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ console.warn('Speichern fehlgeschlagen', e); } }
+
+function standardOrt(){
+  // Läuft die App auf <name>.github.io/<repo>/, ergeben sich Benutzer und Repo von selbst.
+  const h = location.hostname, teile = location.pathname.split('/').filter(Boolean);
+  if (h.endsWith('.github.io') && teile.length) return { owner: h.replace('.github.io',''), repo: decodeURIComponent(teile[0]) };
+  return { owner:'1965-chris', repo:'Spieleabend' };
+}
+
+let D = lesen(LS.daten, null) || { haushalte:{}, meta:{} };
+if (!D.haushalte) D.haushalte = {};
+if (!D.meta) D.meta = {};
+let E = Object.assign({ ...standardOrt(), branch:'main', token:'', meinHaushalt:'', einladungen:[] }, lesen(LS.einst, {}));
+let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], sort:'name' }, lesen(LS.filter, {}));
+F.suche = '';
+let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[] }, lesen(LS.runde, {}));
+let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
+
+function speichern(){ schreiben(LS.daten, D); }
+function einstSpeichern(){ schreiben(LS.einst, E); }
+function offenSpeichern(){ schreiben(LS.offen, O); }
+
+/* ---------- Hilfen ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function neueId(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function normText(s){ return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ß/g,'ss'); }
+function nameSchluessel(s){ return normText(s).replace(/[^a-z0-9]/g,''); }
+function warte(ms){ return new Promise(r => setTimeout(r, ms)); }
+function zahl(v){ if (v === null || v === undefined || v === '') return null; const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; }
+function nachName(a, b){ return a.name.localeCompare(b.name, 'de', { sensitivity:'base', numeric:true }); }
+function initiale(n){ const t = String(n || '?').trim(); return t ? [...t][0].toUpperCase() : '?'; }
+function uhrzeit(ts){ return new Date(ts).toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }); }
+function datumZeit(ts){ const d = new Date(ts); const heute = new Date(); const gleich = d.toDateString() === heute.toDateString(); return (gleich ? 'heute ' : d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' }) + ' ') + uhrzeit(ts); }
+function pfadKod(p){ return p.split('/').map(encodeURIComponent).join('/'); }
+function feldVon(form, name){ return form.elements.namedItem(name); }
+function istStandalone(){ return window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches; }
+
+const ICONS = {
+  personen:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.8 14.1c2.3.2 4.1 1.7 4.7 4.4"/>',
+  kuchen:'<path d="M5 20h14v-6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0"/><path d="M12 12V8.5"/><path d="M12 6c.8-.6.8-1.6 0-2.5-.8.9-.8 1.9 0 2.5z"/>',
+  uhr:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  filter:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+  kamera:'<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>',
+  stift:'<path d="M15 5l4 4L9 19H5v-4z"/><path d="M13 7l4 4"/>',
+  muell:'<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/>',
+  teilen:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  pfeil:'<path d="M9 6l6 6-6 6"/>',
+  wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>'
+};
+function ic(n, extra=''){ return `<svg class="ic" ${extra} viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`; }
+const MEEPLE = 'M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z';
+function figur(farbe, gr=16){ return `<svg class="figur" width="${gr}" height="${gr}" viewBox="0 0 24 24" aria-hidden="true" fill="${esc(farbe)}"><circle cx="12" cy="5.3" r="3.5"/><path d="${MEEPLE}"/></svg>`; }
+const AUGEN = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+function wuerfelAugen(el, n){ $$('i', el).forEach((p, i) => p.classList.toggle('an', AUGEN[n].includes(i))); }
+function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="true">${Array.from({length:9}, (_, i) => `<i class="${AUGEN[n].includes(i) ? 'an' : ''}"></i>`).join('')}</span>`; }
+
+/* ---------- Datenform ---------- */
+function spielNorm(s){
+  return {
+    id:String(s.id), name:String(s.name || '').trim(), bild:typeof s.bild === 'string' ? s.bild : '',
+    spielerMin:zahl(s.spielerMin), spielerMax:zahl(s.spielerMax), alterAb:zahl(s.alterAb), dauer:zahl(s.dauer),
+    kategorien:Array.isArray(s.kategorien) ? s.kategorien.filter(k => typeof k === 'string') : [],
+    beschreibung:String(s.beschreibung || ''), bemerkung:String(s.bemerkung || ''),
+    erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
+  };
+}
+function haushaltNorm(h){
+  const g = {};
+  const grenze = Date.now() - 400*24*3600*1000;          // Lösch-Vermerke nach gut einem Jahr vergessen
+  if (h.geloescht && typeof h.geloescht === 'object') for (const [k, v] of Object.entries(h.geloescht)){ const n = zahl(v); if (n && n > grenze) g[k] = n; }
+  return {
+    id:String(h.id), name:String(h.name || 'Haushalt'), farbe:typeof h.farbe === 'string' ? h.farbe : FARBEN[0].c, stand:zahl(h.stand) || 0,
+    spiele:(Array.isArray(h.spiele) ? h.spiele : []).filter(s => s && s.id).map(spielNorm).sort(nachName),
+    geloescht:g
+  };
+}
+function dateiForm(h){ const n = haushaltNorm(h); return { format:1, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, geloescht:n.geloescht }; }
+function dateiName(id){ return `haushalt-${id}.json`; }
+function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
+
+/* Zwei Stände eines Haushalts zusammenführen: pro Spiel gewinnt die neuere Änderung,
+   gelöschte Spiele bleiben gelöscht, solange sie danach nicht neu bearbeitet wurden. */
+function zusammenfuehren(lokal, fern){
+  const A = haushaltNorm(lokal), B = haushaltNorm(fern);
+  const kopf = A.stand >= B.stand ? A : B;
+  const tomb = { ...B.geloescht };
+  for (const [k, v] of Object.entries(A.geloescht)) tomb[k] = Math.max(tomb[k] || 0, v);
+  const m = new Map();
+  for (const s of B.spiele) m.set(s.id, s);
+  for (const s of A.spiele){ const x = m.get(s.id); if (!x || s.geaendert > x.geaendert) m.set(s.id, s); }
+  const spiele = [...m.values()].filter(s => !(tomb[s.id] && tomb[s.id] >= s.geaendert)).sort(nachName);
+  return { id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, geloescht:tomb };
+}
+function markiere(id, notiz){
+  const m = D.meta[id] || (D.meta[id] = {});
+  m.dirty = true;
+  m.zaehler = (m.zaehler || 0) + 1;                       // erkennt Änderungen, die während des Hochladens passieren
+  m.notizen = [...(m.notizen || []), notiz].slice(-6);
+}
+
+/* ---------- Bilder-Zwischenspeicher (IndexedDB) ---------- */
+const IDB = (() => {
+  let dbp = null; const notfall = new Map();
+  function db(){
+    if (!dbp) dbp = new Promise((res, rej) => {
+      try{
+        const r = indexedDB.open('spieleabend', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('bilder');
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      }catch(e){ rej(e); }
+    });
+    return dbp;
+  }
+  function tx(modus, fn){
+    return db().then(d => new Promise((res, rej) => {
+      const t = d.transaction('bilder', modus); const st = t.objectStore('bilder'); const r = fn(st);
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    }));
+  }
+  return {
+    async get(k){ if (notfall.has(k)) return notfall.get(k); try{ return await tx('readonly', st => st.get(k)); }catch(e){ return undefined; } },
+    async put(k, v){ notfall.set(k, v); try{ await tx('readwrite', st => st.put(v, k)); notfall.delete(k); }catch(e){} },
+    async del(k){ notfall.delete(k); try{ await tx('readwrite', st => st.delete(k)); }catch(e){} }
+  };
+})();
+
+const bildUrls = new Map(), bildLaeuft = new Map(), bildFehler = new Map();
+async function bildLaden(pfad){
+  if (!pfad) return null;
+  if (bildUrls.has(pfad)) return bildUrls.get(pfad);
+  if (bildLaeuft.has(pfad)) return bildLaeuft.get(pfad);
+  if (bildFehler.has(pfad) && Date.now() - bildFehler.get(pfad) < 30000) return null;
+  const p = (async () => {
+    let blob = await IDB.get(pfad);
+    if (!blob){ blob = await bildHolen(pfad); if (blob) await IDB.put(pfad, blob); }
+    if (!blob){ bildFehler.set(pfad, Date.now()); return null; }
+    const url = URL.createObjectURL(blob); bildUrls.set(pfad, url); return url;
+  })();
+  bildLaeuft.set(pfad, p);
+  try{ return await p; } finally { bildLaeuft.delete(pfad); }
+}
+async function bildHolen(pfad){
+  if (!E.owner || !E.repo) return null;
+  try{
+    const r = await fetch(`https://raw.githubusercontent.com/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}/${encodeURIComponent(E.branch)}/${pfadKod(pfad)}`);
+    if (r.ok){ const b = await r.blob(); if (b.size > 0) return new Blob([b], { type:'image/jpeg' }); }
+  }catch(e){}
+  try{
+    const r = await fetch(api(`/contents/${pfadKod(pfad)}?ref=${encodeURIComponent(E.branch)}`), { headers:{ ...kopfzeilen(), Accept:'application/vnd.github.raw' }, cache:'no-store' });
+    if (r.ok){ const b = await r.blob(); if (b.size > 0) return new Blob([b], { type:'image/jpeg' }); }
+  }catch(e){}
+  return null;
+}
+const bildBeobachter = 'IntersectionObserver' in window
+  ? new IntersectionObserver(eintraege => { for (const e of eintraege) if (e.isIntersecting){ bildBeobachter.unobserve(e.target); bildEinsetzen(e.target); } }, { rootMargin:'300px' })
+  : null;
+async function bildEinsetzen(el){
+  const p = el.dataset.bild; if (!p) return;
+  const url = await bildLaden(p);
+  if (!url || !el.isConnected || el.dataset.bild !== p) return;
+  let img = el.querySelector('img');
+  if (!img){ img = document.createElement('img'); img.alt = ''; img.decoding = 'async'; el.appendChild(img); }
+  img.src = url; el.classList.add('hat-bild');
+}
+function bilderBeobachten(root){ $$('[data-bild]', root).forEach(el => { if (!el.dataset.bild) return; if (bildBeobachter) bildBeobachter.observe(el); else bildEinsetzen(el); }); }
+
+async function fotoVerkleinern(datei){
+  const url = URL.createObjectURL(datei);
+  try{
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Das Foto ließ sich nicht öffnen.')); i.src = url; });
+    const max = 800; let w = img.naturalWidth, h = img.naturalHeight;
+    const f = Math.min(1, max / Math.max(w, h)); w = Math.max(1, Math.round(w*f)); h = Math.max(1, Math.round(h*f));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.72));
+    if (!blob) throw new Error('Das Foto ließ sich nicht verkleinern.');
+    return blob;
+  } finally { URL.revokeObjectURL(url); }
+}
+
+/* ---------- GitHub ---------- */
+function api(pfad){ return `https://api.github.com/repos/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}${pfad}`; }
+function kopfzeilen(){ const h = { Accept:'application/vnd.github+json' }; if (E.token) h.Authorization = 'Bearer ' + E.token; return h; }
+async function gh(methode, pfad, body){
+  for (let i = 0; i < 3; i++){
+    let r;
+    try{
+      r = await fetch(api(pfad), {
+        method:methode, cache:'no-store',
+        headers: body ? { ...kopfzeilen(), 'Content-Type':'application/json' } : kopfzeilen(),
+        body: body ? JSON.stringify(body) : undefined
+      });
+    }catch(e){
+      if (i < 2 && navigator.onLine !== false){ await warte(900 * (i + 1)); continue; }
+      throw new Error(navigator.onLine === false ? 'Kein Internet – die Änderungen bleiben gespeichert und gehen später raus.' : 'GitHub ist gerade nicht erreichbar.');
+    }
+    if (r.status >= 500 && i < 2){ await warte(900 * (i + 1)); continue; }
+    return r;
+  }
+}
+async function fehlerAus(r, was){
+  let msg = ''; try{ msg = (await r.json()).message || ''; }catch(e){}
+  const rest = r.headers.get('x-ratelimit-remaining');
+  if (r.status === 401) return new Error('Der Schlüssel stimmt nicht oder ist abgelaufen.');
+  if ((r.status === 403 || r.status === 429) && (rest === '0' || /rate limit/i.test(msg)))
+    return new Error(E.token ? 'GitHub-Abrufgrenze erreicht – in einer Stunde geht es weiter.' : 'Ohne Schlüssel erlaubt GitHub nur 60 Abrufe pro Stunde. Bitte später nochmal.');
+  if (r.status === 403) return new Error('Der Schlüssel darf in diesem Repo nichts ändern (Contents: Read and write fehlt).');
+  if (r.status === 404) return new Error(`${was}: nicht gefunden.`);
+  return new Error(`${was}: GitHub meldet ${r.status}${msg ? ' – ' + msg : ''}`);
+}
+function b64Bytes(bytes){ let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); }
+function b64AusText(s){ return b64Bytes(new TextEncoder().encode(s)); }
+function textAusB64(b){ const bin = atob(String(b).replace(/\s/g,'')); const by = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) by[i] = bin.charCodeAt(i); return new TextDecoder().decode(by); }
+async function b64AusBlob(blob){ return b64Bytes(new Uint8Array(await blob.arrayBuffer())); }
+
+async function repoPruefen(){
+  const r = await gh('GET', '');
+  if (r.status === 404) throw new Error(`Repo „${E.owner}/${E.repo}“ nicht gefunden – Benutzername und Repo in den Einstellungen prüfen.`);
+  if (!r.ok) throw await fehlerAus(r, 'Repo');
+  const j = await r.json();
+  if (j.default_branch && j.default_branch !== E.branch){ E.branch = j.default_branch; einstSpeichern(); }
+  return j;
+}
+async function verzeichnisLesen(){
+  const r = await gh('GET', `/contents/daten?ref=${encodeURIComponent(E.branch)}`);
+  const liste = new Map();
+  if (r.status === 404) return liste;
+  if (!r.ok) throw await fehlerAus(r, 'Datenordner');
+  const j = await r.json();
+  if (!Array.isArray(j)) return liste;
+  for (const d of j){ const m = /^haushalt-([A-Za-z0-9_-]+)\.json$/.exec(d.name); if (m && d.type === 'file') liste.set(m[1], d.sha); }
+  return liste;
+}
+async function dateiLesen(id){
+  const r = await gh('GET', `/contents/daten/${dateiName(id)}?ref=${encodeURIComponent(E.branch)}`);
+  if (r.status === 404) return { daten:null, sha:null };
+  if (!r.ok) throw await fehlerAus(r, 'Haushalt lesen');
+  const j = await r.json();
+  let daten;
+  try{ daten = JSON.parse(textAusB64(j.content)); }catch(e){ throw new Error(`Die Datei ${dateiName(id)} ist beschädigt – bitte auf GitHub prüfen.`); }
+  if (!daten || typeof daten !== 'object') throw new Error(`Die Datei ${dateiName(id)} ist leer.`);
+  daten.id = id;
+  return { daten, sha:j.sha };
+}
+async function haushaltHochladen(id){
+  const m = D.meta[id] || (D.meta[id] = {});
+  let gemischt = false;                                     // true, wenn fremde Änderungen eingeflossen sind
+  for (let versuch = 0; versuch < 4; versuch++){
+    const h = D.haushalte[id]; if (!h) return gemischt;
+    const stand = m.zaehler || 0, notizenBisher = (m.notizen || []).length;
+    const notiz = (m.notizen || []).join(', ').slice(0, 140) || 'Spiele aktualisiert';
+    const body = { message:`${h.name}: ${notiz}`, content:b64AusText(JSON.stringify(dateiForm(h), null, 1)), branch:E.branch };
+    if (m.sha) body.sha = m.sha;
+    const r = await gh('PUT', `/contents/daten/${dateiName(id)}`, body);
+    if (r.ok){
+      const j = await r.json();
+      m.sha = j.content && j.content.sha; m.aufServer = true;
+      m.dirty = (m.zaehler || 0) !== stand;                  // inzwischen neu geändert? dann gleich nochmal
+      m.notizen = (m.notizen || []).slice(notizenBisher);
+      speichern();
+      if (m.dirty) continue;
+      return gemischt;
+    }
+    if (r.status === 409 || r.status === 422){
+      // Jemand war schneller: frischen Stand holen, zusammenführen, nochmal versuchen
+      const fern = await dateiLesen(id);
+      if (fern.daten){ D.haushalte[id] = zusammenfuehren(D.haushalte[id], fern.daten); m.sha = fern.sha; gemischt = true; }
+      else m.sha = null;
+      speichern(); continue;
+    }
+    throw await fehlerAus(r, 'Speichern');
+  }
+  throw new Error('Speichern bei GitHub hat nach mehreren Versuchen nicht geklappt.');
+}
+async function fotosHochladen(){
+  let n = 0;
+  for (const pfad of [...O.hoch]){
+    const blob = await IDB.get(pfad);
+    if (!blob){ O.hoch = O.hoch.filter(p => p !== pfad); offenSpeichern(); continue; }
+    const r = await gh('PUT', `/contents/${pfadKod(pfad)}`, { message:`Foto ${pfad.split('/').pop()}`, content:await b64AusBlob(blob), branch:E.branch });
+    if (r.ok || r.status === 422){ O.hoch = O.hoch.filter(p => p !== pfad); offenSpeichern(); n++; }
+    else throw await fehlerAus(r, 'Foto hochladen');
+  }
+  return n;
+}
+async function fotosAufraeumen(){
+  const benutzt = new Set(); for (const h of Object.values(D.haushalte)) for (const s of h.spiele) if (s.bild) benutzt.add(s.bild);
+  for (const pfad of [...O.weg]){
+    if (benutzt.has(pfad) || O.hoch.includes(pfad)){ O.weg = O.weg.filter(p => p !== pfad); offenSpeichern(); continue; }
+    try{
+      const r = await gh('GET', `/contents/${pfadKod(pfad)}?ref=${encodeURIComponent(E.branch)}`);
+      if (r.ok){
+        const j = await r.json();
+        const d = await gh('DELETE', `/contents/${pfadKod(pfad)}`, { message:`Altes Foto entfernt`, sha:j.sha, branch:E.branch });
+        if (!d.ok && d.status !== 404) continue;
+      } else if (r.status !== 404) continue;
+      O.weg = O.weg.filter(p => p !== pfad); offenSpeichern(); IDB.del(pfad);
+    }catch(e){ /* beim nächsten Abgleich wieder versuchen */ }
+  }
+}
+
+/* ---------- Abgleich ---------- */
+const S = { laeuft:false, nochmal:false, fehler:'', letzter:lesen(LS.letzter, 0), timer:null };
+function protokoll(text, ok=true){ const l = lesen(LS.log, []); l.unshift({ z:Date.now(), t:text, ok }); schreiben(LS.log, l.slice(0, 20)); }
+function syncBald(){ clearTimeout(S.timer); S.timer = setTimeout(() => sync('Änderung'), 1200); statusZeigen(); }
+
+async function sync(anlass){
+  if (!E.owner || !E.repo){ statusZeigen(); return; }
+  if (S.laeuft){ S.nochmal = true; return; }
+  S.laeuft = true; statusZeigen();
+  const st = { geholt:0, hoch:0, fotos:0, weg:0 };
+  let neuZeichnen = false;
+  try{
+    await repoPruefen();
+
+    // 1) Stand von GitHub holen – erst danach wird irgendetwas hochgeladen
+    const liste = await verzeichnisLesen();
+    const bekannt = Object.keys(D.haushalte).filter(id => (D.meta[id] || {}).aufServer);
+    for (const [id, sha] of liste){
+      const m = D.meta[id] || (D.meta[id] = {});
+      if (m.sha === sha && D.haushalte[id]){ m.aufServer = true; continue; }
+      const fern = await dateiLesen(id);
+      if (!fern.daten) continue;
+      const lokal = D.haushalte[id];
+      if (lokal && m.dirty){
+        D.haushalte[id] = zusammenfuehren(lokal, fern.daten);
+        if (gleich(D.haushalte[id], fern.daten)) m.dirty = false;
+      } else {
+        D.haushalte[id] = haushaltNorm(fern.daten);
+      }
+      m.sha = fern.sha; m.aufServer = true; st.geholt++; neuZeichnen = true;
+    }
+    // 2) Auf GitHub gelöschte Haushalte auch hier entfernen (mit Sicherung gegen leere Antworten)
+    if (!(liste.size === 0 && bekannt.length > 1)){
+      for (const id of Object.keys(D.haushalte)){
+        const m = D.meta[id] || {};
+        if (liste.has(id) || !m.aufServer) continue;
+        if (m.dirty){ m.sha = null; continue; }
+        delete D.haushalte[id]; delete D.meta[id]; st.weg++; neuZeichnen = true;
+        if (E.meinHaushalt === id){ E.meinHaushalt = ''; einstSpeichern(); }
+      }
+    }
+    speichern();
+    if (neuZeichnen) renderAlles();
+
+    // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen
+    if (E.token){
+      st.fotos = await fotosHochladen();
+      let gemischt = false;
+      for (const id of Object.keys(D.haushalte)) if ((D.meta[id] || {}).dirty){ if (await haushaltHochladen(id)) gemischt = true; st.hoch++; }
+      if (gemischt) renderAlles();
+      await fotosAufraeumen();
+    }
+
+    S.fehler = ''; S.letzter = Date.now(); schreiben(LS.letzter, S.letzter);
+    const teile = [];
+    if (st.geholt) teile.push(`${st.geholt} Haushalt${st.geholt === 1 ? '' : 'e'} aktualisiert`);
+    if (st.hoch) teile.push(`${st.hoch} hochgeladen`);
+    if (st.fotos) teile.push(`${st.fotos} Foto${st.fotos === 1 ? '' : 's'} hochgeladen`);
+    if (st.weg) teile.push(`${st.weg} Haushalt${st.weg === 1 ? '' : 'e'} entfernt`);
+    if (teile.length || anlass === 'Start' || anlass === 'von Hand') protokoll(`${anlass}: ${teile.length ? teile.join(', ') : 'alles aktuell'}`);
+  }catch(e){
+    S.fehler = e.message || String(e);
+    protokoll(`${anlass}: ${S.fehler}`, false);
+    if (anlass === 'von Hand') toast(S.fehler, 'fehler');
+  }finally{
+    S.laeuft = false; statusZeigen();
+    if ($('#seite-einstellungen').classList.contains('aktiv')) renderEinstellungen();
+    if (S.nochmal){ S.nochmal = false; setTimeout(() => sync('Nachtrag'), 300); }
+    else hausFrage();
+  }
+}
+function syncZustand(){
+  if (!E.owner || !E.repo) return { k:'aus', t:'Nicht verbunden' };
+  if (S.laeuft) return { k:'laeuft', t:'Gleicht ab …' };
+  if (navigator.onLine === false) return { k:'aus', t:'Offline' };
+  const offen = Object.values(D.meta).some(m => m.dirty) || O.hoch.length > 0;
+  if (offen && !E.token) return { k:'aus', t:'Nur auf diesem Gerät' };
+  if (S.fehler) return { k:'fehler', t:'Nicht abgeglichen' };
+  if (offen) return { k:'laeuft', t:'Wartet …' };
+  if (!S.letzter) return { k:'aus', t:'Noch nicht abgeglichen' };
+  return { k:'ok', t:'Abgeglichen' };
+}
+function statusZeigen(){
+  const z = syncZustand(), b = $('#sync-knopf');
+  b.dataset.k = z.k; b.querySelector('span').textContent = z.t;
+  b.title = S.fehler || (S.letzter ? 'Letzter Abgleich ' + datumZeit(S.letzter) : '');
+}
+
+/* ---------- Oberfläche: Grundbausteine ---------- */
+let offeneSheets = 0;
+function sheet(html, { klasse='', beimSchliessen=null } = {}){
+  const hg = document.createElement('div'); hg.className = 'sheet-hg';
+  hg.innerHTML = `<div class="sheet ${klasse}" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(hg); offeneSheets++; document.body.classList.add('modal-offen');
+  requestAnimationFrame(() => requestAnimationFrame(() => hg.classList.add('offen')));
+  const s = hg.firstElementChild; let zu = false;
+  s.schliessen = () => {
+    if (zu) return; zu = true; hg.classList.remove('offen');
+    setTimeout(() => { hg.remove(); offeneSheets--; if (!offeneSheets) document.body.classList.remove('modal-offen'); }, 220);
+    if (beimSchliessen) beimSchliessen();
+  };
+  hg.addEventListener('click', e => { if (e.target === hg) s.schliessen(); });
+  $$('[data-zu]', s).forEach(b => b.addEventListener('click', () => s.schliessen()));
+  return s;
+}
+function frage(titel, text, jaText='OK', gefahr=true){
+  return new Promise(res => {
+    let antwort = false;
+    const s = sheet(`<div class="sheet-kopf"><h2>${esc(titel)}</h2></div><p>${esc(text)}</p>
+      <div class="knopfreihe" style="margin-top:18px"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button>
+      <button class="knopf ${gefahr ? 'gefahr-voll' : ''}" type="button" data-ja>${esc(jaText)}</button></div>`, { beimSchliessen:() => res(antwort) });
+    $('[data-ja]', s).addEventListener('click', () => { antwort = true; s.schliessen(); });
+  });
+}
+let toastTimer = null;
+function toast(text, art=''){
+  const t = $('#toast'); t.textContent = text; t.className = 'toast zeigen ' + art;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = 'toast', art === 'fehler' ? 5000 : 2600);
+}
+function stepperHtml(name, wert, { min=1, max=99, leer='', start=null, gross=false } = {}){
+  return `<div class="stepper${gross ? ' gross' : ''}" data-name="${name}" data-min="${min}" data-max="${max}" data-leer="${esc(leer)}" data-start="${start ?? min}" data-wert="${wert ?? ''}">
+    <button type="button" data-step="-1" aria-label="weniger">−</button><output aria-live="polite">${wert ?? esc(leer)}</output><button type="button" data-step="1" aria-label="mehr">+</button></div>`;
+}
+function stepperWert(el){ const v = el.dataset.wert; return v === '' ? null : parseInt(v, 10); }
+function stepperSetzen(el, v){ el.dataset.wert = v == null ? '' : v; el.querySelector('output').textContent = v == null ? el.dataset.leer : v; }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-step]'); if (!b) return;
+  const st = b.closest('.stepper'); const min = +st.dataset.min, max = +st.dataset.max, leer = st.dataset.leer;
+  const d = +b.dataset.step; let v = stepperWert(st);
+  if (v == null){ if (d < 0) return; v = parseInt(st.dataset.start, 10); }
+  else { v += d; if (v < min) v = leer ? null : min; if (v > max) v = max; }
+  stepperSetzen(st, v);
+  st.dispatchEvent(new CustomEvent('wert', { bubbles:true, detail:v }));
+});
+function chipsHtml(gruppe, optionen, gewaehlt, { mehrfach=true, pflicht=false } = {}){
+  return `<div class="chips" data-gruppe="${gruppe}" data-mehrfach="${mehrfach ? 1 : 0}"${pflicht ? ' data-pflicht="1"' : ''}>${optionen.map(o =>
+    `<button type="button" class="chip" data-wert="${esc(o.w)}" aria-pressed="${gewaehlt.includes(o.w)}">${esc(o.t)}</button>`).join('')}</div>`;
+}
+function figurChipsHtml(gruppe, gewaehlt, { mehrfach=true, pflicht=false } = {}){
+  return `<div class="chips" data-gruppe="${gruppe}" data-mehrfach="${mehrfach ? 1 : 0}"${pflicht ? ' data-pflicht="1"' : ''}>${haushaltListe().map(h =>
+    `<button type="button" class="chip figur-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(h.id)}" aria-pressed="${gewaehlt.includes(h.id)}">${figur(h.farbe, 17)}${esc(h.name)}</button>`).join('')}</div>`;
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('.chips button.chip'); if (!c) return;
+  const gruppe = c.closest('.chips');
+  const war = c.getAttribute('aria-pressed') === 'true';
+  if (gruppe.dataset.mehrfach === '1') c.setAttribute('aria-pressed', !war);
+  else {
+    if (war && gruppe.dataset.pflicht) return;          // eine Auswahl muss bleiben
+    $$('.chip', gruppe).forEach(x => x.setAttribute('aria-pressed', x === c && !war));
+  }
+  gruppe.dispatchEvent(new CustomEvent('wahl', { bubbles:true, detail:gewaehlteChips(gruppe) }));
+});
+function gewaehlteChips(gruppe){ return $$('.chip[aria-pressed="true"]', gruppe).map(c => c.dataset.wert); }
+
+/* ---------- Daten für die Ansicht ---------- */
+function haushaltListe(){
+  return Object.values(D.haushalte).sort((a, b) => (a.id === E.meinHaushalt ? -1 : b.id === E.meinHaushalt ? 1 : 0) || a.name.localeCompare(b.name, 'de'));
+}
+function alleSpiele(){
+  const m = new Map();
+  for (const h of Object.values(D.haushalte)) for (const s of h.spiele){ const x = m.get(s.id); if (!x || s.geaendert > x.geaendert) m.set(s.id, { ...s, hid:h.id }); }
+  return [...m.values()];
+}
+function spielFinden(id){ return alleSpiele().find(s => s.id === id); }
+function passt(s, f){
+  if (f.personen != null){ const mn = s.spielerMin ?? 1, mx = s.spielerMax ?? mn; if (f.personen < mn || f.personen > mx) return false; }
+  if (f.alter != null && s.alterAb != null && s.alterAb > f.alter) return false;
+  if (f.dauerMax != null && s.dauer != null && s.dauer > f.dauerMax) return false;
+  if (f.kategorien && f.kategorien.length && !s.kategorien.some(k => f.kategorien.includes(k))) return false;
+  if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid)) return false;
+  if (f.ohne && f.ohne.includes(s.hid)) return false;
+  if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
+  return true;
+}
+function gruppieren(liste){
+  const m = new Map();
+  for (const s of liste){ const k = nameSchluessel(s.name) || s.id; if (!m.has(k)) m.set(k, []); m.get(k).push(s); }
+  return [...m.values()].map(kopien => { kopien.sort((a, b) => (b.bild ? 1 : 0) - (a.bild ? 1 : 0)); return { haupt:kopien[0], kopien }; })
+    .sort((a, b) => nachName(a.haupt, b.haupt));
+}
+function spielerText(s){
+  const mn = s.spielerMin, mx = s.spielerMax;
+  if (mn == null && mx == null) return '?';
+  if (mx == null || mx === mn) return `${mn ?? mx}`;
+  if (mn == null) return `bis ${mx}`;
+  return `${mn}–${mx}`;
+}
+function dauerText(d){ if (d >= 180) return '3 Std.+'; if (d >= 60 && d % 60 === 0) return `${d/60} Std.`; return `${d} Min.`; }
+function faktenHtml(s){
+  const t = [`<span title="Spieler">${ic('personen')}${esc(spielerText(s))}</span>`];
+  if (s.alterAb != null) t.push(`<span title="Alter">${ic('kuchen')}ab ${s.alterAb}</span>`);
+  if (s.dauer) t.push(`<span title="Spieldauer">${ic('uhr')}${dauerText(s.dauer)}</span>`);
+  return `<span class="fakten">${t.join('')}</span>`;
+}
+function farbeVon(hid){ return (D.haushalte[hid] || {}).farbe || '#8A93A0'; }
+
+/* ---------- Seite: Spiele ---------- */
+function filterBereinigen(){ F.haushalte = F.haushalte.filter(id => D.haushalte[id]); }
+function filterAktiv(){
+  const a = [];
+  if (F.personen != null) a.push({ k:'personen', t:`${F.personen} ${F.personen === 1 ? 'Person' : 'Personen'}` });
+  if (F.alter != null) a.push({ k:'alter', t:`Jüngster ${F.alter} J.` });
+  if (F.dauerMax != null) a.push({ k:'dauerMax', t:`bis ${dauerText(F.dauerMax)}` });
+  for (const k of F.kategorien) a.push({ k:'kat:' + k, t:k });
+  for (const id of F.haushalte){ const h = D.haushalte[id]; if (h) a.push({ k:'hh:' + id, t:h.name }); }
+  return a;
+}
+function karteHtml(s){
+  const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
+  return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
+    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
+    <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
+      <span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span></span></button>`;
+}
+function renderSpiele(){
+  filterBereinigen();
+  const aktiv = filterAktiv();
+  $('#filter-auf').innerHTML = `${ic('filter')}Filter${aktiv.length ? ` <b>${aktiv.length}</b>` : ''}`;
+  $('#filter-leiste').innerHTML = aktiv.map(a => `<button type="button" class="chip weg" data-weg="${esc(a.k)}" aria-label="${esc(a.t)} entfernen">${esc(a.t)}${ic('x')}</button>`).join('');
+  const alle = alleSpiele();
+  const liste = alle.filter(s => passt(s, F)).sort(F.sort === 'neu' ? (a, b) => b.erstellt - a.erstellt : nachName);
+  const leer = $('#spiele-leer'), raster = $('#spiele-raster'), zahlEl = $('#spiele-zahl');
+  if (!Object.keys(D.haushalte).length){
+    raster.innerHTML = ''; zahlEl.textContent = '';
+    leer.innerHTML = `<div class="leer"><div class="figuren">${FARBEN.slice(0,4).map(f => figur(f.c, 34)).join('')}</div>
+      <h3>Noch kein Haushalt</h3><p>${E.token ? 'Leg deinen Haushalt an – danach kannst du eure Spiele mit Foto eintragen.' : 'Wenn du einen Einladungslink bekommen hast, öffne ihn – sonst richte die App in den Einstellungen ein.'}</p>
+      <button class="knopf" type="button" data-aktion="${E.token ? 'haushalt-neu' : 'einstellungen'}">${E.token ? 'Haushalt anlegen' : 'Zu den Einstellungen'}</button></div>`;
+    return;
+  }
+  if (!alle.length){
+    raster.innerHTML = ''; zahlEl.textContent = '';
+    leer.innerHTML = `<div class="leer">${wuerfelHtml('mini-wuerfel', 1)}<h3>Noch keine Spiele</h3><p>Tippe auf das Plus und fotografiere die Schachtel deines ersten Spiels.</p>
+      <button class="knopf" type="button" data-aktion="spiel-neu">Erstes Spiel eintragen</button></div>`;
+    return;
+  }
+  zahlEl.textContent = liste.length === alle.length ? `${alle.length} ${alle.length === 1 ? 'Spiel' : 'Spiele'}` : `${liste.length} von ${alle.length} Spielen`;
+  if (!liste.length){
+    raster.innerHTML = '';
+    leer.innerHTML = `<div class="leer"><h3>Kein Spiel passt</h3><p>Mit diesen Filtern bleibt nichts übrig.</p>
+      <button class="knopf zweit" type="button" data-aktion="filter-weg">Filter zurücksetzen</button></div>`;
+    return;
+  }
+  leer.innerHTML = '';
+  raster.innerHTML = liste.map(karteHtml).join('');
+  bilderBeobachten(raster);
+}
+function filterSheet(){
+  const s = sheet(`<div class="sheet-kopf"><h2>Filter</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="feld"><span class="feld-titel">Wie viele spielen mit?</span>${stepperHtml('personen', F.personen, { min:1, max:30, leer:'egal', start:4 })}</div>
+    <div class="feld"><span class="feld-titel">Alter des jüngsten Mitspielers</span>${stepperHtml('alter', F.alter, { min:3, max:18, leer:'egal', start:8 })}</div>
+    <div class="feld"><span class="feld-titel">Spieldauer höchstens</span>${chipsHtml('dauer', [30,45,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), F.dauerMax ? [String(F.dauerMax)] : [], { mehrfach:false })}</div>
+    <div class="feld"><span class="feld-titel">Art des Spiels</span>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), F.kategorien)}</div>
+    <div class="feld"><span class="feld-titel">Haushalt</span>${figurChipsHtml('hh', F.haushalte)}</div>
+    <div class="feld"><span class="feld-titel">Sortieren</span>${chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true })}</div>
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zuruecksetzen>Zurücksetzen</button><button class="knopf" type="button" data-zu data-anzeigen></button></div>`);
+  function aktualisieren(){
+    schreiben(LS.filter, F); renderSpiele();
+    const n = alleSpiele().filter(x => passt(x, F)).length;
+    $('[data-anzeigen]', s).textContent = `${n} ${n === 1 ? 'Spiel' : 'Spiele'} zeigen`;
+  }
+  s.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') F.personen = e.detail; if (n === 'alter') F.alter = e.detail; aktualisieren(); });
+  s.addEventListener('wahl', e => {
+    const g = e.target.dataset.gruppe, w = e.detail;
+    if (g === 'dauer') F.dauerMax = w.length ? +w[0] : null;
+    if (g === 'kat') F.kategorien = w;
+    if (g === 'hh') F.haushalte = w;
+    if (g === 'sort') F.sort = w[0] || 'name';
+    aktualisieren();
+  });
+  $('[data-zuruecksetzen]', s).addEventListener('click', () => { filterZuruecksetzen(); s.schliessen(); });
+  aktualisieren();
+}
+function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[] }); schreiben(LS.filter, F); renderSpiele(); }
+
+/* ---------- Spiel: Ansicht ---------- */
+function spielDetail(id){
+  const sp = spielFinden(id); if (!sp) return;
+  const h = D.haushalte[sp.hid], farbe = farbeVon(sp.hid);
+  const kopien = alleSpiele().filter(x => x.id !== sp.id && nameSchluessel(x.name) === nameSchluessel(sp.name));
+  const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="detail-bild" style="--hf:${esc(farbe)}"${sp.bild ? ` data-bild="${esc(sp.bild)}"` : ''}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
+    <h2 class="detail-name">${esc(sp.name)}</h2>
+    <p class="detail-haushalt">${figur(farbe, 18)}steht bei ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}`).join(', ')}` : ''}</p>
+    <div class="fakten-gross">
+      <div><b>${esc(spielerText(sp))}</b><span>Spieler</span></div>
+      <div><b>${sp.alterAb != null ? 'ab ' + sp.alterAb : '–'}</b><span>Jahre</span></div>
+      <div><b>${sp.dauer ? esc(dauerText(sp.dauer)) : '–'}</b><span>Spieldauer</span></div>
+    </div>
+    ${sp.kategorien.length ? `<div class="chips">${sp.kategorien.map(k => `<span class="chip" style="cursor:default">${esc(k)}</span>`).join('')}</div>` : ''}
+    ${sp.beschreibung ? `<p class="detail-text">${esc(sp.beschreibung)}</p>` : ''}
+    ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
+    <div class="knopfreihe" style="margin-top:18px">
+      <button class="knopf zweit" type="button" data-bearbeiten>${ic('stift')}Bearbeiten</button>
+      <button class="knopf gefahr" type="button" data-loeschen>${ic('muell')}Löschen</button>
+    </div>`);
+  bilderBeobachten(s);
+  $('[data-bearbeiten]', s).addEventListener('click', () => { s.schliessen(); setTimeout(() => spielFormular(sp), 120); });
+  $('[data-loeschen]', s).addEventListener('click', async () => {
+    if (!await frage(`„${sp.name}“ löschen?`, 'Das Spiel verschwindet aus der Liste – auf allen Geräten.', 'Löschen')) return;
+    spielLoeschen(sp); s.schliessen();
+  });
+}
+function spielLoeschen(sp){
+  const h = D.haushalte[sp.hid]; if (!h) return;
+  h.spiele = h.spiele.filter(x => x.id !== sp.id);
+  h.geloescht[sp.id] = Date.now();
+  if (sp.bild) fotoWeg(sp.bild);
+  markiere(h.id, `${sp.name} gelöscht`);
+  speichern(); renderAlles(); syncBald(); toast(`„${sp.name}“ gelöscht`);
+}
+function fotoWeg(pfad){
+  if (O.hoch.includes(pfad)){ O.hoch = O.hoch.filter(p => p !== pfad); IDB.del(pfad); }
+  else if (!O.weg.includes(pfad)) O.weg.push(pfad);
+  offenSpeichern();
+}
+
+/* ---------- Spiel: Formular ---------- */
+function spielFormular(sp){
+  if (!Object.keys(D.haushalte).length){ haushaltFormular(null, () => spielFormular()); return; }
+  const neu = !sp;
+  const startHh = sp ? sp.hid : (D.haushalte[E.meinHaushalt] ? E.meinHaushalt : haushaltListe()[0].id);
+  const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
+  let neuesFoto = null, fotoEntfernt = false, vorschauUrl = null;
+  const s = sheet(`<form novalidate>
+    <div class="sheet-kopf"><h2>${neu ? 'Spiel eintragen' : 'Spiel bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="foto-feld" id="foto-feld"></div>
+    <input type="file" accept="image/*" id="foto-datei" class="sr" tabindex="-1">
+    <label class="feld"><span class="feld-titel">Name des Spiels</span><input class="eingabe" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required></label>
+    ${Object.keys(D.haushalte).length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true })}</div>` : ''}
+    <div class="zwei-spalten">
+      <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
+      <div class="feld"><span class="feld-titel">bis</span>${stepperHtml('spielerMax', w.spielerMax ?? w.spielerMin ?? 4, { min:1, max:30 })}</div>
+    </div>
+    <div class="feld"><span class="feld-titel">Alter ab</span>${stepperHtml('alterAb', w.alterAb, { min:2, max:18, leer:'egal', start:8 })}</div>
+    <div class="feld"><span class="feld-titel">Spieldauer etwa</span>${chipsHtml('dauer', DAUERN.map(d => ({ w:String(d), t:dauerText(d) })), w.dauer ? [String(w.dauer)] : [], { mehrfach:false })}</div>
+    <div class="feld"><span class="feld-titel">Art des Spiels</span>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), w.kategorien)}</div>
+    <label class="feld"><span class="feld-titel">Kurz erklärt</span><textarea class="eingabe" name="beschreibung" maxlength="600" placeholder="Worum geht es? z. B. Begriffe erklären, zeichnen und pantomimisch darstellen.">${esc(w.beschreibung)}</textarea></label>
+    <label class="feld"><span class="feld-titel">Bemerkung</span><input class="eingabe" name="bemerkung" value="${esc(w.bemerkung)}" maxlength="120" placeholder="z. B. mit Erweiterung, verliehen an …"></label>
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Speichern</button></div>
+  </form>`, { klasse:'gross', beimSchliessen:() => { if (vorschauUrl) setTimeout(() => URL.revokeObjectURL(vorschauUrl), 500); } });
+  const form = $('form', s), datei = $('#foto-datei', s), feld = $('#foto-feld', s);
+  const farbe = () => farbeVon(gewaehltesHh());
+  const gewaehltesHh = () => { const g = $('[data-gruppe="hh"]', s); const v = g ? gewaehlteChips(g)[0] : null; return v || startHh; };
+  function fotoZeigen(){
+    const hatAltes = w.bild && !fotoEntfernt;
+    if (!neuesFoto && !hatAltes){
+      feld.innerHTML = `<button type="button" class="foto-leer" data-foto>${ic('kamera')}Foto der Schachtel aufnehmen</button>`;
+    } else {
+      feld.innerHTML = `<div class="foto-vorschau" style="--hf:${esc(farbe())}"${!neuesFoto ? ` data-bild="${esc(w.bild)}"` : ''}>${neuesFoto ? `<img src="${vorschauUrl}" alt="">` : '<span class="platzhalter">…</span>'}</div>
+        <div class="foto-knoepfe"><button type="button" class="knopf zweit" data-foto>${ic('kamera')}Anderes Foto</button><button type="button" class="knopf rahmen" data-foto-weg>Foto entfernen</button></div>`;
+      bilderBeobachten(feld);
+    }
+  }
+  feld.addEventListener('click', e => {
+    if (e.target.closest('[data-foto]')) datei.click();
+    if (e.target.closest('[data-foto-weg]')){ neuesFoto = null; fotoEntfernt = true; fotoZeigen(); }
+  });
+  datei.addEventListener('change', async () => {
+    const f = datei.files && datei.files[0]; datei.value = ''; if (!f) return;
+    feld.innerHTML = `<div class="foto-leer">Foto wird verkleinert …</div>`;
+    try{
+      neuesFoto = await fotoVerkleinern(f);
+      if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
+      vorschauUrl = URL.createObjectURL(neuesFoto);
+    }catch(err){ toast(err.message, 'fehler'); }
+    fotoZeigen();
+  });
+  s.addEventListener('wert', e => {
+    const mn = $('[data-name="spielerMin"]', s), mx = $('[data-name="spielerMax"]', s);
+    if (e.target === mn && stepperWert(mx) < e.detail) stepperSetzen(mx, e.detail);
+    if (e.target === mx && stepperWert(mn) > e.detail) stepperSetzen(mn, e.detail);
+  });
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = feldVon(form, 'name').value.trim();
+    if (!name){ feldVon(form, 'name').focus(); toast('Bitte einen Namen eingeben.', 'fehler'); return; }
+    const hid = gewaehltesHh();
+    const dauerW = gewaehlteChips($('[data-gruppe="dauer"]', s))[0];
+    const spiel = spielNorm({
+      ...(sp || {}), id: sp ? sp.id : neueId('s'), name,
+      spielerMin: stepperWert($('[data-name="spielerMin"]', s)), spielerMax: stepperWert($('[data-name="spielerMax"]', s)),
+      alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
+      kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
+      beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
+      erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
+    });
+    if (neuesFoto){
+      const pfad = `bilder/${spiel.id}-${Date.now().toString(36)}.jpg`;
+      await IDB.put(pfad, neuesFoto);
+      bildUrls.set(pfad, URL.createObjectURL(neuesFoto));
+      O.hoch.push(pfad);
+      if (sp && sp.bild) fotoWeg(sp.bild);
+      spiel.bild = pfad;
+    } else if (fotoEntfernt && sp && sp.bild){ fotoWeg(sp.bild); spiel.bild = ''; }
+    offenSpeichern();
+    if (sp && sp.hid !== hid && D.haushalte[sp.hid]){
+      const alt = D.haushalte[sp.hid];
+      alt.spiele = alt.spiele.filter(x => x.id !== sp.id); alt.geloescht[sp.id] = spiel.geaendert - 1;
+      markiere(alt.id, `${name} abgegeben`);
+    }
+    const h = D.haushalte[hid];
+    h.spiele = [...h.spiele.filter(x => x.id !== spiel.id), spiel].sort(nachName);
+    delete h.geloescht[spiel.id];
+    markiere(hid, neu ? `${name} eingetragen` : `${name} geändert`);
+    speichern(); s.schliessen(); renderAlles(); syncBald();
+    toast(neu ? `„${name}“ eingetragen` : 'Gespeichert');
+  });
+  fotoZeigen();
+}
+
+/* ---------- Seite: Spielrunde ---------- */
+function rundeTreffer(){ return gruppieren(alleSpiele().filter(s => passt(s, R))); }
+function zeileHtml(g){
+  const s = g.haupt, farbe = farbeVon(s.hid);
+  return `<button class="zeile" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
+    <span class="zeile-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
+    <span class="zeile-text"><span class="zeile-name">${esc(s.name)}</span>${faktenHtml(s)}
+      <span class="zeile-haushalte">${g.kopien.map(k => `<span>${figur(farbeVon(k.hid), 13)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>`).join('')}</span></span></button>`;
+}
+function renderRunde(){
+  const el = $('#runde-inhalt');
+  R.ohne = R.ohne.filter(id => D.haushalte[id]);
+  if (!alleSpiele().length){
+    el.innerHTML = `<div class="leer">${wuerfelHtml('mini-wuerfel', 5)}<h3>Noch nichts zum Würfeln</h3><p>Sobald Spiele eingetragen sind, sucht die App hier die passenden für eure Runde aus.</p></div>`;
+    return;
+  }
+  const dabei = haushaltListe().filter(h => !R.ohne.includes(h.id)).map(h => h.id);
+  const mehrereHh = Object.keys(D.haushalte).length > 1;
+  el.innerHTML = `
+    <div class="block">
+      <div class="block-zeile"><p class="block-titel">Wie viele seid ihr?</p>${stepperHtml('personen', R.personen, { min:1, max:30, gross:true })}</div>
+      <hr class="trenner">
+      <div class="block-zeile"><p class="block-titel">Jüngster Mitspieler</p>${stepperHtml('alter', R.alter, { min:3, max:18, leer:'egal', start:8 })}</div>
+      <p class="block-hinweis">Alter in Jahren – „egal“, wenn nur Erwachsene spielen.</p>
+    </div>
+    ${mehrereHh ? `<div class="block"><p class="block-titel">Wessen Spiele sind da?</p>${figurChipsHtml('dabei', dabei)}
+      <p class="block-hinweis">Antippen, um einen Haushalt aus- oder einzublenden.</p></div>` : ''}
+    <details class="block wunsch"${wunschZahl() ? ' open' : ''}><summary>Weitere Wünsche<small id="wunsch-zahl"></small>${ic('pfeil')}</summary>
+      <div class="innen">
+        <p class="block-titel">Wie viel Zeit habt ihr?</p>${chipsHtml('dauer', [30,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), R.dauerMax ? [String(R.dauerMax)] : [], { mehrfach:false })}
+        <p class="block-titel" style="margin-top:16px">Worauf habt ihr Lust?</p>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), R.kategorien)}
+        <p class="block-hinweis">Nichts gewählt heißt: alles ist erlaubt.</p>
+      </div></details>
+    <div id="runde-ergebnis"></div>`;
+  renderRundeErgebnis();
+}
+function wunschZahl(){ return (R.dauerMax ? 1 : 0) + R.kategorien.length; }
+function renderRundeErgebnis(){
+  const el = $('#runde-ergebnis'); if (!el) return;
+  wunschAnzeigen();
+  const gruppen = rundeTreffer();
+  el.innerHTML = `<div class="ergebnis-kopf"><p><b>${gruppen.length}</b>${gruppen.length === 1 ? 'Spiel passt' : 'Spiele passen'}</p>
+      <button class="wuerfel-knopf" type="button" data-wuerfeln ${gruppen.length ? '' : 'disabled'}>${wuerfelHtml('mini-wuerfel', 5)}Würfeln</button></div>
+    ${gruppen.length ? `<div class="zeilen">${gruppen.map(zeileHtml).join('')}</div>`
+      : `<div class="leer" style="padding-top:8px"><p>Für ${R.personen} ${R.personen === 1 ? 'Person' : 'Personen'} mit diesen Wünschen passt gerade kein Spiel. Lockert einen Wunsch oder blendet weitere Haushalte ein.</p></div>`}`;
+  bilderBeobachten(el);
+}
+function rundeSpeichern(){ schreiben(LS.runde, R); renderRundeErgebnis(); }
+function wunschAnzeigen(){ const z = $('#wunsch-zahl'); if (z){ const n = wunschZahl(); z.textContent = n ? `${n} gewählt` : ''; } }
+let letzterWurf = null;
+function wuerfeln(){
+  const gruppen = rundeTreffer(); if (!gruppen.length) return;
+  let auswahl = gruppen.length > 1 ? gruppen.filter(g => g.haupt.id !== letzterWurf) : gruppen;
+  const ziel = auswahl[Math.floor(Math.random() * auswahl.length)]; letzterWurf = ziel.haupt.id;
+  const ov = document.createElement('div'); ov.className = 'wurf';
+  ov.innerHTML = `<div class="wurf-karte" role="dialog" aria-modal="true" aria-label="Würfeln">${wuerfelHtml('grosser-wuerfel rollt', 3)}<div class="wurf-name" aria-live="polite"></div><div class="wurf-ergebnis"></div></div>`;
+  document.body.appendChild(ov); requestAnimationFrame(() => ov.classList.add('offen'));
+  const w = $('.grosser-wuerfel', ov), nameEl = $('.wurf-name', ov), erg = $('.wurf-ergebnis', ov);
+  const zu = () => { ov.classList.remove('offen'); setTimeout(() => ov.remove(), 200); };
+  ov.addEventListener('click', e => { if (e.target === ov) zu(); });
+  const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let zeit = 0, schritt = 55; const dauer = ruhig ? 0 : 1600;
+  function tick(){
+    const g = gruppen[Math.floor(Math.random() * gruppen.length)];
+    nameEl.textContent = g.haupt.name; wuerfelAugen(w, 1 + Math.floor(Math.random() * 6));
+    zeit += schritt; schritt *= 1.13;
+    if (zeit < dauer) setTimeout(tick, schritt); else fertig();
+  }
+  function fertig(){
+    w.classList.remove('rollt'); wuerfelAugen(w, 6);
+    const s = ziel.haupt, farbe = farbeVon(s.hid);
+    w.remove(); nameEl.remove();
+    erg.innerHTML = `<div class="detail-bild" style="--hf:${esc(farbe)}"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></div>
+      <h2 class="detail-name">${esc(s.name)}</h2>${faktenHtml(s)}
+      <div class="zeile-haushalte">${ziel.kopien.map(k => `<span>${figur(farbeVon(k.hid), 14)}steht bei ${esc((D.haushalte[k.hid] || {}).name || '')}</span>`).join('')}</div>
+      <div class="wurf-knoepfe"><button class="knopf" type="button" data-passt>Das spielen wir!</button><button class="knopf zweit" type="button" data-nochmal>Nochmal würfeln</button></div>`;
+    bilderBeobachten(erg);
+    $('[data-nochmal]', erg).addEventListener('click', () => { zu(); setTimeout(wuerfeln, 220); });
+    $('[data-passt]', erg).addEventListener('click', zu);
+  }
+  tick();
+}
+
+/* ---------- Seite: Haushalte ---------- */
+function renderHaushalte(){
+  const el = $('#haushalte-inhalt');
+  const liste = haushaltListe();
+  el.innerHTML = `${liste.length ? `<div class="hh-liste">${liste.map(h => `
+      <button class="hh" type="button" data-hh="${esc(h.id)}" style="--hf:${esc(h.farbe)}">
+        <span class="hh-figur">${figur(h.farbe, 30)}</span>
+        <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${h.spiele.length} ${h.spiele.length === 1 ? 'Spiel' : 'Spiele'}</span></span>
+        ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
+      </button>`).join('')}</div>`
+    : `<div class="leer"><div class="figuren">${FARBEN.slice(0,5).map(f => figur(f.c, 30)).join('')}</div><h3>Noch keine Haushalte</h3><p>Jeder Haushalt bekommt eine Spielfigur in seiner Farbe.</p></div>`}
+    <button class="knopf breit" type="button" data-aktion="haushalt-neu">${ic('plus')}Neuen Haushalt anlegen</button>`;
+}
+function haushaltAktionen(id){
+  const h = D.haushalte[id]; if (!h) return;
+  const s = sheet(`<div class="sheet-kopf"><h2 style="display:flex;align-items:center;gap:10px">${figur(h.farbe, 26)}${esc(h.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-6px">${h.spiele.length} ${h.spiele.length === 1 ? 'Spiel' : 'Spiele'}${(D.meta[id] || {}).dirty ? ' – Änderungen noch nicht hochgeladen' : ''}</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+      <button class="knopf" type="button" data-a="spiele">Spiele dieses Haushalts zeigen</button>
+      ${id !== E.meinHaushalt ? '<button class="knopf zweit" type="button" data-a="mein">Das ist mein Haushalt</button>' : ''}
+      <button class="knopf zweit" type="button" data-a="bearbeiten">${ic('stift')}Name und Farbe ändern</button>
+      <button class="knopf gefahr" type="button" data-a="loeschen">${ic('muell')}Haushalt löschen</button>
+    </div>`);
+  s.addEventListener('click', async e => {
+    const a = e.target.closest('[data-a]'); if (!a) return;
+    const was = a.dataset.a;
+    if (was === 'spiele'){ s.schliessen(); filterZuruecksetzen(); F.haushalte = [id]; schreiben(LS.filter, F); seiteZeigen('spiele'); }
+    if (was === 'mein'){ E.meinHaushalt = id; einstSpeichern(); s.schliessen(); renderAlles(); toast(`„${h.name}“ ist jetzt dein Haushalt`); }
+    if (was === 'bearbeiten'){ s.schliessen(); setTimeout(() => haushaltFormular(h), 120); }
+    if (was === 'loeschen'){ s.schliessen(); setTimeout(() => haushaltLoeschen(id), 120); }
+  });
+}
+function haushaltFormular(h, danach){
+  const neu = !h;
+  const benutzt = Object.values(D.haushalte).map(x => x.farbe);
+  const farbe0 = h ? h.farbe : (FARBEN.find(f => !benutzt.includes(f.c)) || FARBEN[0]).c;
+  const s = sheet(`<form novalidate>
+    <div class="sheet-kopf"><h2>${neu ? 'Neuer Haushalt' : 'Haushalt ändern'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <label class="feld"><span class="feld-titel">Name</span><input class="eingabe" name="name" value="${esc(h ? h.name : '')}" placeholder="z. B. Familie Mättig" maxlength="40" autocomplete="off" autocapitalize="words"></label>
+    <div class="feld"><span class="feld-titel">Farbe der Spielfigur</span>
+      <div class="chips" data-gruppe="farbe" data-mehrfach="0" data-pflicht="1">${FARBEN.map(f => `<button type="button" class="chip figur-chip" style="--hf:${f.c}" data-wert="${f.c}" aria-pressed="${f.c === farbe0}">${figur(f.c, 18)}${f.n}</button>`).join('')}</div></div>
+    ${neu ? `<label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="mein" ${E.meinHaushalt && D.haushalte[E.meinHaushalt] ? '' : 'checked'} style="width:22px;height:22px">Das ist mein Haushalt</label>` : ''}
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">${neu ? 'Anlegen' : 'Speichern'}</button></div>
+  </form>`);
+  const form = $('form', s);
+  setTimeout(() => { if (neu) feldVon(form, 'name').focus(); }, 300);
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = feldVon(form, 'name').value.trim(); if (!name){ toast('Bitte einen Namen eingeben.', 'fehler'); feldVon(form, 'name').focus(); return; }
+    const farbe = gewaehlteChips($('[data-gruppe="farbe"]', s))[0] || farbe0;
+    if (neu){
+      const id = neueId('h');
+      D.haushalte[id] = { id, name, farbe, stand:Date.now(), spiele:[], geloescht:{} };
+      markiere(id, 'Haushalt angelegt');
+      const mein = feldVon(form, 'mein');
+      if (mein && mein.checked){ E.meinHaushalt = id; einstSpeichern(); }
+    } else {
+      Object.assign(D.haushalte[h.id], { name, farbe, stand:Date.now() });
+      markiere(h.id, 'Name/Farbe geändert');
+    }
+    speichern(); s.schliessen(); renderAlles(); syncBald();
+    toast(neu ? `„${name}“ angelegt` : 'Gespeichert');
+    if (danach) setTimeout(danach, 260);
+  });
+}
+async function haushaltLoeschen(id){
+  const h = D.haushalte[id]; if (!h) return;
+  const m = D.meta[id] || {};
+  if (!await frage(`„${h.name}“ löschen?`, `Der Haushalt und seine ${h.spiele.length} Spiele verschwinden auf allen Geräten. Das lässt sich nur über eine Sicherung zurückholen.`, 'Endgültig löschen')) return;
+  if (m.aufServer){
+    if (!E.token){ toast('Zum Löschen braucht diese App den Schlüssel.', 'fehler'); return; }
+    try{
+      const r = await gh('GET', `/contents/daten/${dateiName(id)}?ref=${encodeURIComponent(E.branch)}`);
+      if (r.ok){
+        const j = await r.json();
+        const d = await gh('DELETE', `/contents/daten/${dateiName(id)}`, { message:`Haushalt ${h.name} gelöscht`, sha:j.sha, branch:E.branch });
+        if (!d.ok && d.status !== 404) throw await fehlerAus(d, 'Löschen');
+      } else if (r.status !== 404) throw await fehlerAus(r, 'Löschen');
+    }catch(e){ toast(e.message, 'fehler'); return; }
+  }
+  for (const s of h.spiele) if (s.bild) fotoWeg(s.bild);
+  delete D.haushalte[id]; delete D.meta[id];
+  if (E.meinHaushalt === id){ E.meinHaushalt = ''; einstSpeichern(); }
+  speichern(); renderAlles(); syncBald(); toast(`„${h.name}“ gelöscht`);
+}
+
+/* ---------- Seite: Einstellungen ---------- */
+function einladungsLink(){
+  const code = b64AusText(JSON.stringify({ o:E.owner, r:E.repo, t:E.token })).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : `https://${E.owner}.github.io/${E.repo}/`;
+  return `${basis}#einladung=${code}`;
+}
+function renderEinstellungen(){
+  const el = $('#einstellungen-inhalt');
+  // Beim Neuzeichnen nichts verlieren, was gerade eingetippt wird
+  const vorher = {};
+  for (const id of ['e-owner','e-repo','e-token']){ const f = document.getElementById(id); if (f && f.dataset.getippt) vorher[id] = { wert:f.value, typ:f.type }; }
+  const verlaufOffen = !!$('#einstellungen-inhalt details[open]');
+  const fokus = document.activeElement && document.activeElement.id;
+  const z = syncZustand();
+  const log = lesen(LS.log, []);
+  const liste = haushaltListe();
+  el.innerHTML = `
+    <div class="block">
+      <p class="block-titel">Mein Haushalt</p>
+      ${liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
+        <p class="block-hinweis">Neue Spiele landen automatisch bei diesem Haushalt.</p>`
+      : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`}
+    </div>
+
+    <div class="block">
+      <p class="block-titel">Abgleich</p>
+      <p style="margin:0 0 10px"><span class="sync" data-k="${z.k}" style="pointer-events:none"><i></i><span>${esc(z.t)}</span></span>
+        ${S.letzter ? `<span class="text-leise text-klein"> zuletzt ${esc(datumZeit(S.letzter))}</span>` : ''}</p>
+      ${S.fehler ? `<p class="hinweis warn">${esc(S.fehler)}</p>` : ''}
+      ${!E.token ? `<p class="hinweis">Ohne Schlüssel kannst du die Spiele ansehen, aber Änderungen bleiben nur auf diesem Gerät.</p>` : ''}
+      <button class="knopf breit" type="button" id="e-sync" ${S.laeuft ? 'disabled' : ''}>${ic('wolke')}Jetzt abgleichen</button>
+      ${log.length ? `<details><summary>Verlauf der letzten Abgleiche</summary><ul class="verlauf">${log.map(l => `<li><time>${esc(datumZeit(l.z))}</time><span class="${l.ok ? '' : 'nein'}">${esc(l.t)}</span></li>`).join('')}</ul></details>` : ''}
+    </div>
+
+    <div class="block">
+      <p class="block-titel">Verbindung zu GitHub</p>
+      <label class="feld"><span class="feld-titel">GitHub-Benutzername</span><input class="eingabe" id="e-owner" value="${esc(E.owner)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <label class="feld"><span class="feld-titel">Repo</span><input class="eingabe" id="e-repo" value="${esc(E.repo)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <label class="feld"><span class="feld-titel">Schlüssel (nur für dieses Repo)</span>
+        <span class="schluessel-reihe"><input class="eingabe" id="e-token" type="password" value="${esc(E.token)}" placeholder="github_pat_…" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off">
+        <button class="knopf zweit" type="button" id="e-zeigen" style="min-width:86px">Zeigen</button></span></label>
+      <button class="knopf breit" type="button" id="e-verbinden">Speichern und prüfen</button>
+    </div>
+
+    <div class="block">
+      <p class="block-titel">Andere Haushalte einladen</p>
+      <p class="text-leise" style="margin:0 0 12px">Der Link richtet die App beim Empfänger mit dem Schlüssel ein. Schick ihn nur an Familie und Freunde.</p>
+      <button class="knopf breit" type="button" id="e-einladen" ${E.token ? '' : 'disabled'}>${ic('teilen')}Einladungslink teilen</button>
+      ${E.token ? '' : '<p class="block-hinweis">Erst den Schlüssel eintragen, dann kannst du einladen.</p>'}
+    </div>
+
+    <div class="block">
+      <p class="block-titel">Daten</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="knopf zweit" type="button" id="e-export">Sicherung herunterladen</button>
+        <button class="knopf zweit" type="button" id="e-import">Sicherung einspielen</button>
+        <input type="file" accept="application/json,.json" id="e-import-datei" class="sr" tabindex="-1">
+        <button class="knopf rahmen" type="button" id="e-neu">Alles neu von GitHub laden</button>
+      </div>
+      <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>
+    </div>
+    <p class="fuss">Spieleabend ${VERSION}</p>`;
+
+  for (const [id, v] of Object.entries(vorher)){ const f = document.getElementById(id); if (f){ f.value = v.wert; f.dataset.getippt = '1'; if (id === 'e-token') f.type = v.typ; } }
+  for (const id of ['e-owner','e-repo','e-token']) document.getElementById(id).addEventListener('input', e => { e.target.dataset.getippt = '1'; });
+  if ($('#e-token').type === 'text') $('#e-zeigen').textContent = 'Verbergen';
+  if (verlaufOffen){ const d = $('#einstellungen-inhalt details'); if (d) d.open = true; }
+  if (fokus && vorher[fokus]){ const f = document.getElementById(fokus); if (f) f.focus(); }
+
+  const mein = $('#e-mein'); if (mein) mein.addEventListener('change', () => { E.meinHaushalt = mein.value; einstSpeichern(); renderAlles(); });
+  $('#e-sync').addEventListener('click', () => sync('von Hand'));
+  $('#e-zeigen').addEventListener('click', () => { const t = $('#e-token'); t.type = t.type === 'password' ? 'text' : 'password'; $('#e-zeigen').textContent = t.type === 'password' ? 'Zeigen' : 'Verbergen'; });
+  $('#e-verbinden').addEventListener('click', verbindungSpeichern);
+  $('#e-einladen').addEventListener('click', einladen);
+  $('#e-export').addEventListener('click', sicherungHerunterladen);
+  $('#e-import').addEventListener('click', () => $('#e-import-datei').click());
+  $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
+  $('#e-neu').addEventListener('click', allesNeuLaden);
+}
+async function verbindungSpeichern(){
+  const owner = $('#e-owner').value.trim(), repo = $('#e-repo').value.trim(), token = $('#e-token').value.trim();
+  if (!owner || !repo){ toast('Benutzername und Repo ausfüllen.', 'fehler'); return; }
+  const wechsel = owner !== E.owner || repo !== E.repo;
+  if (wechsel && Object.keys(D.haushalte).length){
+    if (!await frage('Anderes Repo verwenden?', 'Die bisher geladenen Spiele werden von diesem Gerät entfernt und aus dem neuen Repo geladen.', 'Wechseln')) return;
+    D = { haushalte:{}, meta:{} }; speichern();
+  }
+  Object.assign(E, { owner, repo, token }); einstSpeichern();
+  for (const id of ['e-owner','e-repo','e-token']) delete document.getElementById(id).dataset.getippt;
+  const b = $('#e-verbinden'); b.disabled = true; b.textContent = 'Prüfe …';
+  try{
+    await repoPruefen();
+    toast(token ? 'Verbunden – Änderungen werden jetzt abgeglichen' : 'Repo gefunden – ohne Schlüssel nur zum Ansehen');
+    hausFrageGezeigt = false;
+    await sync('von Hand');
+  }catch(e){ toast(e.message, 'fehler'); }
+  renderAlles();
+}
+async function einladen(){
+  const link = einladungsLink();
+  const text = 'Hier ist unsere Spieleabend-App. Link öffnen, dann über „Teilen“ → „Zum Home-Bildschirm“ als App speichern. Fragt die App nach dem Link, ihn einfach noch einmal einfügen.';
+  if (navigator.share){
+    try{ await navigator.share({ title:'Spieleabend', text, url:link }); return; }catch(e){ if (e.name === 'AbortError') return; }
+  }
+  try{ await navigator.clipboard.writeText(`${text}\n${link}`); toast('Einladung kopiert – jetzt in WhatsApp einfügen'); }
+  catch(e){
+    const s = sheet(`<div class="sheet-kopf"><h2>Einladungslink</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+      <p class="text-leise">Link markieren und kopieren:</p><textarea class="eingabe" readonly style="min-height:120px;font-size:13px">${esc(link)}</textarea>`);
+    $('textarea', s).select();
+  }
+}
+function sicherungHerunterladen(){
+  const daten = { format:'spieleabend-sicherung', version:VERSION, erstellt:new Date().toISOString(), haushalte:Object.values(D.haushalte).map(dateiForm) };
+  const blob = new Blob([JSON.stringify(daten, null, 1)], { type:'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `spieleabend-sicherung-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+async function sicherungEinspielen(datei){
+  try{
+    const j = JSON.parse(await datei.text());
+    const liste = Array.isArray(j.haushalte) ? j.haushalte : (j.id && Array.isArray(j.spiele) ? [j] : null);
+    if (!liste) throw new Error('Das ist keine Spieleabend-Sicherung.');
+    let n = 0;
+    for (const roh of liste){
+      if (!roh || !roh.id) continue;
+      const h = haushaltNorm(roh);
+      D.haushalte[h.id] = D.haushalte[h.id] ? zusammenfuehren(D.haushalte[h.id], h) : h;
+      markiere(h.id, 'aus Sicherung eingespielt'); n++;
+    }
+    speichern(); renderAlles(); syncBald();
+    toast(`${n} Haushalt${n === 1 ? '' : 'e'} eingespielt`);
+  }catch(e){ toast(e.message || 'Die Datei ließ sich nicht lesen.', 'fehler'); }
+}
+async function allesNeuLaden(){
+  const offen = Object.keys(D.haushalte).filter(id => (D.meta[id] || {}).dirty);
+  if (!await frage('Alles neu laden?', offen.length ? 'Noch nicht hochgeladene Änderungen bleiben erhalten, alles andere wird frisch von GitHub geholt.' : 'Alle Spiele werden frisch von GitHub geholt.', 'Neu laden', false)) return;
+  for (const id of Object.keys(D.haushalte)) if (!(D.meta[id] || {}).dirty){ delete D.haushalte[id]; delete D.meta[id]; }
+  for (const m of Object.values(D.meta)) m.sha = null;
+  speichern(); renderAlles(); await sync('von Hand');
+}
+
+/* ---------- Einladung & erster Start ---------- */
+let hausFrageGezeigt = false;
+function einladungLesen(text){
+  const m = /einladung=([A-Za-z0-9_-]+)/.exec(text || ''); if (!m) return null;
+  try{
+    let b = m[1].replace(/-/g,'+').replace(/_/g,'/'); while (b.length % 4) b += '=';
+    const d = JSON.parse(textAusB64(b));
+    if (!d || !d.t) return null;
+    return { code:m[1], owner:d.o, repo:d.r, token:d.t };
+  }catch(e){ return null; }
+}
+function einladungUebernehmen(ein){
+  const wechsel = (ein.owner && ein.owner !== E.owner) || (ein.repo && ein.repo !== E.repo);
+  if (wechsel){ D = { haushalte:{}, meta:{} }; speichern(); }
+  if (ein.owner) E.owner = ein.owner; if (ein.repo) E.repo = ein.repo;
+  E.token = ein.token; E.einladungen = [...(E.einladungen || []).filter(c => c !== ein.code), ein.code].slice(-5);
+  einstSpeichern(); hausFrageGezeigt = false;
+}
+function einladungPruefen(){
+  const ein = einladungLesen(location.hash);
+  if (!ein) return false;
+  const schonDa = (E.einladungen || []).includes(ein.code) && E.token;
+  if (!schonDa){ einladungUebernehmen(ein); setTimeout(() => toast('Einladung übernommen – willkommen!'), 400); }
+  // In der installierten App den Link aus der Adresse nehmen; in Safari stehen lassen,
+  // damit „Zum Home-Bildschirm“ ihn möglichst mitnimmt.
+  if (istStandalone()) history.replaceState(null, '', location.pathname + location.search);
+  return !schonDa;
+}
+function willkommen(){
+  const s = sheet(`<div class="sheet-kopf"><h2>Willkommen!</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p style="margin-top:-4px">Hier sammelt ihr die Spiele aller Haushalte – und findet beim Spieleabend schnell eins, das für alle passt.</p>
+    <label class="feld" style="margin-top:16px"><span class="feld-titel">Einladungslink einfügen</span>
+      <textarea class="eingabe" id="w-link" placeholder="https://…#einladung=…" style="min-height:90px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
+    <button class="knopf breit" type="button" id="w-ok">Einladung übernehmen</button>
+    <button class="knopf rahmen breit" type="button" id="w-selbst" style="margin-top:10px">Ich richte die App selbst ein</button>`);
+  $('#w-ok', s).addEventListener('click', () => {
+    const ein = einladungLesen($('#w-link', s).value);
+    if (!ein){ toast('Das sieht nicht nach einem Einladungslink aus.', 'fehler'); return; }
+    einladungUebernehmen(ein); s.schliessen(); toast('Einladung übernommen – willkommen!'); renderAlles(); sync('Einladung');
+  });
+  $('#w-selbst', s).addEventListener('click', () => { s.schliessen(); seiteZeigen('einstellungen'); });
+}
+function hausFrage(versuch=0){
+  if (hausFrageGezeigt || !E.token || S.fehler || !S.letzter) return;
+  if (E.meinHaushalt && D.haushalte[E.meinHaushalt]) return;
+  if (offeneSheets || $('.wurf')){ if (versuch < 30) setTimeout(() => hausFrage(versuch + 1), 500); return; }
+  hausFrageGezeigt = true;
+  const liste = haushaltListe();
+  const s = sheet(`<div class="sheet-kopf"><h2>Zu welchem Haushalt gehörst du?</h2><button class="knopf-rund" type="button" data-zu aria-label="Später">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Deine neuen Spiele landen dann automatisch dort.</p>
+    <div class="hh-liste" style="margin-top:12px">${liste.map(h => `<button class="hh" type="button" data-hh-wahl="${esc(h.id)}" style="--hf:${esc(h.farbe)}"><span class="hh-figur">${figur(h.farbe, 28)}</span><span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${h.spiele.length} Spiele</span></span></button>`).join('')}</div>
+    <button class="knopf breit" type="button" data-hh-neu>${ic('plus')}Neuen Haushalt anlegen</button>`);
+  s.addEventListener('click', e => {
+    const w = e.target.closest('[data-hh-wahl]');
+    if (w){ E.meinHaushalt = w.dataset.hhWahl; einstSpeichern(); s.schliessen(); renderAlles(); toast('Alles klar!'); }
+    if (e.target.closest('[data-hh-neu]')){ s.schliessen(); setTimeout(() => haushaltFormular(null), 200); }
+  });
+}
+function installHinweis(){
+  const el = $('#install-hinweis');
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!ios || istStandalone() || lesen(LS.hinweis, false)){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="hinweis install"><p>Tipp: Über <b>Teilen</b> → <b>Zum Home-Bildschirm</b> wird der Spieleabend zur App auf deinem iPhone.</p>
+    <button class="knopf-rund" type="button" aria-label="Hinweis ausblenden" id="install-zu">${ic('x')}</button></div>`;
+  $('#install-zu').addEventListener('click', () => { schreiben(LS.hinweis, true); el.innerHTML = ''; });
+}
+
+/* ---------- Navigation & Verdrahtung ---------- */
+let aktiveSeite = 'spiele';
+function seiteZeigen(name){
+  aktiveSeite = name;
+  $$('.seite').forEach(s => s.classList.toggle('aktiv', s.id === 'seite-' + name));
+  $$('.tabs button').forEach(b => { if (b.dataset.seite === name) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#plus').classList.toggle('versteckt', name !== 'spiele' || !Object.keys(D.haushalte).length);
+  renderSeite(name);
+  window.scrollTo(0, 0);
+}
+function renderSeite(name){
+  if (name === 'spiele') renderSpiele();
+  if (name === 'runde') renderRunde();
+  if (name === 'haushalte') renderHaushalte();
+  if (name === 'einstellungen') renderEinstellungen();
+}
+function renderAlles(){
+  renderSpiele();
+  if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
+  $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
+  statusZeigen();
+}
+
+function verdrahten(){
+  $$('.tabs button').forEach(b => b.addEventListener('click', () => seiteZeigen(b.dataset.seite)));
+  $('#plus').addEventListener('click', () => spielFormular());
+  $('#filter-auf').addEventListener('click', filterSheet);
+  $('#sync-knopf').addEventListener('click', () => { if (S.fehler) toast(S.fehler, 'fehler'); sync('von Hand'); });
+  let suchTimer = null;
+  $('#suche').addEventListener('input', e => { clearTimeout(suchTimer); suchTimer = setTimeout(() => { F.suche = e.target.value; renderSpiele(); }, 150); });
+  $('#filter-leiste').addEventListener('click', e => {
+    const c = e.target.closest('[data-weg]'); if (!c) return;
+    const k = c.dataset.weg;
+    if (k === 'personen') F.personen = null;
+    else if (k === 'alter') F.alter = null;
+    else if (k === 'dauerMax') F.dauerMax = null;
+    else if (k.startsWith('kat:')) F.kategorien = F.kategorien.filter(x => x !== k.slice(4));
+    else if (k.startsWith('hh:')) F.haushalte = F.haushalte.filter(x => x !== k.slice(3));
+    schreiben(LS.filter, F); renderSpiele();
+  });
+  document.addEventListener('click', e => {
+    const k = e.target.closest('[data-spiel]'); if (k && !k.closest('.sheet')){ spielDetail(k.dataset.spiel); return; }
+    const hh = e.target.closest('[data-hh]'); if (hh){ haushaltAktionen(hh.dataset.hh); return; }
+    const a = e.target.closest('[data-aktion]');
+    if (a){
+      const was = a.dataset.aktion;
+      if (was === 'haushalt-neu') haushaltFormular(null);
+      if (was === 'spiel-neu') spielFormular();
+      if (was === 'einstellungen') seiteZeigen('einstellungen');
+      if (was === 'filter-weg'){ filterZuruecksetzen(); $('#suche').value = ''; F.suche = ''; renderSpiele(); }
+    }
+    if (e.target.closest('[data-wuerfeln]')) wuerfeln();
+  });
+  const runde = $('#runde-inhalt');
+  runde.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') R.personen = e.detail ?? 1; if (n === 'alter') R.alter = e.detail; rundeSpeichern(); });
+  runde.addEventListener('wahl', e => {
+    const g = e.target.dataset.gruppe, w = e.detail;
+    if (g === 'dabei') R.ohne = Object.keys(D.haushalte).filter(id => !w.includes(id));
+    if (g === 'dauer') R.dauerMax = w.length ? +w[0] : null;
+    if (g === 'kat') R.kategorien = w;
+    rundeSpeichern();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - S.letzter > 60000) sync('App geöffnet'); });
+  addEventListener('online', () => sync('wieder online'));
+  addEventListener('offline', statusZeigen);
+  addEventListener('hashchange', () => { if (einladungPruefen()){ renderAlles(); sync('Einladung'); } });
+  setInterval(() => { if (document.visibilityState === 'visible') sync('regelmäßig'); }, 5 * 60 * 1000);
+}
+
+function start(){
+  const eingeladen = einladungPruefen();
+  verdrahten();
+  installHinweis();
+  seiteZeigen('spiele');
+  if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(willkommen, 350);
+  sync(eingeladen ? 'Einladung' : 'Start');
+}
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Spieleabend",
+  "short_name": "Spieleabend",
+  "description": "Die Spiele aller Haushalte – und welches heute für alle passt.",
+  "lang": "de",
+  "display": "standalone",
+  "scope": "./",
+  "background_color": "#F1F3F0",
+  "theme_color": "#1E6B52",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
