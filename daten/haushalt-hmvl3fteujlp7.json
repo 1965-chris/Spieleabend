@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.51",
+ "app": "v1.52",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -21,6 +21,7 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Deutschland%3A_Finden_Sie_Minden",
+   "anleitung": "",
    "erstellt": 1792771093350,
    "geaendert": 1792771093350
   },
@@ -41,8 +42,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Hitster",
+   "anleitung": "https://www.spielregeln.de/hitster.html",
    "erstellt": 1792789118351,
-   "geaendert": 1792789118351
+   "geaendert": 1792789797442
   },
   {
    "id": "smvl4jqa6tocg",
@@ -59,6 +61,7 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
+   "anleitung": "",
    "erstellt": 1792769291215,
    "geaendert": 1792769291215
   },
@@ -77,6 +80,7 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Spiel_des_Lebens_(Spiel)",
+   "anleitung": "",
    "erstellt": 1792770766631,
    "geaendert": 1792770766631
   }
