@@ -224,6 +224,33 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 textarea.eingabe{min-height:96px;resize:vertical;line-height:1.4}
 .eingabe:focus{border-color:var(--filz);outline:none}
 .schluessel-reihe{display:flex;gap:8px}
+.eingabe-reihe{display:flex;gap:8px}
+.eingabe-reihe .eingabe{flex:1;min-width:0}
+.eingabe-reihe .knopf{flex:none;padding:0 14px}
+/* Suche im Internet */
+.treffer-liste{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.treffer{
+  appearance:none;border:1.5px solid var(--linie);background:var(--karte);border-radius:14px;text-align:left;
+  display:flex;align-items:center;gap:12px;padding:8px 10px 8px 8px
+}
+.treffer:active{background:var(--filz-hell)}
+.treffer-bild{width:56px;height:56px;border-radius:10px;background:var(--grund);flex:none;display:grid;place-items:center;overflow:hidden;color:var(--leise)}
+.treffer-bild img{width:100%;height:100%;object-fit:cover}
+.treffer-text{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.treffer-text b{font-size:16px}
+.treffer-text span{font-size:13.5px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.treffer-quelle{font-size:12px;color:var(--leise);flex:none;align-self:flex-start;margin-top:2px}
+.lade{display:flex;align-items:center;gap:12px;color:var(--leise);padding:22px 4px}
+.mini-wuerfel.dreht{animation:rollen 1s linear infinite;flex:none}
+@media (prefers-reduced-motion: reduce){ .mini-wuerfel.dreht{animation:none} }
+.vorschau-bild{width:100%;aspect-ratio:4/3;max-height:260px;border-radius:16px;overflow:hidden;background:var(--grund);margin:14px 0 6px}
+.vorschau-bild img{width:100%;height:100%;object-fit:contain}
+.foto-wahl{display:flex;align-items:center;gap:10px;font-size:15px;margin:8px 0 4px}
+.foto-wahl input{width:22px;height:22px;flex:none}
+.quelle-text{font-size:12.5px;color:var(--leise);margin:4px 0 0;line-height:1.35}
+.quelle-text a,.detail-link{color:var(--filz)}
+.detail-link{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;margin:4px 0 0;text-decoration:none}
+.detail-link .ic{width:17px;height:17px}
 .schluessel-reihe .eingabe{flex:1;font-family:ui-monospace,Menlo,monospace;font-size:14px}
 .text-leise{color:var(--leise);font-size:14px}
 .text-klein{font-size:13.5px}
@@ -423,7 +450,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.01';
+const VERSION = 'v1.10';
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
 const FARBEN = [
@@ -497,7 +524,9 @@ const ICONS = {
   teilen:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   pfeil:'<path d="M9 6l6 6-6 6"/>',
-  wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>'
+  wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>',
+  suche:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>',
+  link:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>'
 };
 function ic(n, extra=''){ return `<svg class="ic" ${extra} viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`; }
 const MEEPLE = 'M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z';
@@ -513,6 +542,7 @@ function spielNorm(s){
     spielerMin:zahl(s.spielerMin), spielerMax:zahl(s.spielerMax), alterAb:zahl(s.alterAb), dauer:zahl(s.dauer),
     kategorien:Array.isArray(s.kategorien) ? s.kategorien.filter(k => typeof k === 'string') : [],
     beschreibung:String(s.beschreibung || ''), bemerkung:String(s.bemerkung || ''),
+    bildQuelle:String(s.bildQuelle || ''), link:/^https:\/\//.test(s.link || '') ? s.link : '',
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -1047,6 +1077,8 @@ function spielDetail(id){
     ${sp.kategorien.length ? `<div class="chips">${sp.kategorien.map(k => `<span class="chip" style="cursor:default">${esc(k)}</span>`).join('')}</div>` : ''}
     ${sp.beschreibung ? `<p class="detail-text">${esc(sp.beschreibung)}</p>` : ''}
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
+    ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${sp.link.includes('wikidata') ? 'Wikidata' : 'Wikipedia'}</a>` : ''}
+    ${sp.bildQuelle ? `<p class="quelle-text">${esc(sp.bildQuelle)}</p>` : ''}
     <div class="knopfreihe" style="margin-top:18px">
       <button class="knopf zweit" type="button" data-bearbeiten>${ic('stift')}Bearbeiten</button>
       <button class="knopf gefahr" type="button" data-loeschen>${ic('muell')}Löschen</button>
@@ -1072,6 +1104,320 @@ function fotoWeg(pfad){
   offenSpeichern();
 }
 
+/* ---------- Spieldaten im Internet nachschlagen (deutsche Wikipedia + Wikidata) ----------
+   Beide Dienste erlauben Abfragen direkt aus dem Browser (origin=*) und brauchen keine Anmeldung. */
+const WP_API = 'https://de.wikipedia.org/w/api.php';
+const WD_API = 'https://www.wikidata.org/w/api.php';
+function wikiUrl(basis, params){
+  const u = new URL(basis);
+  for (const [k, v] of Object.entries({ format:'json', formatversion:'2', origin:'*', ...params })) u.searchParams.set(k, v);
+  return u.toString();
+}
+async function wikiJson(url){
+  let r;
+  try{ r = await fetch(url); }catch(e){ throw new Error('Keine Verbindung zu Wikipedia – bitte später nochmal versuchen.'); }
+  if (!r.ok) throw new Error(`Wikipedia antwortet gerade nicht (${r.status}).`);
+  const j = await r.json();
+  if (j && j.error) throw new Error(`Wikipedia meldet: ${j.error.info || j.error.code}`);
+  return j;
+}
+function anzeigeName(titel){ return String(titel || '').replace(/\s*\((?:[A-Za-zÄÖÜäöüß-]*spiel|Spiel)\)\s*$/i, '').trim(); }
+
+async function kandidatenSuchen(q){
+  const [wp, wd] = await Promise.allSettled([wpKandidaten(q), wdKandidaten(q)]);
+  if (wp.status === 'rejected' && wd.status === 'rejected') throw wp.reason;
+  const liste = [], qids = new Set(), titel = new Set();
+  if (wp.status === 'fulfilled') for (const k of wp.value){ liste.push(k); if (k.qid) qids.add(k.qid); titel.add(k.titel); }
+  if (wd.status === 'fulfilled') for (const k of wd.value) if (!qids.has(k.qid) && !(k.titel && titel.has(k.titel))) liste.push(k);
+  return liste.slice(0, 12);
+}
+async function wpKandidaten(q){
+  // Nur Artikel mit der „Infobox Spiel“ – das sind Brett-, Karten- und Gesellschaftsspiele
+  const j = await wikiJson(wikiUrl(WP_API, {
+    action:'query', generator:'search', gsrsearch:`${q} hastemplate:"Infobox Spiel"`, gsrnamespace:'0', gsrlimit:'8',
+    prop:'pageimages|pageprops|description', piprop:'thumbnail', pithumbsize:'160', pilimit:'8', ppprop:'wikibase_item'
+  }));
+  const seiten = (j.query && j.query.pages) || [];
+  return seiten.slice().sort((a, b) => (a.index || 0) - (b.index || 0)).map(p => ({
+    quelle:'Wikipedia', titel:p.title, name:anzeigeName(p.title), beschreibung:p.description || '',
+    vorschau:(p.thumbnail && p.thumbnail.source) || '', qid:(p.pageprops && p.pageprops.wikibase_item) || ''
+  }));
+}
+async function wdKandidaten(q){
+  const s = await wikiJson(wikiUrl(WD_API, { action:'wbsearchentities', search:q, language:'de', uselang:'de', type:'item', limit:'12' }));
+  const ids = (s.search || []).map(x => x.id).filter(Boolean);
+  if (!ids.length) return [];
+  const e = await wikiJson(wikiUrl(WD_API, { action:'wbgetentities', ids:ids.join('|'), props:'claims|labels|descriptions|sitelinks', languages:'de|en', sitefilter:'dewiki' }));
+  const out = [];
+  for (const id of ids){
+    const ent = e.entities && e.entities[id]; if (!ent || ent.missing !== undefined) continue;
+    const c = ent.claims || {}, beschr = wdText(ent.descriptions);
+    const istSpiel = ['P1872','P1873','P2339','P3528'].some(p => c[p]) || /\b(?:brett|karten|würfel|gesellschafts|party|lege|familien|kinder|kommunikations|quiz)?spiel\b|board game|card game|dice game/i.test(beschr);
+    if (!istSpiel) continue;
+    const dewiki = ent.sitelinks && ent.sitelinks.dewiki ? ent.sitelinks.dewiki.title : '';
+    out.push({ quelle:'Wikidata', qid:id, titel:dewiki, name:wdText(ent.labels) || anzeigeName(dewiki) || id, beschreibung:beschr, vorschau:'' });
+  }
+  return out;
+}
+function wdText(m){ if (!m) return ''; return (m.de && m.de.value) || (m.en && m.en.value) || ''; }
+
+/* Infobox „Spiel“ aus dem Wikitext lesen: | Mitspieler = … | Dauer = … | Alter = … */
+function infoboxLesen(wt){
+  wt = String(wt || '');
+  const m = /\{\{\s*Infobox[ _]Spiel\s*(?=\||\n|\}\})/i.exec(wt); if (!m) return {};
+  let tiefe = 1, eck = 0, akt = ''; const teile = [];
+  for (let i = m.index + 2; i < wt.length; i++){
+    const zwei = wt.substr(i, 2);
+    if (zwei === '{{'){ tiefe++; akt += zwei; i++; continue; }
+    if (zwei === '}}'){ tiefe--; if (tiefe === 0) break; akt += zwei; i++; continue; }
+    if (zwei === '[['){ eck++; akt += zwei; i++; continue; }
+    if (zwei === ']]'){ eck = Math.max(0, eck - 1); akt += zwei; i++; continue; }
+    if (wt[i] === '|' && tiefe === 1 && eck === 0){ teile.push(akt); akt = ''; continue; }
+    akt += wt[i];
+  }
+  teile.push(akt);
+  const out = {};
+  for (const t of teile.slice(1)){ const p = t.indexOf('='); if (p < 0) continue; const k = t.slice(0, p).trim(); const v = t.slice(p + 1).trim(); if (k && v) out[k] = v; }
+  return out;
+}
+/* Wiki-Auszeichnungen entfernen: [[Link|Text]] → Text, <br> → Zeilenumbruch, Vorlagen und Fußnoten weg */
+function wikiText(v){
+  let s = String(v || '');
+  s = s.replace(/<!--[\s\S]*?-->/g, '').replace(/<ref[^>]*\/>/gi, '').replace(/<ref[^>]*>[\s\S]*?<\/ref>/gi, '');
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  for (let n = 0; n < 6 && /\{\{/.test(s); n++){
+    s = s.replace(/\{\{([^{}]*)\}\}/g, (_, inhalt) => {
+      const t = inhalt.split('|'), name = t[0].trim().toLowerCase();
+      if (/^(nowrap|nobr|lang|k|kursiv|hs|nts)$/.test(name)) return t[t.length - 1] || '';
+      if (name === 'bruch' && t.length >= 3) return `${t[1]}/${t[2]}`;
+      return '';
+    });
+  }
+  s = s.replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, '$1').replace(/\[https?:\/\/\S+\s+([^\]]*)\]/g, '$1');
+  s = s.replace(/'{2,}/g, '').replace(/<[^>]+>/g, '');
+  s = s.replace(/&nbsp;/g, ' ').replace(/&ndash;|&#8211;/g, '–').replace(/&amp;/g, '&');
+  return s.split('\n').map(z => z.replace(/[ \t]+/g, ' ').trim()).filter(Boolean).join('\n');
+}
+function hauptTeil(s){
+  // Der erste Teil vor Klammern oder Zeilenumbruch ist die eigentliche Angabe („3 bis 4 (2 bis 6 mit Erweiterung)“)
+  const erster = s.split(/\n|\(/)[0];
+  return /\d/.test(erster) ? erster : s;
+}
+function spielerLesen(v){
+  const s = hauptTeil(wikiText(v)).toLowerCase();
+  const z = (s.match(/\d+/g) || []).map(Number).filter(n => n > 0 && n < 100);
+  if (!z.length) return null;
+  if (z.length >= 2) return { min:Math.min(z[0], z[1]), max:Math.max(z[0], z[1]) };
+  if (/\bab\b|mindestens|oder mehr|und mehr|\+|beliebig|unbegrenzt/.test(s)) return { min:z[0], max:null };
+  if (/^\s*(bis|max)/.test(s)) return { min:null, max:z[0] };
+  return { min:z[0], max:z[0] };
+}
+function alterLesen(v){ const m = hauptTeil(wikiText(v)).match(/\d+/); const n = m ? +m[0] : null; return n && n < 30 ? n : null; }
+function dauerLesen(v){
+  const s = hauptTeil(wikiText(v)).toLowerCase().replace(/(\d),(\d)/g, '$1.$2');
+  const z = (s.match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(n => n > 0);
+  if (!z.length) return null;
+  let wert = Math.max(...z.slice(0, 2));
+  if (/stunde|std|\bh\b/.test(s) && !/min/.test(s)) wert *= 60;
+  return wert >= 1 && wert <= 1440 ? Math.round(wert) : null;
+}
+function dauerRaster(min){ return min == null ? null : DAUERN.reduce((a, b) => Math.abs(b - min) <= Math.abs(a - min) ? b : a); }
+/* Spielart aus Texten wie „Brettspiel“, „kooperatives Kartenspiel“, „Partyspiel“ ableiten */
+const ART_REGELN = [
+  [/brettspiel|legespiel|laufspiel|wettlaufspiel/, 'Brettspiel'], [/kartenspiel|stichspiel|ablegespiel|sammelkarten/, 'Kartenspiel'],
+  [/wurfelspiel|dice game/, 'Würfelspiel'], [/strategiespiel|strategisch|wirtschaftsspiel|aufbauspiel|eurogame|worker.?placement/, 'Strategie'],
+  [/glucksspiel/, 'Glück'], [/quiz|wissensspiel/, 'Allgemeinwissen'], [/pantomim|zeichenspiel|scharade/, 'Aktivität'],
+  [/partyspiel|party game/, 'Party'], [/kommunikationsspiel|wortspiel|worterspiel|assoziationsspiel|ratespiel/, 'Kommunikation'],
+  [/geschicklichkeit|stapelspiel/, 'Geschicklichkeit'], [/kooperativ/, 'Kooperativ'],
+  [/krimi|detektiv|deduktion|ratsel|escape|denkspiel|logikspiel/, 'Rätsel & Krimi'], [/familienspiel/, 'Familie'], [/kinderspiel/, 'Kinder']
+];
+function artenAus(texte){
+  const t = normText(texte.filter(Boolean).join(' | '));
+  return ART_REGELN.filter(([re]) => re.test(t)).map(([, k]) => k);
+}
+function saetze(text, n){
+  let t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  t = t.replace(/\b([a-zäöü])\.\s?([a-zA-ZÄÖÜäöü])\./g, '$1§ $2§');            // z. B., d. h., u. a.
+  t = t.replace(/\b(bzw|ca|etc|vgl|Nr|bspw|ggf|usw|inkl|evtl|Mio|Mrd|Dr|St|Chr|Jh|Min|Std)\.(?=\s|$)/g, '$1§');
+  const teile = t.match(/[^.!?]+[.!?]+["»“”)]?(\s|$)/g) || [t];
+  return teile.slice(0, n).join('').replace(/§/g, '.').trim();
+}
+function kurzBeschreibung(extract){
+  const t = String(extract || '');
+  const intro = t.split(/\n==(?!=)/)[0].trim();
+  const m = /\n==\s*(Spielablauf|Spielprinzip|Spielweise|Spielidee|Spielverlauf|Ablauf|Spielregeln|Regeln|Spielziel|Spielmechanik|Spielbeschreibung|Spielmaterial und Spielablauf)\s*==\s*\n([\s\S]*?)(?=\n==(?!=)|$)/i.exec(t);
+  const satz1 = saetze(intro, 1);
+  let rest = m ? saetze(m[2].replace(/^=+.*=+\s*$/gm, ' '), 2) : saetze(intro, 3).slice(satz1.length).trim();
+  return `${satz1}${rest ? ' ' + rest : ''}`.trim();
+}
+function herkunftSatz(ib){
+  const ersteZeile = v => wikiText(v).split('\n')[0].trim();
+  const autor = wikiText(ib.Autor).split('\n').map(x => x.trim()).filter(Boolean).slice(0, 3).join(', ');
+  const verlag = ersteZeile(ib.Verlag), jahrM = wikiText(ib.Erscheinungsjahr).match(/\b(1[89]|20)\d\d\b/), jahr = jahrM ? jahrM[0] : '';
+  if (!autor && !verlag && !jahr) return '';
+  let s = autor ? `Von ${autor}` : 'Erschienen';
+  if (jahr) s += autor ? `, erschienen ${jahr}` : ` ${jahr}`;
+  if (verlag) s += ` bei ${verlag}`;
+  return s.length > 160 ? '' : s + '.';
+}
+function wdMenge(claims, p){
+  const liste = (claims && claims[p]) || [];
+  const st = liste.find(x => x.rank === 'preferred' && x.mainsnak && x.mainsnak.datavalue) || liste.find(x => x.rank !== 'deprecated' && x.mainsnak && x.mainsnak.datavalue);
+  if (!st) return null;
+  const v = st.mainsnak.datavalue.value;
+  if (v && v.amount != null) return { zahl:parseFloat(v.amount), einheit:String(v.unit || '').split('/').pop() };
+  return { wert:v };
+}
+function wdIds(claims, p){ return ((claims && claims[p]) || []).map(x => x.mainsnak && x.mainsnak.datavalue && x.mainsnak.datavalue.value && x.mainsnak.datavalue.value.id).filter(Boolean); }
+
+/* Alle Angaben zu einem gewählten Treffer zusammentragen */
+async function spielDetailsHolen(k){
+  const d = { name:k.name, spielerMin:null, spielerMax:null, alterAb:null, dauer:null, kategorien:[], beschreibung:'', link:'', bild:null, quellen:[] };
+  const artTexte = [];
+  let qid = k.qid, bildDatei = '';
+  if (k.titel){
+    const j = await wikiJson(wikiUrl(WP_API, {
+      action:'query', titles:k.titel, redirects:'1', prop:'revisions|extracts|pageprops|pageimages',
+      rvprop:'content', rvslots:'main', rvsection:'0', explaintext:'1', exsectionformat:'wiki', ppprop:'wikibase_item', piprop:'name'
+    }));
+    const p = j.query && j.query.pages && j.query.pages[0];
+    if (p && !p.missing){
+      d.quellen.push('Wikipedia');
+      d.link = `https://de.wikipedia.org/wiki/${encodeURIComponent(p.title.replace(/ /g, '_'))}`;
+      qid = qid || (p.pageprops && p.pageprops.wikibase_item) || '';
+      const rev = p.revisions && p.revisions[0];
+      const wt = rev ? (rev.slots && rev.slots.main ? rev.slots.main.content : rev.content) : '';
+      const ib = infoboxLesen(wt);
+      const sp = spielerLesen(ib.Mitspieler || ib.Spieler || ib.Spieleranzahl);
+      if (sp){ d.spielerMin = sp.min; d.spielerMax = sp.max; }
+      d.alterAb = alterLesen(ib.Alter || ib.Altersempfehlung);
+      d.dauer = dauerLesen(ib.Dauer || ib.Spieldauer);
+      artTexte.push(wikiText(ib.Art));
+      const kurz = kurzBeschreibung(p.extract || '');
+      artTexte.push(saetze((p.extract || '').split(/\n==/)[0], 1));
+      d.beschreibung = [kurz, herkunftSatz(ib)].filter(Boolean).join('\n').slice(0, 600);
+      bildDatei = wikiText(ib.Bild).replace(/^(Datei|File|Bild|Image):/i, '').split('\n')[0].trim() || p.pageimage || '';
+    }
+  }
+  if (qid){
+    try{
+      const e = await wikiJson(wikiUrl(WD_API, { action:'wbgetentities', ids:qid, props:'claims|descriptions', languages:'de' }));
+      const ent = e.entities && e.entities[qid];
+      const c = (ent && ent.claims) || {};
+      if (ent) d.quellen.push('Wikidata');
+      const mn = wdMenge(c, 'P1872'), mx = wdMenge(c, 'P1873'), al = wdMenge(c, 'P2899'), du = wdMenge(c, 'P2047');
+      if (d.spielerMin == null && d.spielerMax == null){ d.spielerMin = mn ? Math.round(mn.zahl) : null; d.spielerMax = mx ? Math.round(mx.zahl) : null; }
+      else { if (d.spielerMin == null && mn) d.spielerMin = Math.round(mn.zahl); if (d.spielerMax == null && mx) d.spielerMax = Math.round(mx.zahl); }
+      if (d.alterAb == null && al && al.zahl > 0 && al.zahl < 30) d.alterAb = Math.round(al.zahl);
+      if (d.dauer == null && du && du.zahl > 0){ const f = { Q7727:1, Q25235:60, Q11574:1/60 }[du.einheit]; if (f) d.dauer = Math.round(du.zahl * f); }
+      if (!bildDatei){ const b = wdMenge(c, 'P18'); if (b && typeof b.wert === 'string') bildDatei = b.wert; }
+      if (!d.beschreibung && ent) d.beschreibung = wdText(ent.descriptions);
+      if (ent) artTexte.push(wdText(ent.descriptions));
+      if (!d.link) d.link = `https://www.wikidata.org/wiki/${qid}`;
+      const artIds = [...wdIds(c, 'P31'), ...wdIds(c, 'P136')].slice(0, 20);
+      if (artIds.length){
+        const l = await wikiJson(wikiUrl(WD_API, { action:'wbgetentities', ids:artIds.join('|'), props:'labels', languages:'de' }));
+        for (const id of artIds){ const x = l.entities && l.entities[id]; if (x) artTexte.push(wdText(x.labels)); }
+      }
+    }catch(e){ if (!d.quellen.length) throw e; }
+  }
+  if (d.spielerMin != null && d.spielerMax != null && d.spielerMin > d.spielerMax) [d.spielerMin, d.spielerMax] = [d.spielerMax, d.spielerMin];
+  d.kategorien = artenAus(artTexte);
+  if (bildDatei){
+    try{
+      const j = await wikiJson(wikiUrl(WP_API, { action:'query', titles:'Datei:' + bildDatei, prop:'imageinfo', iiprop:'url|extmetadata', iiurlwidth:'800', iiextmetadatafilter:'Artist|LicenseShortName' }));
+      const p = j.query && j.query.pages && j.query.pages[0];
+      const ii = p && p.imageinfo && p.imageinfo[0];
+      if (ii && (ii.thumburl || ii.url)){
+        const meta = ii.extmetadata || {};
+        const urheber = wikiText((meta.Artist && meta.Artist.value) || '').replace(/\n/g, ' ').slice(0, 80);
+        const lizenz = (meta.LicenseShortName && meta.LicenseShortName.value) || '';
+        d.bild = { url:ii.thumburl || ii.url, quelle:['Foto: ' + (urheber || 'unbekannt'), lizenz, 'Wikimedia Commons'].filter(Boolean).join(', ') };
+      }
+    }catch(e){ /* ohne Foto weitermachen */ }
+  }
+  return d;
+}
+async function fotoAusNetz(url){
+  let r;
+  try{ r = await fetch(url); }catch(e){ throw new Error('Das Foto ließ sich nicht laden.'); }
+  if (!r.ok) throw new Error('Das Foto ließ sich nicht laden.');
+  return fotoVerkleinern(await r.blob());
+}
+
+function nachschlagenSheet(start, hatFoto, uebernehmen){
+  const s = sheet(`<div class="sheet-kopf"><h2>Im Internet suchen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <form class="eingabe-reihe" data-suchform novalidate><input class="eingabe" name="q" value="${esc(start)}" placeholder="Name des Spiels" enterkeyhint="search" autocomplete="off" autocapitalize="words">
+      <button class="knopf" type="submit">${ic('suche')}Suchen</button></form>
+    <div data-bereich></div>
+    <p class="quelle-text" style="margin-top:14px">Die Angaben kommen aus der deutschen Wikipedia und aus Wikidata. Bitte vor dem Speichern kurz prüfen.</p>`, { klasse:'gross' });
+  const bereich = $('[data-bereich]', s), suchform = $('[data-suchform]', s);
+  let liste = [], lauf = 0;
+  const lade = text => `<div class="lade">${wuerfelHtml('mini-wuerfel dreht', 5)}<span>${esc(text)}</span></div>`;
+  async function suchen(){
+    const q = feldVon(suchform, 'q').value.trim();
+    if (q.length < 2){ bereich.innerHTML = '<p class="text-leise" style="margin-top:14px">Bitte mindestens zwei Buchstaben eingeben.</p>'; return; }
+    const nr = ++lauf; bereich.innerHTML = lade('Suche bei Wikipedia …');
+    try{
+      const ergebnis = await kandidatenSuchen(q); if (nr !== lauf) return;
+      liste = ergebnis; zeigeListe(q);
+    }catch(e){ if (nr === lauf) bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p>`; }
+  }
+  function zeigeListe(q){
+    if (!liste.length){
+      bereich.innerHTML = `<div class="leer" style="padding-top:18px"><h3>Nichts gefunden</h3><p>Zu „${esc(q)}“ gibt es keinen passenden Eintrag. Probier eine andere Schreibweise – oder trag die Angaben selbst ein.</p></div>`;
+      return;
+    }
+    bereich.innerHTML = `<div class="treffer-liste">${liste.map((k, i) => `<button class="treffer" type="button" data-i="${i}">
+        <span class="treffer-bild">${k.vorschau ? `<img src="${esc(k.vorschau)}" alt="" loading="lazy">` : wuerfelHtml('mini-wuerfel', 1 + (i % 6))}</span>
+        <span class="treffer-text"><b>${esc(k.name)}</b>${k.beschreibung ? `<span>${esc(k.beschreibung)}</span>` : ''}</span>
+        <span class="treffer-quelle">${esc(k.quelle)}</span></button>`).join('')}</div>`;
+  }
+  async function zeigeDetails(k){
+    const nr = ++lauf; bereich.innerHTML = lade(`Lade Angaben zu „${k.name}“ …`);
+    let d;
+    try{ d = await spielDetailsHolen(k); }catch(e){ if (nr === lauf) bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p><button class="knopf zweit breit" type="button" data-zurueck>Zurück zur Trefferliste</button>`; return; }
+    if (nr !== lauf) return;
+    const sp = { ...d, spielerMin:d.spielerMin, spielerMax:d.spielerMax };
+    const nichts = d.spielerMin == null && d.spielerMax == null && d.alterAb == null && d.dauer == null && !d.beschreibung;
+    bereich.innerHTML = `
+      ${d.bild ? `<div class="vorschau-bild"><img src="${esc(d.bild.url)}" alt=""></div>
+        <label class="foto-wahl"><input type="checkbox" data-foto-nehmen ${hatFoto ? '' : 'checked'}>Dieses Foto übernehmen${hatFoto ? ' (ersetzt dein Foto)' : ''}</label>
+        <p class="quelle-text">${esc(d.bild.quelle)}</p>` : ''}
+      <h2 class="detail-name" style="margin-top:14px">${esc(d.name)}</h2>
+      <div class="fakten-gross" style="margin-top:10px">
+        <div><b>${d.spielerMin != null || d.spielerMax != null ? esc(spielerText(sp)) : '–'}</b><span>Spieler</span></div>
+        <div><b>${d.alterAb != null ? 'ab ' + d.alterAb : '–'}</b><span>Jahre</span></div>
+        <div><b>${d.dauer ? esc(dauerText(dauerRaster(d.dauer))) : '–'}</b><span>Spieldauer</span></div>
+      </div>
+      ${d.kategorien.length ? `<div class="chips">${d.kategorien.map(k2 => `<span class="chip" style="cursor:default">${esc(k2)}</span>`).join('')}</div>` : ''}
+      ${d.beschreibung ? `<p class="detail-text">${esc(d.beschreibung)}</p>` : ''}
+      ${nichts ? '<p class="hinweis">Zu diesem Eintrag stehen kaum Angaben im Netz – die Felder bitte selbst ausfüllen.</p>' : ''}
+      ${d.link ? `<a class="detail-link" href="${esc(d.link)}" target="_blank" rel="noopener">${ic('link')}Eintrag bei ${esc(d.quellen[0] || 'Wikipedia')} ansehen</a>` : ''}
+      <div class="knopfreihe" style="margin-top:16px">
+        <button class="knopf rahmen" type="button" data-zurueck>Andere Treffer</button>
+        <button class="knopf" type="button" data-uebernehmen>Übernehmen</button>
+      </div>`;
+    $('[data-uebernehmen]', bereich).addEventListener('click', async e => {
+      const knopf = e.currentTarget; knopf.disabled = true; knopf.textContent = 'Übernehme …';
+      let foto = null;
+      const nehmen = $('[data-foto-nehmen]', bereich);
+      if (d.bild && nehmen && nehmen.checked){
+        try{ foto = await fotoAusNetz(d.bild.url); }catch(err){ toast(err.message + ' Die übrigen Angaben werden übernommen.', 'fehler'); }
+      }
+      uebernehmen(d, foto, foto ? d.bild.quelle : '');
+      s.schliessen();
+    });
+  }
+  suchform.addEventListener('submit', e => { e.preventDefault(); feldVon(suchform, 'q').blur(); suchen(); });
+  bereich.addEventListener('click', e => {
+    const t = e.target.closest('[data-i]'); if (t){ zeigeDetails(liste[+t.dataset.i]); return; }
+    if (e.target.closest('[data-zurueck]')){ lauf++; zeigeListe(feldVon(suchform, 'q').value.trim()); }
+  });
+  suchen();
+}
+
 /* ---------- Spiel: Formular ---------- */
 function spielFormular(sp){
   if (!Object.keys(D.haushalte).length){ haushaltFormular(null, () => spielFormular()); return; }
@@ -1079,11 +1425,15 @@ function spielFormular(sp){
   const startHh = sp ? sp.hid : (D.haushalte[E.meinHaushalt] ? E.meinHaushalt : haushaltListe()[0].id);
   const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
   let neuesFoto = null, fotoEntfernt = false, vorschauUrl = null;
+  let fotoQuelle = '', link = sp ? (sp.link || '') : '';     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>${neu ? 'Spiel eintragen' : 'Spiel bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="foto-feld" id="foto-feld"></div>
     <input type="file" accept="image/*" id="foto-datei" class="sr" tabindex="-1">
-    <label class="feld"><span class="feld-titel">Name des Spiels</span><input class="eingabe" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required></label>
+    <div class="feld"><label class="feld-titel" for="f-name">Name des Spiels</label>
+      <div class="eingabe-reihe"><input class="eingabe" id="f-name" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required enterkeyhint="search">
+        <button class="knopf zweit" type="button" data-nachschlagen>${ic('suche')}Suchen</button></div>
+      <p class="block-hinweis">Suchen holt Spieler, Alter, Dauer, Beschreibung und ein Foto aus Wikipedia.</p></div>
     ${Object.keys(D.haushalte).length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true })}</div>` : ''}
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
@@ -1118,11 +1468,44 @@ function spielFormular(sp){
     const f = datei.files && datei.files[0]; datei.value = ''; if (!f) return;
     feld.innerHTML = `<div class="foto-leer">Foto wird verkleinert …</div>`;
     try{
-      neuesFoto = await fotoVerkleinern(f);
+      neuesFoto = await fotoVerkleinern(f); fotoQuelle = ''; fotoEntfernt = false;
       if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
       vorschauUrl = URL.createObjectURL(neuesFoto);
     }catch(err){ toast(err.message, 'fehler'); }
     fotoZeigen();
+  });
+  // Angaben aus dem Internet in das Formular übernehmen
+  function uebernehmen(d, foto, quelle){
+    if (d.name) feldVon(form, 'name').value = d.name;
+    const mnEl = $('[data-name="spielerMin"]', s), mxEl = $('[data-name="spielerMax"]', s);
+    const grenze = n => Math.min(30, Math.max(1, n));
+    if (d.spielerMin != null || d.spielerMax != null){
+      const mn = grenze(d.spielerMin ?? d.spielerMax);
+      const mx = grenze(d.spielerMax ?? Math.max(mn, stepperWert(mxEl) || mn));
+      stepperSetzen(mnEl, Math.min(mn, mx)); stepperSetzen(mxEl, Math.max(mn, mx));
+    }
+    if (d.alterAb != null) stepperSetzen($('[data-name="alterAb"]', s), Math.min(18, Math.max(2, d.alterAb)));
+    if (d.dauer){ const r = String(dauerRaster(d.dauer)); $$('[data-gruppe="dauer"] .chip', s).forEach(c => c.setAttribute('aria-pressed', c.dataset.wert === r)); }
+    if (d.kategorien.length){
+      $$('[data-gruppe="kat"] .chip', s).forEach(c => { if (d.kategorien.includes(c.dataset.wert)) c.setAttribute('aria-pressed', 'true'); });
+      $('#form-kat-wahl', s).textContent = gewaehlteChips($('[data-gruppe="kat"]', s)).join(', ');
+    }
+    const text = feldVon(form, 'beschreibung');
+    if (d.beschreibung && !text.value.trim()) text.value = d.beschreibung.slice(0, 600);
+    if (d.link) link = d.link;
+    if (foto){
+      neuesFoto = foto; fotoEntfernt = false; fotoQuelle = quelle || '';
+      if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
+      vorschauUrl = URL.createObjectURL(foto);
+      fotoZeigen();
+    }
+    toast('Angaben übernommen – bitte kurz prüfen');
+  }
+  $('[data-nachschlagen]', s).addEventListener('click', () => {
+    nachschlagenSheet(feldVon(form, 'name').value.trim(), !!(neuesFoto || (w.bild && !fotoEntfernt)), uebernehmen);
+  });
+  feldVon(form, 'name').addEventListener('keydown', e => {
+    if (e.key === 'Enter'){ e.preventDefault(); if (feldVon(form, 'name').value.trim().length >= 2) $('[data-nachschlagen]', s).click(); }
   });
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'kat') $('#form-kat-wahl', s).textContent = e.detail.join(', '); });
   s.addEventListener('wert', e => {
@@ -1135,6 +1518,10 @@ function spielFormular(sp){
     const name = feldVon(form, 'name').value.trim();
     if (!name){ feldVon(form, 'name').focus(); toast('Bitte einen Namen eingeben.', 'fehler'); return; }
     const hid = gewaehltesHh();
+    if (neu){
+      const doppelt = D.haushalte[hid].spiele.find(x => nameSchluessel(x.name) === nameSchluessel(name));
+      if (doppelt && !await frage('Schon eingetragen', `„${doppelt.name}“ steht bei ${D.haushalte[hid].name} schon in der Liste. Trotzdem ein zweites Mal speichern?`, 'Trotzdem speichern', false)) return;
+    }
     const dauerW = gewaehlteChips($('[data-gruppe="dauer"]', s))[0];
     const spiel = spielNorm({
       ...(sp || {}), id: sp ? sp.id : neueId('s'), name,
@@ -1142,6 +1529,7 @@ function spielFormular(sp){
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
       beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
+      link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : '')),
       erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
     });
     if (neuesFoto){
