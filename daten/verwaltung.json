@@ -3,6 +3,15 @@
  "pinHash": "bbadc6e05980bbd1cb3a18da8ab6f99dff455a73a70a03113383f701e842c00f",
  "pinSalz": "bf42f5c2140250f126bdf921",
  "pinStand": 1792777561392,
- "kreise": [],
+ "kreise": [
+  {
+   "id": "kmvl9j0zyt6wq",
+   "name": "Spieleabend Baumberg",
+   "haushalte": [
+    "hmvl3fteujlp7"
+   ],
+   "stand": 1792777656526
+  }
+ ],
  "geloescht": {}
 }
