@@ -1,31 +1,11 @@
 {
  "format": 1,
- "app": "v1.42",
+ "app": "v1.44",
  "id": "hmvl9u7o6tmzz",
  "name": "Familie Wodarz",
  "farbe": "#D64545",
  "stand": 1792778178390,
- "spiele": [
-  {
-   "id": "smvlb52yuyzhc",
-   "name": "Sagrada",
-   "bild": "bilder/smvlb52yuyzhc-mvlb52yu.jpg",
-   "spielerMin": 4,
-   "spielerMax": 4,
-   "alterAb": 14,
-   "dauer": 45,
-   "kategorien": [
-    "Brettspiel",
-    "Würfelspiel"
-   ],
-   "beschreibung": "com erschienen ist. Zur Spielvorbereitung bekommt jeder Spieler ein Spielertableau sowie eine Musterkarte (ausgewählt aus zwei Karten), die in das Tableau eingeschoben wird. Zusätzlich bekommt jeder Mitspieler eine geheime Auftragskarte, einen Wertungsmarker entsprechend der Farbe des Tableaus sowie so viele Gunststeine, wie auf seiner Musterkarte angegeben ist.\nVon Adrian Adamescu, Daryl Andrews, erschienen 2017 bei Floodgate Games,.",
-   "bemerkung": "",
-   "bildQuelle": "Foto: Damon Gardenhire, CC0, Wikimedia Commons",
-   "link": "https://de.wikipedia.org/wiki/Sagrada",
-   "erstellt": 1792780365126,
-   "geaendert": 1792780365126
-  }
- ],
+ "spiele": [],
  "spieler": [
   {
    "id": "pmvl9u7o7a8up",
@@ -39,6 +19,7 @@
   }
  ],
  "geloescht": {
-  "smvlaa24wphp0": 1792780213340
+  "smvlaa24wphp0": 1792780213340,
+  "smvlb52yuyzhc": 1792783257479
  }
 }
