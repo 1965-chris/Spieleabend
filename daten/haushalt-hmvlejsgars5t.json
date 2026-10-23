@@ -1,0 +1,22 @@
+{
+ "format": 1,
+ "app": "v1.50",
+ "id": "hmvlejsgars5t",
+ "name": "Familie Joester Schwelm",
+ "farbe": "#8E5BD8",
+ "stand": 1792786090186,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmvlejsgaqpm0",
+   "name": "André",
+   "stand": 1792786090186
+  },
+  {
+   "id": "pmvlejsgaz739",
+   "name": "Verena",
+   "stand": 1792786090186
+  }
+ ],
+ "geloescht": {}
+}
