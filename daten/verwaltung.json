@@ -25,12 +25,6 @@
  ],
  "adminGeraete": [
   {
-   "id": "gmvlci8srx8ih",
-   "name": "iPhone – Familie Wodarz",
-   "seit": 1792782687293,
-   "stand": 1792782687293
-  },
-  {
    "id": "gmvlch98lgubm",
    "name": "iPhone – Familie Mättig Baumberg",
    "seit": 1792782806189,
@@ -38,6 +32,7 @@
   }
  ],
  "geloescht": {
-  "gmvlcjlfyw1x1": 1792782854050
+  "gmvlcjlfyw1x1": 1792782854050,
+  "gmvlci8srx8ih": 1792782882175
  }
 }
