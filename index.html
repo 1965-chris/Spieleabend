@@ -438,6 +438,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 </header>
 
 <main>
+  <div id="update-hinweis"></div>
   <div id="install-hinweis"></div>
 
   <!-- Spiele -->
@@ -497,7 +498,10 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.40';
+const VERSION = 'v1.42';
+/* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
+   damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
+const DATENSTAND = 2;
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
 const FARBEN = [
@@ -534,7 +538,13 @@ let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
 const KL = lesen(LS.klapp, {}) || {};                   // welche Bereiche auf diesem Gerät aufgeklappt sind
 
 function speichern(){ schreiben(LS.daten, D); }
-function datenVorbereiten(){ D.verwaltung = verwaltungNorm(D.verwaltung); if (!D.metaV) D.metaV = {}; }
+function datenVorbereiten(){
+  D.verwaltung = verwaltungNorm(D.verwaltung); if (!D.metaV) D.metaV = {};
+  if ((D.datenstand || 1) < DATENSTAND){
+    for (const m of Object.values(D.meta)) m.sha = null;
+    D.metaV.sha = null; D.datenstand = DATENSTAND;
+  }
+}
 function einstSpeichern(){ schreiben(LS.einst, E); }
 function offenSpeichern(){ schreiben(LS.offen, O); }
 
@@ -586,8 +596,18 @@ function wuerfelAugen(el, n){ $$('i', el).forEach((p, i) => p.classList.toggle('
 function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="true">${Array.from({length:9}, (_, i) => `<i class="${AUGEN[n].includes(i) ? 'an' : ''}"></i>`).join('')}</span>`; }
 
 /* ---------- Datenform ---------- */
+/* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
+const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','erstellt','geaendert','hid']);
+const SPIELER_FELDER = new Set(['id','name','stand']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','geloescht']);
+function unbekannte(obj, bekannt){
+  const z = {};
+  if (obj && typeof obj === 'object') for (const [k, v] of Object.entries(obj)) if (!bekannt.has(k)) z[k] = v;
+  return z;
+}
 function spielNorm(s){
   return {
+    ...unbekannte(s, SPIEL_FELDER),
     id:String(s.id), name:String(s.name || '').trim(), bild:typeof s.bild === 'string' ? s.bild : '',
     spielerMin:zahl(s.spielerMin), spielerMax:zahl(s.spielerMax), alterAb:zahl(s.alterAb), dauer:zahl(s.dauer),
     kategorien:Array.isArray(s.kategorien) ? s.kategorien.filter(k => typeof k === 'string') : [],
@@ -601,14 +621,18 @@ function haushaltNorm(h){
   const grenze = Date.now() - 400*24*3600*1000;          // Lösch-Vermerke nach gut einem Jahr vergessen
   if (h.geloescht && typeof h.geloescht === 'object') for (const [k, v] of Object.entries(h.geloescht)){ const n = zahl(v); if (n && n > grenze) g[k] = n; }
   return {
+    ...unbekannte(h, HH_FELDER),
     id:String(h.id), name:String(h.name || 'Haushalt'), farbe:typeof h.farbe === 'string' ? h.farbe : FARBEN[0].c, stand:zahl(h.stand) || 0,
     spiele:(Array.isArray(h.spiele) ? h.spiele : []).filter(s => s && s.id).map(spielNorm).sort(nachName),
     spieler:(Array.isArray(h.spieler) ? h.spieler : []).filter(p => p && p.id && String(p.name || '').trim())
-      .map(p => ({ id:String(p.id), name:String(p.name).trim().slice(0, 30), stand:zahl(p.stand) || 0 })).sort(nachName),
+      .map(p => ({ ...unbekannte(p, SPIELER_FELDER), id:String(p.id), name:String(p.name).trim().slice(0, 30), stand:zahl(p.stand) || 0 })).sort(nachName),
     geloescht:g
   };
 }
-function dateiForm(h){ const n = haushaltNorm(h); return { format:1, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler, geloescht:n.geloescht }; }
+function dateiForm(h){
+  const n = haushaltNorm(h);
+  return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler, geloescht:n.geloescht };
+}
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
 
@@ -628,7 +652,7 @@ function zusammenfuehren(lokal, fern){
   for (const x of B.spieler) p.set(x.id, x);
   for (const x of A.spieler){ const y = p.get(x.id); if (!y || x.stand > y.stand) p.set(x.id, x); }
   const spieler = [...p.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort(nachName);
-  return { id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, geloescht:tomb };
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -813,7 +837,7 @@ async function verwaltungHochladen(){
   let gemischt = false;
   for (let versuch = 0; versuch < 4; versuch++){
     const stand = m.zaehler || 0, notiz = (m.notizen || []).join(', ').slice(0, 140) || 'Spielkreise geändert';
-    const body = { message:`Verwaltung: ${notiz}`, content:b64AusText(JSON.stringify({ format:1, ...verwaltungNorm(D.verwaltung) }, null, 1)), branch:E.branch };
+    const body = { message:`Verwaltung: ${notiz}`, content:b64AusText(JSON.stringify({ format:1, app:VERSION, ...verwaltungNorm(D.verwaltung) }, null, 1)), branch:E.branch };
     if (m.sha) body.sha = m.sha;
     const r = await gh('PUT', `/contents/${V_DATEI}`, body);
     if (r.ok){
@@ -899,8 +923,10 @@ async function fotosAufraeumen(){
 }
 
 /* ---------- Abgleich ---------- */
-const S = { laeuft:false, nochmal:false, fehler:'', letzter:lesen(LS.letzter, 0), timer:null };
+const S = { laeuft:false, nochmal:false, fehler:'', letzter:lesen(LS.letzter, 0), timer:null, neuereApp:'' };
 function protokoll(text, ok=true){ const l = lesen(LS.log, []); l.unshift({ z:Date.now(), t:text, ok }); schreiben(LS.log, l.slice(0, 20)); }
+function versionZahl(v){ const m = /^v?(\d+)\.(\d+)/.exec(v || ''); return m ? +m[1] * 1000 + +m[2] : 0; }
+function appPruefen(v){ if (versionZahl(v) > versionZahl(VERSION) && versionZahl(v) > versionZahl(S.neuereApp)){ S.neuereApp = v; updateHinweis(v); } }
 function syncBald(){ clearTimeout(S.timer); S.timer = setTimeout(() => sync('Änderung'), 1200); statusZeigen(); }
 
 async function sync(anlass){
@@ -920,6 +946,7 @@ async function sync(anlass){
       if (m.sha === sha && D.haushalte[id]){ m.aufServer = true; continue; }
       const fern = await dateiLesen(id);
       if (!fern.daten) continue;
+      appPruefen(fern.daten.app);
       const lokal = D.haushalte[id];
       if (lokal && m.dirty){
         D.haushalte[id] = zusammenfuehren(lokal, fern.daten);
@@ -933,6 +960,7 @@ async function sync(anlass){
     if (liste.verwaltung && liste.verwaltung !== D.metaV.sha){
       const fern = await verwaltungLesen();
       if (fern.daten){
+        appPruefen(fern.daten.app);
         const fernN = verwaltungNorm(fern.daten);
         D.verwaltung = D.metaV.dirty ? verwaltungMischen(D.verwaltung, fernN) : fernN;
         if (D.metaV.dirty && JSON.stringify(D.verwaltung) === JSON.stringify(fernN)) D.metaV.dirty = false;
@@ -952,7 +980,10 @@ async function sync(anlass){
     speichern();
     if (neuZeichnen) renderAlles();
 
-    // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen
+    // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen.
+    //    Benutzt ein anderes Gerät schon eine neuere App-Version, wird nichts hochgeladen, damit nichts verloren geht.
+    const wartet = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || O.hoch.length;
+    if (S.neuereApp && E.token && wartet) throw new Error(`Hochladen angehalten: Ein anderes Gerät benutzt schon Version ${S.neuereApp}. Bitte die App neu laden – deine Änderungen bleiben so lange hier gespeichert.`);
     if (E.token){
       st.fotos = await fotosHochladen();
       let gemischt = false;
@@ -1053,8 +1084,8 @@ function chipsHtml(gruppe, optionen, gewaehlt, { mehrfach=true, pflicht=false } 
   return `<div class="chips" data-gruppe="${gruppe}" data-mehrfach="${mehrfach ? 1 : 0}"${pflicht ? ' data-pflicht="1"' : ''}>${optionen.map(o =>
     `<button type="button" class="chip" data-wert="${esc(o.w)}" aria-pressed="${gewaehlt.includes(o.w)}">${esc(o.t)}</button>`).join('')}</div>`;
 }
-function figurChipsHtml(gruppe, gewaehlt, { mehrfach=true, pflicht=false } = {}){
-  return `<div class="chips" data-gruppe="${gruppe}" data-mehrfach="${mehrfach ? 1 : 0}"${pflicht ? ' data-pflicht="1"' : ''}>${haushaltListe().map(h =>
+function figurChipsHtml(gruppe, gewaehlt, { mehrfach=true, pflicht=false, liste=null } = {}){
+  return `<div class="chips" data-gruppe="${gruppe}" data-mehrfach="${mehrfach ? 1 : 0}"${pflicht ? ' data-pflicht="1"' : ''}>${(liste || haushaltListe()).map(h =>
     `<button type="button" class="chip figur-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(h.id)}" aria-pressed="${gewaehlt.includes(h.id)}">${figur(h.farbe, 17)}${esc(h.name)}</button>`).join('')}</div>`;
 }
 document.addEventListener('click', e => {
@@ -1089,6 +1120,11 @@ function meineKreise(){
   return D.verwaltung.kreise.filter(k => E.admin || k.haushalte.includes(E.meinHaushalt))
     .map(k => ({ ...k, haushalte:k.haushalte.filter(id => D.haushalte[id]) })).filter(k => k.haushalte.length);
 }
+/* Rechte: Solange es keinen Admin gibt, darf jeder alles. Sobald eine Admin-PIN festgelegt ist,
+   ändert jeder nur noch seinen eigenen Haushalt (Spiele, Mitspieler, Name) – der Admin darf alles. */
+function rechteAktiv(){ return !!D.verwaltung.pinHash; }
+function darfBearbeiten(hid){ return !rechteAktiv() || E.admin || (meinHaushaltGueltig() && hid === E.meinHaushalt); }
+function darfHaushaltWechseln(){ return !rechteAktiv() || E.admin || !meinHaushaltGueltig(); }
 function nurEigeneSichtbar(){ return kreiseAktiv() && !E.admin && meinHaushaltGueltig() && sichtbareIds().size === 1; }
 
 /* ---------- Daten für die Ansicht ---------- */
@@ -1247,11 +1283,12 @@ function spielDetail(id){
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
     ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${sp.link.includes('wikidata') ? 'Wikidata' : 'Wikipedia'}</a>` : ''}
     ${sp.bildQuelle ? `<p class="quelle-text">${esc(sp.bildQuelle)}</p>` : ''}
-    <div class="knopfreihe" style="margin-top:18px">
+    ${darfBearbeiten(sp.hid) ? `<div class="knopfreihe" style="margin-top:18px">
       <button class="knopf zweit" type="button" data-bearbeiten>${ic('stift')}Bearbeiten</button>
       <button class="knopf gefahr" type="button" data-loeschen>${ic('muell')}Löschen</button>
-    </div>`);
+    </div>` : `<p class="block-hinweis" style="margin-top:16px">Ändern oder löschen kann dieses Spiel nur ${esc(h ? h.name : 'der Haushalt')} oder der Admin.</p>`}`);
   bilderBeobachten(s);
+  if (!darfBearbeiten(sp.hid)) return;
   $('[data-bearbeiten]', s).addEventListener('click', () => { s.schliessen(); setTimeout(() => spielFormular(sp), 120); });
   $('[data-loeschen]', s).addEventListener('click', async () => {
     if (!await frage(`„${sp.name}“ löschen?`, 'Das Spiel verschwindet aus der Liste – auf allen Geräten.', 'Löschen')) return;
@@ -1259,7 +1296,7 @@ function spielDetail(id){
   });
 }
 function spielLoeschen(sp){
-  const h = D.haushalte[sp.hid]; if (!h) return;
+  const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
   h.spiele = h.spiele.filter(x => x.id !== sp.id);
   h.geloescht[sp.id] = Date.now();
   if (sp.bild) fotoWeg(sp.bild);
@@ -1589,8 +1626,9 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
 /* ---------- Spiel: Formular ---------- */
 function spielFormular(sp){
   if (!Object.keys(D.haushalte).length){ haushaltFormular(null, () => spielFormular()); return; }
-  const sichtbar = haushaltListe();
-  if (!sichtbar.length){ haushaltWaehlen(); return; }
+  const sichtbar = haushaltListe().filter(h => darfBearbeiten(h.id));
+  if (!sichtbar.length){ if (!meinHaushaltGueltig()) haushaltWaehlen(); else toast('Spiele eintragen kannst du nur bei deinem eigenen Haushalt.', 'fehler'); return; }
+  if (sp && !darfBearbeiten(sp.hid)){ toast('Dieses Spiel kann nur sein Haushalt oder der Admin ändern.', 'fehler'); return; }
   const neu = !sp;
   const startHh = sp ? sp.hid : (meinHaushaltGueltig() && sichtbar.some(h => h.id === E.meinHaushalt) ? E.meinHaushalt : sichtbar[0].id);
   const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
@@ -1604,7 +1642,7 @@ function spielFormular(sp){
       <div class="eingabe-reihe"><input class="eingabe" id="f-name" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required enterkeyhint="search">
         <button class="knopf zweit" type="button" data-nachschlagen>${ic('suche')}Suchen</button></div>
       <p class="block-hinweis">Suchen holt Spieler, Alter, Dauer, Beschreibung und ein Foto aus Wikipedia.</p></div>
-    ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true })}</div>` : ''}
+    ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
       <div class="feld"><span class="feld-titel">bis</span>${stepperHtml('spielerMax', w.spielerMax ?? w.spielerMin ?? 4, { min:1, max:30 })}</div>
@@ -1845,7 +1883,7 @@ function renderHaushalte(){
   const el = $('#haushalte-inhalt');
   const liste = haushaltListe();
   el.innerHTML = `${liste.length ? `<div class="hh-liste">${liste.map(h => {
-      const n = h.spiele.length, sp = h.spieler || [], wartet = (D.meta[h.id] || {}).dirty;
+      const n = h.spiele.length, sp = h.spieler || [], wartet = (D.meta[h.id] || {}).dirty, darf = darfBearbeiten(h.id);
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
@@ -1854,26 +1892,32 @@ function renderHaushalte(){
           ${ic('pfeil')}
         </summary>
         <div class="innen">
-          ${klapp('hh-sp-' + h.id, 'Mitspieler', `<div class="chips">${sp.map(x => `<button type="button" class="chip spieler-chip" data-spieler="${esc(x.id)}" data-hh="${esc(h.id)}">${figur(h.farbe, 14)}${esc(x.name)}</button>`).join('')}
-              <button type="button" class="chip neu-chip" data-hha="spieler-neu" data-id="${esc(h.id)}">${ic('plus')}Mitspieler</button></div>
-              ${sp.length ? '<p class="block-hinweis">Namen antippen zum Ändern oder Entfernen.</p>' : ''}`,
+          ${klapp('hh-sp-' + h.id, 'Mitspieler', `<div class="chips">${sp.map(x => darf
+                ? `<button type="button" class="chip spieler-chip" data-spieler="${esc(x.id)}" data-hh="${esc(h.id)}">${figur(h.farbe, 14)}${esc(x.name)}</button>`
+                : `<span class="chip" style="cursor:default">${figur(h.farbe, 14)}${esc(x.name)}</span>`).join('')}
+              ${darf ? `<button type="button" class="chip neu-chip" data-hha="spieler-neu" data-id="${esc(h.id)}">${ic('plus')}Mitspieler</button>` : ''}</div>
+              ${darf && sp.length ? '<p class="block-hinweis">Namen antippen zum Ändern oder Entfernen.</p>' : ''}
+              ${!darf && !sp.length ? '<p class="hh-leer">Noch keine Mitspieler eingetragen.</p>' : ''}`,
             { klasse:'leicht hh-teil', standard:true, klein: sp.length ? esc(sp.map(x => x.name).join(', ')) : 'noch keine' })}
           ${klapp('hh-sl-' + h.id, 'Spiele', n ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${esc(spielerText(s))} Spieler</span></button></li>`).join('')}</ul>`
               : '<p class="hh-leer">Noch keine Spiele eingetragen.</p>',
             { klasse:'leicht hh-teil', standard:false, klein:`${n}` })}
           <div class="hh-knoepfe">
             <button class="knopf zweit" type="button" data-hha="spiele" data-id="${esc(h.id)}" ${n ? '' : 'disabled'}>Als Kacheln zeigen</button>
-            ${h.id !== E.meinHaushalt ? `<button class="knopf zweit" type="button" data-hha="mein" data-id="${esc(h.id)}">Mein Haushalt</button>` : ''}
-            <button class="knopf zweit" type="button" data-hha="bearbeiten" data-id="${esc(h.id)}">${ic('stift')}Name & Farbe</button>
-            <button class="knopf gefahr" type="button" data-hha="loeschen" data-id="${esc(h.id)}">${ic('muell')}Löschen</button>
+            ${h.id !== E.meinHaushalt && darfHaushaltWechseln() ? `<button class="knopf zweit" type="button" data-hha="mein" data-id="${esc(h.id)}">Mein Haushalt</button>` : ''}
+            ${darf ? `<button class="knopf zweit" type="button" data-hha="bearbeiten" data-id="${esc(h.id)}">${ic('stift')}Name & Farbe</button>
+            <button class="knopf gefahr" type="button" data-hha="loeschen" data-id="${esc(h.id)}">${ic('muell')}Löschen</button>` : ''}
           </div>
+          ${darf ? '' : `<p class="block-hinweis">Ändern kann diesen Haushalt nur ${esc(h.name)} selbst oder der Admin.</p>`}
         </div>
       </details>`; }).join('')}</div>`
     : `<div class="leer"><div class="figuren">${FARBEN.slice(0,5).map(f => figur(f.c, 30)).join('')}</div><h3>Noch keine Haushalte</h3><p>Jeder Haushalt bekommt eine Spielfigur in seiner Farbe.</p></div>`}
-    <button class="knopf breit" type="button" data-aktion="haushalt-neu">${ic('plus')}Neuen Haushalt anlegen</button>`;
+    ${darfHaushaltWechseln() ? `<button class="knopf breit" type="button" data-aktion="haushalt-neu">${ic('plus')}Neuen Haushalt anlegen</button>` : ''}`;
 }
 function haushaltAktion(was, id){
   const h = D.haushalte[id]; if (!h) return;
+  if (was === 'mein' && !darfHaushaltWechseln()) return;
+  if (['bearbeiten', 'loeschen', 'spieler-neu'].includes(was) && !darfBearbeiten(id)){ toast('Das darf nur dieser Haushalt selbst oder der Admin.', 'fehler'); return; }
   if (was === 'spiele'){ filterZuruecksetzen(); F.haushalte = [id]; schreiben(LS.filter, F); seiteZeigen('spiele'); }
   if (was === 'mein'){ E.meinHaushalt = id; einstSpeichern(); renderAlles(); toast(`„${h.name}“ ist jetzt dein Haushalt`); }
   if (was === 'bearbeiten') haushaltFormular(h);
@@ -1896,7 +1940,7 @@ function spielerHinzufuegen(hid, namen){
   return n;
 }
 async function spielerNeu(hid){
-  const h = D.haushalte[hid]; if (!h) return;
+  const h = D.haushalte[hid]; if (!h || !darfBearbeiten(hid)) return;
   const t = await textFrage(`Mitspieler bei ${h.name}`, { label:'Name (mehrere mit Komma trennen)', platzhalter:'z. B. Christian, Birgit', knopf:'Hinzufügen' });
   if (!t) return;
   const n = spielerHinzufuegen(hid, namenListe(t));
@@ -1904,6 +1948,7 @@ async function spielerNeu(hid){
   speichern(); renderAlles(); syncBald(); toast(n === 1 ? 'Mitspieler hinzugefügt' : `${n} Mitspieler hinzugefügt`);
 }
 function spielerBearbeiten(hid, pid){
+  if (!darfBearbeiten(hid)) return;
   const h = D.haushalte[hid]; const x = h && (h.spieler || []).find(y => y.id === pid); if (!x) return;
   const s = sheet(`<form novalidate><div class="sheet-kopf"><h2 style="display:flex;align-items:center;gap:10px">${figur(h.farbe, 22)}${esc(x.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <label class="feld"><span class="feld-titel">Name</span><input class="eingabe" name="t" value="${esc(x.name)}" maxlength="30" autocomplete="off" autocapitalize="words"></label>
@@ -1925,6 +1970,7 @@ function spielerBearbeiten(hid, pid){
 }
 function haushaltFormular(h, danach){
   const neu = !h;
+  if (neu ? !darfHaushaltWechseln() : !darfBearbeiten(h.id)){ toast('Das darf nur der Admin.', 'fehler'); return; }
   const benutzt = Object.values(D.haushalte).map(x => x.farbe);
   const farbe0 = h ? h.farbe : (FARBEN.find(f => !benutzt.includes(f.c)) || FARBEN[0]).c;
   const s = sheet(`<form novalidate>
@@ -1959,7 +2005,7 @@ function haushaltFormular(h, danach){
   });
 }
 async function haushaltLoeschen(id){
-  const h = D.haushalte[id]; if (!h) return;
+  const h = D.haushalte[id]; if (!h || !darfBearbeiten(id)) return;
   const m = D.meta[id] || {};
   if (!await frage(`„${h.name}“ löschen?`, `Der Haushalt und seine ${h.spiele.length} Spiele verschwinden auf allen Geräten. Das lässt sich nur über eine Sicherung zurückholen.`, 'Endgültig löschen')) return;
   if (m.aufServer){
@@ -2003,7 +2049,9 @@ function renderEinstellungen(){
   const mein = D.haushalte[E.meinHaushalt];
   el.innerHTML = `
     ${klapp('e-mein', 'Mein Haushalt',
-      liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
+      !darfHaushaltWechseln() ? `<p style="margin:0 0 6px;display:flex;align-items:center;gap:8px;font-weight:600">${figur(mein.farbe, 18)}${esc(mein.name)}</p>
+        <p class="block-hinweis">Den Haushalt eines Geräts kann nur der Admin ändern.</p>`
+      : liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
         <p class="block-hinweis">Neue Spiele landen automatisch bei diesem Haushalt.</p>`
       : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`,
       { standard:!mein, klein: mein ? `${figur(mein.farbe, 15)}${esc(mein.name)}` : 'nicht gewählt' })}
@@ -2043,7 +2091,7 @@ function renderEinstellungen(){
     ${klapp('e-daten', 'Daten', `
       <div style="display:flex;flex-direction:column;gap:10px">
         <button class="knopf zweit" type="button" id="e-export">Sicherung herunterladen</button>
-        <button class="knopf zweit" type="button" id="e-import">Sicherung einspielen</button>
+        ${!rechteAktiv() || E.admin ? '<button class="knopf zweit" type="button" id="e-import">Sicherung einspielen</button>' : ''}
         <input type="file" accept="application/json,.json" id="e-import-datei" class="sr" tabindex="-1">
         <button class="knopf rahmen" type="button" id="e-neu">Alles neu von GitHub laden</button>
       </div>
@@ -2065,7 +2113,7 @@ function renderEinstellungen(){
   });
   $('#e-einladen').addEventListener('click', einladen);
   $('#e-export').addEventListener('click', sicherungHerunterladen);
-  $('#e-import').addEventListener('click', () => $('#e-import-datei').click());
+  const imp = $('#e-import'); if (imp) imp.addEventListener('click', () => $('#e-import-datei').click());
   $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
   $('#e-neu').addEventListener('click', allesNeuLaden);
   const v = $('#verwaltung');
@@ -2108,6 +2156,7 @@ const HILFE = [
     <ul><li>Jeder Haushalt sieht dann die Spiele der Haushalte, mit denen er in einem Kreis ist.</li>
     <li>Ein Haushalt in keinem Kreis sieht nur die eigenen Spiele.</li>
     <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li></ul>
+    <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
     <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
   { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
@@ -2166,6 +2215,16 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.42', datum:'23.10.2026', neu:[
+    'Rechte: Sobald es einen Admin gibt, ändert jeder nur noch seinen eigenen Haushalt – Spiele, Mitspieler, Name und Farbe',
+    'Spiele und Mitspieler anderer Haushalte lassen sich nur noch ansehen',
+    '„Mein Haushalt“ eines Geräts kann nur noch der Admin umstellen',
+    'Neue Haushalte anlegen und eine Sicherung einspielen kann nur noch der Admin (oder ein Gerät, das noch keinen Haushalt hat)'] },
+  { v:'v1.41', datum:'23.10.2026', neu:[
+    'Behoben: Mitspieler anderer Haushalte fehlten auf Geräten, die vorher eine ältere Version hatten – nach dem Update lädt jedes Gerät einmal alle Daten frisch',
+    'Schutz: Benutzt ein anderes Gerät schon eine neuere Version, lädt diese App nichts mehr hoch, bis sie neu geladen ist – so geht nichts verloren',
+    'Angaben, die eine Version noch nicht kennt, bleiben beim Speichern erhalten',
+    'Oben erscheint ein Hinweis mit „Jetzt laden“, sobald es eine neue Version gibt'] },
   { v:'v1.40', datum:'23.10.2026', neu:[
     'Neu: <b>Mitspieler mit Namen</b> je Haushalt – unter Haushalte aufklappen und über „+ Mitspieler“ eintragen',
     'Beim Anlegen eines Haushalts lassen sich die Mitspieler gleich mit eintragen',
@@ -2470,6 +2529,7 @@ function hausFrage(versuch=0){
   haushaltWaehlen();
 }
 function haushaltWaehlen(){
+  if (!darfHaushaltWechseln()) return;
   const liste = haushaltListe(true);
   const s = sheet(`<div class="sheet-kopf"><h2>Zu welchem Haushalt gehörst du?</h2><button class="knopf-rund" type="button" data-zu aria-label="Später">${ic('x')}</button></div>
     <p class="text-leise" style="margin-top:-4px">Deine neuen Spiele landen dann automatisch dort.</p>
@@ -2480,6 +2540,22 @@ function haushaltWaehlen(){
     if (w){ E.meinHaushalt = w.dataset.hhWahl; einstSpeichern(); s.schliessen(); renderAlles(); toast('Alles klar!'); }
     if (e.target.closest('[data-hh-neu]')){ s.schliessen(); setTimeout(() => haushaltFormular(null), 200); }
   });
+}
+/* Neue App-Version auf GitHub? Dann oben einen Hinweis mit „Jetzt laden“ zeigen */
+let updateGeprueft = 0;
+async function updatePruefen(){
+  if (Date.now() - updateGeprueft < 20 * 60 * 1000) return;
+  updateGeprueft = Date.now();
+  const neu = await neuesteVersion();
+  if (neu && versionZahl(neu) > versionZahl(VERSION)) updateHinweis(neu);
+}
+let hinweisVersion = '';
+function updateHinweis(neu){
+  const el = $('#update-hinweis'); if (!el || versionZahl(neu) <= versionZahl(hinweisVersion)) return;
+  hinweisVersion = neu;
+  el.innerHTML = `<div class="hinweis warn install"><p>Version <b>${esc(neu)}</b> ist da. Bitte neu laden, damit alle Geräte gleich arbeiten.</p>
+    <button class="knopf" type="button" id="update-laden" style="min-height:38px;padding:0 14px;flex:none">Jetzt laden</button></div>`;
+  $('#update-laden').addEventListener('click', () => location.reload());
 }
 function installHinweis(){
   const el = $('#install-hinweis');
@@ -2539,7 +2615,7 @@ function verdrahten(){
   document.addEventListener('click', e => {
     const k = e.target.closest('[data-spiel]'); if (k && !k.closest('.sheet')){ spielDetail(k.dataset.spiel); return; }
     const hha = e.target.closest('[data-hha]'); if (hha){ haushaltAktion(hha.dataset.hha, hha.dataset.id); return; }
-    const spc = e.target.closest('.spieler-chip[data-spieler]'); if (spc){ spielerBearbeiten(spc.dataset.hh, spc.dataset.spieler); return; }
+    const spc = e.target.closest('.spieler-chip[data-spieler]'); if (spc){ if (darfBearbeiten(spc.dataset.hh)) spielerBearbeiten(spc.dataset.hh, spc.dataset.spieler); return; }
     const a = e.target.closest('[data-aktion]');
     if (a){
       const was = a.dataset.aktion;
@@ -2576,7 +2652,11 @@ function verdrahten(){
     if (g === 'kat') R.kategorien = w;
     rundeSpeichern();
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - S.letzter > 60000) sync('App geöffnet'); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - S.letzter > 60000) sync('App geöffnet');
+    updatePruefen();
+  });
   addEventListener('online', () => sync('wieder online'));
   addEventListener('offline', statusZeigen);
   addEventListener('hashchange', () => { if (einladungPruefen()){ renderAlles(); sync('Einladung'); } });
@@ -2590,6 +2670,7 @@ function start(){
   seiteZeigen('spiele');
   if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(willkommen, 350);
   sync(eingeladen ? 'Einladung' : 'Start');
+  setTimeout(updatePruefen, 2500);
 }
 start();
 </script>
