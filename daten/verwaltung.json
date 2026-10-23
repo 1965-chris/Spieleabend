@@ -31,17 +31,13 @@
    "stand": 1792782687293
   },
   {
-   "id": "gmvlcjlfyw1x1",
-   "name": "iPad – Familie Mättig Baumberg",
-   "seit": 1792782748320,
-   "stand": 1792782748320
-  },
-  {
    "id": "gmvlch98lgubm",
    "name": "iPhone – Familie Mättig Baumberg",
    "seit": 1792782806189,
    "stand": 1792782806189
   }
  ],
- "geloescht": {}
+ "geloescht": {
+  "gmvlcjlfyw1x1": 1792782854050
+ }
 }
