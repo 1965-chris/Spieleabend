@@ -179,6 +179,19 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .knopf.gefahr{background:transparent;border:1.5px solid color-mix(in srgb, var(--rot) 45%, transparent);color:var(--rot)}
 .knopf.gefahr-voll{background:var(--rot);color:#fff}
 .knopf.breit{width:100%}
+a.knopf{text-decoration:none}
+/* Spielanleitung */
+.anleitung{margin:16px 0 4px;padding:12px 14px 14px;border-radius:14px;background:var(--grund)}
+.anleitung-kopf{display:flex;align-items:center;gap:8px;font-weight:700;margin:0 0 10px}
+.anleitung-quelle{font-size:12.5px;color:var(--leise);margin:7px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.anleitung-knoepfe{display:flex;gap:8px;margin-top:10px}
+.anleitung-knoepfe .knopf{flex:1;min-height:40px;font-size:14.5px;padding:0 10px}
+.such-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.such-knoepfe .knopf{min-height:52px;font-size:14.5px;padding:0 10px;text-align:center;line-height:1.2}
+.vorschlag{display:flex;align-items:center;gap:8px;width:100%;text-align:left;appearance:none;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);border-radius:12px;padding:9px 12px;font-size:14px;margin-bottom:6px}
+.vorschlag span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schritt{display:flex;gap:10px;align-items:flex-start;margin:16px 0 8px;font-weight:700}
+.schritt b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--filz);color:var(--filz-tinte);display:grid;place-items:center;font-size:13px}
 .knopf:disabled{opacity:.5}
 .knopf-rund{appearance:none;border:0;background:var(--filz-hell);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none}
 .knopfreihe{display:flex;gap:10px;flex-wrap:wrap}
@@ -537,7 +550,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.51';
+const VERSION = 'v1.52';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -624,6 +637,7 @@ const ICONS = {
   muell:'<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/>',
   teilen:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  buch:'<path d="M12 6.5C10.5 5 8 4.5 4 4.5v14c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-14c-4 0-6.5.5-8 2z"/><path d="M12 6.5v14"/>',
   pfeil:'<path d="M9 6l6 6-6 6"/>',
   wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>',
   suche:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>',
@@ -639,13 +653,20 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','anleitung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','geloescht']);
 function unbekannte(obj, bekannt){
   const z = {};
   if (obj && typeof obj === 'object') for (const [k, v] of Object.entries(obj)) if (!bekannt.has(k)) z[k] = v;
   return z;
+}
+/* Erste Internetadresse aus einem Text holen (beim Einfügen kommt oft noch Text mit) */
+function linkAus(text){
+  const m = /https?:\/\/[^\s"'<>]+/i.exec(String(text || ''));
+  if (!m) return '';
+  const url = m[0].replace(/[).,;!?]+$/, '');
+  try{ new URL(url); return url.slice(0, 1000); }catch(e){ return ''; }
 }
 function spielNorm(s){
   return {
@@ -655,6 +676,7 @@ function spielNorm(s){
     kategorien:Array.isArray(s.kategorien) ? s.kategorien.filter(k => typeof k === 'string') : [],
     beschreibung:String(s.beschreibung || ''), bemerkung:String(s.bemerkung || ''),
     bildQuelle:String(s.bildQuelle || ''), link:/^https:\/\//.test(s.link || '') ? s.link : '',
+    anleitung:linkAus(s.anleitung),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -1374,18 +1396,112 @@ function spielDetail(id){
     ${sp.beschreibung ? `<p class="detail-text">${esc(sp.beschreibung)}</p>` : ''}
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
     ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${sp.link.includes('wikidata') ? 'Wikidata' : 'Wikipedia'}</a>` : ''}
+    ${anleitungHtml(sp, kopien)}
     ${sp.bildQuelle ? `<p class="quelle-text">${esc(sp.bildQuelle)}</p>` : ''}
     ${darfBearbeiten(sp.hid) ? `<div class="knopfreihe" style="margin-top:18px">
       <button class="knopf zweit" type="button" data-bearbeiten>${ic('stift')}Bearbeiten</button>
       <button class="knopf gefahr" type="button" data-loeschen>${ic('muell')}Löschen</button>
     </div>` : `<p class="block-hinweis" style="margin-top:16px">Ändern oder löschen kann dieses Spiel nur ${esc(h ? h.name : 'der Haushalt')} oder der Admin.</p>`}`);
   bilderBeobachten(s);
+  s.addEventListener('click', e => {
+    const b = e.target.closest('[data-anl]'); if (!b) return;
+    if (b.dataset.anl === 'suchen') anleitungSheet(sp, () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); });
+    if (b.dataset.anl === 'weg') anleitungEntfernen(sp, () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); });
+  });
   if (!darfBearbeiten(sp.hid)) return;
   $('[data-bearbeiten]', s).addEventListener('click', () => { s.schliessen(); setTimeout(() => spielFormular(sp), 120); });
   $('[data-loeschen]', s).addEventListener('click', async () => {
     if (!await frage(`„${sp.name}“ löschen?`, 'Das Spiel verschwindet aus der Liste – auf allen Geräten.', 'Löschen')) return;
     spielLoeschen(sp); s.schliessen();
   });
+}
+/* ---------- Spielanleitung: nur der Link wird gespeichert ---------- */
+function anleitungVon(sp, kopien){
+  if (sp.anleitung) return { url:sp.anleitung, hid:sp.hid };
+  const k = (kopien || []).find(x => x.anleitung);
+  return k ? { url:k.anleitung, hid:k.hid } : null;
+}
+function linkAnzeige(url){
+  try{ const u = new URL(url); return u.hostname.replace(/^www\./, '') + (/\.pdf$/i.test(u.pathname) ? ' · PDF' : ''); }catch(e){ return url; }
+}
+function anleitungHtml(sp, kopien){
+  const a = anleitungVon(sp, kopien), darf = darfBearbeiten(sp.hid);
+  const fremd = a && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
+  return `<div class="anleitung">
+    <p class="anleitung-kopf">${ic('buch')}Spielanleitung</p>
+    ${a ? `<a class="knopf breit" href="${esc(a.url)}" target="_blank" rel="noopener" data-anl-link>${ic('buch')}Spielanleitung öffnen</a>
+      <p class="anleitung-quelle">${esc(linkAnzeige(a.url))}${fremd ? ` – gespeichert von ${esc(fremd)}` : ''}</p>
+      ${darf ? `<div class="anleitung-knoepfe"><button class="knopf rahmen" type="button" data-anl="suchen">${fremd ? 'Eigenen Link speichern' : 'Link ändern'}</button>
+        ${fremd ? '' : `<button class="knopf rahmen" type="button" data-anl="weg">Entfernen</button>`}</div>` : ''}`
+    : `<button class="knopf zweit breit" type="button" data-anl="suchen">${ic('suche')}Spielanleitung suchen</button>
+      ${darf ? '' : `<p class="anleitung-quelle" style="white-space:normal">Den Link speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`}
+  </div>`;
+}
+function anleitungSuchLinks(name){
+  return {
+    pdf:`https://www.google.com/search?q=${encodeURIComponent(`${name} Spielanleitung filetype:pdf`)}`,
+    video:`https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} Spielregeln erklärt`)}`
+  };
+}
+/* Vorschläge aus den Weblinks des Wikipedia-Artikels (dort steht oft „Spielanleitung (PDF)“) */
+async function anleitungVorschlaege(sp){
+  const m = /^https:\/\/de\.wikipedia\.org\/wiki\/(.+)$/.exec(sp.link || ''); if (!m) return [];
+  const j = await wikiJson(wikiUrl(WP_API, { action:'query', prop:'extlinks', titles:decodeURIComponent(m[1]).replace(/_/g, ' '), ellimit:'100', redirects:'1' }));
+  const p = ((j.query || {}).pages || [])[0] || {};
+  const urls = (p.extlinks || []).map(x => typeof x === 'string' ? x : (x.url || x['*'] || '')).map(u => u.replace(/^\/\//, 'https://'));
+  return [...new Set(urls.filter(u => /^https?:\/\//.test(u) && /anleitung|spielregel|regeln|rules|instruction|\.pdf(?:$|[?#])/i.test(u) && !/web\.archive\.org/i.test(u)))].slice(0, 4);
+}
+function anleitungSheet(sp, fertig){
+  const darf = darfBearbeiten(sp.hid), such = anleitungSuchLinks(sp.name);
+  const s = sheet(`<div class="sheet-kopf"><h2>Spielanleitung</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">für „${esc(sp.name)}“</p>
+    <p class="schritt"><b>1</b>Anleitung suchen</p>
+    <div class="such-knoepfe">
+      <a class="knopf zweit" href="${esc(such.pdf)}" target="_blank" rel="noopener">${ic('suche')}Als PDF suchen</a>
+      <a class="knopf zweit" href="${esc(such.video)}" target="_blank" rel="noopener">${ic('suche')}Als Video suchen</a>
+    </div>
+    <div data-vorschlaege></div>
+    ${darf ? `<p class="schritt"><b>2</b>Link kopieren und hier einfügen</p>
+    <p class="text-leise text-klein" style="margin:-2px 0 8px">iPhone/iPad: den Link lange drücken → <b>Link kopieren</b>. Ist das PDF schon offen: Teilen → <b>Kopieren</b>. Dann hierher zurück.</p>
+    <div class="eingabe-reihe"><input class="eingabe" type="url" data-url placeholder="https://…" value="${esc(sp.anleitung || '')}" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
+      <button class="knopf zweit" type="button" data-einfuegen>Einfügen</button></div>
+    <button class="knopf breit" type="button" data-speichern style="margin-top:14px">Link speichern</button>`
+    : `<p class="block-hinweis" style="margin-top:14px">Den Link beim Spiel speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`);
+  // Vorschläge aus Wikipedia (still, wenn nichts kommt)
+  anleitungVorschlaege(sp).then(liste => {
+    if (!liste.length || !s.isConnected) return;
+    $('[data-vorschlaege]', s).innerHTML = `<p class="text-leise text-klein" style="margin:12px 0 6px">Gefunden im Wikipedia-Artikel:</p>
+      ${liste.map(u => darf ? `<button class="vorschlag" type="button" data-vorschlag="${esc(u)}">${ic('link')}<span>${esc(linkAnzeige(u))} – ${esc(decodeURI(u).replace(/^https?:\/\/[^/]+/, ''))}</span></button>`
+        : `<a class="vorschlag" href="${esc(u)}" target="_blank" rel="noopener">${ic('link')}<span>${esc(linkAnzeige(u))}</span></a>`).join('')}`;
+  }).catch(() => {});
+  if (!darf) return;
+  const feld = $('[data-url]', s);
+  s.addEventListener('click', e => { const v = e.target.closest('[data-vorschlag]'); if (v){ feld.value = v.dataset.vorschlag; toast('Vorschlag übernommen – zum Prüfen kurz öffnen, dann speichern'); } });
+  $('[data-einfuegen]', s).addEventListener('click', async () => {
+    try{
+      const t = await navigator.clipboard.readText();
+      const url = linkAus(t);
+      if (url){ feld.value = url; return; }
+      toast('In der Zwischenablage ist kein Link.', 'fehler');
+    }catch(e){ feld.focus(); toast('Bitte ins Feld tippen, lange drücken und „Einfügen“ wählen.'); }
+  });
+  $('[data-speichern]', s).addEventListener('click', () => {
+    const url = linkAus(feld.value);
+    if (!url){ toast('Das sieht nicht nach einem Link aus (https://…).', 'fehler'); feld.focus(); return; }
+    anleitungSetzen(sp, url); s.schliessen(); toast('Spielanleitung gespeichert'); if (fertig) fertig();
+  });
+}
+function anleitungSetzen(sp, url){
+  const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
+  const x = h.spiele.find(y => y.id === sp.id); if (!x) return;
+  x.anleitung = url; x.geaendert = Date.now();
+  markiere(h.id, `${x.name}: Spielanleitung ${url ? 'gespeichert' : 'entfernt'}`);
+  speichern(); renderAlles(); syncBald();
+}
+async function anleitungEntfernen(sp, fertig){
+  if (!darfBearbeiten(sp.hid)) return;
+  if (!await frage('Link entfernen?', `Die gespeicherte Spielanleitung zu „${sp.name}“ wird entfernt.`, 'Entfernen')) return;
+  anleitungSetzen(sp, ''); if (fertig) fertig();
 }
 function spielLoeschen(sp){
   const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
@@ -2630,6 +2746,12 @@ const HILFE = [
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
+  { id:'anleitung', titel:'Spielanleitung', seite:'spiele', text:`
+    <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
+    <li><b>Als PDF suchen</b> sucht die Anleitung im Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
+    <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
+    <li>Danach öffnet <b>Spielanleitung öffnen</b> sie mit einem Tipp – auf allen Geräten. Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen.</li>
+    <li>Gespeichert wird nur der Link, keine Datei. Den Link speichern oder ändern kann der Haushalt, dem das Spiel gehört, oder der Admin.</li></ul>` },
   { id:'finden', titel:'Spiele finden und filtern', seite:'spiele', text:`
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
     <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>` },
@@ -2719,6 +2841,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.52', datum:'23.10.2026', neu:[
+    'Spielanleitung zu jedem Spiel: als PDF oder Erklärvideo suchen, Link einfügen und speichern',
+    'Vorschläge aus dem Wikipedia-Artikel, wenn dort eine Anleitung verlinkt ist',
+    'Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen'] },
   { v:'v1.51', datum:'23.10.2026', neu:[
     'Einladungstext, „Es steht fest …“ und Kalendereintrag ohne Link – die GitHub-Adresse bleibt unter euch'] },
   { v:'v1.50', datum:'23.10.2026', neu:[
