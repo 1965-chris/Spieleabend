@@ -310,12 +310,34 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .wurf-knoepfe{display:flex;flex-direction:column;gap:8px}
 .wurf-ergebnis{animation:auftauchen .28s ease-out}
 @keyframes auftauchen{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
-.wunsch summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--tinte);font-weight:700;font-size:16px;margin:0}
-.wunsch summary::-webkit-details-marker{display:none}
-.wunsch summary .ic{transition:transform .2s;color:var(--leise)}
-.wunsch[open] summary .ic{transform:rotate(90deg)}
-.wunsch summary small{font-weight:500;color:var(--filz);font-size:14px;margin-left:auto}
-.wunsch .innen{padding-top:14px}
+/* Aufklappbare Bereiche */
+.klapp > summary{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--tinte);font-weight:700;font-size:16px;margin:0;min-height:26px}
+.klapp > summary::-webkit-details-marker{display:none}
+.klapp > summary .klapp-titel{flex:none}
+.klapp > summary small{margin-left:auto;font-weight:600;color:var(--filz);font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.klapp > summary > .ic{transition:transform .2s;color:var(--leise);flex:none}
+.klapp[open] > summary > .ic{transform:rotate(90deg)}
+.klapp > .innen{padding-top:14px}
+.klapp.block{padding-bottom:14px}
+.klapp.block[open]{padding-bottom:16px}
+.klapp.leicht > summary{font-size:14px;color:var(--leise);font-weight:600}
+.klapp.leicht > .innen{padding-top:8px}
+.klapp.leicht.feld{margin-bottom:16px}
+.punkt{width:9px;height:9px;border-radius:50%;background:#9AA3B0;display:inline-block;flex:none}
+.punkt[data-k="ok"]{background:#2E9E5B}
+.punkt[data-k="laeuft"]{background:var(--gelb)}
+.punkt[data-k="fehler"]{background:var(--rot)}
+.hh-klapp{background:var(--karte);border-radius:14px;box-shadow:var(--schatten)}
+@media (prefers-color-scheme: dark){ .hh-klapp{border:1px solid var(--linie)} }
+.hh-klapp > summary{padding:14px;gap:14px}
+.hh-klapp > .innen{padding:0 14px 14px}
+.hh-klapp .hh-info{font-weight:400}
+.hh-spiele{list-style:none;margin:0 0 12px;padding:0;border-top:1px solid var(--linie)}
+.hh-spiele button{appearance:none;border:0;background:none;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--linie);font-size:15.5px}
+.hh-spiele button span{color:var(--leise);font-size:14px;white-space:nowrap}
+.hh-leer{color:var(--leise);font-size:14.5px;margin:0 0 12px}
+.hh-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hh-knoepfe .knopf{min-height:42px;font-size:14.5px;padding:0 10px}
 .block .trenner{border:0;border-top:1px solid var(--linie);margin:14px 0}
 @media (prefers-reduced-motion: reduce){ .grosser-wuerfel.rollt{animation:none} .sheet,.sheet-hg,.wurf{transition:none} }
 
@@ -401,7 +423,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.00';
+const VERSION = 'v1.01';
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
 const FARBEN = [
@@ -411,7 +433,8 @@ const FARBEN = [
 const DAUERN = [15,30,45,60,90,120,180];
 const LS = {
   daten:'spieleabend.daten', einst:'spieleabend.einst', filter:'spieleabend.filter', runde:'spieleabend.runde',
-  log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis'
+  log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis',
+  klapp:'spieleabend.aufgeklappt'
 };
 
 /* ---------- Speicher ---------- */
@@ -433,6 +456,7 @@ let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kate
 F.suche = '';
 let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[] }, lesen(LS.runde, {}));
 let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
+const KL = lesen(LS.klapp, {}) || {};                   // welche Bereiche auf diesem Gerät aufgeklappt sind
 
 function speichern(){ schreiben(LS.daten, D); }
 function einstSpeichern(){ schreiben(LS.einst, E); }
@@ -453,6 +477,12 @@ function uhrzeit(ts){ return new Date(ts).toLocaleTimeString('de-DE', { hour:'2-
 function datumZeit(ts){ const d = new Date(ts); const heute = new Date(); const gleich = d.toDateString() === heute.toDateString(); return (gleich ? 'heute ' : d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' }) + ' ') + uhrzeit(ts); }
 function pfadKod(p){ return p.split('/').map(encodeURIComponent).join('/'); }
 function feldVon(form, name){ return form.elements.namedItem(name); }
+/* Aufklappbarer Bereich – der Zustand (auf/zu) wird pro Gerät gemerkt */
+function klappAuf(id, standard){ return Object.prototype.hasOwnProperty.call(KL, id) ? !!KL[id] : !!standard; }
+function klapp(id, titel, inhalt, { standard=false, zwingend=false, klein='', kleinId='', klasse='block' } = {}){
+  const offen = zwingend || klappAuf(id, standard);
+  return `<details class="klapp ${klasse}" data-klapp="${id}"${offen ? ' open' : ''}><summary><span class="klapp-titel">${titel}</span><small${kleinId ? ` id="${kleinId}"` : ''}>${klein}</small>${ic('pfeil')}</summary><div class="innen">${inhalt}</div></details>`;
+}
 function istStandalone(){ return window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches; }
 
 const ICONS = {
@@ -627,7 +657,7 @@ async function fehlerAus(r, was){
   if (r.status === 401) return new Error('Der Schlüssel stimmt nicht oder ist abgelaufen.');
   if ((r.status === 403 || r.status === 429) && (rest === '0' || /rate limit/i.test(msg)))
     return new Error(E.token ? 'GitHub-Abrufgrenze erreicht – in einer Stunde geht es weiter.' : 'Ohne Schlüssel erlaubt GitHub nur 60 Abrufe pro Stunde. Bitte später nochmal.');
-  if (r.status === 403) return new Error('Der Schlüssel darf in diesem Repo nichts ändern (Contents: Read and write fehlt).');
+  if (r.status === 403) return new Error(`Der Schlüssel darf in diesem Repo nichts ändern${msg ? ` (GitHub: ${msg})` : ''}.`);
   if (r.status === 404) return new Error(`${was}: nicht gefunden.`);
   return new Error(`${was}: GitHub meldet ${r.status}${msg ? ' – ' + msg : ''}`);
 }
@@ -974,14 +1004,17 @@ function filterSheet(){
     <div class="feld"><span class="feld-titel">Wie viele spielen mit?</span>${stepperHtml('personen', F.personen, { min:1, max:30, leer:'egal', start:4 })}</div>
     <div class="feld"><span class="feld-titel">Alter des jüngsten Mitspielers</span>${stepperHtml('alter', F.alter, { min:3, max:18, leer:'egal', start:8 })}</div>
     <div class="feld"><span class="feld-titel">Spieldauer höchstens</span>${chipsHtml('dauer', [30,45,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), F.dauerMax ? [String(F.dauerMax)] : [], { mehrfach:false })}</div>
-    <div class="feld"><span class="feld-titel">Art des Spiels</span>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), F.kategorien)}</div>
-    <div class="feld"><span class="feld-titel">Haushalt</span>${figurChipsHtml('hh', F.haushalte)}</div>
-    <div class="feld"><span class="feld-titel">Sortieren</span>${chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true })}</div>
+    ${klapp('filter-kat', 'Art des Spiels', chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), F.kategorien), { klasse:'leicht feld', standard:F.kategorien.length > 0, kleinId:'f-kat-zahl' })}
+    ${klapp('filter-hh', 'Haushalt', figurChipsHtml('hh', F.haushalte), { klasse:'leicht feld', standard:F.haushalte.length > 0, kleinId:'f-hh-zahl' })}
+    ${klapp('filter-sort', 'Sortieren', chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true }), { klasse:'leicht feld', kleinId:'f-sort' })}
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zuruecksetzen>Zurücksetzen</button><button class="knopf" type="button" data-zu data-anzeigen></button></div>`);
   function aktualisieren(){
     schreiben(LS.filter, F); renderSpiele();
     const n = alleSpiele().filter(x => passt(x, F)).length;
     $('[data-anzeigen]', s).textContent = `${n} ${n === 1 ? 'Spiel' : 'Spiele'} zeigen`;
+    $('#f-kat-zahl', s).textContent = F.kategorien.length ? `${F.kategorien.length} gewählt` : '';
+    $('#f-hh-zahl', s).textContent = F.haushalte.length ? `${F.haushalte.length} gewählt` : '';
+    $('#f-sort', s).textContent = F.sort === 'neu' ? 'zuletzt eingetragen' : 'nach Name';
   }
   s.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') F.personen = e.detail; if (n === 'alter') F.alter = e.detail; aktualisieren(); });
   s.addEventListener('wahl', e => {
@@ -1058,7 +1091,8 @@ function spielFormular(sp){
     </div>
     <div class="feld"><span class="feld-titel">Alter ab</span>${stepperHtml('alterAb', w.alterAb, { min:2, max:18, leer:'egal', start:8 })}</div>
     <div class="feld"><span class="feld-titel">Spieldauer etwa</span>${chipsHtml('dauer', DAUERN.map(d => ({ w:String(d), t:dauerText(d) })), w.dauer ? [String(w.dauer)] : [], { mehrfach:false })}</div>
-    <div class="feld"><span class="feld-titel">Art des Spiels</span>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), w.kategorien)}</div>
+    ${klapp('form-kat', 'Art des Spiels', chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), w.kategorien),
+        { klasse:'leicht feld', standard:true, klein:esc(w.kategorien.join(', ')), kleinId:'form-kat-wahl' })}
     <label class="feld"><span class="feld-titel">Kurz erklärt</span><textarea class="eingabe" name="beschreibung" maxlength="600" placeholder="Worum geht es? z. B. Begriffe erklären, zeichnen und pantomimisch darstellen.">${esc(w.beschreibung)}</textarea></label>
     <label class="feld"><span class="feld-titel">Bemerkung</span><input class="eingabe" name="bemerkung" value="${esc(w.bemerkung)}" maxlength="120" placeholder="z. B. mit Erweiterung, verliehen an …"></label>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Speichern</button></div>
@@ -1090,6 +1124,7 @@ function spielFormular(sp){
     }catch(err){ toast(err.message, 'fehler'); }
     fotoZeigen();
   });
+  s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'kat') $('#form-kat-wahl', s).textContent = e.detail.join(', '); });
   s.addEventListener('wert', e => {
     const mn = $('[data-name="spielerMin"]', s), mx = $('[data-name="spielerMax"]', s);
     if (e.target === mn && stepperWert(mx) < e.detail) stepperSetzen(mx, e.detail);
@@ -1158,14 +1193,14 @@ function renderRunde(){
       <div class="block-zeile"><p class="block-titel">Jüngster Mitspieler</p>${stepperHtml('alter', R.alter, { min:3, max:18, leer:'egal', start:8 })}</div>
       <p class="block-hinweis">Alter in Jahren – „egal“, wenn nur Erwachsene spielen.</p>
     </div>
-    ${mehrereHh ? `<div class="block"><p class="block-titel">Wessen Spiele sind da?</p>${figurChipsHtml('dabei', dabei)}
-      <p class="block-hinweis">Antippen, um einen Haushalt aus- oder einzublenden.</p></div>` : ''}
-    <details class="block wunsch"${wunschZahl() ? ' open' : ''}><summary>Weitere Wünsche<small id="wunsch-zahl"></small>${ic('pfeil')}</summary>
-      <div class="innen">
-        <p class="block-titel">Wie viel Zeit habt ihr?</p>${chipsHtml('dauer', [30,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), R.dauerMax ? [String(R.dauerMax)] : [], { mehrfach:false })}
+    ${mehrereHh ? klapp('runde-hh', 'Wessen Spiele sind da?',
+        `${figurChipsHtml('dabei', dabei)}<p class="block-hinweis">Antippen, um einen Haushalt aus- oder einzublenden.</p>`,
+        { kleinId:'dabei-zahl' }) : ''}
+    ${klapp('runde-wunsch', 'Weitere Wünsche',
+        `<p class="block-titel">Wie viel Zeit habt ihr?</p>${chipsHtml('dauer', [30,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), R.dauerMax ? [String(R.dauerMax)] : [], { mehrfach:false })}
         <p class="block-titel" style="margin-top:16px">Worauf habt ihr Lust?</p>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), R.kategorien)}
-        <p class="block-hinweis">Nichts gewählt heißt: alles ist erlaubt.</p>
-      </div></details>
+        <p class="block-hinweis">Nichts gewählt heißt: alles ist erlaubt.</p>`,
+        { standard:wunschZahl() > 0, kleinId:'wunsch-zahl' })}
     <div id="runde-ergebnis"></div>`;
   renderRundeErgebnis();
 }
@@ -1181,7 +1216,11 @@ function renderRundeErgebnis(){
   bilderBeobachten(el);
 }
 function rundeSpeichern(){ schreiben(LS.runde, R); renderRundeErgebnis(); }
-function wunschAnzeigen(){ const z = $('#wunsch-zahl'); if (z){ const n = wunschZahl(); z.textContent = n ? `${n} gewählt` : ''; } }
+function wunschAnzeigen(){
+  const z = $('#wunsch-zahl'); if (z){ const n = wunschZahl(); z.textContent = n ? `${n} gewählt` : ''; }
+  const d = $('#dabei-zahl');
+  if (d){ const alle = Object.keys(D.haushalte).length, da = alle - R.ohne.filter(id => D.haushalte[id]).length; d.textContent = da === alle ? 'alle' : `${da} von ${alle}`; }
+}
 let letzterWurf = null;
 function wuerfeln(){
   const gruppen = rundeTreffer(); if (!gruppen.length) return;
@@ -1220,33 +1259,35 @@ function wuerfeln(){
 function renderHaushalte(){
   const el = $('#haushalte-inhalt');
   const liste = haushaltListe();
-  el.innerHTML = `${liste.length ? `<div class="hh-liste">${liste.map(h => `
-      <button class="hh" type="button" data-hh="${esc(h.id)}" style="--hf:${esc(h.farbe)}">
-        <span class="hh-figur">${figur(h.farbe, 30)}</span>
-        <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${h.spiele.length} ${h.spiele.length === 1 ? 'Spiel' : 'Spiele'}</span></span>
-        ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
-      </button>`).join('')}</div>`
+  el.innerHTML = `${liste.length ? `<div class="hh-liste">${liste.map(h => {
+      const n = h.spiele.length, wartet = (D.meta[h.id] || {}).dirty;
+      return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
+        <summary>
+          <span class="hh-figur">${figur(h.farbe, 30)}</span>
+          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}${wartet ? ' – noch nicht hochgeladen' : ''}</span></span>
+          ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
+          ${ic('pfeil')}
+        </summary>
+        <div class="innen">
+          ${n ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${esc(spielerText(s))} Spieler</span></button></li>`).join('')}</ul>`
+              : '<p class="hh-leer">Noch keine Spiele eingetragen.</p>'}
+          <div class="hh-knoepfe">
+            <button class="knopf zweit" type="button" data-hha="spiele" data-id="${esc(h.id)}" ${n ? '' : 'disabled'}>Als Kacheln zeigen</button>
+            ${h.id !== E.meinHaushalt ? `<button class="knopf zweit" type="button" data-hha="mein" data-id="${esc(h.id)}">Mein Haushalt</button>` : ''}
+            <button class="knopf zweit" type="button" data-hha="bearbeiten" data-id="${esc(h.id)}">${ic('stift')}Name & Farbe</button>
+            <button class="knopf gefahr" type="button" data-hha="loeschen" data-id="${esc(h.id)}">${ic('muell')}Löschen</button>
+          </div>
+        </div>
+      </details>`; }).join('')}</div>`
     : `<div class="leer"><div class="figuren">${FARBEN.slice(0,5).map(f => figur(f.c, 30)).join('')}</div><h3>Noch keine Haushalte</h3><p>Jeder Haushalt bekommt eine Spielfigur in seiner Farbe.</p></div>`}
     <button class="knopf breit" type="button" data-aktion="haushalt-neu">${ic('plus')}Neuen Haushalt anlegen</button>`;
 }
-function haushaltAktionen(id){
+function haushaltAktion(was, id){
   const h = D.haushalte[id]; if (!h) return;
-  const s = sheet(`<div class="sheet-kopf"><h2 style="display:flex;align-items:center;gap:10px">${figur(h.farbe, 26)}${esc(h.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <p class="text-leise" style="margin-top:-6px">${h.spiele.length} ${h.spiele.length === 1 ? 'Spiel' : 'Spiele'}${(D.meta[id] || {}).dirty ? ' – Änderungen noch nicht hochgeladen' : ''}</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
-      <button class="knopf" type="button" data-a="spiele">Spiele dieses Haushalts zeigen</button>
-      ${id !== E.meinHaushalt ? '<button class="knopf zweit" type="button" data-a="mein">Das ist mein Haushalt</button>' : ''}
-      <button class="knopf zweit" type="button" data-a="bearbeiten">${ic('stift')}Name und Farbe ändern</button>
-      <button class="knopf gefahr" type="button" data-a="loeschen">${ic('muell')}Haushalt löschen</button>
-    </div>`);
-  s.addEventListener('click', async e => {
-    const a = e.target.closest('[data-a]'); if (!a) return;
-    const was = a.dataset.a;
-    if (was === 'spiele'){ s.schliessen(); filterZuruecksetzen(); F.haushalte = [id]; schreiben(LS.filter, F); seiteZeigen('spiele'); }
-    if (was === 'mein'){ E.meinHaushalt = id; einstSpeichern(); s.schliessen(); renderAlles(); toast(`„${h.name}“ ist jetzt dein Haushalt`); }
-    if (was === 'bearbeiten'){ s.schliessen(); setTimeout(() => haushaltFormular(h), 120); }
-    if (was === 'loeschen'){ s.schliessen(); setTimeout(() => haushaltLoeschen(id), 120); }
-  });
+  if (was === 'spiele'){ filterZuruecksetzen(); F.haushalte = [id]; schreiben(LS.filter, F); seiteZeigen('spiele'); }
+  if (was === 'mein'){ E.meinHaushalt = id; einstSpeichern(); renderAlles(); toast(`„${h.name}“ ist jetzt dein Haushalt`); }
+  if (was === 'bearbeiten') haushaltFormular(h);
+  if (was === 'loeschen') haushaltLoeschen(id);
 }
 function haushaltFormular(h, danach){
   const neu = !h;
@@ -1313,65 +1354,58 @@ function renderEinstellungen(){
   // Beim Neuzeichnen nichts verlieren, was gerade eingetippt wird
   const vorher = {};
   for (const id of ['e-owner','e-repo','e-token']){ const f = document.getElementById(id); if (f && f.dataset.getippt) vorher[id] = { wert:f.value, typ:f.type }; }
-  const verlaufOffen = !!$('#einstellungen-inhalt details[open]');
   const fokus = document.activeElement && document.activeElement.id;
   const z = syncZustand();
   const log = lesen(LS.log, []);
   const liste = haushaltListe();
+  const mein = D.haushalte[E.meinHaushalt];
   el.innerHTML = `
-    <div class="block">
-      <p class="block-titel">Mein Haushalt</p>
-      ${liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
+    ${klapp('e-mein', 'Mein Haushalt',
+      liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
         <p class="block-hinweis">Neue Spiele landen automatisch bei diesem Haushalt.</p>`
-      : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`}
-    </div>
+      : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`,
+      { standard:!mein, klein: mein ? `${figur(mein.farbe, 15)}${esc(mein.name)}` : 'nicht gewählt' })}
 
-    <div class="block">
-      <p class="block-titel">Abgleich</p>
-      <p style="margin:0 0 10px"><span class="sync" data-k="${z.k}" style="pointer-events:none"><i></i><span>${esc(z.t)}</span></span>
-        ${S.letzter ? `<span class="text-leise text-klein"> zuletzt ${esc(datumZeit(S.letzter))}</span>` : ''}</p>
+    ${klapp('e-abgleich', 'Abgleich', `
+      ${S.letzter ? `<p class="text-leise text-klein" style="margin:0 0 10px">Zuletzt abgeglichen ${esc(datumZeit(S.letzter))}</p>` : ''}
       ${S.fehler ? `<p class="hinweis warn">${esc(S.fehler)}</p>` : ''}
       ${!E.token ? `<p class="hinweis">Ohne Schlüssel kannst du die Spiele ansehen, aber Änderungen bleiben nur auf diesem Gerät.</p>` : ''}
       <button class="knopf breit" type="button" id="e-sync" ${S.laeuft ? 'disabled' : ''}>${ic('wolke')}Jetzt abgleichen</button>
-      ${log.length ? `<details><summary>Verlauf der letzten Abgleiche</summary><ul class="verlauf">${log.map(l => `<li><time>${esc(datumZeit(l.z))}</time><span class="${l.ok ? '' : 'nein'}">${esc(l.t)}</span></li>`).join('')}</ul></details>` : ''}
-    </div>
+      ${log.length ? `<div style="margin-top:14px">${klapp('e-verlauf', 'Verlauf der letzten Abgleiche',
+          `<ul class="verlauf">${log.map(l => `<li><time>${esc(datumZeit(l.z))}</time><span class="${l.ok ? '' : 'nein'}">${esc(l.t)}</span></li>`).join('')}</ul>`,
+          { klasse:'leicht' })}</div>` : ''}`,
+      { zwingend:!!S.fehler, klein:`<span class="punkt" data-k="${z.k}"></span>${esc(z.t)}` })}
 
-    <div class="block">
-      <p class="block-titel">Verbindung zu GitHub</p>
+    ${klapp('e-github', 'Verbindung zu GitHub', `
       <label class="feld"><span class="feld-titel">GitHub-Benutzername</span><input class="eingabe" id="e-owner" value="${esc(E.owner)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
       <label class="feld"><span class="feld-titel">Repo</span><input class="eingabe" id="e-repo" value="${esc(E.repo)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
       <label class="feld"><span class="feld-titel">Schlüssel (nur für dieses Repo)</span>
         <span class="schluessel-reihe"><input class="eingabe" id="e-token" type="password" value="${esc(E.token)}" placeholder="github_pat_…" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off">
         <button class="knopf zweit" type="button" id="e-zeigen" style="min-width:86px">Zeigen</button></span></label>
-      <button class="knopf breit" type="button" id="e-verbinden">Speichern und prüfen</button>
-    </div>
+      <button class="knopf breit" type="button" id="e-verbinden">Speichern und prüfen</button>`,
+      { standard:!E.token, klein: E.token ? 'verbunden' : 'kein Schlüssel' })}
 
-    <div class="block">
-      <p class="block-titel">Andere Haushalte einladen</p>
+    ${klapp('e-einladen', 'Andere Haushalte einladen', `
       <p class="text-leise" style="margin:0 0 12px">Der Link richtet die App beim Empfänger mit dem Schlüssel ein. Schick ihn nur an Familie und Freunde.</p>
       <button class="knopf breit" type="button" id="e-einladen" ${E.token ? '' : 'disabled'}>${ic('teilen')}Einladungslink teilen</button>
-      ${E.token ? '' : '<p class="block-hinweis">Erst den Schlüssel eintragen, dann kannst du einladen.</p>'}
-    </div>
+      ${E.token ? '' : '<p class="block-hinweis">Erst den Schlüssel eintragen, dann kannst du einladen.</p>'}`)}
 
-    <div class="block">
-      <p class="block-titel">Daten</p>
+    ${klapp('e-daten', 'Daten', `
       <div style="display:flex;flex-direction:column;gap:10px">
         <button class="knopf zweit" type="button" id="e-export">Sicherung herunterladen</button>
         <button class="knopf zweit" type="button" id="e-import">Sicherung einspielen</button>
         <input type="file" accept="application/json,.json" id="e-import-datei" class="sr" tabindex="-1">
         <button class="knopf rahmen" type="button" id="e-neu">Alles neu von GitHub laden</button>
       </div>
-      <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>
-    </div>
+      <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>`)}
     <p class="fuss">Spieleabend ${VERSION}</p>`;
 
   for (const [id, v] of Object.entries(vorher)){ const f = document.getElementById(id); if (f){ f.value = v.wert; f.dataset.getippt = '1'; if (id === 'e-token') f.type = v.typ; } }
   for (const id of ['e-owner','e-repo','e-token']) document.getElementById(id).addEventListener('input', e => { e.target.dataset.getippt = '1'; });
   if ($('#e-token').type === 'text') $('#e-zeigen').textContent = 'Verbergen';
-  if (verlaufOffen){ const d = $('#einstellungen-inhalt details'); if (d) d.open = true; }
   if (fokus && vorher[fokus]){ const f = document.getElementById(fokus); if (f) f.focus(); }
 
-  const mein = $('#e-mein'); if (mein) mein.addEventListener('change', () => { E.meinHaushalt = mein.value; einstSpeichern(); renderAlles(); });
+  const meinWahl = $('#e-mein'); if (meinWahl) meinWahl.addEventListener('change', () => { E.meinHaushalt = meinWahl.value; einstSpeichern(); renderAlles(); });
   $('#e-sync').addEventListener('click', () => sync('von Hand'));
   $('#e-zeigen').addEventListener('click', () => { const t = $('#e-token'); t.type = t.type === 'password' ? 'text' : 'password'; $('#e-zeigen').textContent = t.type === 'password' ? 'Zeigen' : 'Verbergen'; });
   $('#e-verbinden').addEventListener('click', verbindungSpeichern);
@@ -1536,6 +1570,10 @@ function renderAlles(){
 
 function verdrahten(){
   $$('.tabs button').forEach(b => b.addEventListener('click', () => seiteZeigen(b.dataset.seite)));
+  document.addEventListener('toggle', e => {
+    const d = e.target;
+    if (d && d.matches && d.matches('details[data-klapp]') && KL[d.dataset.klapp] !== d.open){ KL[d.dataset.klapp] = d.open; schreiben(LS.klapp, KL); }
+  }, true);
   $('#plus').addEventListener('click', () => spielFormular());
   $('#filter-auf').addEventListener('click', filterSheet);
   $('#sync-knopf').addEventListener('click', () => { if (S.fehler) toast(S.fehler, 'fehler'); sync('von Hand'); });
@@ -1553,7 +1591,7 @@ function verdrahten(){
   });
   document.addEventListener('click', e => {
     const k = e.target.closest('[data-spiel]'); if (k && !k.closest('.sheet')){ spielDetail(k.dataset.spiel); return; }
-    const hh = e.target.closest('[data-hh]'); if (hh){ haushaltAktionen(hh.dataset.hh); return; }
+    const hha = e.target.closest('[data-hha]'); if (hha){ haushaltAktion(hha.dataset.hha, hha.dataset.id); return; }
     const a = e.target.closest('[data-aktion]');
     if (a){
       const was = a.dataset.aktion;
