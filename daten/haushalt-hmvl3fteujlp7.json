@@ -64,25 +64,6 @@
    "anleitung": "https://share.google/sghXh9QADnRG9PcLJ",
    "erstellt": 1792769291215,
    "geaendert": 1792790212002
-  },
-  {
-   "id": "smvl5fcpzf8ho",
-   "name": "Spiel des Lebens",
-   "bild": "",
-   "spielerMin": 2,
-   "spielerMax": 6,
-   "alterAb": 8,
-   "dauer": 90,
-   "kategorien": [
-    "Brettspiel"
-   ],
-   "beschreibung": "Das Spiel des Lebens ist ein Gesellschaftsspiel von Reuben Klamer (20. Alle Spieler ziehen reihum, gedreht wird das bereits erwähnte „Glücksrad“. Jeder Spieler hat zu Beginn des Spiels gerade sein Abitur abgeschlossen und steht vor der Entscheidung, ob er gleich „losarbeiten“ will und sofort Gehalt erhält oder einen Kredit für ein Studium aufnimmt, wodurch er mehr Auswahlmöglichkeiten bezüglich seines zukünftigen Gehalts und auch eine bessere Aussicht auf ein höheres Gehalt bekommt.\nVon Milton Bradley (1860),, Reuben Klamer (1960), erschienen 1861 bei MB-Spiele,.",
-   "bemerkung": "",
-   "bildQuelle": "",
-   "link": "https://de.wikipedia.org/wiki/Spiel_des_Lebens_(Spiel)",
-   "anleitung": "",
-   "erstellt": 1792770766631,
-   "geaendert": 1792770766631
   }
  ],
  "spieler": [
@@ -97,5 +78,7 @@
    "stand": 1792777753340
   }
  ],
- "geloescht": {}
+ "geloescht": {
+  "smvl5fcpzf8ho": 1792790445845
+ }
 }
