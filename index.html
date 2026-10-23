@@ -60,16 +60,21 @@ button{cursor:pointer}
 .titel{margin:0;font-family:var(--rund);font-weight:800;font-size:27px;letter-spacing:-.015em;display:flex;align-items:center;gap:9px}
 .titel .marke{width:30px;height:30px;border-radius:9px;background:var(--filz);display:grid;place-items:center}
 .titel .marke svg{width:22px;height:22px}
-.sync{
-  appearance:none;border:1px solid var(--linie);background:var(--karte);border-radius:999px;
-  padding:6px 11px 6px 9px;font-size:13px;color:var(--leise);display:inline-flex;align-items:center;gap:7px;white-space:nowrap
-}
-.sync i{width:9px;height:9px;border-radius:50%;background:#9AA3B0;display:block}
 .kopf-rechts{display:flex;align-items:center;gap:8px;flex:none}
-.info-knopf{appearance:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--linie);background:var(--karte);color:var(--filz);display:grid;place-items:center;padding:0}
-.info-knopf .ic{width:22px;height:22px}
-@media (max-width:400px){ .titel{font-size:24px} .sync{padding:6px 9px 6px 8px;font-size:12.5px} }
-@media (max-width:350px){ .sync span{display:none} }
+.kopf-knopf{
+  appearance:none;position:relative;width:38px;height:38px;border-radius:12px;border:1px solid var(--linie);background:var(--karte);
+  color:var(--tinte);display:grid;place-items:center;padding:0
+}
+.kopf-knopf .ic{width:21px;height:21px}
+.kopf-knopf.hilfe .ic{color:var(--rot)}
+.kopf-knopf.info .ic{color:var(--blau, #2F6FDE)}
+.sync > i{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#9AA3B0;border:2px solid var(--grund)}
+.sync .ic{color:var(--leise)}
+.sync[data-k="laeuft"] .ic{animation:drehen 1.2s linear infinite}
+@keyframes drehen{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .sync[data-k="laeuft"] .ic{animation:none} }
+@media (max-width:400px){ .titel{font-size:24px} .kopf-rechts{gap:6px} .kopf-knopf{width:36px;height:36px} }
+@media (max-width:340px){ .titel .marke{display:none} }
 .kreis{border:1.5px solid var(--linie);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .kreis > .innen{padding-top:12px}
 .verlauf li .figur{margin-top:2px}
@@ -80,9 +85,20 @@ button{cursor:pointer}
 .hilfe-teil ul{margin:0 0 10px;padding-left:20px}
 .hilfe-teil li{margin-bottom:4px}
 .punkt-zeile{display:flex;align-items:center;gap:8px}
-.sync[data-k="ok"] i{background:#2E9E5B}
-.sync[data-k="laeuft"] i{background:var(--gelb);animation:puls 1s ease-in-out infinite}
-.sync[data-k="fehler"] i{background:var(--rot)}
+mark{background:#FFE36B;color:#1C2230;border-radius:3px;padding:0 1px}
+.info-kopf{text-align:center;padding:6px 0 12px}
+.info-kopf img{border-radius:18px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.info-kopf h2{font-family:var(--rund);font-size:26px;font-weight:800;margin:0 0 4px}
+.info-version{margin:0;color:var(--leise);display:flex;align-items:center;justify-content:center;gap:8px}
+.marke-mein.grau{color:var(--leise);background:var(--grund)}
+.marke-mein.warn{color:var(--gelb-tinte);background:color-mix(in srgb, var(--gelb) 45%, var(--karte))}
+.info-liste{margin:0 0 12px;padding-left:20px}
+.info-liste li{margin-bottom:6px;line-height:1.45}
+.info-dank{text-align:center;color:var(--leise);margin:18px 0 14px;line-height:1.5}
+.info-dank b{color:var(--tinte)}
+.sync[data-k="ok"] > i{background:#2E9E5B}
+.sync[data-k="laeuft"] > i{background:var(--gelb)}
+.sync[data-k="fehler"] > i{background:var(--rot)}
 @keyframes puls{50%{opacity:.35}}
 
 main{max-width:1000px;margin:0 auto;padding:0 16px}
@@ -379,6 +395,17 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .hh-spiele button span{color:var(--leise);font-size:14px;white-space:nowrap}
 .hh-leer{color:var(--leise);font-size:14.5px;margin:0 0 12px}
 .hh-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.klapp.hh-teil{border-top:1px solid var(--linie);padding:10px 0}
+.klapp.hh-teil:last-of-type{margin-bottom:10px;border-bottom:1px solid var(--linie)}
+.klapp.hh-teil > summary small{color:var(--leise);font-weight:500}
+.hh-teil .hh-spiele{border-top:0;margin-bottom:0}
+.hh-teil .hh-spiele li:last-child button{border-bottom:0}
+.chip.neu-chip{border-style:dashed;color:var(--filz);font-weight:600}
+.chip.neu-chip .ic{width:16px;height:16px}
+.spieler-gruppe{margin-bottom:10px}
+.spieler-hh{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--leise);margin:0 0 6px}
+.chip.anw-chip[aria-pressed="true"]{background:color-mix(in srgb, var(--hf) 16%, var(--karte));border-color:var(--hf);color:var(--tinte)}
+.chip.anw-chip[aria-pressed="false"]{color:var(--leise)}
 .hh-knoepfe .knopf{min-height:42px;font-size:14.5px;padding:0 10px}
 .block .trenner{border:0;border-top:1px solid var(--linie);margin:14px 0}
 @media (prefers-reduced-motion: reduce){ .grosser-wuerfel.rollt{animation:none} .sheet,.sheet-hg,.wurf{transition:none} }
@@ -403,8 +430,9 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div class="kopf-innen">
     <h1 class="titel"><span class="marke" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5.3" r="3.5" fill="#fff"/><path fill="#fff" d="M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z"/></svg></span>Spieleabend</h1>
     <div class="kopf-rechts">
-      <button class="sync" id="sync-knopf" type="button" data-k="aus"><i></i><span>…</span></button>
-      <button class="info-knopf" id="hilfe-knopf" type="button" aria-label="Hilfe"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+      <button class="kopf-knopf hilfe" id="hilfe-knopf" type="button" aria-label="Hilfe"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+      <button class="kopf-knopf info" id="info-knopf" type="button" aria-label="Info und Versionen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+      <button class="kopf-knopf sync" id="sync-knopf" type="button" data-k="aus" aria-label="Abgleich"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M17.8 3.5v3.6h-3.6"/><path d="M6.2 20.5v-3.6h3.6"/></svg><i></i><span class="sr">…</span></button>
     </div>
   </div>
 </header>
@@ -469,7 +497,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.20';
+const VERSION = 'v1.40';
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
 const FARBEN = [
@@ -501,7 +529,7 @@ datenVorbereiten();
 let E = Object.assign({ ...standardOrt(), branch:'main', token:'', meinHaushalt:'', einladungen:[], admin:false }, lesen(LS.einst, {}));
 let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], sort:'name' }, lesen(LS.filter, {}));
 F.suche = '';
-let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[] }, lesen(LS.runde, {}));
+let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[], anwesend:[] }, lesen(LS.runde, {}));
 let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
 const KL = lesen(LS.klapp, {}) || {};                   // welche Bereiche auf diesem Gerät aufgeklappt sind
 
@@ -547,6 +575,7 @@ const ICONS = {
   pfeil:'<path d="M9 6l6 6-6 6"/>',
   wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>',
   suche:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>',
+  frage:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor" stroke="none"/>',
   link:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>'
 };
 function ic(n, extra=''){ return `<svg class="ic" ${extra} viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`; }
@@ -574,10 +603,12 @@ function haushaltNorm(h){
   return {
     id:String(h.id), name:String(h.name || 'Haushalt'), farbe:typeof h.farbe === 'string' ? h.farbe : FARBEN[0].c, stand:zahl(h.stand) || 0,
     spiele:(Array.isArray(h.spiele) ? h.spiele : []).filter(s => s && s.id).map(spielNorm).sort(nachName),
+    spieler:(Array.isArray(h.spieler) ? h.spieler : []).filter(p => p && p.id && String(p.name || '').trim())
+      .map(p => ({ id:String(p.id), name:String(p.name).trim().slice(0, 30), stand:zahl(p.stand) || 0 })).sort(nachName),
     geloescht:g
   };
 }
-function dateiForm(h){ const n = haushaltNorm(h); return { format:1, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, geloescht:n.geloescht }; }
+function dateiForm(h){ const n = haushaltNorm(h); return { format:1, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler, geloescht:n.geloescht }; }
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
 
@@ -592,7 +623,12 @@ function zusammenfuehren(lokal, fern){
   for (const s of B.spiele) m.set(s.id, s);
   for (const s of A.spiele){ const x = m.get(s.id); if (!x || s.geaendert > x.geaendert) m.set(s.id, s); }
   const spiele = [...m.values()].filter(s => !(tomb[s.id] && tomb[s.id] >= s.geaendert)).sort(nachName);
-  return { id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, geloescht:tomb };
+  // Mitspieler genauso: neuere Änderung gewinnt, Entfernte bleiben weg
+  const p = new Map();
+  for (const x of B.spieler) p.set(x.id, x);
+  for (const x of A.spieler){ const y = p.get(x.id); if (!y || x.stand > y.stand) p.set(x.id, x); }
+  const spieler = [...p.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort(nachName);
+  return { id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -958,7 +994,13 @@ function syncZustand(){
 function statusZeigen(){
   const z = syncZustand(), b = $('#sync-knopf');
   b.dataset.k = z.k; b.querySelector('span').textContent = z.t;
-  b.title = S.fehler || (S.letzter ? 'Letzter Abgleich ' + datumZeit(S.letzter) : '');
+  b.setAttribute('aria-label', 'Abgleich: ' + z.t);
+  b.title = S.fehler || (S.letzter ? 'Letzter Abgleich ' + datumZeit(S.letzter) : z.t);
+}
+function statusToast(){
+  const z = syncZustand();
+  if (S.fehler) toast(S.fehler, 'fehler');
+  else toast(`${z.t}${S.letzter && z.k === 'ok' ? ' – zuletzt ' + datumZeit(S.letzter) : ''}`);
 }
 
 /* ---------- Oberfläche: Grundbausteine ---------- */
@@ -1016,7 +1058,7 @@ function figurChipsHtml(gruppe, gewaehlt, { mehrfach=true, pflicht=false } = {})
     `<button type="button" class="chip figur-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(h.id)}" aria-pressed="${gewaehlt.includes(h.id)}">${figur(h.farbe, 17)}${esc(h.name)}</button>`).join('')}</div>`;
 }
 document.addEventListener('click', e => {
-  const c = e.target.closest('.chips button.chip'); if (!c) return;
+  const c = e.target.closest('.chips button.chip'); if (!c || !c.hasAttribute('aria-pressed')) return;
   const gruppe = c.closest('.chips');
   const war = c.getAttribute('aria-pressed') === 'true';
   if (gruppe.dataset.mehrfach === '1') c.setAttribute('aria-pressed', !war);
@@ -1704,19 +1746,29 @@ function renderRunde(){
   const dabei = sichtbar.filter(h => !R.ohne.includes(h.id)).map(h => h.id);
   const mehrereHh = sichtbar.length > 1;
   const kreise = meineKreise();
-  const kreisWahl = kreise.length ? `<p class="block-titel" style="font-size:14.5px;color:var(--leise)">Spielkreis</p>
-      ${chipsHtml('kreis', kreise.map(k => ({ w:k.id, t:k.name })), [], { mehrfach:false })}
-      <p class="block-titel" style="font-size:14.5px;color:var(--leise);margin-top:14px">Haushalte</p>` : '';
+  const mitSpielern = sichtbar.filter(h => (h.spieler || []).length);
+  const gueltig = new Set(mitSpielern.flatMap(h => h.spieler.map(x => x.id)));
+  R.anwesend = (R.anwesend || []).filter(id => gueltig.has(id));
+  const kreisWahl = kreise.length ? `<p class="block-titel" style="font-size:14.5px;color:var(--leise);margin-bottom:8px">Spielkreis</p>
+      ${chipsHtml('kreis', kreise.map(k => ({ w:k.id, t:k.name })), [], { mehrfach:false })}<div style="height:14px"></div>` : '';
+  const namen = mitSpielern.length ? mitSpielern.map(h => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(h.farbe, 14)}${esc(h.name)}</p>
+      <div class="chips" data-gruppe="anwesend" data-hh="${esc(h.id)}" data-mehrfach="1">${h.spieler.map(x =>
+        `<button type="button" class="chip anw-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(x.id)}" aria-pressed="${R.anwesend.includes(x.id)}">${esc(x.name)}</button>`).join('')}</div></div>`).join('')
+    : `<p class="block-hinweis" style="margin-top:0">Tipp: Unter <b>Haushalte</b> kannst du Mitspieler mit Namen anlegen. Dann tippst du hier einfach an, wer da ist, und die App zählt mit.</p>`;
   el.innerHTML = `
     <div class="block">
+      <p class="block-titel">Wer spielt mit?</p>
+      ${kreisWahl}${namen}
+      <hr class="trenner">
       <div class="block-zeile"><p class="block-titel">Wie viele seid ihr?</p>${stepperHtml('personen', R.personen, { min:1, max:30, gross:true })}</div>
+      <p class="block-hinweis" id="anw-text"></p>
       <hr class="trenner">
       <div class="block-zeile"><p class="block-titel">Jüngster Mitspieler</p>${stepperHtml('alter', R.alter, { min:3, max:18, leer:'egal', start:8 })}</div>
       <p class="block-hinweis">Alter in Jahren – „egal“, wenn nur Erwachsene spielen.</p>
     </div>
-    ${mehrereHh ? klapp('runde-hh', 'Wer spielt mit?',
-        `${kreisWahl}${figurChipsHtml('dabei', dabei)}<p class="block-hinweis">${kreise.length ? 'Spielkreis antippen oder einzelne Haushalte ein- und ausblenden.' : 'Antippen, um einen Haushalt aus- oder einzublenden.'}</p>`,
-        { kleinId:'dabei-zahl', standard:kreise.length > 0 }) : ''}
+    ${mehrereHh ? klapp('runde-hh', 'Wessen Spiele sind da?',
+        `${figurChipsHtml('dabei', dabei)}<p class="block-hinweis">Antippen, um einen Haushalt aus- oder einzublenden.</p>`,
+        { kleinId:'dabei-zahl' }) : ''}
     ${klapp('runde-wunsch', 'Weitere Wünsche',
         `<p class="block-titel">Wie viel Zeit habt ihr?</p>${chipsHtml('dauer', [30,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), R.dauerMax ? [String(R.dauerMax)] : [], { mehrfach:false })}
         <p class="block-titel" style="margin-top:16px">Worauf habt ihr Lust?</p>${chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), R.kategorien)}
@@ -1724,6 +1776,12 @@ function renderRunde(){
         { standard:wunschZahl() > 0, kleinId:'wunsch-zahl' })}
     <div id="runde-ergebnis"></div>`;
   renderRundeErgebnis();
+}
+function anwesendText(){
+  const t = $('#anw-text'); if (!t) return;
+  const n = (R.anwesend || []).length, gaeste = R.personen - n;
+  t.textContent = !n ? '' : gaeste > 0 ? `${n} mit Namen ausgewählt, dazu ${gaeste} ${gaeste === 1 ? 'Gast' : 'Gäste'}.` : `${n} mit Namen ausgewählt. Gäste zählst du mit + dazu.`;
+  t.style.display = n ? '' : 'none';
 }
 function wunschZahl(){ return (R.dauerMax ? 1 : 0) + R.kategorien.length; }
 function renderRundeErgebnis(){
@@ -1738,6 +1796,7 @@ function renderRundeErgebnis(){
 }
 function rundeSpeichern(){ schreiben(LS.runde, R); renderRundeErgebnis(); }
 function wunschAnzeigen(){
+  anwesendText();
   const z = $('#wunsch-zahl'); if (z){ const n = wunschZahl(); z.textContent = n ? `${n} gewählt` : ''; }
   const d = $('#dabei-zahl');
   if (d){
@@ -1786,17 +1845,22 @@ function renderHaushalte(){
   const el = $('#haushalte-inhalt');
   const liste = haushaltListe();
   el.innerHTML = `${liste.length ? `<div class="hh-liste">${liste.map(h => {
-      const n = h.spiele.length, wartet = (D.meta[h.id] || {}).dirty;
+      const n = h.spiele.length, sp = h.spieler || [], wartet = (D.meta[h.id] || {}).dirty;
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
-          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}${wartet ? ' – noch nicht hochgeladen' : ''}</span></span>
+          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}</span></span>
           ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
           ${ic('pfeil')}
         </summary>
         <div class="innen">
-          ${n ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${esc(spielerText(s))} Spieler</span></button></li>`).join('')}</ul>`
-              : '<p class="hh-leer">Noch keine Spiele eingetragen.</p>'}
+          ${klapp('hh-sp-' + h.id, 'Mitspieler', `<div class="chips">${sp.map(x => `<button type="button" class="chip spieler-chip" data-spieler="${esc(x.id)}" data-hh="${esc(h.id)}">${figur(h.farbe, 14)}${esc(x.name)}</button>`).join('')}
+              <button type="button" class="chip neu-chip" data-hha="spieler-neu" data-id="${esc(h.id)}">${ic('plus')}Mitspieler</button></div>
+              ${sp.length ? '<p class="block-hinweis">Namen antippen zum Ändern oder Entfernen.</p>' : ''}`,
+            { klasse:'leicht hh-teil', standard:true, klein: sp.length ? esc(sp.map(x => x.name).join(', ')) : 'noch keine' })}
+          ${klapp('hh-sl-' + h.id, 'Spiele', n ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${esc(spielerText(s))} Spieler</span></button></li>`).join('')}</ul>`
+              : '<p class="hh-leer">Noch keine Spiele eingetragen.</p>',
+            { klasse:'leicht hh-teil', standard:false, klein:`${n}` })}
           <div class="hh-knoepfe">
             <button class="knopf zweit" type="button" data-hha="spiele" data-id="${esc(h.id)}" ${n ? '' : 'disabled'}>Als Kacheln zeigen</button>
             ${h.id !== E.meinHaushalt ? `<button class="knopf zweit" type="button" data-hha="mein" data-id="${esc(h.id)}">Mein Haushalt</button>` : ''}
@@ -1814,6 +1878,50 @@ function haushaltAktion(was, id){
   if (was === 'mein'){ E.meinHaushalt = id; einstSpeichern(); renderAlles(); toast(`„${h.name}“ ist jetzt dein Haushalt`); }
   if (was === 'bearbeiten') haushaltFormular(h);
   if (was === 'loeschen') haushaltLoeschen(id);
+  if (was === 'spieler-neu') spielerNeu(id);
+}
+/* ---------- Mitspieler eines Haushalts ---------- */
+function namenListe(text){ return [...new Set(String(text || '').split(/[,;\n]+/).map(x => x.trim().slice(0, 30)).filter(Boolean))]; }
+function spielerHinzufuegen(hid, namen){
+  const h = D.haushalte[hid]; if (!h || !namen.length) return 0;
+  h.spieler = h.spieler || [];
+  const vorhanden = new Set(h.spieler.map(x => normText(x.name)));
+  let n = 0;
+  for (const name of namen){
+    if (vorhanden.has(normText(name))) continue;
+    h.spieler.push({ id:neueId('p'), name, stand:Date.now() }); vorhanden.add(normText(name)); n++;
+  }
+  h.spieler.sort(nachName);
+  if (n) markiere(hid, n === 1 ? `Mitspieler ${namen[0]} dazu` : `${n} Mitspieler dazu`);
+  return n;
+}
+async function spielerNeu(hid){
+  const h = D.haushalte[hid]; if (!h) return;
+  const t = await textFrage(`Mitspieler bei ${h.name}`, { label:'Name (mehrere mit Komma trennen)', platzhalter:'z. B. Christian, Birgit', knopf:'Hinzufügen' });
+  if (!t) return;
+  const n = spielerHinzufuegen(hid, namenListe(t));
+  if (!n){ toast('Diese Namen gibt es schon.', 'fehler'); return; }
+  speichern(); renderAlles(); syncBald(); toast(n === 1 ? 'Mitspieler hinzugefügt' : `${n} Mitspieler hinzugefügt`);
+}
+function spielerBearbeiten(hid, pid){
+  const h = D.haushalte[hid]; const x = h && (h.spieler || []).find(y => y.id === pid); if (!x) return;
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2 style="display:flex;align-items:center;gap:10px">${figur(h.farbe, 22)}${esc(x.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <label class="feld"><span class="feld-titel">Name</span><input class="eingabe" name="t" value="${esc(x.name)}" maxlength="30" autocomplete="off" autocapitalize="words"></label>
+    <div class="knopfreihe"><button class="knopf gefahr" type="button" data-weg>${ic('muell')}Entfernen</button><button class="knopf" type="submit">Speichern</button></div></form>`);
+  const f = $('form', s);
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = feldVon(f, 't').value.trim().slice(0, 30); if (!name) return;
+    if (name !== x.name){ x.name = name; x.stand = Date.now(); h.spieler.sort(nachName); markiere(hid, `Mitspieler ${name} umbenannt`); speichern(); renderAlles(); syncBald(); }
+    s.schliessen();
+  });
+  $('[data-weg]', s).addEventListener('click', async () => {
+    s.schliessen();
+    if (!await frage(`${x.name} entfernen?`, `${x.name} steht dann nicht mehr bei ${h.name}.`, 'Entfernen')) return;
+    h.spieler = h.spieler.filter(y => y.id !== pid); h.geloescht[pid] = Date.now();
+    R.anwesend = (R.anwesend || []).filter(id => id !== pid); schreiben(LS.runde, R);
+    markiere(hid, `Mitspieler ${x.name} entfernt`); speichern(); renderAlles(); syncBald();
+  });
 }
 function haushaltFormular(h, danach){
   const neu = !h;
@@ -1824,6 +1932,7 @@ function haushaltFormular(h, danach){
     <label class="feld"><span class="feld-titel">Name</span><input class="eingabe" name="name" value="${esc(h ? h.name : '')}" placeholder="z. B. Familie Mättig" maxlength="40" autocomplete="off" autocapitalize="words"></label>
     <div class="feld"><span class="feld-titel">Farbe der Spielfigur</span>
       <div class="chips" data-gruppe="farbe" data-mehrfach="0" data-pflicht="1">${FARBEN.map(f => `<button type="button" class="chip figur-chip" style="--hf:${f.c}" data-wert="${f.c}" aria-pressed="${f.c === farbe0}">${figur(f.c, 18)}${f.n}</button>`).join('')}</div></div>
+    ${neu ? `<label class="feld"><span class="feld-titel">Mitspieler (mit Komma trennen, geht auch später)</span><input class="eingabe" name="spieler" placeholder="z. B. Christian, Birgit" autocomplete="off" autocapitalize="words"></label>` : ''}
     ${neu ? `<label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="mein" ${E.meinHaushalt && D.haushalte[E.meinHaushalt] ? '' : 'checked'} style="width:22px;height:22px">Das ist mein Haushalt</label>` : ''}
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">${neu ? 'Anlegen' : 'Speichern'}</button></div>
   </form>`);
@@ -1835,8 +1944,9 @@ function haushaltFormular(h, danach){
     const farbe = gewaehlteChips($('[data-gruppe="farbe"]', s))[0] || farbe0;
     if (neu){
       const id = neueId('h');
-      D.haushalte[id] = { id, name, farbe, stand:Date.now(), spiele:[], geloescht:{} };
+      D.haushalte[id] = { id, name, farbe, stand:Date.now(), spiele:[], spieler:[], geloescht:{} };
       markiere(id, 'Haushalt angelegt');
+      spielerHinzufuegen(id, namenListe(feldVon(form, 'spieler').value));
       const mein = feldVon(form, 'mein');
       if (mein && mein.checked){ E.meinHaushalt = id; einstSpeichern(); }
     } else {
@@ -1870,8 +1980,14 @@ async function haushaltLoeschen(id){
 }
 
 /* ---------- Seite: Einstellungen ---------- */
+/* Der Zugang steckt unkenntlich im Link: verschlüsselt mit einem festen Muster, damit man ihn nicht einfach ablesen kann.
+   Das ist kein echter Schutz, verhindert aber, dass der Schlüssel im Link oder in der Adresszeile lesbar ist. */
+const EINLADUNG_MUSTER = new TextEncoder().encode('Spieleabend-Wuerfel-Meeple-2026');
+function verschleiern(bytes){ return bytes.map((b, i) => b ^ EINLADUNG_MUSTER[i % EINLADUNG_MUSTER.length] ^ ((i * 7) & 255)); }
+function bytesAusB64(b){ const bin = atob(b); const by = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) by[i] = bin.charCodeAt(i); return by; }
 function einladungsLink(){
-  const code = b64AusText(JSON.stringify({ o:E.owner, r:E.repo, t:E.token })).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const roh = new TextEncoder().encode(JSON.stringify({ o:E.owner, r:E.repo, t:E.token }));
+  const code = '2' + b64Bytes(verschleiern(roh)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   const basis = location.protocol.startsWith('http') ? location.origin + location.pathname : `https://${E.owner}.github.io/${E.repo}/`;
   return `${basis}#einladung=${code}`;
 }
@@ -1902,14 +2018,19 @@ function renderEinstellungen(){
           { klasse:'leicht' })}</div>` : ''}`,
       { zwingend:!!S.fehler, klein:`<span class="punkt" data-k="${z.k}"></span>${esc(z.t)}` })}
 
-    ${klapp('e-github', 'Verbindung zu GitHub', `
+    ${klapp('e-github', 'Verbindung zu GitHub', E.perEinladung && !E.admin ? `
+      <p class="text-leise" style="margin:0 0 12px">Diese App wurde über einen Einladungslink eingerichtet. Der Zugang ist hinterlegt und wird nicht angezeigt.</p>
+      <label class="feld"><span class="feld-titel">Neuen Einladungslink einfügen</span>
+        <textarea class="eingabe" id="e-einladung" placeholder="https://…#einladung=…" style="min-height:80px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
+      <button class="knopf zweit breit" type="button" id="e-einladung-ok">Einladung übernehmen</button>
+      <p class="block-hinweis">Nur nötig, wenn der Abgleich nicht mehr klappt und du einen neuen Link bekommen hast.</p>` : `
       <label class="feld"><span class="feld-titel">GitHub-Benutzername</span><input class="eingabe" id="e-owner" value="${esc(E.owner)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
       <label class="feld"><span class="feld-titel">Repo</span><input class="eingabe" id="e-repo" value="${esc(E.repo)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
       <label class="feld"><span class="feld-titel">Schlüssel (nur für dieses Repo)</span>
-        <span class="schluessel-reihe"><input class="eingabe" id="e-token" type="password" value="${esc(E.token)}" placeholder="github_pat_…" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off">
-        <button class="knopf zweit" type="button" id="e-zeigen" style="min-width:86px">Zeigen</button></span></label>
+        ${E.token ? '<span class="text-klein" style="display:block;margin:0 0 6px">✓ Ein Schlüssel ist hinterlegt. Er wird nicht angezeigt.</span>' : ''}
+        <input class="eingabe" id="e-token" type="password" placeholder="${E.token ? 'Nur für einen neuen Schlüssel ausfüllen' : 'github_pat_…'}" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off"></label>
       <button class="knopf breit" type="button" id="e-verbinden">Speichern und prüfen</button>`,
-      { standard:!E.token, klein: E.token ? 'verbunden' : 'kein Schlüssel' })}
+      { standard:!E.token, klein: !E.token ? 'kein Schlüssel' : E.perEinladung ? 'per Einladung' : 'verbunden' })}
 
     ${klapp('e-einladen', 'Andere Haushalte einladen', `
       <p class="text-leise" style="margin:0 0 12px">Der Link richtet die App beim Empfänger mit dem Schlüssel ein. Schick ihn nur an Familie und Freunde.</p>
@@ -1929,15 +2050,19 @@ function renderEinstellungen(){
       <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>`)}
     <p class="fuss">Spieleabend ${VERSION}</p>`;
 
-  for (const [id, v] of Object.entries(vorher)){ const f = document.getElementById(id); if (f){ f.value = v.wert; f.dataset.getippt = '1'; if (id === 'e-token') f.type = v.typ; } }
-  for (const id of ['e-owner','e-repo','e-token']) document.getElementById(id).addEventListener('input', e => { e.target.dataset.getippt = '1'; });
-  if ($('#e-token').type === 'text') $('#e-zeigen').textContent = 'Verbergen';
+  for (const [id, v] of Object.entries(vorher)){ const f = document.getElementById(id); if (f){ f.value = v.wert; f.dataset.getippt = '1'; } }
+  for (const id of ['e-owner','e-repo','e-token']){ const f = document.getElementById(id); if (f) f.addEventListener('input', e => { e.target.dataset.getippt = '1'; }); }
   if (fokus && vorher[fokus]){ const f = document.getElementById(fokus); if (f) f.focus(); }
 
   const meinWahl = $('#e-mein'); if (meinWahl) meinWahl.addEventListener('change', () => { E.meinHaushalt = meinWahl.value; einstSpeichern(); renderAlles(); });
   $('#e-sync').addEventListener('click', () => sync('von Hand'));
-  $('#e-zeigen').addEventListener('click', () => { const t = $('#e-token'); t.type = t.type === 'password' ? 'text' : 'password'; $('#e-zeigen').textContent = t.type === 'password' ? 'Zeigen' : 'Verbergen'; });
-  $('#e-verbinden').addEventListener('click', verbindungSpeichern);
+  const verb = $('#e-verbinden'); if (verb) verb.addEventListener('click', verbindungSpeichern);
+  const einOk = $('#e-einladung-ok');
+  if (einOk) einOk.addEventListener('click', () => {
+    const ein = einladungLesen($('#e-einladung').value);
+    if (!ein){ toast('Das sieht nicht nach einem Einladungslink aus.', 'fehler'); return; }
+    einladungUebernehmen(ein); toast('Einladung übernommen'); renderAlles(); sync('Einladung');
+  });
   $('#e-einladen').addEventListener('click', einladen);
   $('#e-export').addEventListener('click', sicherungHerunterladen);
   $('#e-import').addEventListener('click', () => $('#e-import-datei').click());
@@ -1967,13 +2092,16 @@ const HILFE = [
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
     <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>` },
   { id:'runde', titel:'Spielrunde und Würfeln', seite:'runde', text:`
-    <ul><li>Einstellen, wie viele ihr seid und wie alt der Jüngste ist.</li>
-    <li>Unter <b>Wer spielt mit?</b> einen Spielkreis antippen oder einzelne Haushalte ein- und ausblenden.</li>
+    <ul><li>Unter <b>Wer spielt mit?</b> die Namen antippen, die heute dabei sind – die App zählt mit. Gäste ohne Namen zählst du mit + dazu.</li>
+    <li>Ein Tipp auf einen <b>Spielkreis</b> wählt alle Mitspieler dieser Haushalte auf einmal aus. Wer fehlt, einfach wieder abwählen.</li>
+    <li>Das Alter des Jüngsten stellst du selbst ein.</li>
+    <li>Unter <b>Wessen Spiele sind da?</b> blendest du Haushalte ein oder aus, deren Spiele heute nicht auf dem Tisch stehen.</li>
     <li><b>Weitere Wünsche</b>: verfügbare Zeit und Art des Spiels.</li>
     <li>Hat mehr als ein Haushalt dasselbe Spiel, erscheint es nur einmal – mit allen Spielfiguren.</li>
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
   { id:'haushalte', titel:'Haushalte und weitere Geräte', seite:'haushalte', text:`
-    <p>Jeder Haushalt hat eine Spielfigur in eigener Farbe. Antippen klappt ihn auf: seine Spiele, Name &amp; Farbe ändern, löschen.</p>
+    <p>Jeder Haushalt hat eine Spielfigur in eigener Farbe. Antippen klappt ihn auf: Mitspieler, Spiele, Name &amp; Farbe ändern, löschen.</p>
+    <p><b>Mitspieler</b>: Über <b>+ Mitspieler</b> trägst du die Namen ein – mehrere auf einmal mit Komma getrennt. Einen Namen antippen, um ihn zu ändern oder zu entfernen.</p>
     <p>Für ein weiteres Handy oder Tablet: unter Einstellungen den <b>Einladungslink</b> schicken und auf dem neuen Gerät öffnen. Fragt die App nach dem Haushalt, den <b>vorhandenen</b> antippen – keinen neuen anlegen.</p>` },
   { id:'kreise', titel:'Spielkreise und Admin', seite:'einstellungen', text:`
     <p>Ohne Spielkreise sieht jeder alle Spiele. Der Admin legt unter Einstellungen → <b>Spielkreise &amp; Admin</b> Kreise an, z. B. „Familie B &amp; C“ und „Familie C &amp; D“.</p>
@@ -1981,20 +2109,131 @@ const HILFE = [
     <li>Ein Haushalt in keinem Kreis sieht nur die eigenen Spiele.</li>
     <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li></ul>
     <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
-  { id:'abgleich', titel:'Abgleich – der Punkt oben rechts', seite:'einstellungen', text:`
+  { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
+    <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
+    <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
+    <li>Die <b>Pfeile</b> gleichen sofort mit GitHub ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
+  { id:'abgleich', titel:'Abgleich – der Punkt an den Pfeilen', seite:'einstellungen', text:`
     <p class="punkt-zeile"><span class="punkt" data-k="ok"></span>Grün: alles abgeglichen.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="laeuft"></span>Gelb: gleicht gerade ab oder wartet.</p>
-    <p class="punkt-zeile"><span class="punkt" data-k="fehler"></span>Rot: ein Problem – antippen zeigt den Grund.</p>
+    <p class="punkt-zeile"><span class="punkt" data-k="fehler"></span>Rot: ein Problem – die Pfeile antippen zeigt den Grund.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="aus"></span>Grau: offline oder ohne Schlüssel.</p>
     <p>Änderungen ohne Internet bleiben auf dem Gerät und werden später automatisch nachgereicht.</p>` },
+  { id:'zugang', titel:'Einladungslink und GitHub-Zugang', seite:'einstellungen', text:`
+    <p>Der Einladungslink richtet die App mit dem GitHub-Zugang ein. Der Zugang steckt verschlüsselt im Link und wird in der App nirgends angezeigt.</p>
+    <p>Auf Geräten, die per Einladung eingerichtet wurden, sind die GitHub-Einstellungen ausgeblendet. Funktioniert der Abgleich dort nicht mehr, einfach einen neuen Einladungslink einfügen.</p>` },
   { id:'sicherung', titel:'Datensicherung', seite:'einstellungen', text:`
     <p>Einstellungen → <b>Daten</b>: Sicherung herunterladen (alle Spieldaten ohne Fotos) und bei Bedarf wieder einspielen. Die Fotos liegen im Repo auf GitHub.</p>` }
 ];
 function hilfeSheet(){
   const zuerst = HILFE.find(h => h.seite === aktiveSeite) || HILFE[0];
-  sheet(`<div class="sheet-kopf"><h2>Hilfe</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    ${HILFE.map(h => `<details class="klapp hilfe-teil"${h === zuerst ? ' open' : ''}><summary><span class="klapp-titel">${h.titel}</span><small></small>${ic('pfeil')}</summary><div class="innen">${h.text}</div></details>`).join('')}
+  const s = sheet(`<div class="sheet-kopf"><h2>Hilfe</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <label class="suche" style="display:block;margin-bottom:10px"><span class="sr">In der Hilfe suchen</span>${ic('suche')}<input type="search" data-hilfe-suche placeholder="In der Hilfe suchen" autocomplete="off"></label>
+    <p class="text-leise" data-hilfe-leer style="display:none">Dazu steht nichts in der Hilfe.</p>
+    ${HILFE.map(h => `<details class="klapp hilfe-teil" data-hilfe="${h.id}"${h === zuerst ? ' open' : ''}><summary><span class="klapp-titel">${h.titel}</span><small></small>${ic('pfeil')}</summary><div class="innen">${h.text}</div></details>`).join('')}
     <p class="fuss">Spieleabend ${VERSION}</p>`, { klasse:'gross' });
+  const feld = $('[data-hilfe-suche]', s);
+  feld.addEventListener('input', () => hilfeFiltern(s, feld.value, zuerst.id));
+}
+function hilfeFiltern(s, eingabe, standardId){
+  const q = eingabe.trim().toLowerCase();
+  let treffer = 0;
+  for (const h of HILFE){
+    const d = $(`[data-hilfe="${h.id}"]`, s), innen = $('.innen', d), titel = $('.klapp-titel', d);
+    innen.innerHTML = h.text; titel.textContent = h.titel;
+    if (!q){ d.style.display = ''; d.open = h.id === standardId; continue; }
+    const passt = (h.titel + ' ' + innen.textContent).toLowerCase().includes(q);
+    d.style.display = passt ? '' : 'none'; d.open = passt;
+    if (passt){ treffer++; markieren(titel, q); markieren(innen, q); }
+  }
+  $('[data-hilfe-leer]', s).style.display = q && !treffer ? '' : 'none';
+}
+function markieren(wurzel, q){
+  // Fundstellen gelb hinterlegen, ohne die Formatierung zu zerstören
+  const w = document.createTreeWalker(wurzel, NodeFilter.SHOW_TEXT), knoten = [];
+  while (w.nextNode()) if (w.currentNode.nodeValue.toLowerCase().includes(q)) knoten.push(w.currentNode);
+  for (const t of knoten){
+    const text = t.nodeValue, klein = text.toLowerCase(), frag = document.createDocumentFragment();
+    let i = 0, pos;
+    while ((pos = klein.indexOf(q, i)) >= 0){
+      frag.append(text.slice(i, pos));
+      const m = document.createElement('mark'); m.textContent = text.slice(pos, pos + q.length); frag.append(m);
+      i = pos + q.length;
+    }
+    frag.append(text.slice(i)); t.replaceWith(frag);
+  }
+}
+
+/* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
+const VERSIONEN = [
+  { v:'v1.40', datum:'23.10.2026', neu:[
+    'Neu: <b>Mitspieler mit Namen</b> je Haushalt – unter Haushalte aufklappen und über „+ Mitspieler“ eintragen',
+    'Beim Anlegen eines Haushalts lassen sich die Mitspieler gleich mit eintragen',
+    'Spielrunde: Namen antippen, wer dabei ist – die Anzahl zählt automatisch mit, Gäste kommen mit + dazu',
+    'Ein Spielkreis wählt alle seine Mitspieler auf einmal aus',
+    'Haushalte: Mitspieler und Spiele als eigene aufklappbare Bereiche'] },
+  { v:'v1.30', datum:'23.10.2026', neu:[
+    'Neu: <b>i</b> – Info mit allen Versionen und was jeweils neu ist; zeigt an, ob es eine neuere Version gibt',
+    'Hilfe hat jetzt einen eigenen <b>?</b>-Knopf und ein Suchfeld, das die Fundstellen gelb markiert',
+    'Der Abgleich ist jetzt der Pfeil-Knopf oben rechts mit farbigem Punkt',
+    'Einladungslink: der GitHub-Zugang steckt unkenntlich im Link',
+    'Per Einladung eingerichtete Geräte zeigen keine GitHub-Zugangsdaten mehr, der Schlüssel lässt sich nirgends mehr anzeigen'] },
+  { v:'v1.20', datum:'23.10.2026', neu:[
+    'Spielkreise: Der Admin legt fest, welche Haushalte gegenseitig ihre Spiele sehen',
+    'Admin-PIN, Übersicht „Wer sieht wen?“',
+    'Spielrunde: Spielkreis mit einem Tipp auswählen',
+    'Hilfe mit aufklappbaren Themen'] },
+  { v:'v1.10', datum:'23.10.2026', neu:[
+    'Spiele im Internet suchen: Spieler, Alter, Dauer, Beschreibung und Foto aus Wikipedia und Wikidata',
+    'Bildnachweis und Link zum Wikipedia-Eintrag beim Spiel',
+    'Hinweis, wenn ein Spiel im Haushalt schon eingetragen ist'] },
+  { v:'v1.01', datum:'23.10.2026', neu:[
+    'Aufklappbare Bereiche in Einstellungen, Haushalten, Spielrunde und Filter – die App merkt sich, was offen ist',
+    'Haushalte klappen direkt in der Liste auf und zeigen ihre Spiele',
+    'Genauere Fehlermeldung bei Problemen mit dem Schlüssel'] },
+  { v:'v1.00', datum:'23.10.2026', neu:[
+    'Erste Version: Haushalte mit Spielfigur, Spiele mit Foto, Suche und Filter',
+    'Spielrunde mit Würfeln',
+    'Abgleich über GitHub, Einladungslink für weitere Haushalte und Geräte'] }
+];
+async function neuesteVersion(){
+  try{
+    const r = await fetch(location.pathname + '?v=' + Date.now(), { cache:'no-store' });
+    if (!r.ok) return null;
+    const m = /const VERSION = '([^']+)'/.exec(await r.text());
+    return m ? m[1] : null;
+  }catch(e){ return null; }
+}
+function infoSheet(){
+  const s = sheet(`<div class="info-kopf">
+      <img src="icon.png" alt="" width="72" height="72">
+      <h2>Spieleabend</h2>
+      <p class="info-version">Version ${VERSION} <span class="marke-mein" data-info-stand>prüfe …</span></p>
+    </div>
+    <div data-info-update></div>
+    <label class="feld"><span class="feld-titel">Version</span>
+      <select class="eingabe" data-info-wahl>${VERSIONEN.map(x => `<option value="${x.v}"${x.v === VERSION ? ' selected' : ''}>${x.v} – ${x.datum}${x.v === VERSION ? ' (installiert)' : ''}</option>`).join('')}</select></label>
+    <div data-info-text></div>
+    <button class="knopf zweit breit" type="button" data-info-hilfe style="margin-top:6px">${ic('frage', 'style="color:var(--rot)"')}Hilfe öffnen</button>
+    <p class="info-dank">Entwickelt von <b>Christian Mättig</b><br>in Kooperation mit <b>Claude</b> (Anthropic)</p>
+    <button class="knopf breit" type="button" data-zu>Schließen</button>`);
+  const wahl = $('[data-info-wahl]', s), text = $('[data-info-text]', s);
+  function zeigen(){
+    const x = VERSIONEN.find(y => y.v === wahl.value) || VERSIONEN[0];
+    text.innerHTML = `<p class="text-leise text-klein" style="margin:0 0 8px">Veröffentlicht am ${x.datum}${x.v === VERSION ? ' · installiert' : ''}</p>
+      <ul class="info-liste">${x.neu.map(n => `<li>${n}</li>`).join('')}</ul>`;
+  }
+  wahl.addEventListener('change', zeigen); zeigen();
+  $('[data-info-hilfe]', s).addEventListener('click', () => { s.schliessen(); setTimeout(hilfeSheet, 230); });
+  neuesteVersion().then(neu => {
+    const stand = $('[data-info-stand]', s); if (!stand) return;
+    if (!neu){ stand.textContent = 'offline'; stand.classList.add('grau'); return; }
+    if (neu === VERSION){ stand.textContent = 'aktuell'; return; }
+    stand.textContent = 'veraltet'; stand.classList.add('warn');
+    $('[data-info-update]', s).innerHTML = `<div class="hinweis warn" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <span>Version ${esc(neu)} ist da.</span><button class="knopf" type="button" data-neu-laden style="min-height:38px;padding:0 14px">Jetzt laden</button></div>`;
+    $('[data-neu-laden]', s).addEventListener('click', () => location.reload());
+  });
 }
 
 /* ---------- Spielkreise & Admin ---------- */
@@ -2114,15 +2353,16 @@ async function verwaltungAktion(was, kreisId){
   }
 }
 async function verbindungSpeichern(){
-  const owner = $('#e-owner').value.trim(), repo = $('#e-repo').value.trim(), token = $('#e-token').value.trim();
+  const owner = $('#e-owner').value.trim(), repo = $('#e-repo').value.trim(), neuerToken = $('#e-token').value.trim();
+  const token = neuerToken || E.token;
   if (!owner || !repo){ toast('Benutzername und Repo ausfüllen.', 'fehler'); return; }
   const wechsel = owner !== E.owner || repo !== E.repo;
   if (wechsel && Object.keys(D.haushalte).length){
     if (!await frage('Anderes Repo verwenden?', 'Die bisher geladenen Spiele werden von diesem Gerät entfernt und aus dem neuen Repo geladen.', 'Wechseln')) return;
     D = { haushalte:{}, meta:{} }; datenVorbereiten(); speichern();
   }
-  Object.assign(E, { owner, repo, token }); einstSpeichern();
-  for (const id of ['e-owner','e-repo','e-token']) delete document.getElementById(id).dataset.getippt;
+  Object.assign(E, { owner, repo, token }); if (neuerToken) E.perEinladung = false; einstSpeichern();
+  for (const id of ['e-owner','e-repo','e-token']){ const f = document.getElementById(id); if (f){ delete f.dataset.getippt; if (id === 'e-token') f.value = ''; } }
   const b = $('#e-verbinden'); b.disabled = true; b.textContent = 'Prüfe …';
   try{
     await repoPruefen();
@@ -2183,8 +2423,10 @@ let hausFrageGezeigt = false;
 function einladungLesen(text){
   const m = /einladung=([A-Za-z0-9_-]+)/.exec(text || ''); if (!m) return null;
   try{
-    let b = m[1].replace(/-/g,'+').replace(/_/g,'/'); while (b.length % 4) b += '=';
-    const d = JSON.parse(textAusB64(b));
+    const neu = m[1].startsWith('2');
+    let b = (neu ? m[1].slice(1) : m[1]).replace(/-/g,'+').replace(/_/g,'/'); while (b.length % 4) b += '=';
+    let bytes = bytesAusB64(b); if (neu) bytes = verschleiern(bytes);
+    const d = JSON.parse(new TextDecoder().decode(bytes));
     if (!d || !d.t) return null;
     return { code:m[1], owner:d.o, repo:d.r, token:d.t };
   }catch(e){ return null; }
@@ -2193,7 +2435,7 @@ function einladungUebernehmen(ein){
   const wechsel = (ein.owner && ein.owner !== E.owner) || (ein.repo && ein.repo !== E.repo);
   if (wechsel){ D = { haushalte:{}, meta:{} }; datenVorbereiten(); speichern(); }
   if (ein.owner) E.owner = ein.owner; if (ein.repo) E.repo = ein.repo;
-  E.token = ein.token; E.einladungen = [...(E.einladungen || []).filter(c => c !== ein.code), ein.code].slice(-5);
+  E.token = ein.token; E.perEinladung = true; E.einladungen = [...(E.einladungen || []).filter(c => c !== ein.code), ein.code].slice(-5);
   einstSpeichern(); hausFrageGezeigt = false;
 }
 function einladungPruefen(){
@@ -2280,7 +2522,8 @@ function verdrahten(){
   $('#plus').addEventListener('click', () => spielFormular());
   $('#filter-auf').addEventListener('click', filterSheet);
   $('#hilfe-knopf').addEventListener('click', hilfeSheet);
-  $('#sync-knopf').addEventListener('click', () => { if (S.fehler) toast(S.fehler, 'fehler'); sync('von Hand'); });
+  $('#sync-knopf').addEventListener('click', () => { statusToast(); sync('von Hand'); });
+  $('#info-knopf').addEventListener('click', infoSheet);
   let suchTimer = null;
   $('#suche').addEventListener('input', e => { clearTimeout(suchTimer); suchTimer = setTimeout(() => { F.suche = e.target.value; renderSpiele(); }, 150); });
   $('#filter-leiste').addEventListener('click', e => {
@@ -2296,6 +2539,7 @@ function verdrahten(){
   document.addEventListener('click', e => {
     const k = e.target.closest('[data-spiel]'); if (k && !k.closest('.sheet')){ spielDetail(k.dataset.spiel); return; }
     const hha = e.target.closest('[data-hha]'); if (hha){ haushaltAktion(hha.dataset.hha, hha.dataset.id); return; }
+    const spc = e.target.closest('.spieler-chip[data-spieler]'); if (spc){ spielerBearbeiten(spc.dataset.hh, spc.dataset.spieler); return; }
     const a = e.target.closest('[data-aktion]');
     if (a){
       const was = a.dataset.aktion;
@@ -2313,9 +2557,20 @@ function verdrahten(){
     const g = e.target.dataset.gruppe, w = e.detail;
     if (g === 'dabei') R.ohne = haushaltListe().map(h => h.id).filter(id => !w.includes(id));
     if (g === 'kreis'){
+      // Spielkreis gewählt: dessen Haushalte und alle ihre Mitspieler sind dabei
       const k = meineKreise().find(x => x.id === w[0]);
       R.ohne = k ? haushaltListe().map(h => h.id).filter(id => !k.haushalte.includes(id)) : [];
-      $$('[data-gruppe="dabei"] .chip').forEach(c => c.setAttribute('aria-pressed', !R.ohne.includes(c.dataset.wert)));
+      const leute = k ? k.haushalte.flatMap(id => ((D.haushalte[id] || {}).spieler || []).map(x => x.id)) : [];
+      R.anwesend = leute;
+      if (leute.length) R.personen = Math.min(30, leute.length);
+      schreiben(LS.runde, R); renderRunde(); return;
+    }
+    if (g === 'anwesend'){
+      const vorher = (R.anwesend || []).length;
+      R.anwesend = $$('[data-gruppe="anwesend"] .chip[aria-pressed="true"]', runde).map(c => c.dataset.wert);
+      const gaeste = vorher ? Math.max(0, R.personen - vorher) : 0;
+      R.personen = Math.min(30, Math.max(1, R.anwesend.length + gaeste));
+      stepperSetzen($('[data-name="personen"]', runde), R.personen);
     }
     if (g === 'dauer') R.dauerMax = w.length ? +w[0] : null;
     if (g === 'kat') R.kategorien = w;
