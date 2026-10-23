@@ -4,6 +4,23 @@
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
  "stand": 1792767429031,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smvl4jqa6tocg",
+   "name": "Lanzeloth",
+   "bild": "bilder/smvl4jqa6tocg-mvl4jqa7.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 7,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "erstellt": 1792769291215,
+   "geaendert": 1792769291215
+  }
+ ],
  "geloescht": {}
 }
