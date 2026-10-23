@@ -291,6 +291,7 @@ textarea.eingabe{min-height:96px;resize:vertical;line-height:1.4}
 .verlauf .nein{color:var(--rot)}
 details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5px;margin-top:10px}
 .fuss{text-align:center;color:var(--leise);font-size:13px;margin:18px 0 6px}
+.versions-tipp{-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-touch-callout:none;cursor:default}
 .hinweis{background:var(--filz-hell);border-radius:12px;padding:11px 13px;font-size:14px;margin:0 0 12px}
 .hinweis.warn{background:color-mix(in srgb, var(--gelb) 22%, var(--karte))}
 
@@ -498,7 +499,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.42';
+const VERSION = 'v1.43';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1123,6 +1124,23 @@ function meineKreise(){
 /* Rechte: Solange es keinen Admin gibt, darf jeder alles. Sobald eine Admin-PIN festgelegt ist,
    ändert jeder nur noch seinen eigenen Haushalt (Spiele, Mitspieler, Name) – der Admin darf alles. */
 function rechteAktiv(){ return !!D.verwaltung.pinHash; }
+/* Der Bereich „Spielkreise & Admin“ ist auf Geräten ohne Admin versteckt, sobald es eine Admin-PIN gibt.
+   Ein Doppeltipp auf die Versionsnummer blendet ihn bis zum nächsten Doppeltipp (oder Neustart) ein. */
+let adminEingeblendet = false;
+function adminBereichSichtbar(){ return E.admin || !rechteAktiv() || adminEingeblendet; }
+function zugangsfelderSichtbar(){ return E.admin || (!rechteAktiv() && !E.perEinladung); }
+function doppelTipp(el, fn){
+  if (!el) return;
+  let zuletzt = 0;
+  el.addEventListener('click', () => { const t = Date.now(); if (t - zuletzt < 450){ zuletzt = 0; fn(); } else zuletzt = t; });
+}
+function adminUmschalten(){
+  if (E.admin || !rechteAktiv()){ toast('Der Admin-Bereich ist auf diesem Gerät ohnehin sichtbar.'); return; }
+  adminEingeblendet = !adminEingeblendet;
+  if (adminEingeblendet){ KL['e-admin'] = true; schreiben(LS.klapp, KL); }
+  toast(adminEingeblendet ? 'Admin-Bereich eingeblendet' : 'Admin-Bereich ausgeblendet');
+  if (aktiveSeite === 'einstellungen') renderEinstellungen();
+}
 function darfBearbeiten(hid){ return !rechteAktiv() || E.admin || (meinHaushaltGueltig() && hid === E.meinHaushalt); }
 function darfHaushaltWechseln(){ return !rechteAktiv() || E.admin || !meinHaushaltGueltig(); }
 function nurEigeneSichtbar(){ return kreiseAktiv() && !E.admin && meinHaushaltGueltig() && sichtbareIds().size === 1; }
@@ -2066,8 +2084,8 @@ function renderEinstellungen(){
           { klasse:'leicht' })}</div>` : ''}`,
       { zwingend:!!S.fehler, klein:`<span class="punkt" data-k="${z.k}"></span>${esc(z.t)}` })}
 
-    ${klapp('e-github', 'Verbindung zu GitHub', E.perEinladung && !E.admin ? `
-      <p class="text-leise" style="margin:0 0 12px">Diese App wurde über einen Einladungslink eingerichtet. Der Zugang ist hinterlegt und wird nicht angezeigt.</p>
+    ${klapp('e-github', 'Verbindung zu GitHub', !zugangsfelderSichtbar() ? `
+      <p class="text-leise" style="margin:0 0 12px">${E.perEinladung ? 'Diese App wurde über einen Einladungslink eingerichtet. ' : ''}Der Zugang ist hinterlegt und wird nicht angezeigt.</p>
       <label class="feld"><span class="feld-titel">Neuen Einladungslink einfügen</span>
         <textarea class="eingabe" id="e-einladung" placeholder="https://…#einladung=…" style="min-height:80px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
       <button class="knopf zweit breit" type="button" id="e-einladung-ok">Einladung übernehmen</button>
@@ -2078,15 +2096,15 @@ function renderEinstellungen(){
         ${E.token ? '<span class="text-klein" style="display:block;margin:0 0 6px">✓ Ein Schlüssel ist hinterlegt. Er wird nicht angezeigt.</span>' : ''}
         <input class="eingabe" id="e-token" type="password" placeholder="${E.token ? 'Nur für einen neuen Schlüssel ausfüllen' : 'github_pat_…'}" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off"></label>
       <button class="knopf breit" type="button" id="e-verbinden">Speichern und prüfen</button>`,
-      { standard:!E.token, klein: !E.token ? 'kein Schlüssel' : E.perEinladung ? 'per Einladung' : 'verbunden' })}
+      { standard:!E.token, klein: !E.token ? 'kein Schlüssel' : E.perEinladung && !E.admin ? 'per Einladung' : 'verbunden' })}
 
     ${klapp('e-einladen', 'Andere Haushalte einladen', `
       <p class="text-leise" style="margin:0 0 12px">Der Link richtet die App beim Empfänger mit dem Schlüssel ein. Schick ihn nur an Familie und Freunde.</p>
       <button class="knopf breit" type="button" id="e-einladen" ${E.token ? '' : 'disabled'}>${ic('teilen')}Einladungslink teilen</button>
       ${E.token ? '' : '<p class="block-hinweis">Erst den Schlüssel eintragen, dann kannst du einladen.</p>'}`)}
 
-    ${klapp('e-admin', 'Spielkreise & Admin', `<div id="verwaltung">${verwaltungHtml()}</div>`,
-      { klein: E.admin ? 'du bist Admin' : (kreiseAktiv() ? `${D.verwaltung.kreise.length} Spielkreis${D.verwaltung.kreise.length === 1 ? '' : 'e'}` : '') })}
+    ${adminBereichSichtbar() ? klapp('e-admin', 'Spielkreise & Admin', `<div id="verwaltung">${verwaltungHtml()}</div>`,
+      { klein: E.admin ? 'du bist Admin' : (kreiseAktiv() ? `${D.verwaltung.kreise.length} Spielkreis${D.verwaltung.kreise.length === 1 ? '' : 'e'}` : '') }) : ''}
 
     ${klapp('e-daten', 'Daten', `
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -2096,7 +2114,8 @@ function renderEinstellungen(){
         <button class="knopf rahmen" type="button" id="e-neu">Alles neu von GitHub laden</button>
       </div>
       <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>`)}
-    <p class="fuss">Spieleabend ${VERSION}</p>`;
+    <p class="fuss versions-tipp" id="e-version">Spieleabend ${VERSION}</p>`;
+  doppelTipp($('#e-version'), adminUmschalten);
 
   for (const [id, v] of Object.entries(vorher)){ const f = document.getElementById(id); if (f){ f.value = v.wert; f.dataset.getippt = '1'; } }
   for (const id of ['e-owner','e-repo','e-token']){ const f = document.getElementById(id); if (f) f.addEventListener('input', e => { e.target.dataset.getippt = '1'; }); }
@@ -2117,6 +2136,7 @@ function renderEinstellungen(){
   $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
   $('#e-neu').addEventListener('click', allesNeuLaden);
   const v = $('#verwaltung');
+  if (!v) return;
   v.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) verwaltungAktion(b.dataset.v, b.dataset.kreis); });
   v.addEventListener('wahl', e => {
     const g = e.target; if (g.dataset.gruppe !== 'kreis-mitglieder') return;
@@ -2155,7 +2175,8 @@ const HILFE = [
     <p>Ohne Spielkreise sieht jeder alle Spiele. Der Admin legt unter Einstellungen → <b>Spielkreise &amp; Admin</b> Kreise an, z. B. „Familie B &amp; C“ und „Familie C &amp; D“.</p>
     <ul><li>Jeder Haushalt sieht dann die Spiele der Haushalte, mit denen er in einem Kreis ist.</li>
     <li>Ein Haushalt in keinem Kreis sieht nur die eigenen Spiele.</li>
-    <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li></ul>
+    <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li>
+    <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
     <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
   { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
@@ -2215,6 +2236,9 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.43', datum:'23.10.2026', neu:[
+    'Auf Geräten ohne Admin ist der Bereich „Spielkreise &amp; Admin“ ausgeblendet',
+    'Geräte ohne Admin zeigen keine GitHub-Zugangsfelder mehr – bei Bedarf wird ein neuer Einladungslink eingefügt'] },
   { v:'v1.42', datum:'23.10.2026', neu:[
     'Rechte: Sobald es einen Admin gibt, ändert jeder nur noch seinen eigenen Haushalt – Spiele, Mitspieler, Name und Farbe',
     'Spiele und Mitspieler anderer Haushalte lassen sich nur noch ansehen',
@@ -2267,7 +2291,7 @@ function infoSheet(){
   const s = sheet(`<div class="info-kopf">
       <img src="icon.png" alt="" width="72" height="72">
       <h2>Spieleabend</h2>
-      <p class="info-version">Version ${VERSION} <span class="marke-mein" data-info-stand>prüfe …</span></p>
+      <p class="info-version"><span class="versions-tipp" data-info-nr>Version ${VERSION}</span> <span class="marke-mein" data-info-stand>prüfe …</span></p>
     </div>
     <div data-info-update></div>
     <label class="feld"><span class="feld-titel">Version</span>
@@ -2277,6 +2301,7 @@ function infoSheet(){
     <p class="info-dank">Entwickelt von <b>Christian Mättig</b><br>in Kooperation mit <b>Claude</b> (Anthropic)</p>
     <button class="knopf breit" type="button" data-zu>Schließen</button>`);
   const wahl = $('[data-info-wahl]', s), text = $('[data-info-text]', s);
+  doppelTipp($('[data-info-nr]', s), adminUmschalten);
   function zeigen(){
     const x = VERSIONEN.find(y => y.v === wahl.value) || VERSIONEN[0];
     text.innerHTML = `<p class="text-leise text-klein" style="margin:0 0 8px">Veröffentlicht am ${x.datum}${x.v === VERSION ? ' · installiert' : ''}</p>
@@ -2390,7 +2415,7 @@ async function verwaltungAktion(was, kreisId){
     const pin = await pinSheet(false, async p => await sha256(`${V.pinSalz}:${p}`) === V.pinHash); if (!pin) return;
     E.admin = true; einstSpeichern(); renderAlles(); toast('Du bist jetzt Admin auf diesem Gerät');
   }
-  if (was === 'abmelden'){ E.admin = false; einstSpeichern(); renderAlles(); toast('Admin-Modus beendet'); }
+  if (was === 'abmelden'){ E.admin = false; adminEingeblendet = false; einstSpeichern(); renderAlles(); toast('Admin-Modus beendet'); }
   if (!E.admin) return;
   if (was === 'kreis-neu'){
     const name = await textFrage('Neuer Spielkreis', { label:'Name des Spielkreises', platzhalter:'z. B. Familie B & C', knopf:'Anlegen' }); if (!name) return;
