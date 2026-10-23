@@ -499,7 +499,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.43';
+const VERSION = 'v1.44';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -539,6 +539,7 @@ let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
 const KL = lesen(LS.klapp, {}) || {};                   // welche Bereiche auf diesem Gerät aufgeklappt sind
 
 function speichern(){ schreiben(LS.daten, D); }
+function geraetKennung(){ if (!E.geraetId){ E.geraetId = neueId('g'); einstSpeichern(); } }
 function datenVorbereiten(){
   D.verwaltung = verwaltungNorm(D.verwaltung); if (!D.metaV) D.metaV = {};
   if ((D.datenstand || 1) < DATENSTAND){
@@ -666,6 +667,10 @@ function verwaltungNorm(v){
     kreise:(Array.isArray(v.kreise) ? v.kreise : []).filter(k => k && k.id).map(k => ({
       id:String(k.id), name:String(k.name || 'Spielkreis'), haushalte:Array.isArray(k.haushalte) ? [...new Set(k.haushalte.map(String))].sort() : [], stand:zahl(k.stand) || 0
     })).sort((a, b) => a.name.localeCompare(b.name, 'de') || a.id.localeCompare(b.id)),
+    // Geräte, auf denen gerade jemand als Admin angemeldet ist – der Admin kann sie aus der Ferne abmelden
+    adminGeraete:(Array.isArray(v.adminGeraete) ? v.adminGeraete : []).filter(x => x && x.id).map(x => ({
+      id:String(x.id), name:String(x.name || 'Gerät').slice(0, 60), seit:zahl(x.seit) || 0, stand:zahl(x.stand) || 0
+    })).sort((a, b) => a.seit - b.seit || a.id.localeCompare(b.id)),
     geloescht:g
   };
 }
@@ -675,7 +680,11 @@ function verwaltungMischen(a, b){
   const tomb = { ...B.geloescht }; for (const [k, v] of Object.entries(A.geloescht)) tomb[k] = Math.max(tomb[k] || 0, v);
   const m = new Map(); for (const k of B.kreise) m.set(k.id, k);
   for (const k of A.kreise){ const x = m.get(k.id); if (!x || k.stand > x.stand) m.set(k.id, k); }
-  return verwaltungNorm({ pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, kreise:[...m.values()].filter(k => !(tomb[k.id] && tomb[k.id] >= k.stand)), geloescht:tomb });
+  const g = new Map(); for (const x of B.adminGeraete) g.set(x.id, x);
+  for (const x of A.adminGeraete){ const y = g.get(x.id); if (!y || x.stand > y.stand) g.set(x.id, x); }
+  return verwaltungNorm({ pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand,
+    kreise:[...m.values()].filter(k => !(tomb[k.id] && tomb[k.id] >= k.stand)),
+    adminGeraete:[...g.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), geloescht:tomb });
 }
 function markiereV(notiz){
   const m = D.metaV; m.dirty = true; m.zaehler = (m.zaehler || 0) + 1; m.notizen = [...(m.notizen || []), notiz].slice(-6);
@@ -994,6 +1003,7 @@ async function sync(anlass){
       await fotosAufraeumen();
     }
 
+    adminSitzungPruefen();
     S.fehler = ''; S.letzter = Date.now(); schreiben(LS.letzter, S.letzter);
     const teile = [];
     if (st.geholt) teile.push(`${st.geholt} Haushalt${st.geholt === 1 ? '' : 'e'} aktualisiert`);
@@ -2176,6 +2186,7 @@ const HILFE = [
     <ul><li>Jeder Haushalt sieht dann die Spiele der Haushalte, mit denen er in einem Kreis ist.</li>
     <li>Ein Haushalt in keinem Kreis sieht nur die eigenen Spiele.</li>
     <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li>
+    <li>Unter <b>Admin-Geräte</b> sieht der Admin, wo er angemeldet ist, und kann andere Geräte aus der Ferne abmelden.</li>
     <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
     <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
@@ -2236,6 +2247,9 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.44', datum:'23.10.2026', neu:[
+    'Admin-Geräte: Der Admin sieht, auf welchen Geräten er angemeldet ist',
+    'Andere Geräte lassen sich aus der Ferne als Admin abmelden – einzeln oder alle auf einmal'] },
   { v:'v1.43', datum:'23.10.2026', neu:[
     'Auf Geräten ohne Admin ist der Bereich „Spielkreise &amp; Admin“ ausgeblendet',
     'Geräte ohne Admin zeigen keine GitHub-Zugangsfelder mehr – bei Bedarf wird ein neuer Einladungslink eingefügt'] },
@@ -2349,6 +2363,7 @@ function verwaltungHtml(){
         </div></details>`; }).join('')}
     <button class="knopf breit" type="button" data-v="kreis-neu" style="margin-top:4px">${ic('plus')}Neuen Spielkreis anlegen</button>
     ${V.kreise.length ? `<div style="margin-top:14px">${klapp('v-wer-sieht', 'Wer sieht wen?', werSiehtWenHtml(), { klasse:'leicht' })}</div>` : ''}
+    <div style="margin-top:6px">${klapp('v-geraete', 'Admin-Geräte', adminGeraeteHtml(), { klasse:'leicht', klein:`${V.adminGeraete.length}` })}</div>
     <div class="hh-knoepfe" style="margin-top:14px">
       <button class="knopf rahmen" type="button" data-v="pin-neu">PIN ändern</button>
       <button class="knopf rahmen" type="button" data-v="abmelden">Admin abmelden</button>
@@ -2398,6 +2413,46 @@ function pinSheet(neu, pruefen=null){
     });
   });
 }
+/* ---------- Admin-Geräte: Anmeldung merken, aus der Ferne abmelden ---------- */
+function geraetName(){
+  const ua = navigator.userAgent;
+  const art = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iPad'
+    : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows-PC' : /Mac/.test(ua) ? 'Mac' : 'Computer';
+  const hh = D.haushalte[E.meinHaushalt];
+  return hh ? `${art} – ${hh.name}` : art;
+}
+function adminEintragen(){
+  const V = D.verwaltung, jetzt = Date.now();
+  V.adminGeraete = V.adminGeraete.filter(x => x.id !== E.geraetId);
+  V.adminGeraete.push({ id:E.geraetId, name:geraetName(), seit:jetzt, stand:jetzt });
+  delete V.geloescht[E.geraetId];
+  E.admin = true; E.adminRegistriert = false; einstSpeichern();
+}
+function adminAustragen(id){
+  const V = D.verwaltung;
+  V.adminGeraete = V.adminGeraete.filter(x => x.id !== id);
+  V.geloescht[id] = Date.now();
+}
+/* Nach jedem Abgleich: Wurde dieses Gerät aus der Ferne abgemeldet? Ältere Anmeldungen (vor v1.44) tragen sich ein. */
+function adminSitzungPruefen(){
+  if (!E.admin) return;
+  const drin = D.verwaltung.adminGeraete.some(x => x.id === E.geraetId);
+  if (drin){ if (!E.adminRegistriert && !D.metaV.dirty){ E.adminRegistriert = true; einstSpeichern(); } return; }
+  if (E.adminRegistriert){
+    E.admin = false; E.adminRegistriert = false; adminEingeblendet = false; einstSpeichern();
+    renderAlles(); toast('Dieses Gerät wurde als Admin abgemeldet.');
+    return;
+  }
+  if (!D.metaV.dirty){ adminEintragen(); markiereV(`Admin-Anmeldung ${geraetName()}`); speichern(); syncBald(); }
+}
+function adminGeraeteHtml(){
+  const liste = D.verwaltung.adminGeraete;
+  if (!liste.length) return '<p class="text-leise">Noch keine Anmeldungen.</p>';
+  const andere = liste.filter(x => x.id !== E.geraetId).length;
+  return `<ul class="verlauf">${liste.map(x => `<li style="align-items:center"><span style="flex:1"><b>${esc(x.name)}</b>${x.id === E.geraetId ? ' <span class="marke-mein">dieses Gerät</span>' : ''}<br><span class="text-leise text-klein">angemeldet ${esc(datumZeit(x.seit))}</span></span>
+      ${x.id === E.geraetId ? '' : `<button class="knopf gefahr" type="button" data-v="fern-ab" data-kreis="${esc(x.id)}" style="min-height:36px;padding:0 12px;font-size:14px;flex:none">Abmelden</button>`}</li>`).join('')}</ul>
+    ${andere > 1 ? '<button class="knopf rahmen breit" type="button" data-v="fern-alle" style="margin-top:10px">Alle anderen abmelden</button>' : ''}`;
+}
 async function verwaltungAktion(was, kreisId){
   const V = D.verwaltung;
   const aendern = notiz => { markiereV(notiz); speichern(); renderAlles(); syncBald(); };
@@ -2408,14 +2463,29 @@ async function verwaltungAktion(was, kreisId){
     const pin = await pinSheet(true); if (!pin) return;
     const salz = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
     Object.assign(V, { pinSalz:salz, pinHash:await sha256(`${salz}:${pin}`), pinStand:Date.now() });
-    E.admin = true; einstSpeichern();
+    adminEintragen();
     aendern('Admin-PIN festgelegt'); toast('PIN gespeichert – du bist Admin');
   }
   if (was === 'anmelden'){
     const pin = await pinSheet(false, async p => await sha256(`${V.pinSalz}:${p}`) === V.pinHash); if (!pin) return;
-    E.admin = true; einstSpeichern(); renderAlles(); toast('Du bist jetzt Admin auf diesem Gerät');
+    adminEintragen(); aendern(`Admin-Anmeldung ${geraetName()}`); toast('Du bist jetzt Admin auf diesem Gerät');
   }
-  if (was === 'abmelden'){ E.admin = false; adminEingeblendet = false; einstSpeichern(); renderAlles(); toast('Admin-Modus beendet'); }
+  if (was === 'abmelden'){
+    adminAustragen(E.geraetId);
+    E.admin = false; E.adminRegistriert = false; adminEingeblendet = false; einstSpeichern();
+    aendern(`Admin-Abmeldung ${geraetName()}`); toast('Admin-Modus beendet');
+  }
+  if (was === 'fern-ab' && E.admin && kreisId){
+    const g = V.adminGeraete.find(x => x.id === kreisId); if (!g) return;
+    if (!await frage(`${g.name} abmelden?`, 'Das Gerät ist beim nächsten Abgleich kein Admin mehr – meist sofort, spätestens wenn die App dort wieder geöffnet wird.', 'Abmelden')) return;
+    adminAustragen(kreisId); aendern(`${g.name} als Admin abgemeldet`); toast('Abmeldung wird verschickt');
+  }
+  if (was === 'fern-alle' && E.admin){
+    const andere = V.adminGeraete.filter(x => x.id !== E.geraetId); if (!andere.length) return;
+    if (!await frage('Alle anderen abmelden?', `${andere.length} ${andere.length === 1 ? 'Gerät ist' : 'Geräte sind'} danach kein Admin mehr. Dieses Gerät bleibt angemeldet.`, 'Alle abmelden')) return;
+    for (const x of andere) adminAustragen(x.id);
+    aendern('Alle anderen Admin-Geräte abgemeldet'); toast('Abmeldung wird verschickt');
+  }
   if (!E.admin) return;
   if (was === 'kreis-neu'){
     const name = await textFrage('Neuer Spielkreis', { label:'Name des Spielkreises', platzhalter:'z. B. Familie B & C', knopf:'Anlegen' }); if (!name) return;
@@ -2689,6 +2759,7 @@ function verdrahten(){
 }
 
 function start(){
+  geraetKennung();
   const eingeladen = einladungPruefen();
   verdrahten();
   installHinweis();
