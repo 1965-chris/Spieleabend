@@ -496,6 +496,23 @@
    "geaendert": 1792878829011
   },
   {
+   "id": "smvmycuy9gapb",
+   "name": "Timber",
+   "bild": "bilder/smvmycuy9gapb-mvmycuyb.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792879825330,
+   "geaendert": 1792879825330
+  },
+  {
    "id": "smvmoa7yq1df3",
    "name": "Wizard",
    "bild": "bilder/smvmoa7yq1df3-mvmobtfj.jpg",
@@ -539,7 +556,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792878830936,
+   "zuletzt": 1792879827297,
    "name": "",
    "nameStand": 0
   },
