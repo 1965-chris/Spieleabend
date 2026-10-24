@@ -1,0 +1,47 @@
+{
+ "format": 1,
+ "app": "v1.67",
+ "id": "tmvmvoz83pgf6",
+ "titel": "Spieleabend",
+ "notiz": "",
+ "ort": "",
+ "gastgeber": "hmvl3fteujlp7",
+ "erstelltVon": "hmvl3fteujlp7",
+ "erstellt": 1792875351890,
+ "stand": 1792875351890,
+ "haushalte": [
+  "hmvl3fteujlp7"
+ ],
+ "optionen": [
+  {
+   "id": "omvmvmooghw1o",
+   "zeit": "2027-01-09T19:00",
+   "stand": 1792875351890
+  },
+  {
+   "id": "omvmvnvxkskcq",
+   "zeit": "2027-01-15T19:00",
+   "stand": 1792875351890
+  },
+  {
+   "id": "omvmvo8eufa6q",
+   "zeit": "2027-01-23T19:00",
+   "stand": 1792875351890
+  }
+ ],
+ "orte": [
+  {
+   "id": "wmvmvmooid56n",
+   "hid": "hmvl3fteujlp7",
+   "text": "",
+   "pos": 0,
+   "stand": 0
+  }
+ ],
+ "spiele": [],
+ "stimmen": {},
+ "festgelegt": "",
+ "festOrt": "",
+ "festStand": 1792875351890,
+ "geloescht": {}
+}
