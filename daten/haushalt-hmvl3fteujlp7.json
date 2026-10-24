@@ -503,7 +503,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792871140289,
-   "zuletzt": 1792873408286,
+   "zuletzt": 1792876033345,
    "name": "iPhone 6S Plus / Christian",
    "nameStand": 1792871414764
   },
@@ -526,7 +526,7 @@
    "von": "Christian",
    "betrifft": [],
    "erstellt": 1792875706155,
-   "stand": 1792875967519,
+   "stand": 1792876031447,
    "status": "offen",
    "statusStand": 0,
    "verlauf": [
@@ -535,6 +535,12 @@
      "admin": true,
      "text": "Wird mit dem nächste update erledigt",
      "zeit": 1792875967519
+    },
+    {
+     "id": "amvmw3jkne9i3",
+     "admin": false,
+     "text": "Ok",
+     "zeit": 1792876031447
     }
    ]
   }
