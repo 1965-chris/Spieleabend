@@ -83,7 +83,7 @@
   },
   {
    "id": "smvmohapumyhm",
-   "name": "Slip-Bo",
+   "name": "Skip-Bo",
    "bild": "bilder/smvmohapumyhm-mvmohapx.jpg",
    "spielerMin": 2,
    "spielerMax": 6,
@@ -96,7 +96,7 @@
    "link": "",
    "anleitung": "",
    "erstellt": 1792863236228,
-   "geaendert": 1792863236228
+   "geaendert": 1792863549399
   }
  ],
  "spieler": [
