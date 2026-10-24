@@ -30,8 +30,11 @@
    "stand": 1792788097573
   }
  ],
- "aus": [],
- "ausStand": 1792872095266,
+ "aus": [
+  "orte",
+  "spielvorschlaege"
+ ],
+ "ausStand": 1792872100491,
  "adminGeraete": [
   {
    "id": "gmvlch98lgubm",
