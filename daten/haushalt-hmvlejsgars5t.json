@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.65",
+ "app": "v1.67",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -130,9 +130,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
-   "anleitung": "",
+   "anleitung": "https://share.google/K1mGAAbMZuov5jLmZ",
    "erstellt": 1792863401503,
-   "geaendert": 1792863401503
+   "geaendert": 1792881026613
   },
   {
    "id": "smvmoqmpdlw1e",
