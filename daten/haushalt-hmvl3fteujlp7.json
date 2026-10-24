@@ -273,6 +273,25 @@
    "geaendert": 1792858660321
   },
   {
+   "id": "smvmoa7yq1df3",
+   "name": "Wizard",
+   "bild": "",
+   "spielerMin": 3,
+   "spielerMax": 6,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Wizard (englisch: Zauberer) ist ein Kartenspiel von Ken Fisher, ein Stichspiel, bei welchem Wahrscheinlichkeiten die Strategie bestimmen. Ein Spiel hat 10 bis 20 Runden. Vor jeder Runde werden alle Karten gemischt.\nVon Ken Fisher, erschienen 1984 bei Canada Games,.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Wizard_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792862906066,
+   "geaendert": 1792862906066
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
