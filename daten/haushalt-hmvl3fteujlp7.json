@@ -471,6 +471,26 @@
    "geaendert": 1792858660321
   },
   {
+   "id": "smvmxhvg6mkpl",
+   "name": "Take it easy",
+   "bild": "bilder/smvmxhvg6mkpl-mvmxhvg8.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "Take it easy ist ein strategisches Brettspiel. Jeder Mitspieler erhält ein Brett und 27 Steine. Die Steine sind sechseckig und tragen drei Zahlen, von denen eine für die senkrechte Richtung, eine für die Hauptdiagonale links oben–rechts unten und die dritte für die Nebendiagonale links unten–rechts oben steht.\nVon Peter Burley, erschienen 1983 bei Spear-Spiele (1983),.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Druyts.t, CC BY-SA 3.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Take_it_easy",
+   "anleitung": "",
+   "erstellt": 1792878379640,
+   "geaendert": 1792878379640
+  },
+  {
    "id": "smvmoa7yq1df3",
    "name": "Wizard",
    "bild": "bilder/smvmoa7yq1df3-mvmobtfj.jpg",
@@ -514,7 +534,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792878299889,
+   "zuletzt": 1792878381497,
    "name": "",
    "nameStand": 0
   },
