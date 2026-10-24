@@ -245,6 +245,25 @@
    "geaendert": 1792861925429
   },
   {
+   "id": "smvmx0dfb82d6",
+   "name": "Hotel",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 180,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Hotel (in vielen Ländern Hotels) ist ein 1974 bei Denys Fisher Toys erschienenes Brettspiel von Denys Fisher, welches seit 1986 von Milton Bradley/Hasbro vertrieben wird. Auf dem Spielbrett befindet sich ein Weg, auf dem verschiedene Aktionsfelder gezeichnet sind. Links und rechts davon befinden sich Grundstücke, welche zu erwerben sind, diese lassen sich durch Hotelbauten und Eingänge dorthin aufwerten.\nVon Denys Fisher, erschienen 1974 bei Denys Fisher Toys (1974),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Hotel_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792877563127,
+   "geaendert": 1792877563127
+  },
+  {
    "id": "smvl4jqa6tocg",
    "name": "Lanzeloth",
    "bild": "bilder/smvl4jqa6tocg-mvl4jqa7.jpg",
@@ -473,7 +492,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792875969433,
+   "zuletzt": 1792877565053,
    "name": "",
    "nameStand": 0
   },
