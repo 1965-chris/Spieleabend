@@ -328,7 +328,7 @@
    "name": "Monopoly",
    "bild": "bilder/smvmoqmpdlw1e-mvmoqmpf.jpg",
    "spielerMin": 2,
-   "spielerMax": 8,
+   "spielerMax": 6,
    "alterAb": 8,
    "dauer": 90,
    "kategorien": [
@@ -340,7 +340,7 @@
    "link": "",
    "anleitung": "",
    "erstellt": 1792880840545,
-   "geaendert": 1792880840545
+   "geaendert": 1792880888490
   },
   {
    "id": "smvmpruxvya54",
@@ -594,7 +594,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792880785979,
+   "zuletzt": 1792880890427,
    "name": "",
    "nameStand": 0
   },
