@@ -66,6 +66,28 @@
    "geaendert": 1792790212002
   },
   {
+   "id": "smvmkrhu8f0ir",
+   "name": "Sag’s Mir Filme",
+   "bild": "bilder/smvmkrhu8f0ir-mvmkrhua.jpg",
+   "spielerMin": 4,
+   "spielerMax": 12,
+   "alterAb": 12,
+   "dauer": 45,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 13.4,
+    "z": 1
+   },
+   "erstellt": 1792856993553,
+   "geaendert": 1792856993553
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
