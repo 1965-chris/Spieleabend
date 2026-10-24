@@ -83,6 +83,25 @@
    "geaendert": 1792865812420
   },
   {
+   "id": "smvmq9m94tjn9",
+   "name": "Elfer raus!",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 7,
+   "dauer": 15,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Elfer raus! Zu Beginn des Spiels werden Karten an zwei bis sechs Spieler verteilt; 20 Karten (bzw. bei 2 Spielern 40 Karten) verbleiben verdeckt auf einem Kartenstapel. Als erste Karte muss die rote Elf auf den Tisch gelegt werden.\nErschienen 1925 bei Hausser,.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Elfer_raus!",
+   "anleitung": "",
+   "erstellt": 1792866237160,
+   "geaendert": 1792866237160
+  },
+  {
    "id": "smvmlb1ssz2x6",
    "name": "Ganz schön clever",
    "bild": "bilder/smvmlb1ssz2x6-mvmlb1su.jpg",
@@ -454,7 +473,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792865814435,
+   "zuletzt": 1792866239049,
    "name": "",
    "nameStand": 0
   },
