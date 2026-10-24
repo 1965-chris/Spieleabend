@@ -109,6 +109,25 @@
    "geaendert": 1792857603056
   },
   {
+   "id": "smvmlf0wcuu22",
+   "name": "Qwixx",
+   "bild": "bilder/smvmlf0wcuu22-mvmlf0wd.jpg",
+   "spielerMin": 2,
+   "spielerMax": 5,
+   "alterAb": 8,
+   "dauer": 15,
+   "kategorien": [
+    "Würfelspiel"
+   ],
+   "beschreibung": "Qwixx ist ein Würfelspiel mit sechs Würfeln von Steffen Benndorf, das im Jahr 2012 im Nürnberger-Spielkarten-Verlag erschienen ist. Das Spielprinzip ist sehr einfach gehalten und erinnert an Würfelspielklassiker wie Kniffel bzw. Yahtzee. Das Spielmaterial besteht aus einem Spielblock und sechs Würfeln, wobei zwei Würfel weiß und je ein Würfel rot, blau, gelb und grün sind.\nVon Steffen Benndorf, erschienen 2012 bei Nürnberger-Spielkarten-Verlag.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Qwixx",
+   "anleitung": "",
+   "erstellt": 1792858091341,
+   "geaendert": 1792858091341
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
