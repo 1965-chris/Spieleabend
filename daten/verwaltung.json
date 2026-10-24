@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.66",
+ "app": "v1.67",
  "pinHash": "bbadc6e05980bbd1cb3a18da8ab6f99dff455a73a70a03113383f701e842c00f",
  "pinSalz": "bf42f5c2140250f126bdf921",
  "pinStand": 1792777561392,
@@ -26,8 +26,10 @@
     "hmvlejsgars5t",
     "hmvlf82o4u91q"
    ],
-   "aus": [],
-   "stand": 1792872285969
+   "aus": [
+    "nachrichten"
+   ],
+   "stand": 1792873478004
   }
  ],
  "aus": [
