@@ -66,6 +66,23 @@
    "geaendert": 1792864996673
   },
   {
+   "id": "smvmpwvne2qnm",
+   "name": "Domino Mexican Train",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 13,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "Mexican Train ist eine beliebte Domino-Variante für 2 bis 13 Spieler, bei der man versucht, als Erster alle eigenen Spielsteine loszuwerden.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792865642810,
+   "geaendert": 1792865642810
+  },
+  {
    "id": "smvmlb1ssz2x6",
    "name": "Ganz schön clever",
    "bild": "bilder/smvmlb1ssz2x6-mvmlb1su.jpg",
@@ -437,7 +454,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792865410670,
+   "zuletzt": 1792865644758,
    "name": "",
    "nameStand": 0
   },
