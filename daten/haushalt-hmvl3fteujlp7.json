@@ -27,6 +27,25 @@
    "geaendert": 1792864319550
   },
   {
+   "id": "smvmysq1arcxg",
+   "name": "Concept",
+   "bild": "",
+   "spielerMin": 4,
+   "spielerMax": 12,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Concept ist ein 2013 erschienenes Gesellschaftsspiel von Alain Rivollet und Gaëtan Beaujannot für 4 bis 12 oder mehr Spieler. Gewonnen hat die Person, die die meisten Punkte hat, sobald alle zwölf „2 Punkte“-Marker ausgegeben wurden. Im Regelheft wird jedoch auch auf die Variante hingewiesen, ohne Punkte zu spielen.\nVon Alain Rivollet,, Gaëtan Beaujannot, erschienen 2013 bei Repos Production/Asmodee.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Concept_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792880565454,
+   "geaendert": 1792880565454
+  },
+  {
    "id": "smvl5mctidifb",
    "name": "Deutschland: Finden Sie Minden",
    "bild": "bilder/smvl5mctidifb-mvlh4uzc.jpg",
@@ -556,7 +575,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792880136447,
+   "zuletzt": 1792880567353,
    "name": "",
    "nameStand": 0
   },
