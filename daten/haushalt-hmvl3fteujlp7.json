@@ -513,7 +513,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792875164293,
-   "zuletzt": 1792876210089,
+   "zuletzt": 1792876317715,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   }
@@ -551,10 +551,17 @@
    "von": "Christian",
    "betrifft": [],
    "erstellt": 1792876208093,
-   "stand": 1792876208093,
+   "stand": 1792876315699,
    "status": "offen",
    "statusStand": 0,
-   "verlauf": []
+   "verlauf": [
+    {
+     "id": "amvmw9mwjs78u",
+     "admin": false,
+     "text": "Eigentlich immer , Admin möchte ja wissen mit wem er schreibt, also vorm öffnen des Textfelder Namen wählen, wenn bekanntes Gerät Namen vorgeben",
+     "zeit": 1792876315699
+    }
+   ]
   }
  ],
  "geloescht": {
