@@ -37,10 +37,11 @@
   "nachrichten",
   "orte",
   "spielvorschlaege",
+  "termine",
   "verleihen",
   "wuerfeln"
  ],
- "ausStand": 1792872116442,
+ "ausStand": 1792872120609,
  "adminGeraete": [
   {
    "id": "gmvlch98lgubm",
