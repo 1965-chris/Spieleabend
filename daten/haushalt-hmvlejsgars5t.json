@@ -80,6 +80,25 @@
    "geaendert": 1792863333223
   },
   {
+   "id": "smvmot2pjae6z",
+   "name": "Fresko",
+   "bild": "bilder/smvmot2pjae6z-mvmot2pl.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 10,
+   "dauer": 60,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863785720,
+   "geaendert": 1792863785720
+  },
+  {
    "id": "smvmolqwlg5i6",
    "name": "Just one",
    "bild": "bilder/smvmolqwlg5i6-mvmolqwm.jpg",
