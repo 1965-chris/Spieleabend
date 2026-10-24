@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.58",
+ "app": "v1.64",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#2E9E5B",
@@ -96,6 +96,18 @@
    "gewinner": [],
    "tid": "",
    "stand": 1792848356495
+  }
+ ],
+ "geraete": [
+  {
+   "id": "gmvlfo7oo0u75",
+   "art": "iPhone",
+   "app": true,
+   "version": "v1.64",
+   "erst": 1792865586242,
+   "zuletzt": 1792865586242,
+   "name": "",
+   "nameStand": 0
   }
  ],
  "geloescht": {}
