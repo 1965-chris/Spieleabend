@@ -71,6 +71,27 @@
    "geaendert": 1792789899047
   },
   {
+   "id": "smvmnryentu3e",
+   "name": "Hitster Music Bingo",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 12,
+   "alterAb": 16,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Allgemeinwissen",
+    "Party"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792862053871,
+   "geaendert": 1792862053871
+  },
+  {
    "id": "smvmm6fb8wzw4",
    "name": "Hitster Rock",
    "bild": "bilder/smvmm6fb8wzw4-mvmm6fb9.jpg",
