@@ -95,6 +95,20 @@ mark{background:#FFE36B;color:#1C2230;border-radius:3px;padding:0 1px}
 .info-liste{margin:0 0 12px;padding-left:20px}
 .info-liste li{margin-bottom:6px;line-height:1.45}
 .info-dank{text-align:center;color:var(--leise);margin:18px 0 14px;line-height:1.5}
+/* Worum geht's? */
+.ueber-lead{font-size:16px;line-height:1.5;margin:0 0 14px}
+.ueber-punkte{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.ueber-punkte li{display:flex;gap:12px;align-items:flex-start}
+.ueber-punkte .bild{flex:none;width:40px;height:40px;border-radius:12px;background:var(--filz-hell);display:grid;place-items:center;font-size:21px;line-height:1}
+.ueber-punkte b{display:block;font-size:15.5px;margin:1px 0 2px}
+.ueber-punkte span{font-size:14.5px;color:var(--leise);line-height:1.45}
+.ueber-schritte{margin:18px 0 0;padding:12px 14px 4px;border-radius:14px;background:var(--grund)}
+.ueber-schritte h3{font-size:16px;margin:0 0 8px}
+.ueber-schritte ol{margin:0;padding-left:20px}
+.ueber-schritte li{margin-bottom:8px;line-height:1.45;font-size:15px}
+.ueber-kopf{text-align:center;padding:4px 0 10px}
+.ueber-kopf img{border-radius:18px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.ueber-kopf h2{font-family:var(--rund);font-size:24px;font-weight:800;margin:0}
 .info-dank b{color:var(--tinte)}
 .sync[data-k="ok"] > i{background:#2E9E5B}
 .sync[data-k="laeuft"] > i{background:var(--gelb)}
@@ -550,7 +564,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.52';
+const VERSION = 'v1.53';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2841,6 +2855,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.53', datum:'24.10.2026', neu:[
+    'Neu im Info-Fenster: „Worum geht’s im Spieleabend?“ – was die App kann, kurz erklärt',
+    'Wer den Einladungslink öffnet, sieht zuerst diese Erklärung und die ersten Schritte',
+    'Der Einladungstext sagt jetzt in einem Satz, wofür die App gut ist'] },
   { v:'v1.52', datum:'23.10.2026', neu:[
     'Spielanleitung zu jedem Spiel: als PDF oder Erklärvideo suchen, Link einfügen und speichern',
     'Vorschläge aus dem Wikipedia-Artikel, wenn dort eine Anleitung verlinkt ist',
@@ -2912,6 +2930,41 @@ async function neuesteVersion(){
     return m ? m[1] : null;
   }catch(e){ return null; }
 }
+/* ---------- Worum geht's? – kurz erklärt, was die App kann (Info-Fenster und beim Öffnen der Einladung) ---------- */
+const UEBER_LEAD = 'Jeder von uns hat Spiele im Schrank – aber wer weiß schon, was die anderen haben? Der Spieleabend bringt die Spiele aller Haushalte in eine App. So ist schnell klar, was wir spielen – und wann wir uns treffen.';
+const UEBER_PUNKTE = [
+  ['📚', 'Alle Spiele auf einen Blick', 'Jeder Haushalt trägt seine Spiele mit Foto ein. Den Namen eintippen genügt – Spielerzahl, Alter und Dauer holt die App aus Wikipedia.'],
+  ['🎲', 'Das passende Spiel finden', 'Sagt der App, wer heute mitspielt. Sie zeigt, welche Spiele für eure Runde passen – und würfelt auf Wunsch eins aus.'],
+  ['📅', 'Gemeinsam verabreden', 'Termine vorschlagen, jeder stimmt in der App ab. Steht der Termin, kommt er mit einem Tipp in den Kalender.'],
+  ['📖', 'Spielanleitung immer dabei', 'Zu jedem Spiel die Anleitung oder ein Erklärvideo – praktisch, wenn wieder jemand sagt: „So haben wir das aber immer gespielt!“'],
+  ['✨', 'Ganz einfach', 'Kein Konto, kein Passwort, keine Werbung. Läuft auf iPhone, iPad und Android und ist auf allen Geräten automatisch auf dem gleichen Stand.']
+];
+function ueberHtml(){
+  return `<p class="ueber-lead">${esc(UEBER_LEAD)}</p>
+    <ul class="ueber-punkte">${UEBER_PUNKTE.map(([bild, titel, text]) => `<li><span class="bild" aria-hidden="true">${bild}</span><div><b>${esc(titel)}</b><span>${esc(text)}</span></div></li>`).join('')}</ul>`;
+}
+function geraetArt(){
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+  return /Android/.test(ua) ? 'android' : 'andere';
+}
+/* Beim Öffnen des Einladungslinks: erst zeigen, worum es geht, dann nach dem Haushalt fragen */
+function ueberSheet(neu){
+  const art = geraetArt();
+  const homescreen = art === 'ios'
+    ? 'Die App auf den Home-Bildschirm holen: in <b>Safari</b> auf <b>Teilen</b> tippen (Quadrat mit Pfeil – bei neueren iPhones hinter <b>•••</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>. Danach die App immer über das neue Symbol öffnen.'
+    : art === 'android' ? 'Die App auf den Startbildschirm holen: in <b>Chrome</b> oben rechts auf <b>⋮</b> tippen, dann <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b>.'
+    : '';
+  const s = sheet(`<div class="ueber-kopf"><img src="icon.png" alt="" width="64" height="64"><h2>${neu ? 'Willkommen beim Spieleabend!' : 'Worum geht’s?'}</h2></div>
+    ${ueberHtml()}
+    ${neu ? `<div class="ueber-schritte"><h3>So geht’s los</h3><ol>
+      <li>Gleich fragt die App, zu welchem <b>Haushalt</b> du gehörst – einfach antippen.</li>
+      ${homescreen ? `<li>${homescreen}</li>` : ''}
+      <li>Eure eigenen <b>Spiele eintragen</b>: unten rechts auf <b>+</b> tippen.</li></ol></div>` : ''}
+    <button class="knopf breit" type="button" data-zu style="margin-top:18px">${neu ? 'Los geht’s' : 'Schließen'}</button>`,
+    { beimSchliessen:() => { if (neu) setTimeout(() => hausFrage(), 300); } });
+  return s;
+}
 function infoSheet(){
   const s = sheet(`<div class="info-kopf">
       <img src="icon.png" alt="" width="72" height="72">
@@ -2919,6 +2972,7 @@ function infoSheet(){
       <p class="info-version"><span class="versions-tipp" data-info-nr>Version ${VERSION}</span> <span class="marke-mein" data-info-stand>prüfe …</span></p>
     </div>
     <div data-info-update></div>
+    <div style="margin:0 0 14px">${klapp('info-ueber', 'Worum geht’s im Spieleabend?', ueberHtml(), { klasse:'block', standard:true })}</div>
     <label class="feld"><span class="feld-titel">Version</span>
       <select class="eingabe" data-info-wahl>${VERSIONEN.map(x => `<option value="${x.v}"${x.v === VERSION ? ' selected' : ''}>${x.v} – ${x.datum}${x.v === VERSION ? ' (installiert)' : ''}</option>`).join('')}</select></label>
     <div data-info-text></div>
@@ -3153,6 +3207,7 @@ async function verbindungSpeichern(){
 function einladungsText(){
   return [
     '🎲 Hier ist unsere Spieleabend-App!',
+    'Damit sehen wir die Spiele aller Haushalte auf einen Blick, finden beim Spieleabend schnell eins, das für alle passt, und verabreden uns gleich in der App für den nächsten Termin. Kein Konto, kein Passwort, keine Werbung.',
     '',
     '📱 iPhone / iPad (mit Safari):',
     '1. Den Link unten antippen. Er muss in Safari aufgehen – öffnet er sich in WhatsApp oder einem anderen Browser, dort „In Safari öffnen“ wählen.',
@@ -3244,7 +3299,7 @@ function einladungPruefen(){
   const ein = einladungLesen(location.hash);
   if (!ein) return false;
   const schonDa = (E.einladungen || []).includes(ein.code) && E.token;
-  if (!schonDa){ einladungUebernehmen(ein); setTimeout(() => toast('Einladung übernommen – willkommen!'), 400); }
+  if (!schonDa){ einladungUebernehmen(ein); if (istStandalone()) setTimeout(() => toast('Einladung übernommen – willkommen!'), 400); }   // im Browser begrüßt das Fenster „Willkommen“
   // In der installierten App den Link aus der Adresse nehmen; in Safari stehen lassen,
   // damit „Zum Home-Bildschirm“ ihn möglichst mitnimmt.
   if (istStandalone()) history.replaceState(null, '', location.pathname + location.search);
@@ -3253,6 +3308,7 @@ function einladungPruefen(){
 function willkommen(){
   const s = sheet(`<div class="sheet-kopf"><h2>Willkommen!</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <p style="margin-top:-4px">Hier sammelt ihr die Spiele aller Haushalte – und findet beim Spieleabend schnell eins, das für alle passt.</p>
+    <button class="knopf zweit breit" type="button" id="w-ueber">Worum geht’s? Kurz erklärt</button>
     <label class="feld" style="margin-top:16px"><span class="feld-titel">Einladungslink einfügen</span>
       <textarea class="eingabe" id="w-link" placeholder="https://…#einladung=…" style="min-height:90px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
     <button class="knopf breit" type="button" id="w-ok">Einladung übernehmen</button>
@@ -3263,6 +3319,7 @@ function willkommen(){
     einladungUebernehmen(ein); s.schliessen(); toast('Einladung übernommen – willkommen!'); renderAlles(); sync('Einladung');
   });
   $('#w-selbst', s).addEventListener('click', () => { s.schliessen(); seiteZeigen('einstellungen'); });
+  $('#w-ueber', s).addEventListener('click', () => ueberSheet(false));
 }
 function hausFrage(versuch=0){
   if (hausFrageGezeigt || !E.token || S.fehler || !S.letzter) return;
@@ -3432,6 +3489,7 @@ function start(){
   installHinweis();
   seiteZeigen('spiele');
   terminLinkPruefen();
+  if (eingeladen && !istStandalone()) ueberSheet(true);      // sofort, damit die Haushaltsfrage danach kommt
   if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(/termin=/.test(location.hash) ? terminLinkOhneApp : willkommen, 350);
   sync(eingeladen ? 'Einladung' : 'Start');
   setTimeout(updatePruefen, 2500);
