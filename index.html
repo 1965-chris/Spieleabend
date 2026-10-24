@@ -449,6 +449,19 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .fuss{text-align:center;color:var(--leise);font-size:13px;margin:18px 0 6px}
 .versions-tipp{-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-touch-callout:none;cursor:default}
 .hinweis{background:var(--filz-hell);border-radius:12px;padding:11px 13px;font-size:14px;margin:0 0 12px}
+.hinweis[hidden]{display:none}
+.kreis-leiste{margin:0 0 12px}
+.kreis-knopf{display:inline-flex;align-items:center;gap:8px;min-height:38px;max-width:100%;padding:0 12px 0 14px;border-radius:999px;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);font:inherit;font-size:14.5px;cursor:pointer}
+.kreis-knopf > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.kreis-knopf .ic{width:16px;height:16px;flex:none;transform:rotate(90deg);color:var(--leise)}
+.kreis-figuren{display:inline-flex;flex:none}
+.kreis-figuren .figur + .figur{margin-left:-5px}
+.kreis-option{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left;padding:12px 14px;margin:0 0 8px;border-radius:14px;border:1.5px solid var(--linie);background:var(--karte);color:inherit;font:inherit;cursor:pointer}
+.kreis-option.an{border-color:var(--filz);background:var(--filz-hell)}
+.kreis-option-titel{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.kreis-option-titel .ic{margin-left:auto;color:var(--filz)}
+.kreis-option-hh{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13.5px;color:var(--leise)}
+.kreis-option-hh span{display:inline-flex;align-items:center;gap:4px}
 .hinweis.warn{background:color-mix(in srgb, var(--gelb) 22%, var(--karte))}
 
 /* ---------- Sheets ---------- */
@@ -609,6 +622,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div id="update-hinweis"></div>
   <div id="install-hinweis"></div>
   <div id="block-hinweis"></div>
+  <div id="kreis-leiste" class="kreis-leiste" hidden></div>
 
   <!-- Spiele -->
   <section class="seite aktiv" id="seite-spiele" aria-label="Alle Spiele">
@@ -675,7 +689,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.66';
+const VERSION = 'v1.67';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1451,8 +1465,52 @@ function gewaehlteChips(gruppe){ return $$('.chip[aria-pressed="true"]', gruppe)
    Das ist eine Ordnungshilfe, kein Schutz: Die Daten liegen für alle mit Schlüssel lesbar im Repo. */
 function kreiseAktiv(){ return D.verwaltung.kreise.length > 0; }
 function meinHaushaltGueltig(){ return !!(E.meinHaushalt && D.haushalte[E.meinHaushalt]); }
-function sichtbareIds(){
+/* Wer in mehreren Spielkreisen ist, kann auf seinem Gerät einen davon wählen („mit diesem Kreis spiele ich gerade“).
+   Dann zeigt die App nur dessen Haushalte, Spiele und Ergebnisse, und neue Termine laden nur diesen Kreis ein. */
+function arbeitsKreise(){
+  if (!kreiseAktiv() || !meinHaushaltGueltig()) return [];
+  return D.verwaltung.kreise.filter(k => k.haushalte.includes(E.meinHaushalt))
+    .map(k => ({ ...k, haushalte:k.haushalte.filter(id => D.haushalte[id]) })).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+}
+function kreisWahlMoeglich(){ return arbeitsKreise().length >= (E.admin ? 1 : 2); }
+function aktiverKreis(){
+  if (!E.kreis || !kreisWahlMoeglich()) return null;
+  return arbeitsKreise().find(k => k.id === E.kreis) || null;
+}
+function kreisLeisteZeigen(){
+  const el = $('#kreis-leiste'); if (!el) return;
+  const zeigen = kreisWahlMoeglich() && aktiveSeite !== 'einstellungen';
+  el.hidden = !zeigen; if (!zeigen){ el.innerHTML = ''; return; }
+  const ak = aktiverKreis(), hhs = ak ? ak.haushalte.map(id => D.haushalte[id]).filter(Boolean) : [];
+  el.innerHTML = `<button type="button" class="kreis-knopf" data-kreis-wahl>
+    ${hhs.length ? `<span class="kreis-figuren">${hhs.slice(0, 5).map(h => figur(h.farbe, 17)).join('')}</span>` : ''}
+    <span>Spielkreis: <b>${esc(ak ? ak.name : (E.admin ? 'alle Haushalte' : 'alle zusammen'))}</b></span>${ic('pfeil')}</button>`;
+}
+function kreisSetzen(id){
+  E.kreis = id || ''; einstSpeichern();
+  filterBereinigen(); renderAlles();
+  const ak = aktiverKreis();
+  toast(ak ? `Du spielst jetzt mit „${ak.name}“` : 'Alle Spielkreise zusammen');
+}
+function kreisWahlSheet(){
+  const ks = arbeitsKreise(), ak = aktiverKreis(), jetzt = ak ? ak.id : '';
+  const hhZeile = ids => ids.map(id => D.haushalte[id]).filter(Boolean)
+    .sort((a, b) => (a.id === E.meinHaushalt ? -1 : b.id === E.meinHaushalt ? 1 : 0) || a.name.localeCompare(b.name, 'de'))
+    .map(h => `<span>${figur(h.farbe, 14)}${esc(h.name)}</span>`).join('');
+  const alleIds = [...sichtbareIds(true)];
+  const s = sheet(`<div class="sheet-kopf"><h2>Mit welchem Spielkreis spielst du?</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Die App zeigt dann nur die Haushalte, Spiele und Ergebnisse dieses Kreises – und neue Termine laden nur diesen Kreis ein. Gilt nur auf diesem Gerät.</p>
+    ${ks.map(k => `<button type="button" class="kreis-option${k.id === jetzt ? ' an' : ''}" data-kreis-id="${esc(k.id)}">
+      <span class="kreis-option-titel">${esc(k.name)}${k.id === jetzt ? ic('haken') : ''}</span><span class="kreis-option-hh">${hhZeile(k.haushalte)}</span></button>`).join('')}
+    <button type="button" class="kreis-option${jetzt ? '' : ' an'}" data-kreis-id="">
+      <span class="kreis-option-titel">${E.admin ? 'Alle Haushalte' : 'Alle zusammen'}${jetzt ? '' : ic('haken')}</span>
+      <span class="kreis-option-hh">${alleIds.length} Haushalte – ${E.admin ? 'als Admin siehst du alles' : 'alle Spielkreise, in denen ihr seid'}</span></button>`);
+  s.addEventListener('click', e => { const b = e.target.closest('[data-kreis-id]'); if (!b) return; s.schliessen(); kreisSetzen(b.dataset.kreisId); });
+}
+function sichtbareIds(ganz=false){
   const alle = Object.keys(D.haushalte);
+  const ak = ganz ? null : aktiverKreis();
+  if (ak) return new Set([E.meinHaushalt, ...ak.haushalte]);
   if (E.admin || !kreiseAktiv()) return new Set(alle);
   if (!meinHaushaltGueltig()) return new Set();
   const s = new Set([E.meinHaushalt]);
@@ -1490,8 +1548,8 @@ function funktionAn(key, hid){
   if (hid === undefined && E.admin) return true;
   const f = FUNKTIONEN.find(x => x.k === key);
   if (f && f.unter && !funktionAn(f.unter, hid)) return false;
-  const h = hid === undefined ? E.meinHaushalt : hid, V = D.verwaltung;
-  const kreise = h && D.haushalte[h] ? V.kreise.filter(k => k.haushalte.includes(h)) : [];
+  const h = hid === undefined ? E.meinHaushalt : hid, V = D.verwaltung, ak = hid === undefined ? aktiverKreis() : null;
+  const kreise = ak ? [ak] : h && D.haushalte[h] ? V.kreise.filter(k => k.haushalte.includes(h)) : [];
   if (!kreise.length) return !(V.aus || []).includes(key);
   return kreise.some(k => !(k.aus || []).includes(key));
 }
@@ -2764,9 +2822,14 @@ function terminFormular(t){
   const neu = !t;
   if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
   if (!neu && !darfTermin(t)) return;
-  const sichtbar = haushaltListe().filter(h => funktionAn('termine', h.id) || (t && t.haushalte.includes(h.id)) || h.id === E.meinHaushalt);
+  // Zur Wahl stehen die Haushalte des gewählten Spielkreises – beim Bearbeiten auch die schon Eingeladenen
+  const ganz = sichtbareIds(true), jetztSicht = sichtbareIds(), ak = aktiverKreis();
+  const sichtbar = haushaltListe(true).filter(h => jetztSicht.has(h.id) || (t && t.haushalte.includes(h.id) && ganz.has(h.id)))
+    .filter(h => funktionAn('termine', h.id) || (t && t.haushalte.includes(h.id)) || h.id === E.meinHaushalt);
+  // Ohne gewählten Spielkreis, aber in mehreren: erst mal nur der eigene Haushalt – den Kreis wählt man oben
+  const erstNurIch = !t && !ak && arbeitsKreise().length > 1 && meinHaushaltGueltig();
   const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
-    haushalte:sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
+    haushalte:erstNurIch ? [E.meinHaushalt] : sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
   const orteVorher = t ? terminOrte(w) : [{ id:neueId('w'), hid:w.gastgeber, text:'', pos:0, stand:0 }];
   const ortZeile = o => `<div class="ort-reihe" data-ortzeile="${esc(o.id)}">
     <select class="eingabe" data-gast aria-label="Gastgeber"><option value="">– anderer Ort –</option>${haushaltListe(true).filter(h => sichtbar.some(x => x.id === h.id) || h.id === o.hid)
@@ -2787,8 +2850,9 @@ function terminFormular(t){
       <div data-zeiten>${w.optionen.map(zeile).join('')}</div>
       <button class="knopf zweit breit" type="button" data-mehr>${ic('plus')}Weiteren Termin</button></div>
     ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Wer ist eingeladen?</span>
-      ${kreise.length ? `<p class="text-leise text-klein" style="margin:0 0 6px">Spielkreis:</p>${chipsHtml('t-kreis', kreise.map(k => ({ w:k.id, t:k.name })), [], { mehrfach:false })}<div style="height:10px"></div>` : ''}
-      ${figurChipsHtml('eingeladen', w.haushalte.length ? w.haushalte : sichtbar.map(h => h.id), { liste:sichtbar })}</div>` : ''}
+      ${kreise.length ? `<p class="text-leise text-klein" style="margin:0 0 6px">${erstNurIch ? '<b>Für welchen Spielkreis?</b>' : 'Spielkreis:'}</p>${chipsHtml('t-kreis', kreise.map(k => ({ w:k.id, t:k.name })), !t && ak ? [ak.id] : [], { mehrfach:false })}<div style="height:10px"></div>` : ''}
+      ${figurChipsHtml('eingeladen', w.haushalte.length ? w.haushalte : sichtbar.map(h => h.id), { liste:sichtbar })}
+      <p class="hinweis warn" data-fremd hidden style="margin:10px 0 0">⚠️ Diese Haushalte sind in keinem gemeinsamen Spielkreis – nicht alle kennen sich.</p></div>` : ''}
     <label class="feld"><span class="feld-titel">Notiz (wenn nötig)</span><textarea class="eingabe" name="notiz" maxlength="300" placeholder="z. B. Jeder bringt ein Spiel mit.">${esc(w.notiz)}</textarea></label>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">${neu ? 'Anlegen' : 'Speichern'}</button></div>
   </form>`, { klasse:'gross' });
@@ -2813,13 +2877,20 @@ function terminFormular(t){
     zeilenPruefen();
   });
   zeiten.addEventListener('click', e => { const b = e.target.closest('[data-weg-zeit]'); if (b && $$('[data-zeile]', zeiten).length > 1){ b.closest('[data-zeile]').remove(); zeilenPruefen(); } });
+  // Warnen, wenn die Eingeladenen nicht alle in einem gemeinsamen Spielkreis sind
+  const eingeladenJetzt = () => { const ein = $('[data-gruppe="eingeladen"]', s); return ein ? gewaehlteChips(ein) : sichtbar.map(h => h.id); };
+  const fremdMischung = () => { const ids = [...new Set([...eingeladenJetzt(), ...(meinHaushaltGueltig() ? [E.meinHaushalt] : [])])].filter(id => D.haushalte[id]);
+    return kreiseAktiv() && ids.length > 1 && !kreisKandidaten(ids).length; };
+  const fremdZeigen = () => { const el = $('[data-fremd]', s); if (el) el.hidden = !fremdMischung(); };
+  fremdZeigen();
   s.addEventListener('wahl', e => {
-    if (e.target.dataset.gruppe === 'eingeladen'){ $$('[data-gruppe="t-kreis"] .chip', s).forEach(c => c.setAttribute('aria-pressed', 'false')); return; }
+    if (e.target.dataset.gruppe === 'eingeladen'){ $$('[data-gruppe="t-kreis"] .chip', s).forEach(c => c.setAttribute('aria-pressed', 'false')); fremdZeigen(); return; }
     if (e.target.dataset.gruppe !== 't-kreis') return;
     const k = kreise.find(x => x.id === e.detail[0]); if (!k) return;
     $$('[data-gruppe="eingeladen"] .chip', s).forEach(c => c.setAttribute('aria-pressed', k.haushalte.includes(c.dataset.wert)));
+    fremdZeigen();
   });
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const jetzt = Date.now();
     const zeilen = $$('[data-zeile]', zeiten).map(z => ({ id:z.dataset.zeile, zeit:$('[data-zeit]', z).value.slice(0, 16) })).filter(x => zeitGueltig(x.zeit));
@@ -2831,6 +2902,8 @@ function terminFormular(t){
       .filter(o => o.hid || o.text)
       .map(o => { const alt = alteOrte.get(o.id); return { ...o, stand:alt && alt.hid === o.hid && alt.text === o.text && alt.pos === o.pos ? alt.stand : jetzt }; });
     const mehrOrte = orte.length > 1;
+    if (erstNurIch && ein && gewaehlteChips(ein).filter(id => id !== E.meinHaushalt).length === 0){ toast('Bitte wählen, wer eingeladen ist – am einfachsten den Spielkreis antippen.', 'fehler'); return; }
+    if (fremdMischung() && !await frage('Verschiedene Spielkreise', 'Diese Haushalte sind in keinem gemeinsamen Spielkreis – nicht alle kennen sich. Trotzdem alle einladen?', 'Trotzdem einladen', false)) return;
     let haushalte = ein ? gewaehlteChips(ein) : sichtbar.map(h => h.id);
     for (const id of w.haushalte) if (!sichtbar.some(h => h.id === id) && !haushalte.includes(id)) haushalte.push(id);   // hier nicht sichtbare bleiben eingeladen
     for (const pflicht of [...orte.map(o => o.hid), E.meinHaushalt]) if (pflicht && D.haushalte[pflicht] && !haushalte.includes(pflicht)) haushalte.push(pflicht);
@@ -3049,12 +3122,19 @@ function kreisKandidaten(hids){
     .sort((a, b) => a.haushalte.length - b.haushalte.length || a.name.localeCompare(b.name, 'de'));
 }
 function kreisVorschlag(kandidaten){
+  const ak = aktiverKreis(); if (ak && kandidaten.some(k => k.id === ak.id)) return ak.id;
   // Passt der in der Spielrunde gewählte Kreis (alle anwesenden Haushalte), nimm den – sonst den kleinsten
   const sicht = haushaltListe().map(h => h.id), dabei = sicht.filter(id => !(R.ohne || []).includes(id));
   const runde = kandidaten.find(k => { const ks = k.haushalte.filter(id => sicht.includes(id)); return ks.length === dabei.length && ks.every(id => dabei.includes(id)); });
   return (runde || kandidaten[0] || {}).id || '';
 }
 function partieSichtbar(p, von){
+  if (!partieGrundsaetzlichSichtbar(p, von)) return false;
+  const ak = aktiverKreis(); if (!ak) return true;
+  if (p.kreis) return p.kreis === ak.id;
+  return partieHaushalte(von, [...(p.mit || []), ...p.gewinner]).every(h => ak.haushalte.includes(h));
+}
+function partieGrundsaetzlichSichtbar(p, von){
   if (E.admin || !kreiseAktiv()) return true;
   if (!meinHaushaltGueltig()) return false;
   const k = p.kreis && D.verwaltung.kreise.find(x => x.id === p.kreis);
@@ -3814,12 +3894,15 @@ function renderEinstellungen(){
   const mein = D.haushalte[E.meinHaushalt];
   el.innerHTML = `
     ${klapp('e-mein', 'Mein Haushalt',
-      !darfHaushaltWechseln() ? `<p style="margin:0 0 6px;display:flex;align-items:center;gap:8px;font-weight:600">${figur(mein.farbe, 18)}${esc(mein.name)}</p>
+      (!darfHaushaltWechseln() ? `<p style="margin:0 0 6px;display:flex;align-items:center;gap:8px;font-weight:600">${figur(mein.farbe, 18)}${esc(mein.name)}</p>
         <p class="block-hinweis">Den Haushalt eines Geräts kann nur der Admin ändern.</p>`
       : liste.length ? `<select class="eingabe" id="e-mein"><option value="">– noch nicht gewählt –</option>${liste.map(h => `<option value="${esc(h.id)}" ${h.id === E.meinHaushalt ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
         <p class="block-hinweis">Neue Spiele landen automatisch bei diesem Haushalt.</p>`
-      : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`,
-      { standard:!mein, klein: mein ? `${figur(mein.farbe, 15)}${esc(mein.name)}` : 'nicht gewählt' })}
+      : `<p class="text-leise" style="margin:0 0 10px">Noch kein Haushalt angelegt.</p><button class="knopf zweit" type="button" data-aktion="haushalt-neu">Haushalt anlegen</button>`)
+      + (kreisWahlMoeglich() ? `<label class="feld" style="margin:14px 0 0"><span class="feld-titel">Mit welchem Spielkreis spielst du?</span>
+        <select class="eingabe" id="e-kreis"><option value="">${E.admin ? 'Alle Haushalte' : 'Alle zusammen'}</option>${arbeitsKreise().map(k => `<option value="${esc(k.id)}"${(aktiverKreis() || {}).id === k.id ? ' selected' : ''}>${esc(k.name)}</option>`).join('')}</select></label>
+        <p class="block-hinweis">Dann siehst du nur dessen Haushalte, Spiele und Ergebnisse, und neue Termine laden nur diesen Kreis ein. Gilt nur auf diesem Gerät.</p>` : ''),
+      { standard:!mein, klein: mein ? `${figur(mein.farbe, 15)}${esc(mein.name)}${aktiverKreis() ? ` · ${esc(aktiverKreis().name)}` : ''}` : 'nicht gewählt' })}
 
     ${klapp('e-abgleich', 'Abgleich', `
       ${S.letzter ? `<p class="text-leise text-klein" style="margin:0 0 10px">Zuletzt abgeglichen ${esc(datumZeit(S.letzter))}</p>` : ''}
@@ -3871,6 +3954,7 @@ function renderEinstellungen(){
   if (fokus && vorher[fokus]){ const f = document.getElementById(fokus); if (f) f.focus(); }
 
   const meinWahl = $('#e-mein'); if (meinWahl) meinWahl.addEventListener('change', () => { E.meinHaushalt = meinWahl.value; einstSpeichern(); renderAlles(); });
+  const kreisWahl = $('#e-kreis'); if (kreisWahl) kreisWahl.addEventListener('change', () => kreisSetzen(kreisWahl.value));
   $('#e-sync').addEventListener('click', () => sync('von Hand'));
   const verb = $('#e-verbinden'); if (verb) verb.addEventListener('click', verbindungSpeichern);
   const einOk = $('#e-einladung-ok');
@@ -3973,7 +4057,9 @@ const HILFE = [
     <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li>
     <li><b>Funktionen</b>: In jedem Spielkreis schaltet der Admin einzelne Funktionen ein oder aus – z. B. Termine, Würfeln, Verleihen. Ein Haushalt in mehreren Spielkreisen bekommt eine Funktion, sobald sie in einem davon an ist. Für Haushalte ohne Spielkreis gilt „Funktionen ohne Spielkreis“. Auf Admin-Geräten ist immer alles an.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
-    <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
+    <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>
+    <p><b>In mehreren Spielkreisen?</b> Oben auf den Seiten steht dann „Spielkreis: …“. Antippen und wählen, mit welchem Kreis ihr gerade spielt – dann zeigt die App nur dessen Haushalte, Spiele und Ergebnisse, und neue Termine laden nur diesen Kreis ein. Das gilt nur auf dem jeweiligen Gerät und lässt sich jederzeit zurück auf „Alle zusammen“ stellen.</p>
+    <p>Beim Planen eines Termins warnt die App, wenn Haushalte eingeladen werden, die in keinem gemeinsamen Spielkreis sind.</p>` },
   { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
     <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
@@ -4037,6 +4123,11 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.67', datum:'24.10.2026', neu:[
+    'In mehreren Spielkreisen? Oben „Spielkreis: …“ antippen und wählen, mit welchem Kreis ihr gerade spielt – die App zeigt dann nur dessen Haushalte, Spiele und Ergebnisse',
+    'Neue Termine laden nur den gewählten Spielkreis ein; ohne Wahl fragt die App erst, für welchen Kreis',
+    'Warnung, wenn zu einem Termin Haushalte eingeladen werden, die in keinem gemeinsamen Spielkreis sind'
+  ]},
   { v:'v1.66', datum:'24.10.2026', neu:[
     'Nachricht an den Admin: Auffälligkeiten, Änderungswünsche oder „neuer Spielkreis bitte“ direkt in der App schicken (Einstellungen oder ℹ-Fenster)',
     'Der Admin antwortet in der Nachricht und markiert sie als erledigt; bei Spielkreis-Wünschen legt er den Kreis mit einem Tipp an',
@@ -4952,6 +5043,7 @@ function seiteZeigen(name){
   $$('.seite').forEach(s => s.classList.toggle('aktiv', s.id === 'seite-' + name));
   $$('.tabs button').forEach(b => { if (b.dataset.seite === name) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   $('#plus').classList.toggle('versteckt', name !== 'spiele' || !Object.keys(D.haushalte).length);
+  kreisLeisteZeigen();
   renderSeite(name);
   window.scrollTo(0, 0);
 }
@@ -4965,7 +5057,7 @@ function renderSeite(name){
 function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
-  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen();
+  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); kreisLeisteZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
@@ -4973,6 +5065,7 @@ function renderAlles(){
 
 function verdrahten(){
   $$('.tabs button').forEach(b => b.addEventListener('click', () => seiteZeigen(b.dataset.seite)));
+  $('#kreis-leiste').addEventListener('click', e => { if (e.target.closest('[data-kreis-wahl]')) kreisWahlSheet(); });
   document.addEventListener('toggle', e => {
     const d = e.target;
     if (d && d.matches && d.matches('details[data-klapp]') && KL[d.dataset.klapp] !== d.open){ KL[d.dataset.klapp] = d.open; schreiben(LS.klapp, KL); }
