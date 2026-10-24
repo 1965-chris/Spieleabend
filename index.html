@@ -194,6 +194,26 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .knopf.gefahr-voll{background:var(--rot);color:#fff}
 .knopf.breit{width:100%}
 a.knopf{text-decoration:none}
+/* Verliehen, Gespielt, Rückblick */
+.verliehen-hinweis{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb, var(--filz) 12%, var(--karte));font-size:15px}
+.verliehen-hinweis span{flex:1;min-width:0}
+.verliehen-hinweis .knopf{min-height:36px;padding:0 12px;font-size:14px;flex:none}
+.karte-verliehen{position:absolute;left:6px;top:6px;z-index:1;display:inline-flex;align-items:center;gap:4px;background:rgba(20,24,32,.72);color:#fff;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 8px}
+.karte-verliehen .ic{width:13px;height:13px}
+.gespielt-zahl{margin:0;font-size:15px}
+.partien{list-style:none;margin:8px 0 0;padding:0}
+.partien li{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--linie);font-size:14.5px}
+.partie-datum{flex:none;color:var(--leise);font-variant-numeric:tabular-nums}
+.partie-sieger{flex:1;min-width:0}
+.partien .knopf-rund{width:32px;height:32px}
+.partien .knopf-rund .ic{width:16px;height:16px}
+.rangliste{margin:0;padding-left:22px}
+.rangliste li{padding:3px 0}
+.rangliste li span{margin-right:8px}
+.rangliste li b{float:right;font-weight:700;color:var(--leise);font-size:14px}
+.zuletzt{font-size:12.5px;color:var(--leise)}
+.option-kopf .knopf-rund{width:30px;height:30px;margin-left:4px}
+.option-kopf .knopf-rund .ic{width:15px;height:15px}
 /* Anfragen: neue Haushalte dazuholen */
 .anfrage{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid var(--linie)}
 .anfrage:first-child{border-top:0;padding-top:2px}
@@ -582,7 +602,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.56';
+const VERSION = 'v1.57';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -669,6 +689,8 @@ const ICONS = {
   muell:'<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/>',
   teilen:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  pokal:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3"/><path d="M12 13v4M9 20h6M10 17h4"/>',
+  tausch:'<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>',
   buch:'<path d="M12 6.5C10.5 5 8 4.5 4 4.5v14c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-14c-4 0-6.5.5-8 2z"/><path d="M12 6.5v14"/>',
   pfeil:'<path d="M9 6l6 6-6 6"/>',
   wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>',
@@ -685,9 +707,9 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','anleitung','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','anleitung','verliehen','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','geloescht']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geloescht']);
 const ANFRAGE_STATUS = ['offen', 'frei', 'nein'];
 function anfrageNorm(a){
   return { id:String(a.id), name:String(a.name || '').trim().slice(0, 40), notiz:String(a.notiz || '').slice(0, 200), erstellt:zahl(a.erstellt) || 0, stand:zahl(a.stand) || 0,
@@ -714,6 +736,7 @@ function spielNorm(s){
     beschreibung:String(s.beschreibung || ''), bemerkung:String(s.bemerkung || ''),
     bildQuelle:String(s.bildQuelle || ''), link:/^https:\/\//.test(s.link || '') ? s.link : '',
     anleitung:linkAus(s.anleitung),
+    ...(verliehenNorm(s.verliehen) ? { verliehen:verliehenNorm(s.verliehen) } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -728,13 +751,14 @@ function haushaltNorm(h){
     spieler:(Array.isArray(h.spieler) ? h.spieler : []).filter(p => p && p.id && String(p.name || '').trim())
       .map(p => ({ ...unbekannte(p, SPIELER_FELDER), id:String(p.id), name:String(p.name).trim().slice(0, 30), stand:zahl(p.stand) || 0 })).sort(nachName),
     anfragen:(Array.isArray(h.anfragen) ? h.anfragen : []).filter(a => a && a.id && String(a.name || '').trim()).map(anfrageNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
+    partien:(Array.isArray(h.partien) ? h.partien : []).filter(x => x && x.id).map(partieNorm).filter(x => x.datum && x.name).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id)),
     geloescht:g
   };
 }
 function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
-    ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), geloescht:n.geloescht };
+    ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
@@ -760,7 +784,11 @@ function zusammenfuehren(lokal, fern){
   for (const x of B.anfragen) q.set(x.id, x);
   for (const x of A.anfragen){ const y = q.get(x.id); if (!y || x.stand > y.stand) q.set(x.id, x); }
   const anfragen = [...q.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id));
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, geloescht:tomb };
+  const pa = new Map();
+  for (const x of B.partien) pa.set(x.id, x);
+  for (const x of A.partien){ const y = pa.get(x.id); if (!y || x.stand > y.stand) pa.set(x.id, x); }
+  const partien = [...pa.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id));
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -1346,7 +1374,7 @@ function filterAktiv(){
 function karteHtml(s){
   const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
-    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
+    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
       <span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span></span></button>`;
 }
@@ -1440,17 +1468,26 @@ function spielDetail(id){
     ${sp.beschreibung ? `<p class="detail-text">${esc(sp.beschreibung)}</p>` : ''}
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
     ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${sp.link.includes('wikidata') ? 'Wikidata' : 'Wikipedia'}</a>` : ''}
+    ${verleihHtml(sp)}
     ${anleitungHtml(sp, kopien)}
+    ${gespieltHtml(sp)}
     ${sp.bildQuelle ? `<p class="quelle-text">${esc(sp.bildQuelle)}</p>` : ''}
     ${darfBearbeiten(sp.hid) ? `<div class="knopfreihe" style="margin-top:18px">
       <button class="knopf zweit" type="button" data-bearbeiten>${ic('stift')}Bearbeiten</button>
       <button class="knopf gefahr" type="button" data-loeschen>${ic('muell')}Löschen</button>
     </div>` : `<p class="block-hinweis" style="margin-top:16px">Ändern oder löschen kann dieses Spiel nur ${esc(h ? h.name : 'der Haushalt')} oder der Admin.</p>`}`);
   bilderBeobachten(s);
+  const neuOeffnen = () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); };
   s.addEventListener('click', e => {
-    const b = e.target.closest('[data-anl]'); if (!b) return;
-    if (b.dataset.anl === 'suchen') anleitungSheet(sp, () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); });
-    if (b.dataset.anl === 'weg') anleitungEntfernen(sp, () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); });
+    const b = e.target.closest('[data-anl]');
+    if (b && b.dataset.anl === 'suchen') anleitungSheet(sp, neuOeffnen);
+    if (b && b.dataset.anl === 'weg') anleitungEntfernen(sp, neuOeffnen);
+    const v = e.target.closest('[data-verl]');
+    if (v && v.dataset.verl === 'neu') verleihSheet(sp, neuOeffnen);
+    if (v && v.dataset.verl === 'zurueck'){ spielAendern(sp, x => { delete x.verliehen; }, `${sp.name} zurück`); toast('Wieder zu Hause'); neuOeffnen(); }
+    const g = e.target.closest('[data-gsp]');
+    if (g && g.dataset.gsp === 'neu') partieSheet(sp, { danach:neuOeffnen });
+    if (g && g.dataset.gsp === 'bearbeiten'){ const p = allePartien().find(x => x.id === g.dataset.id && x.eigen); if (p) partieSheet(sp, { eintrag:p, danach:neuOeffnen }); }
   });
   if (!darfBearbeiten(sp.hid)) return;
   $('[data-bearbeiten]', s).addEventListener('click', () => { s.schliessen(); setTimeout(() => spielFormular(sp), 120); });
@@ -2017,13 +2054,15 @@ function spielFormular(sp){
 }
 
 /* ---------- Seite: Spielrunde ---------- */
-function rundeTreffer(){ return gruppieren(alleSpiele().filter(s => passt(s, R))); }
+function rundeTreffer(){ return gruppieren(alleSpiele().map(standortSpiel).filter(Boolean).filter(s => passt(s, R))); }
+let ZL = new Map();       // zuletzt gespielt (für die Anzeige in der Spielrunde)
 function zeileHtml(g){
   const s = g.haupt, farbe = farbeVon(s.hid);
   return `<button class="zeile" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
     <span class="zeile-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
     <span class="zeile-text"><span class="zeile-name">${esc(s.name)}</span>${faktenHtml(s)}
-      <span class="zeile-haushalte">${g.kopien.map(k => `<span>${figur(farbeVon(k.hid), 13)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>`).join('')}</span></span></button>`;
+      <span class="zeile-haushalte">${g.kopien.map(k => `<span>${figur(farbeVon(k.hid), 13)}${esc((D.haushalte[k.hid] || {}).name || '')}${k.ausgeliehenVon ? ' (ausgeliehen)' : ''}</span>`).join('')}</span>
+      <span class="zuletzt">${esc(seitText(ZL.get(nameSchluessel(s.name))))}</span></span></button>`;
 }
 function renderRunde(){
   const el = $('#runde-inhalt');
@@ -2077,11 +2116,13 @@ function wunschZahl(){ return (R.dauerMax ? 1 : 0) + R.kategorien.length; }
 function renderRundeErgebnis(){
   const el = $('#runde-ergebnis'); if (!el) return;
   wunschAnzeigen();
+  ZL = zuletztMap();
   const gruppen = rundeTreffer();
   el.innerHTML = `<div class="ergebnis-kopf"><p><b>${gruppen.length}</b>${gruppen.length === 1 ? 'Spiel passt' : 'Spiele passen'}</p>
       <button class="wuerfel-knopf" type="button" data-wuerfeln ${gruppen.length ? '' : 'disabled'}>${wuerfelHtml('mini-wuerfel', 5)}Würfeln</button></div>
     ${gruppen.length ? `<div class="zeilen">${gruppen.map(zeileHtml).join('')}</div>`
-      : `<div class="leer" style="padding-top:8px"><p>Für ${R.personen} ${R.personen === 1 ? 'Person' : 'Personen'} mit diesen Wünschen passt gerade kein Spiel. Lockert einen Wunsch oder blendet weitere Haushalte ein.</p></div>`}`;
+      : `<div class="leer" style="padding-top:8px"><p>Für ${R.personen} ${R.personen === 1 ? 'Person' : 'Personen'} mit diesen Wünschen passt gerade kein Spiel. Lockert einen Wunsch oder blendet weitere Haushalte ein.</p></div>`}
+    <div style="margin-top:14px">${rueckblickHtml()}</div>`;
   bilderBeobachten(el);
 }
 function rundeSpeichern(){ schreiben(LS.runde, R); renderRundeErgebnis(); }
@@ -2100,7 +2141,13 @@ let letzterWurf = null;
 function wuerfeln(){
   const gruppen = rundeTreffer(); if (!gruppen.length) return;
   let auswahl = gruppen.length > 1 ? gruppen.filter(g => g.haupt.id !== letzterWurf) : gruppen;
-  const ziel = auswahl[Math.floor(Math.random() * auswahl.length)]; letzterWurf = ziel.haupt.id;
+  // Lange nicht (oder nie) gespielte Spiele haben eine größere Chance
+  const zl = zuletztMap();
+  const gewicht = g => { const d = zl.get(nameSchluessel(g.haupt.name)); if (!d) return 7; const tage = (new Date(heute() + 'T12:00') - new Date(d + 'T12:00')) / 864e5; return 1 + Math.min(Math.max(tage, 0), 360) / 60; };
+  const summe = auswahl.reduce((a, g) => a + gewicht(g), 0);
+  let r = Math.random() * summe, ziel = auswahl[auswahl.length - 1];
+  for (const g of auswahl){ r -= gewicht(g); if (r <= 0){ ziel = g; break; } }
+  letzterWurf = ziel.haupt.id;
   const ov = document.createElement('div'); ov.className = 'wurf';
   ov.innerHTML = `<div class="wurf-karte" role="dialog" aria-modal="true" aria-label="Würfeln">${wuerfelHtml('grosser-wuerfel rollt', 3)}<div class="wurf-name" aria-live="polite"></div><div class="wurf-ergebnis"></div></div>`;
   document.body.appendChild(ov); requestAnimationFrame(() => ov.classList.add('offen'));
@@ -2125,7 +2172,10 @@ function wuerfeln(){
       <div class="wurf-knoepfe"><button class="knopf" type="button" data-passt>Das spielen wir!</button><button class="knopf zweit" type="button" data-nochmal>Nochmal würfeln</button></div>`;
     bilderBeobachten(erg);
     $('[data-nochmal]', erg).addEventListener('click', () => { zu(); setTimeout(wuerfeln, 220); });
-    $('[data-passt]', erg).addEventListener('click', zu);
+    $('[data-passt]', erg).addEventListener('click', () => {
+      zu();
+      if (heuteGespielt(s)) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.');
+    });
   }
   tick();
 }
@@ -2133,7 +2183,7 @@ function wuerfeln(){
 /* ---------- Termine: Spieleabend planen und abstimmen ----------
    Jede Umfrage ist eine eigene Datei daten/termin-<id>.json. Jede Person stimmt pro Termin mit ja, vielleicht oder nein.
    Stimmen werden einzeln zusammengeführt – stimmen zwei Geräte gleichzeitig ab, bleibt beides erhalten. */
-const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','orte','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festOrt','festStand','geloescht']);
+const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','orte','spiele','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festOrt','festStand','geloescht']);
 const ANTWORTEN = ['', 'ja', 'vielleicht', 'nein'];
 const ANTWORT_ZEICHEN = { '':'○', ja:'✓', vielleicht:'?', nein:'✗' };
 function zwei(n){ return String(n).padStart(2, '0'); }
@@ -2155,6 +2205,9 @@ function terminNorm(t){
     orte:(Array.isArray(t.orte) ? t.orte : []).filter(o => o && o.id && (o.hid || String(o.text || '').trim()))
       .map(o => ({ id:String(o.id), hid:String(o.hid || ''), text:String(o.text || '').trim().slice(0, 80), pos:zahl(o.pos) || 0, stand:zahl(o.stand) || 0 }))
       .sort((a, b) => a.pos - b.pos || a.id.localeCompare(b.id)),
+    // Spielvorschläge („Was spielen wir?“)
+    spiele:(Array.isArray(t.spiele) ? t.spiele : []).filter(x => x && x.id && String(x.name || '').trim())
+      .map(x => ({ id:String(x.id), name:String(x.name).trim().slice(0, 80), sid:String(x.sid || ''), shid:String(x.shid || ''), von:String(x.von || ''), stand:zahl(x.stand) || 0 })),
     stimmen, festgelegt:String(t.festgelegt || ''), festOrt:String(t.festOrt || ''), festStand:zahl(t.festStand) || 0, geloescht:g
   };
 }
@@ -2167,6 +2220,8 @@ function terminMischen(lokal, fern){
   for (const x of A.optionen){ const y = o.get(x.id); if (!y || x.stand > y.stand) o.set(x.id, x); }
   const w = new Map(); for (const x of B.orte) w.set(x.id, x);
   for (const x of A.orte){ const y = w.get(x.id); if (!y || x.stand > y.stand) w.set(x.id, x); }
+  const sp = new Map(); for (const x of B.spiele) sp.set(x.id, x);
+  for (const x of A.spiele){ const y = sp.get(x.id); if (!y || x.stand > y.stand) sp.set(x.id, x); }
   const st = { ...B.stimmen };
   for (const [k, v] of Object.entries(A.stimmen)) if (!st[k] || v.stand > st[k].stand) st[k] = v;
   return terminNorm({
@@ -2175,6 +2230,7 @@ function terminMischen(lokal, fern){
     erstellt:A.erstellt || B.erstellt, stand:kopf.stand, haushalte:kopf.haushalte,
     optionen:[...o.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), stimmen:st,
     orte:[...w.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)),
+    spiele:[...sp.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)),
     festgelegt:fest.festgelegt, festOrt:fest.festOrt, festStand:fest.festStand, geloescht:tomb
   });
 }
@@ -2330,6 +2386,7 @@ function terminKarteHtml(t){
       ${mehrOrte ? '<p class="termin-abschnitt">Wann?</p>' : ''}
       ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
       ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
+      ${spieleVorschlagHtml(t, meine)}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
                   <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
@@ -2347,6 +2404,10 @@ function terminKlick(e){
   if (was === 'neu') return terminFormular();
   if (!t) return;
   if (was === 'stimme') return stimmeSetzen(t, b.dataset.opt, b.dataset.pid);
+  if (was === 'lust') return lustSetzen(t, b.dataset.sp, b.dataset.pid);
+  if (was === 'spiel-vorschlagen') return spielVorschlagen(t);
+  if (was === 'spiel-weg') return spielVorschlagWeg(t, b.dataset.sp);
+  if (was === 'gespielt') return terminGespielt(t);
   if (was === 'teilen') return teilenSheet('Einladung teilen', terminEinladungText(t));
   if (was === 'teilen-fest') return teilenSheet('Termin teilen', terminFestText(t));
   if (was === 'kalender') return kalenderDatei(t);
@@ -2385,6 +2446,8 @@ function terminFestText(t){
   return [
     `🎲 Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
     w.namen.ja.length ? `Dabei: ${w.namen.ja.join(', ')}` : '',
+    (() => { const top = t.spiele.map(x => ({ x, n:terminSpielZahl(t, x).n })).filter(y => y.n).sort((a, b) => b.n - a.n).slice(0, 3);
+      return top.length ? `🎯 Auf dem Tisch: ${top.map(y => `${y.x.name} (${y.n} 👍)`).join(', ')}` : ''; })(),
     'Wir freuen uns!'
   ].filter(Boolean).join('\n');
 }
@@ -2578,6 +2641,7 @@ function kalenderDatei(t){
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Spieleabend//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
     `UID:${t.id}-${o.id}@spieleabend`, `DTSTAMP:${jetzt}`, `DTSTART:${fmt(start)}`, `DTEND:${fmt(ende)}`,
     `SUMMARY:${icsText(t.titel)}`, `LOCATION:${icsText(terminWo(t))}`, ...(t.notiz ? [`DESCRIPTION:${icsText(t.notiz)}`] : []),
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsText('Morgen: ' + t.titel)}`, 'TRIGGER:-P1D', 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' }));
@@ -2602,6 +2666,240 @@ function terminLinkPruefen(){
   if (istStandalone()) history.replaceState(null, '', location.pathname + location.search);
   seiteZeigen('termine');
   setTimeout(() => { const el = document.getElementById('termin-' + m[1]); if (el) el.scrollIntoView({ block:'start' }); }, 400);
+}
+
+/* ---------- Datum-Hilfen ---------- */
+function heute(){ const d = new Date(); return `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}`; }
+function datumText(d){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? `${m[3]}.${m[2]}.${m[1]}` : ''; }
+function datumKurz(ms){ const d = new Date(ms); return `${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}.`; }
+function seitText(d){
+  if (!d) return 'noch nie gespielt';
+  const tage = Math.round((new Date(heute() + 'T12:00') - new Date(d + 'T12:00')) / 864e5);
+  if (tage <= 0) return 'heute gespielt';
+  if (tage === 1) return 'gestern gespielt';
+  if (tage < 14) return `vor ${tage} Tagen gespielt`;
+  if (tage < 60) return `vor ${Math.round(tage / 7)} Wochen gespielt`;
+  if (tage < 730) return `vor ${Math.round(tage / 30)} Monaten gespielt`;
+  return 'vor über einem Jahr gespielt';
+}
+
+/* ---------- Ausgeliehen: Das Spiel steht gerade bei jemand anderem ---------- */
+function verliehenNorm(v){
+  if (!v || typeof v !== 'object') return null;
+  const hid = String(v.hid || ''), name = String(v.name || '').trim().slice(0, 40);
+  return hid || name ? { hid, name, seit:zahl(v.seit) || 0 } : null;
+}
+function verleihText(v){ return v ? ((D.haushalte[v.hid] || {}).name || v.name || 'jemand anderen') : ''; }
+function verleihHtml(sp){
+  const v = sp.verliehen, darf = darfBearbeiten(sp.hid);
+  if (!v && !darf) return '';
+  return v
+    ? `<div class="verliehen-hinweis">${ic('tausch')}<span>Ausgeliehen an <b>${esc(verleihText(v))}</b>${v.seit ? ` seit ${datumKurz(v.seit)}` : ''}</span>
+        ${darf ? '<button class="knopf rahmen" type="button" data-verl="zurueck">Zurück</button>' : ''}</div>`
+    : `<button class="knopf rahmen breit" type="button" data-verl="neu" style="margin-top:12px">${ic('tausch')}Verleihen</button>`;
+}
+function verleihSheet(sp, fertig){
+  if (!darfBearbeiten(sp.hid)) return;
+  const andere = haushaltListe().filter(h => h.id !== sp.hid);
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>„${esc(sp.name)}“ verleihen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${andere.length ? `<div class="feld"><span class="feld-titel">An welchen Haushalt?</span>${figurChipsHtml('verl-hh', [], { mehrfach:false, liste:andere })}</div>` : ''}
+    <label class="feld"><span class="feld-titel">${andere.length ? 'Oder an jemand anderen' : 'An wen?'}</span><input class="eingabe" name="name" maxlength="40" placeholder="z. B. Nachbarn" autocomplete="off" autocapitalize="words"></label>
+    <p class="block-hinweis" style="margin-top:-4px">Bei einem Haushalt aus der App zählt das Spiel in der Spielrunde dann dort.</p>
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Verleihen</button></div></form>`);
+  const f = $('form', s);
+  s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'verl-hh' && e.detail.length) feldVon(f, 'name').value = ''; });
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const gr = $('[data-gruppe="verl-hh"]', s), hid = gr ? (gewaehlteChips(gr)[0] || '') : '', name = feldVon(f, 'name').value.trim();
+    if (!hid && !name){ toast('Bitte wählen, an wen das Spiel geht.', 'fehler'); return; }
+    spielAendern(sp, x => { x.verliehen = { hid:name ? '' : hid, name:name ? name : '', seit:Date.now() }; }, `${sp.name} verliehen`);
+    s.schliessen(); toast(`Verliehen an ${name || (D.haushalte[hid] || {}).name}`); if (fertig) fertig();
+  });
+}
+function spielAendern(sp, fn, notiz){
+  const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return false;
+  const x = h.spiele.find(y => y.id === sp.id); if (!x) return false;
+  fn(x); x.geaendert = Date.now();
+  const n = spielNorm(x); Object.keys(x).forEach(k => delete x[k]); Object.assign(x, n);
+  markiere(h.id, notiz); speichern(); renderAlles(); syncBald();
+  return true;
+}
+/* In der Spielrunde zählt ein verliehenes Spiel beim Haushalt, der es gerade hat */
+function standortSpiel(s){
+  if (!s.verliehen) return s;
+  const hid = s.verliehen.hid;
+  return hid && D.haushalte[hid] && sichtbareIds().has(hid) ? { ...s, hid, ausgeliehenVon:s.hid } : null;
+}
+
+/* ---------- Gespielt: Partien mit Datum und Gewinner ----------
+   Jeder Haushalt trägt Partien in seine eigene Datei ein. Haben zwei Haushalte dieselbe Partie
+   eingetragen (gleicher Tag, gleiches Spiel, gleiche Gewinner), zählt sie nur einmal. */
+function partieNorm(p){
+  return { id:String(p.id), datum:/^\d{4}-\d{2}-\d{2}$/.test(p.datum || '') ? p.datum : '', name:String(p.name || '').trim().slice(0, 80),
+    sid:String(p.sid || ''), shid:String(p.shid || ''), gewinner:Array.isArray(p.gewinner) ? [...new Set(p.gewinner.map(String))].slice(0, 12) : [],
+    tid:String(p.tid || ''), stand:zahl(p.stand) || 0 };
+}
+function allePartien(){
+  const sicht = sichtbareIds(), m = new Map();
+  for (const h of Object.values(D.haushalte)){
+    if (!sicht.has(h.id)) continue;
+    for (const p of h.partien || []){
+      const key = `${p.datum}|${nameSchluessel(p.name)}|${[...p.gewinner].sort().join(',')}`;
+      const eigen = h.id === E.meinHaushalt, x = m.get(key);
+      if (!x || (eigen && !x.eigen)) m.set(key, { ...p, von:h.id, eigen });
+    }
+  }
+  return [...m.values()].sort((a, b) => b.datum.localeCompare(a.datum) || b.stand - a.stand);
+}
+function partienZu(name){ const k = nameSchluessel(name); return allePartien().filter(p => nameSchluessel(p.name) === k); }
+function zuletztMap(){ const m = new Map(); for (const p of allePartien()){ const k = nameSchluessel(p.name); if (!m.has(k) || m.get(k) < p.datum) m.set(k, p.datum); } return m; }
+function spielerName(pid){
+  if (pid.startsWith('hh:')) return (D.haushalte[pid.slice(3)] || {}).name || '?';
+  for (const h of Object.values(D.haushalte)){ const x = (h.spieler || []).find(y => y.id === pid); if (x) return x.name; }
+  return '?';
+}
+function gespieltHtml(sp){
+  const liste = partienZu(sp.name);
+  return `<div class="anleitung">
+    <p class="anleitung-kopf">${ic('pokal')}Gespielt</p>
+    <p class="gespielt-zahl">${liste.length ? `${liste.length}× gespielt · zuletzt am ${datumText(liste[0].datum)}` : 'Noch nie gespielt'}</p>
+    ${liste.length ? `<ul class="partien">${liste.slice(0, 6).map(p => `<li><span class="partie-datum">${datumText(p.datum)}</span>
+        <span class="partie-sieger">${p.gewinner.length ? '🏆 ' + esc(p.gewinner.map(spielerName).join(', ')) : 'ohne Gewinner'}</span>
+        ${p.eigen ? `<button class="knopf-rund" type="button" data-gsp="bearbeiten" data-id="${esc(p.id)}" aria-label="Partie ändern">${ic('stift')}</button>` : ''}</li>`).join('')}</ul>` : ''}
+    ${meinHaushaltGueltig() ? `<button class="knopf zweit breit" type="button" data-gsp="neu" style="margin-top:10px">${ic('plus')}Gespielt eintragen</button>` : ''}
+  </div>`;
+}
+function gewinnerGruppen(){
+  return haushaltListe().map(h => ({ h, leute:(h.spieler && h.spieler.length) ? h.spieler.map(x => ({ pid:x.id, name:x.name })) : [{ pid:'hh:' + h.id, name:h.name }] }));
+}
+function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null } = {}){
+  if (!meinHaushaltGueltig()){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
+  const vor = eintrag ? eintrag.gewinner : [];
+  const anwesend = new Set(R.anwesend || []);
+  const gruppen = gewinnerGruppen().map(g => ({ ...g, leute:anwesend.size && !eintrag ? [...g.leute].sort((a, b) => (anwesend.has(b.pid) ? 1 : 0) - (anwesend.has(a.pid) ? 1 : 0)) : g.leute }));
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Gespielt: ${esc(sp.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <label class="feld"><span class="feld-titel">Wann?</span><input class="eingabe" type="date" name="datum" value="${esc(eintrag ? eintrag.datum : (datum || heute()))}"></label>
+    <div class="feld"><span class="feld-titel">Wer hat gewonnen?</span>
+      ${gruppen.map(g => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(g.h.farbe, 14)}${esc(g.h.name)}</p>
+        <div class="chips" data-gruppe="gewinner" data-mehrfach="1">${g.leute.map(p => `<button type="button" class="chip anw-chip" style="--hf:${esc(g.h.farbe)}" data-wert="${esc(p.pid)}" aria-pressed="${vor.includes(p.pid)}">${esc(p.name)}</button>`).join('')}</div></div>`).join('')}
+      <p class="block-hinweis">Mehrere antippen bei einem Team. Ohne Gewinner geht auch.</p></div>
+    <div class="sheet-fuss">${eintrag ? `<button class="knopf gefahr" type="button" data-weg>${ic('muell')}Löschen</button>` : '<button class="knopf rahmen" type="button" data-zu>Abbrechen</button>'}<button class="knopf" type="submit">Speichern</button></div></form>`, { klasse:'gross' });
+  const f = $('form', s);
+  const mein = D.haushalte[E.meinHaushalt];
+  const fertig = text => { markiere(mein.id, text); speichern(); s.schliessen(); renderAlles(); syncBald(); if (danach) setTimeout(danach, 240); };
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const d = feldVon(f, 'datum').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(d)){ toast('Bitte ein Datum wählen.', 'fehler'); return; }
+    const gewinner = $$('[data-gruppe="gewinner"] .chip[aria-pressed="true"]', s).map(c => c.dataset.wert);
+    const p = partieNorm({ id:eintrag ? eintrag.id : neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
+    mein.partien = [...(mein.partien || []).filter(x => x.id !== p.id), p];
+    toast(gewinner.length ? `Eingetragen – 🏆 ${gewinner.map(spielerName).join(', ')}` : 'Eingetragen');
+    fertig(`${sp.name} gespielt`);
+  });
+  const weg = $('[data-weg]', s);
+  if (weg) weg.addEventListener('click', () => {
+    mein.partien = (mein.partien || []).filter(x => x.id !== eintrag.id); mein.geloescht[eintrag.id] = Date.now();
+    toast('Partie gelöscht'); fertig(`${sp.name}: Partie gelöscht`);
+  });
+}
+/* „Das spielen wir!“ beim Würfeln: gleich als gespielt eintragen (Gewinner später) */
+function heuteGespielt(sp){
+  if (!meinHaushaltGueltig()) return false;
+  const mein = D.haushalte[E.meinHaushalt], k = nameSchluessel(sp.name), d = heute();
+  if ((mein.partien || []).some(p => p.datum === d && nameSchluessel(p.name) === k)) return false;
+  mein.partien = [...(mein.partien || []), partieNorm({ id:neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner:[], stand:Date.now() })];
+  markiere(mein.id, `${sp.name} gespielt`); speichern(); renderAlles(); syncBald();
+  return true;
+}
+function rueckblickHtml(){
+  const partien = allePartien();
+  if (!partien.length) return klapp('runde-rueckblick', 'Rückblick', `<p class="text-leise" style="margin:0">Noch nichts eingetragen. Nach dem Spielen beim Spiel auf <b>Gespielt eintragen</b> tippen – oder beim Würfeln auf <b>Das spielen wir!</b>.</p>`, { klein:'' });
+  const zaehl = new Map();
+  for (const p of partien){ const k = nameSchluessel(p.name), x = zaehl.get(k) || { name:p.name, n:0 }; x.n++; zaehl.set(k, x); }
+  const meist = [...zaehl.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'de')).slice(0, 5);
+  const zl = zuletztMap();
+  const lange = gruppieren(alleSpiele()).map(g => ({ name:g.haupt.name, d:zl.get(nameSchluessel(g.haupt.name)) || '' }))
+    .sort((a, b) => a.d.localeCompare(b.d) || a.name.localeCompare(b.name, 'de')).slice(0, 5);
+  const siege = new Map(); for (const p of partien) for (const pid of p.gewinner) siege.set(pid, (siege.get(pid) || 0) + 1);
+  const sieger = [...siege.entries()].map(([pid, n]) => ({ name:spielerName(pid), n })).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'de')).slice(0, 5);
+  const liste = (titel, zeilen) => `<p class="block-titel" style="margin:14px 0 6px">${titel}</p><ol class="rangliste">${zeilen.join('')}</ol>`;
+  return klapp('runde-rueckblick', 'Rückblick',
+    liste('Am meisten gespielt', meist.map(x => `<li><span>${esc(x.name)}</span><b>${x.n}×</b></li>`)) +
+    liste('Lange nicht gespielt', lange.map(x => `<li><span>${esc(x.name)}</span><b>${esc(seitText(x.d).replace(' gespielt', ''))}</b></li>`)) +
+    (sieger.length ? liste('Die meisten Siege', sieger.map(x => `<li><span>${esc(x.name)}</span><b>${x.n} 🏆</b></li>`)) : ''),
+    { klein:`${partien.length} ${partien.length === 1 ? 'Partie' : 'Partien'}` });
+}
+/* Auswahl eines Spiels (für Vorschläge und „Gespielt eintragen“) */
+function spielAuswahl(titel, gruppen, beiWahl, hinweis = ''){
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(titel)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${hinweis ? `<p class="text-leise" style="margin-top:-4px">${hinweis}</p>` : ''}
+    <div class="suche" style="margin-bottom:10px">${ic('suche')}<input class="eingabe" type="search" data-q placeholder="Spiel suchen" autocomplete="off"></div>
+    <div data-liste></div>`, { klasse:'gross' });
+  const zeigen = () => {
+    const q = normText($('[data-q]', s).value).trim();
+    const treffer = gruppen.filter(g => !q || normText(g.haupt.name).includes(q)).slice(0, 40);
+    $('[data-liste]', s).innerHTML = treffer.length ? treffer.map(g => `<button class="vorschlag" type="button" data-wahl="${esc(g.haupt.id)}">${figur(farbeVon(g.haupt.hid), 16)}<span>${esc(g.haupt.name)}</span><small class="text-leise">${esc(spielerText(g.haupt))} Sp.</small></button>`).join('')
+      : '<p class="text-leise">Nichts gefunden.</p>';
+  };
+  $('[data-q]', s).addEventListener('input', zeigen); zeigen();
+  s.addEventListener('click', e => { const b = e.target.closest('[data-wahl]'); if (!b) return; const g = gruppen.find(x => x.haupt.id === b.dataset.wahl); if (g){ s.schliessen(); setTimeout(() => beiWahl(g.haupt), 240); } });
+}
+
+/* ---------- Termine: Was spielen wir? ---------- */
+function terminSpielZahl(t, x){
+  let n = 0; const namen = [];
+  for (const g of terminTeilnehmer(t)) for (const p of g.leute) if (stimmeVon(t, x.id, p.pid) === 'ja'){ n++; namen.push(p.name); }
+  return { n, namen };
+}
+function spieleVorschlagHtml(t, meine){
+  const vorbei = terminVorbei(t);
+  const liste = t.spiele.map(x => ({ x, ...terminSpielZahl(t, x) })).sort((a, b) => b.n - a.n || a.x.name.localeCompare(b.x.name, 'de'));
+  const fest = t.optionen.find(o => o.id === t.festgelegt);
+  const nachher = fest && fest.zeit.slice(0, 10) <= heute() && meinHaushaltGueltig();
+  if (!liste.length && (vorbei || !meine) && !nachher) return '';
+  return `<p class="termin-abschnitt">Was spielen wir?</p>
+    ${liste.map(({ x, n, namen }) => `<div class="option">
+      <div class="option-kopf"><span class="option-zeit">${figur(farbeVon(x.shid), 15)}${esc(x.name)}</span>
+        <span class="option-zahl">${n ? `👍 ${n}` : ''}</span>
+        ${!vorbei && (darfTermin(t) || x.von === E.meinHaushalt) ? `<button class="knopf-rund" type="button" data-t="spiel-weg" data-id="${esc(t.id)}" data-sp="${esc(x.id)}" aria-label="Vorschlag entfernen">${ic('x')}</button>` : ''}</div>
+      ${meine && !vorbei ? `<div class="chips" style="margin-top:8px">${meine.leute.map(p => { const a = stimmeVon(t, x.id, p.pid) === 'ja';
+          return `<button type="button" class="chip stimme" data-t="lust" data-id="${esc(t.id)}" data-sp="${esc(x.id)}" data-pid="${esc(p.pid)}" data-a="${a ? 'ja' : ''}"><b>${a ? '👍' : '○'}</b>${esc(p.name)}</button>`; }).join('')}</div>` : ''}
+      ${namen.length ? `<p class="stimm-liste">Lust: ${esc(namen.join(', '))}</p>` : ''}</div>`).join('')}
+    ${!liste.length && meine && !vorbei ? '<p class="text-leise text-klein" style="margin:6px 0 0">Noch keine Vorschläge – schlag Spiele vor, die anderen tippen 👍 an.</p>' : ''}
+    ${meine && !vorbei ? `<button class="knopf zweit breit" type="button" data-t="spiel-vorschlagen" data-id="${esc(t.id)}" style="margin-top:10px">${ic('plus')}Spiel vorschlagen</button>` : ''}
+    ${nachher ? `<button class="knopf zweit breit" type="button" data-t="gespielt" data-id="${esc(t.id)}" style="margin-top:10px">${ic('pokal')}Gespielt eintragen</button>` : ''}`;
+}
+function spielVorschlagen(t){
+  if (!meineTerminGruppe(t)) return;
+  const schon = new Set(t.spiele.map(x => nameSchluessel(x.name)));
+  const gruppen = gruppieren(alleSpiele().filter(s => !t.haushalte.length || t.haushalte.includes(s.hid))).filter(g => !schon.has(nameSchluessel(g.haupt.name)));
+  if (!gruppen.length){ toast('Alle Spiele der eingeladenen Haushalte sind schon vorgeschlagen.'); return; }
+  spielAuswahl('Spiel vorschlagen', gruppen, sp => {
+    t.spiele.push({ id:neueId('v'), name:sp.name, sid:sp.id, shid:sp.hid, von:E.meinHaushalt, stand:Date.now() });
+    markiereT(t.id, `${sp.name} vorgeschlagen`); speichern(); renderTermine(); syncBald(); toast(`„${sp.name}“ vorgeschlagen`);
+  }, 'Spiele der eingeladenen Haushalte. Die anderen tippen dann 👍 an.');
+}
+function spielVorschlagWeg(t, vid){
+  const x = t.spiele.find(y => y.id === vid); if (!x || !(darfTermin(t) || x.von === E.meinHaushalt)) return;
+  t.spiele = t.spiele.filter(y => y.id !== vid); t.geloescht[vid] = Date.now();
+  markiereT(t.id, `${x.name} nicht mehr vorgeschlagen`); speichern(); renderTermine(); syncBald();
+}
+function lustSetzen(t, vid, pid){
+  const g = meineTerminGruppe(t);
+  if (!g || terminVorbei(t) || !g.leute.some(p => p.pid === pid) || !t.spiele.some(x => x.id === vid)) return;
+  const key = `${vid}|${pid}`, an = (t.stimmen[key] || {}).a === 'ja';
+  t.stimmen[key] = { a:an ? '' : 'ja', stand:Date.now() };
+  markiereT(t.id, 'Lust auf Spiel'); speichern(); renderTermine(); syncBald();
+}
+function terminGespielt(t){
+  const fest = t.optionen.find(o => o.id === t.festgelegt); if (!fest) return;
+  const vorgeschlagen = t.spiele.map(x => ({ k:nameSchluessel(x.name), n:terminSpielZahl(t, x).n })).sort((a, b) => b.n - a.n).map(x => x.k);   // beliebteste zuerst
+  const gruppen = gruppieren(alleSpiele()).sort((a, b) => {
+    const ia = vorgeschlagen.indexOf(nameSchluessel(a.haupt.name)), ib = vorgeschlagen.indexOf(nameSchluessel(b.haupt.name));
+    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || nachName(a.haupt, b.haupt);
+  });
+  spielAuswahl('Was wurde gespielt?', gruppen, sp => partieSheet(sp, { datum:fest.zeit.slice(0, 10), tid:t.id, danach:() => terminGespielt(t) }),
+    'Spiel antippen, Gewinner wählen, speichern – danach geht es mit dem nächsten Spiel weiter.');
 }
 
 /* ---------- Seite: Haushalte ---------- */
@@ -3047,6 +3345,15 @@ const HILFE = [
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
+  { id:'verliehen', titel:'Verliehen', seite:'spiele', text:`
+    <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
+    <p>In der <b>Spielrunde</b> zählt das Spiel dann beim Haushalt, der es gerade hat. Ist es bei jemandem außerhalb der App, taucht es dort nicht auf. Ist es wieder da: <b>Zurück</b> tippen.</p>` },
+  { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', text:`
+    <ul><li>Nach dem Spielen: Spiel antippen → <b>Gespielt eintragen</b>, Datum und Gewinner wählen (mehrere bei einem Team).</li>
+    <li>Beim Würfeln trägt <b>Das spielen wir!</b> das Spiel gleich für heute ein – den Gewinner trägst du später beim Spiel nach (Stift neben der Partie).</li>
+    <li>Nach einem festen Termin gibt es dort <b>Gespielt eintragen</b> für alle Spiele des Abends.</li>
+    <li>Unter <b>Spielrunde → Rückblick</b>: am meisten gespielt, lange nicht gespielt, die meisten Siege. Jede Zeile in der Spielrunde zeigt, wann ihr das Spiel zuletzt gespielt habt.</li>
+    <li>Der <b>Würfel</b> bevorzugt Spiele, die lange nicht oder noch nie gespielt wurden.</li></ul>` },
   { id:'anleitung', titel:'Spielanleitung', seite:'spiele', text:`
     <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
     <li><b>Als PDF suchen</b> sucht die Anleitung im Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
@@ -3071,6 +3378,8 @@ const HILFE = [
     <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
     <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
     <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
+    <li><b>Was spielen wir?</b> Jeder schlägt Spiele der eingeladenen Haushalte vor, alle tippen bei ihrem Namen 👍 an. „Es steht fest …“ nennt die beliebtesten Spiele.</li>
+    <li><b>In den Kalender</b> legt den Termin mit einer Erinnerung einen Tag vorher an.</li>
     <li>Die rote Zahl am Reiter <b>Termine</b> zeigt, wo dein Haushalt noch nicht abgestimmt hat.</li>
     <li>Eine Umfrage sehen nur die eingeladenen Haushalte. Vergangene Abende rutschen nach unten unter <b>Vergangene Spieleabende</b>.</li></ul>` },
   { id:'haushalte', titel:'Haushalte und weitere Geräte', seite:'haushalte', text:`
@@ -3146,6 +3455,12 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.57', datum:'24.10.2026', neu:[
+    'Termine: „Was spielen wir?“ – Spiele vorschlagen, jeder tippt 👍 an; die beliebtesten stehen im Text „Es steht fest …“',
+    'Kalendereintrag mit Erinnerung einen Tag vorher',
+    'Gespielt eintragen mit Datum und Gewinner – beim Spiel, nach dem Würfeln („Das spielen wir!“) oder nach dem Termin',
+    'Spielrunde: „zuletzt gespielt“ bei jedem Spiel, Rückblick mit Ranglisten; der Würfel bevorzugt lange nicht gespielte Spiele',
+    'Spiele verleihen: Kachel zeigt „verliehen“, in der Spielrunde zählt das Spiel beim Haushalt, der es gerade hat'] },
   { v:'v1.56', datum:'24.10.2026', neu:[
     'Termine: Auch über den Ort abstimmen – mehrere Orte vorschlagen (Gastgeber-Haushalt und/oder Adresse)',
     'Jede Person stimmt bei „Wann?“ und „Wo?“ ab; beim Festlegen sind beste Zeit und bester Ort vorausgewählt',
