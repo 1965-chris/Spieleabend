@@ -1,11 +1,31 @@
 {
  "format": 1,
- "app": "v1.50",
+ "app": "v1.56",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#D64545",
  "stand": 1792785889496,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smvma0zpe7ly8",
+   "name": "Cabo",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 5,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "CABO — Spielregel\nZiel - Eine Runde gewinnt, wer am Ende der Runde die kleinste Summe in seiner Auslage hat.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://www.wikidata.org/wiki/Q3514630",
+   "anleitung": "",
+   "erstellt": 1792838960835,
+   "geaendert": 1792838960835
+  }
+ ],
  "spieler": [
   {
    "id": "pmvlefhlltfpt",
