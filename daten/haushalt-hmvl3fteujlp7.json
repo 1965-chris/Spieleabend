@@ -324,6 +324,25 @@
    "geaendert": 1792878298064
   },
   {
+   "id": "smvmyyman0ylk",
+   "name": "Monopoly",
+   "bild": "bilder/smvmoqmpdlw1e-mvmoqmpf.jpg",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792880840545,
+   "geaendert": 1792880840545
+  },
+  {
    "id": "smvmpruxvya54",
    "name": "Nobody Ist Perfect",
    "bild": "bilder/smvmpruxvya54-mvmpruxv.jpg",
