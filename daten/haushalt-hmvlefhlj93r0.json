@@ -76,5 +76,17 @@
    "stand": 1792785889497
   }
  ],
+ "partien": [
+  {
+   "id": "gmvmfm8d273zo",
+   "datum": "2026-10-24",
+   "name": "Phase 10",
+   "sid": "smvmf4u04ymd3",
+   "shid": "hmvlefhlj93r0",
+   "gewinner": [],
+   "tid": "",
+   "stand": 1792848349910
+  }
+ ],
  "geloescht": {}
 }
