@@ -551,6 +551,27 @@
    "geaendert": 1792880134569
   },
   {
+   "id": "smvmzditrmwil",
+   "name": "Wissens & Würfeln",
+   "bild": "bilder/smvmzditrmwil-mvmzditr.jpg",
+   "spielerMin": 4,
+   "spielerMax": 8,
+   "alterAb": 12,
+   "dauer": null,
+   "kategorien": [
+    "Brettspiel",
+    "Allgemeinwissen",
+    "Familie"
+   ],
+   "beschreibung": "Wissens-Spektrum ist ein Familienspiel, das 1984 von den ASS Altenburg-Stralsunder Spielkarten-Fabriken veröffentlicht wurde. Das Spiel kann sowohl mit Einzelspielern wie mit Mannschaften gespielt werden. Die Spieler suchen sich zu Beginn des Spiels eine Spielfarbe aus und bekommen die entsprechende Spielfigur.\nErschienen 1984 bei ASS Altenburg-Stralsunder Spielkarten-Fabriken.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Achim Raschka, CC BY-SA 4.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Wissens-Spektrum",
+   "anleitung": "",
+   "erstellt": 1792881535887,
+   "geaendert": 1792881535887
+  },
+  {
    "id": "smvmoa7yq1df3",
    "name": "Wizard",
    "bild": "bilder/smvmoa7yq1df3-mvmobtfj.jpg",
@@ -594,7 +615,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792880890427,
+   "zuletzt": 1792881537721,
    "name": "",
    "nameStand": 0
   },
