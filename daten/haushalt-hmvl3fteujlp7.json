@@ -472,10 +472,10 @@
   },
   {
    "id": "smvmxhvg6mkpl",
-   "name": "Take it easy",
+   "name": "Take it Easy  XXL",
    "bild": "bilder/smvmxhvg6mkpl-mvmxhvg8.jpg",
-   "spielerMin": 2,
-   "spielerMax": 4,
+   "spielerMin": 1,
+   "spielerMax": 8,
    "alterAb": 10,
    "dauer": 45,
    "kategorien": [
@@ -488,7 +488,7 @@
    "link": "https://de.wikipedia.org/wiki/Take_it_easy",
    "anleitung": "",
    "erstellt": 1792878379640,
-   "geaendert": 1792878379640
+   "geaendert": 1792878495678
   },
   {
    "id": "smvmoa7yq1df3",
@@ -534,7 +534,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792878381497,
+   "zuletzt": 1792878497457,
    "name": "",
    "nameStand": 0
   },
