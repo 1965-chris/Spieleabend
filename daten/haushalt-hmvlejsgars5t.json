@@ -100,20 +100,25 @@
   },
   {
    "id": "smvmolqwlg5i6",
-   "name": "Just one",
+   "name": "Just One",
    "bild": "bilder/smvmolqwlg5i6-mvmolqwm.jpg",
    "spielerMin": 3,
    "spielerMax": 7,
    "alterAb": 8,
-   "dauer": 30,
-   "kategorien": [],
-   "beschreibung": "",
+   "dauer": 15,
+   "kategorien": [
+    "Kartenspiel",
+    "Party",
+    "Kommunikation",
+    "Kooperativ"
+   ],
+   "beschreibung": "Just One ist ein kooperatives Kommunikationsspiel der französischen Spieleautoren Ludovic Roudy und Bruno Sautter, das im Herbst 2018 beim belgischen Verlag Repos Production erschienen ist. Wie bei anderen kooperativen Spielen wird ein Team gebildet. Zu Beginn werden die Karten mit den Geheimbegriffen gemischt, von diesen werden 13 Karten abgezählt und als verdeckter Stapel in die Tischmitte gelegt.\nVon Ludovic Roudy, Bruno Sautter, erschienen 2018 bei Repos Production.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://de.wikipedia.org/wiki/Just_One",
    "anleitung": "",
    "erstellt": 1792863443830,
-   "geaendert": 1792863443830
+   "geaendert": 1792881214396
   },
   {
    "id": "smvmoku8vvvf6",
