@@ -7,6 +7,25 @@
  "stand": 1792786090186,
  "spiele": [
   {
+   "id": "smvmonbdgyww6",
+   "name": "Azul sommerpavillon",
+   "bild": "bilder/smvmonbdgyww6-mvmonbdg.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863517012,
+   "geaendert": 1792863517012
+  },
+  {
    "id": "smvmojdk65op3",
    "name": "Flip7",
    "bild": "bilder/smvmojdk65op3-mvmojdk7.jpg",
