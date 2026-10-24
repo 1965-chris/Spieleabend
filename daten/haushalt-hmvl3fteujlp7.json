@@ -567,9 +567,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Wissens-Spektrum",
-   "anleitung": "http://www.spielanleitung.com/spiel.php4?id=1616",
+   "anleitung": "http://ftp.informatik.rwth-aachen.de/keirat/txt/W/Wissenun.html",
    "erstellt": 1792881535887,
-   "geaendert": 1792881802464
+   "geaendert": 1792881920402
   },
   {
    "id": "smvmoa7yq1df3",
@@ -615,7 +615,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792881790942,
+   "zuletzt": 1792881922323,
    "name": "",
    "nameStand": 0
   },
