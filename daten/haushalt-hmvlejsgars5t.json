@@ -1,11 +1,29 @@
 {
  "format": 1,
- "app": "v1.50",
+ "app": "v1.63",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
  "stand": 1792786090186,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smvmohapumyhm",
+   "name": "Slip-Bo",
+   "bild": "bilder/smvmohapumyhm-mvmohapx.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 7,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863236228,
+   "geaendert": 1792863236228
+  }
+ ],
  "spieler": [
   {
    "id": "pmvlejsgaqpm0",
