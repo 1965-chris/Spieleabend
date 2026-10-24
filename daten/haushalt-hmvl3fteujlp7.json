@@ -85,7 +85,7 @@
   {
    "id": "smvmq9m94tjn9",
    "name": "Elfer raus!",
-   "bild": "",
+   "bild": "bilder/smvmq9m94tjn9-mvmqbt5v.jpg",
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 7,
@@ -99,7 +99,7 @@
    "link": "https://de.wikipedia.org/wiki/Elfer_raus!",
    "anleitung": "",
    "erstellt": 1792866237160,
-   "geaendert": 1792866237160
+   "geaendert": 1792866339426
   },
   {
    "id": "smvmlb1ssz2x6",
@@ -473,7 +473,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792866239049,
+   "zuletzt": 1792866341387,
    "name": "",
    "nameStand": 0
   },
