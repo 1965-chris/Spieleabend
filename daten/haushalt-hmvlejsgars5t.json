@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.63",
+ "app": "v1.64",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -152,6 +152,26 @@
    "anleitung": "",
    "erstellt": 1792863671666,
    "geaendert": 1792863671666
+  },
+  {
+   "id": "smvmpa4eiqn5j",
+   "name": "Rasende Roboter",
+   "bild": "bilder/smvmpa4eiqn5j-mvmpa4ej.jpg",
+   "spielerMin": 2,
+   "spielerMax": 20,
+   "alterAb": 10,
+   "dauer": 60,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "Rasende Roboter ist der Name eines Brettspieles von Alex Randolph. Rasende Roboter ist ein Denkspiel für zwei oder mehr Teilnehmer, potenziell ist die Zahl der Spieler nicht begrenzt. Die vier verschiedenfarbigen Roboter werden beliebig auf dem Spielplan verteilt.\nVon Alex Randolph, erschienen 1999 bei Hans im Glück (1999),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Rasende_Roboter",
+   "anleitung": "",
+   "erstellt": 1792864581067,
+   "geaendert": 1792864581067
   },
   {
    "id": "smvmohapumyhm",
