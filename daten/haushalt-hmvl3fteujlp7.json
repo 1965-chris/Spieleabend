@@ -295,14 +295,14 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Memory_(Spiel)",
-   "anleitung": "https://wwwhome.cs.utwente.nl/~gerezsh/sendfile/sendfile.php/mem-summary.pdf?sendfile=mem-summary.pdf",
+   "anleitung": "https://share.google/PZnc8AD0AB5lxl2qK",
    "bildPos": {
     "x": 91.3,
     "y": 50,
     "z": 1
    },
    "erstellt": 1792877826888,
-   "geaendert": 1792878191421
+   "geaendert": 1792878298064
   },
   {
    "id": "smvmpruxvya54",
@@ -514,7 +514,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792878168096,
+   "zuletzt": 1792878299889,
    "name": "",
    "nameStand": 0
   },
