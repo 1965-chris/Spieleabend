@@ -152,6 +152,30 @@
    "geaendert": 1792858553772
   },
   {
+   "id": "smvmlr7xcr5o0",
+   "name": "Skyjo",
+   "bild": "bilder/smvmlr7xcr5o0-mvmlr7xe.jpg",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Skyjo ist ein Kartenspiel des Spieleautors Alexander Bernhardt, das im Jahr 2015 bei dem von ihm gegründeten Verlag Magilano erschienen ist. Zu Beginn des Spiels werden die Spielkarten gemischt und jeder Spieler erhält zwölf Karten, die er ungesehen und verdeckt nebeneinander mit einem Raster von 3 mal 4 Karten vor sich auslegt. Die restlichen Karten bilden einen verdeckten Nachziehstapel, der in der Tischmitte platziert wird.\nVon Alexander Bernhardt, erschienen 2015 bei Magilano.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Skyjo",
+   "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 0,
+    "z": 1
+   },
+   "erstellt": 1792858660321,
+   "geaendert": 1792858660321
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
