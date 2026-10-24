@@ -26,6 +26,23 @@
    "geaendert": 1792863517012
   },
   {
+   "id": "smvmopks8nvfa",
+   "name": "Das Spiel Des Lebens",
+   "bild": "bilder/smvmopks8nvfa-mvmopks9.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863622520,
+   "geaendert": 1792863622520
+  },
+  {
    "id": "smvmojdk65op3",
    "name": "Flip7",
    "bild": "bilder/smvmojdk65op3-mvmojdk7.jpg",
