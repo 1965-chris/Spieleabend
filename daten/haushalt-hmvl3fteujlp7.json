@@ -265,6 +265,26 @@
    "geaendert": 1792858328898
   },
   {
+   "id": "smvmpdkc4czoa",
+   "name": "Rummikub",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 7,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel",
+    "Kartenspiel"
+   ],
+   "beschreibung": "Rummikub ist ein Spiel ähnlich dem Kartenspiel Rommé – speziell der Spielvariante Räuber-Rommé – nur dass es mit Zahlenplättchen gespielt wird. Das Ziel des Spieles ist es, die 14 Spielsteine, die man zu Beginn des Spiels erhält, abzulegen. Das Ablegen von Spielsteinen ist, genau wie beim ähnlichen Kartenspiel Rommé, nur in bestimmten Kombinationen möglich.\nVon Ephraim Hertzano, erschienen 1950 bei Hertzano (1950),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Rummikub",
+   "anleitung": "",
+   "erstellt": 1792864741684,
+   "geaendert": 1792864741684
+  },
+  {
    "id": "smvmlo90hrl0k",
    "name": "Skip-Bo",
    "bild": "bilder/smvmlo90hrl0k-mvmlo90i.jpg",
@@ -375,7 +395,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792864289275,
+   "zuletzt": 1792864744248,
    "name": "",
    "nameStand": 0
   }
