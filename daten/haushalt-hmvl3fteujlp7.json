@@ -228,6 +228,23 @@
    "geaendert": 1792790212002
   },
   {
+   "id": "smvmpruxvya54",
+   "name": "Nobody Ist Perfect",
+   "bild": "bilder/smvmpruxvya54-mvmpruxv.jpg",
+   "spielerMin": 3,
+   "spielerMax": 10,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [],
+   "beschreibung": "Nobody is Perfect ist ein extrem beliebtes, kreatives Bluff- und Partyspiel von Ravensburger. Es gilt als der Klassiker unter den \"Lügner-Spielen\", bei dem Wissen zweitrangig ist – stattdessen gewinnt, wer am besten spinnt",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792865408611,
+   "geaendert": 1792865408611
+  },
+  {
    "id": "smvml3o7e8wj6",
    "name": "Oh, Pharao!",
    "bild": "bilder/smvml3o7e8wj6-mvml3o7f.jpg",
@@ -420,7 +437,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792864957749,
+   "zuletzt": 1792865410670,
    "name": "",
    "nameStand": 0
   },
