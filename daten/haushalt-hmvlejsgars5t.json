@@ -99,6 +99,25 @@
    "geaendert": 1792863401503
   },
   {
+   "id": "smvmoqmpdlw1e",
+   "name": "Monopoly",
+   "bild": "bilder/smvmoqmpdlw1e-mvmoqmpf.jpg",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863671666,
+   "geaendert": 1792863671666
+  },
+  {
    "id": "smvmohapumyhm",
    "name": "Skip-Bo",
    "bild": "bilder/smvmohapumyhm-mvmohapx.jpg",
