@@ -26,6 +26,30 @@
    "geaendert": 1792790432471
   },
   {
+   "id": "smvmlb1ssz2x6",
+   "name": "Ganz schön clever",
+   "bild": "bilder/smvmlb1ssz2x6-mvmlb1su.jpg",
+   "spielerMin": 1,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Würfelspiel"
+   ],
+   "beschreibung": "Ganz schön clever ist ein Würfelspiel mit sechs Würfeln von Wolfgang Warsch. Das Spiel ist an klassische und modernere Würfelspiele mit Wertungsblock angelehnt, wobei es vor allem auf die Kombination von farbigen Würfeln und den entsprechenden Augenzahlen aufbaut. Das Spielmaterial besteht aus einem Spielblock mit identischen Wertungszetteln und sechs farbigen Zahlenwürfeln mit 1 bis 6 Augen.\nVon Wolfgang Warsch, erschienen 2018 bei Schmidt Spiele.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Ganz_sch%C3%B6n_clever",
+   "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 28.2,
+    "z": 1
+   },
+   "erstellt": 1792857905885,
+   "geaendert": 1792857905885
+  },
+  {
    "id": "smvlgcozx1fpn",
    "name": "Hitster Das Musik-Kartenspiel",
    "bild": "bilder/smvlgcozx1fpn-mvlgcozz.jpg",
