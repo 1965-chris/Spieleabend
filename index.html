@@ -194,6 +194,18 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .knopf.gefahr-voll{background:var(--rot);color:#fff}
 .knopf.breit{width:100%}
 a.knopf{text-decoration:none}
+/* Funktionen ein-/ausschalten (Admin) */
+.schalter-zeile{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--linie);cursor:pointer}
+.schalter-zeile:first-of-type{border-top:0}
+.schalter-zeile.unter{padding-left:18px}
+.schalter-zeile span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.schalter-zeile b{font-size:15px;font-weight:650}
+.schalter-zeile small{font-size:13px;color:var(--leise)}
+.schalter{appearance:none;-webkit-appearance:none;flex:none;width:48px;height:28px;border-radius:999px;background:var(--linie);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.schalter::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.schalter:checked{background:var(--filz)}
+.schalter:checked::after{transform:translateX(20px)}
+.schalter:disabled{opacity:.45}
 /* Verliehen, Gespielt, Rückblick */
 .verliehen-hinweis{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb, var(--filz) 12%, var(--karte));font-size:15px}
 .verliehen-hinweis span{flex:1;min-width:0}
@@ -252,7 +264,8 @@ a.knopf{text-decoration:none}
   position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--karte);border-top:1px solid var(--linie);
   padding-bottom:env(safe-area-inset-bottom);
 }
-.tabs-innen{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tabhoehe)}
+.tabs-innen{max-width:640px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;height:var(--tabhoehe)}
+.tabs button[hidden]{display:none}
 .tab-ic{position:relative;display:inline-grid}
 .tab-zahl{position:absolute;top:-5px;right:-10px;min-width:18px;height:18px;border-radius:9px;background:var(--rot);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--karte);line-height:1}
 .tab-zahl[hidden]{display:none}
@@ -602,10 +615,24 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.57';
+const VERSION = 'v1.58';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
+/* Funktionen, die der Admin je Spielkreis ein- oder ausschalten kann */
+const FUNKTIONEN = [
+  { k:'termine', t:'Termine', b:'Spieleabende planen, abstimmen, in den Kalender' },
+  { k:'orte', t:'Über den Ort abstimmen', b:'Mehrere Orte zur Wahl stellen', unter:'termine' },
+  { k:'spielvorschlaege', t:'„Was spielen wir?“', b:'Spiele für den Abend vorschlagen und 👍', unter:'termine' },
+  { k:'wuerfeln', t:'Würfeln', b:'In der Spielrunde ein Spiel auslosen' },
+  { k:'gespielt', t:'Gespielt & Rückblick', b:'Partien mit Gewinner, Ranglisten' },
+  { k:'anleitung', t:'Spielanleitung', b:'Link zur Anleitung oder zum Erklärvideo' },
+  { k:'verleihen', t:'Verleihen', b:'Vermerk, wenn ein Spiel ausgeliehen ist' },
+  { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' }
+];
+const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','geloescht']);
+const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand']);
+function ausListe(a){ return Array.isArray(a) ? [...new Set(a.map(String))].filter(k => /^[a-z]+$/.test(k)).sort() : []; }
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
 const FARBEN = [
@@ -797,10 +824,14 @@ function verwaltungNorm(v){
   const g = {};
   if (v.geloescht && typeof v.geloescht === 'object') for (const [k, t] of Object.entries(v.geloescht)){ const n = zahl(t); if (n) g[k] = n; }
   return {
+    ...unbekannte(v, V_FELDER),
     pinHash:typeof v.pinHash === 'string' ? v.pinHash : '', pinSalz:typeof v.pinSalz === 'string' ? v.pinSalz : '', pinStand:zahl(v.pinStand) || 0,
     kreise:(Array.isArray(v.kreise) ? v.kreise : []).filter(k => k && k.id).map(k => ({
-      id:String(k.id), name:String(k.name || 'Spielkreis'), haushalte:Array.isArray(k.haushalte) ? [...new Set(k.haushalte.map(String))].sort() : [], stand:zahl(k.stand) || 0
+      ...unbekannte(k, KREIS_FELDER),
+      id:String(k.id), name:String(k.name || 'Spielkreis'), haushalte:Array.isArray(k.haushalte) ? [...new Set(k.haushalte.map(String))].sort() : [], aus:ausListe(k.aus), stand:zahl(k.stand) || 0
     })).sort((a, b) => a.name.localeCompare(b.name, 'de') || a.id.localeCompare(b.id)),
+    // ausgeschaltete Funktionen für Haushalte ohne Spielkreis (oder für alle, solange es keine Spielkreise gibt)
+    aus:ausListe(v.aus), ausStand:zahl(v.ausStand) || 0,
     // Geräte, auf denen gerade jemand als Admin angemeldet ist – der Admin kann sie aus der Ferne abmelden
     adminGeraete:(Array.isArray(v.adminGeraete) ? v.adminGeraete : []).filter(x => x && x.id).map(x => ({
       id:String(x.id), name:String(x.name || 'Gerät').slice(0, 60), seit:zahl(x.seit) || 0, stand:zahl(x.stand) || 0
@@ -816,7 +847,8 @@ function verwaltungMischen(a, b){
   for (const k of A.kreise){ const x = m.get(k.id); if (!x || k.stand > x.stand) m.set(k.id, k); }
   const g = new Map(); for (const x of B.adminGeraete) g.set(x.id, x);
   for (const x of A.adminGeraete){ const y = g.get(x.id); if (!y || x.stand > y.stand) g.set(x.id, x); }
-  return verwaltungNorm({ pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand,
+  const fk = A.ausStand >= B.ausStand ? A : B;
+  return verwaltungNorm({ ...unbekannte(B, V_FELDER), ...unbekannte(A, V_FELDER), pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, aus:fk.aus, ausStand:fk.ausStand,
     kreise:[...m.values()].filter(k => !(tomb[k.id] && tomb[k.id] >= k.stand)),
     adminGeraete:[...g.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), geloescht:tomb });
 }
@@ -1309,6 +1341,21 @@ function adminUmschalten(){
   toast(adminEingeblendet ? 'Admin-Bereich eingeblendet' : 'Admin-Bereich ausgeblendet');
   if (aktiveSeite === 'einstellungen') renderEinstellungen();
 }
+/* Ist eine Funktion für einen Haushalt eingeschaltet? Auf Admin-Geräten ist immer alles an.
+   Ein Haushalt in mehreren Spielkreisen bekommt die Funktion, sobald sie in einem davon an ist. */
+function funktionAn(key, hid){
+  if (hid === undefined && E.admin) return true;
+  const f = FUNKTIONEN.find(x => x.k === key);
+  if (f && f.unter && !funktionAn(f.unter, hid)) return false;
+  const h = hid === undefined ? E.meinHaushalt : hid, V = D.verwaltung;
+  const kreise = h && D.haushalte[h] ? V.kreise.filter(k => k.haushalte.includes(h)) : [];
+  if (!kreise.length) return !(V.aus || []).includes(key);
+  return kreise.some(k => !(k.aus || []).includes(key));
+}
+function funktionenAnpassen(){
+  const tab = $('.tabs [data-seite="termine"]'); if (tab) tab.hidden = !funktionAn('termine');
+  if (aktiveSeite === 'termine' && !funktionAn('termine')) seiteZeigen('spiele');
+}
 function darfBearbeiten(hid){ return !rechteAktiv() || E.admin || (meinHaushaltGueltig() && hid === E.meinHaushalt); }
 function darfHaushaltWechseln(){ return !rechteAktiv() || E.admin || !meinHaushaltGueltig(); }
 function nurEigeneSichtbar(){ return kreiseAktiv() && !E.admin && meinHaushaltGueltig() && sichtbareIds().size === 1; }
@@ -1374,7 +1421,7 @@ function filterAktiv(){
 function karteHtml(s){
   const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
-    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
+    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen && funktionAn('verleihen') ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
       <span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span></span></button>`;
 }
@@ -1506,6 +1553,7 @@ function linkAnzeige(url){
   try{ const u = new URL(url); return u.hostname.replace(/^www\./, '') + (/\.pdf$/i.test(u.pathname) ? ' · PDF' : ''); }catch(e){ return url; }
 }
 function anleitungHtml(sp, kopien){
+  if (!funktionAn('anleitung')) return '';
   const a = anleitungVon(sp, kopien), darf = darfBearbeiten(sp.hid);
   const fremd = a && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
   return `<div class="anleitung">
@@ -2062,7 +2110,7 @@ function zeileHtml(g){
     <span class="zeile-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
     <span class="zeile-text"><span class="zeile-name">${esc(s.name)}</span>${faktenHtml(s)}
       <span class="zeile-haushalte">${g.kopien.map(k => `<span>${figur(farbeVon(k.hid), 13)}${esc((D.haushalte[k.hid] || {}).name || '')}${k.ausgeliehenVon ? ' (ausgeliehen)' : ''}</span>`).join('')}</span>
-      <span class="zuletzt">${esc(seitText(ZL.get(nameSchluessel(s.name))))}</span></span></button>`;
+      ${funktionAn('gespielt') ? `<span class="zuletzt">${esc(seitText(ZL.get(nameSchluessel(s.name))))}</span>` : ''}</span></button>`;
 }
 function renderRunde(){
   const el = $('#runde-inhalt');
@@ -2119,10 +2167,10 @@ function renderRundeErgebnis(){
   ZL = zuletztMap();
   const gruppen = rundeTreffer();
   el.innerHTML = `<div class="ergebnis-kopf"><p><b>${gruppen.length}</b>${gruppen.length === 1 ? 'Spiel passt' : 'Spiele passen'}</p>
-      <button class="wuerfel-knopf" type="button" data-wuerfeln ${gruppen.length ? '' : 'disabled'}>${wuerfelHtml('mini-wuerfel', 5)}Würfeln</button></div>
+      ${funktionAn('wuerfeln') ? `<button class="wuerfel-knopf" type="button" data-wuerfeln ${gruppen.length ? '' : 'disabled'}>${wuerfelHtml('mini-wuerfel', 5)}Würfeln</button>` : ''}</div>
     ${gruppen.length ? `<div class="zeilen">${gruppen.map(zeileHtml).join('')}</div>`
       : `<div class="leer" style="padding-top:8px"><p>Für ${R.personen} ${R.personen === 1 ? 'Person' : 'Personen'} mit diesen Wünschen passt gerade kein Spiel. Lockert einen Wunsch oder blendet weitere Haushalte ein.</p></div>`}
-    <div style="margin-top:14px">${rueckblickHtml()}</div>`;
+    ${funktionAn('gespielt') ? `<div style="margin-top:14px">${rueckblickHtml()}</div>` : ''}`;
   bilderBeobachten(el);
 }
 function rundeSpeichern(){ schreiben(LS.runde, R); renderRundeErgebnis(); }
@@ -2326,7 +2374,7 @@ function nochNichtAbgestimmt(t){
 }
 function termineZahlZeigen(){
   const el = $('#termine-zahl'); if (!el) return;
-  const n = Object.values(D.termine || {}).filter(nochNichtAbgestimmt).length;
+  const n = funktionAn('termine') ? Object.values(D.termine || {}).filter(nochNichtAbgestimmt).length : 0;
   el.textContent = n; el.hidden = !n;
 }
 
@@ -2446,7 +2494,8 @@ function terminFestText(t){
   return [
     `🎲 Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
     w.namen.ja.length ? `Dabei: ${w.namen.ja.join(', ')}` : '',
-    (() => { const top = t.spiele.map(x => ({ x, n:terminSpielZahl(t, x).n })).filter(y => y.n).sort((a, b) => b.n - a.n).slice(0, 3);
+    (() => { if (!funktionAn('spielvorschlaege')) return '';
+      const top = t.spiele.map(x => ({ x, n:terminSpielZahl(t, x).n })).filter(y => y.n).sort((a, b) => b.n - a.n).slice(0, 3);
       return top.length ? `🎯 Auf dem Tisch: ${top.map(y => `${y.x.name} (${y.n} 👍)`).join(', ')}` : ''; })(),
     'Wir freuen uns!'
   ].filter(Boolean).join('\n');
@@ -2482,7 +2531,7 @@ function terminFormular(t){
   const neu = !t;
   if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
   if (!neu && !darfTermin(t)) return;
-  const sichtbar = haushaltListe();
+  const sichtbar = haushaltListe().filter(h => funktionAn('termine', h.id) || (t && t.haushalte.includes(h.id)) || h.id === E.meinHaushalt);
   const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
     haushalte:sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
   const orteVorher = t ? terminOrte(w) : [{ id:neueId('w'), hid:w.gastgeber, text:'', pos:0, stand:0 }];
@@ -2499,8 +2548,8 @@ function terminFormular(t){
     <label class="feld"><span class="feld-titel">Titel</span><input class="eingabe" name="titel" value="${esc(w.titel)}" maxlength="60" autocomplete="off"></label>
     <div class="feld"><span class="feld-titel">Wo?</span>
       <div data-orte>${orteVorher.map(ortZeile).join('')}</div>
-      <button class="knopf zweit breit" type="button" data-mehr-ort>${ic('plus')}Weiteren Ort zur Abstimmung</button>
-      <p class="block-hinweis" style="margin-top:6px">Mehr als ein Ort: Alle stimmen auch über den Ort ab.</p></div>
+      ${funktionAn('orte') ? `<button class="knopf zweit breit" type="button" data-mehr-ort>${ic('plus')}Weiteren Ort zur Abstimmung</button>
+      <p class="block-hinweis" style="margin-top:6px">Mehr als ein Ort: Alle stimmen auch über den Ort ab.</p>` : ''}</div>
     <div class="feld"><span class="feld-titel">Mögliche Termine</span>
       <div data-zeiten>${w.optionen.map(zeile).join('')}</div>
       <button class="knopf zweit breit" type="button" data-mehr>${ic('plus')}Weiteren Termin</button></div>
@@ -2516,7 +2565,7 @@ function terminFormular(t){
     $$('[data-weg-ort]', orteEl).forEach(b => b.style.visibility = $$('[data-ortzeile]', orteEl).length > 1 ? 'visible' : 'hidden');
   };
   zeilenPruefen();
-  $('[data-mehr-ort]', s).addEventListener('click', () => {
+  if ($('[data-mehr-ort]', s)) $('[data-mehr-ort]', s).addEventListener('click', () => {
     if ($$('[data-ortzeile]', orteEl).length >= 6){ toast('Höchstens 6 Orte.', 'fehler'); return; }
     const schon = $$('[data-gast]', orteEl).map(x => x.value);
     const frei = sichtbar.find(h => !schon.includes(h.id));
@@ -2563,13 +2612,15 @@ function terminFormular(t){
     let festOrt = mehrOrte && w.festOrt && orte.some(o => o.id === w.festOrt) ? w.festOrt : '';
     if (mehrOrte && festgelegt && !festOrt){ festgelegt = ''; }
     const wo = mehrOrte ? orte.find(o => o.id === festOrt) : orte[0];
-    const fertig = terminNorm({
+    let fertig = terminNorm({
       ...w, id, titel:feldVon(form, 'titel').value.trim() || 'Spieleabend', notiz:feldVon(form, 'notiz').value.trim(),
       gastgeber:wo ? wo.hid : '', ort:wo ? wo.text : '',      // für ältere App-Versionen
       orte, haushalte, optionen, geloescht, stand:jetzt,
       erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : (orte[0] || {}).hid || '') : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
       festgelegt, festOrt, festStand:(festgelegt !== w.festgelegt || festOrt !== w.festOrt) ? jetzt : (w.festStand || 0)
     });
+    // Stimmen, die während des Bearbeitens dazugekommen sind, bleiben erhalten
+    if (!neu && D.termine[id]) fertig = terminMischen(fertig, D.termine[id]);
     D.termine[id] = fertig;
     markiereT(id, neu ? 'Termine vorgeschlagen' : 'Termine geändert');
     KL['termin-' + id] = true; schreiben(LS.klapp, KL);
@@ -2581,6 +2632,7 @@ function terminFormular(t){
 function terminFestlegen(t){
   if (!darfTermin(t)) return;
   const fertig = (zeitId, ortId) => {
+    t = D.termine[t.id] || t;    // aktueller Stand
     t.festgelegt = zeitId; t.festOrt = ortId || ''; t.festStand = Date.now();
     const wo = festerOrt(t); t.gastgeber = wo ? wo.hid : ''; t.ort = wo ? wo.text : ''; t.stand = Date.now();   // für ältere App-Versionen
     markiereT(t.id, 'Termin festgelegt'); speichern(); renderAlles(); syncBald();
@@ -2661,7 +2713,7 @@ function terminLinkOhneApp(){
 }
 /* Link „…#termin=<id>“ öffnet die Termine und klappt die Umfrage auf */
 function terminLinkPruefen(){
-  const m = /termin=([A-Za-z0-9_-]+)/.exec(location.hash || ''); if (!m) return;
+  const m = /termin=([A-Za-z0-9_-]+)/.exec(location.hash || ''); if (!m || (E.token && !funktionAn('termine'))) return;
   KL['termin-' + m[1]] = true; schreiben(LS.klapp, KL);
   if (istStandalone()) history.replaceState(null, '', location.pathname + location.search);
   seiteZeigen('termine');
@@ -2691,6 +2743,7 @@ function verliehenNorm(v){
 }
 function verleihText(v){ return v ? ((D.haushalte[v.hid] || {}).name || v.name || 'jemand anderen') : ''; }
 function verleihHtml(sp){
+  if (!funktionAn('verleihen')) return '';
   const v = sp.verliehen, darf = darfBearbeiten(sp.hid);
   if (!v && !darf) return '';
   return v
@@ -2759,6 +2812,7 @@ function spielerName(pid){
   return '?';
 }
 function gespieltHtml(sp){
+  if (!funktionAn('gespielt')) return '';
   const liste = partienZu(sp.name);
   return `<div class="anleitung">
     <p class="anleitung-kopf">${ic('pokal')}Gespielt</p>
@@ -2785,12 +2839,12 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
       <p class="block-hinweis">Mehrere antippen bei einem Team. Ohne Gewinner geht auch.</p></div>
     <div class="sheet-fuss">${eintrag ? `<button class="knopf gefahr" type="button" data-weg>${ic('muell')}Löschen</button>` : '<button class="knopf rahmen" type="button" data-zu>Abbrechen</button>'}<button class="knopf" type="submit">Speichern</button></div></form>`, { klasse:'gross' });
   const f = $('form', s);
-  const mein = D.haushalte[E.meinHaushalt];
-  const fertig = text => { markiere(mein.id, text); speichern(); s.schliessen(); renderAlles(); syncBald(); if (danach) setTimeout(danach, 240); };
+  const fertig = text => { markiere(E.meinHaushalt, text); speichern(); s.schliessen(); renderAlles(); syncBald(); if (danach) setTimeout(danach, 240); };
   f.addEventListener('submit', e => {
     e.preventDefault();
     const d = feldVon(f, 'datum').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(d)){ toast('Bitte ein Datum wählen.', 'fehler'); return; }
     const gewinner = $$('[data-gruppe="gewinner"] .chip[aria-pressed="true"]', s).map(c => c.dataset.wert);
+    const mein = D.haushalte[E.meinHaushalt]; if (!mein) return;
     const p = partieNorm({ id:eintrag ? eintrag.id : neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
     mein.partien = [...(mein.partien || []).filter(x => x.id !== p.id), p];
     toast(gewinner.length ? `Eingetragen – 🏆 ${gewinner.map(spielerName).join(', ')}` : 'Eingetragen');
@@ -2798,13 +2852,14 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
   });
   const weg = $('[data-weg]', s);
   if (weg) weg.addEventListener('click', () => {
+    const mein = D.haushalte[E.meinHaushalt]; if (!mein) return;
     mein.partien = (mein.partien || []).filter(x => x.id !== eintrag.id); mein.geloescht[eintrag.id] = Date.now();
     toast('Partie gelöscht'); fertig(`${sp.name}: Partie gelöscht`);
   });
 }
 /* „Das spielen wir!“ beim Würfeln: gleich als gespielt eintragen (Gewinner später) */
 function heuteGespielt(sp){
-  if (!meinHaushaltGueltig()) return false;
+  if (!meinHaushaltGueltig() || !funktionAn('gespielt')) return false;
   const mein = D.haushalte[E.meinHaushalt], k = nameSchluessel(sp.name), d = heute();
   if ((mein.partien || []).some(p => p.datum === d && nameSchluessel(p.name) === k)) return false;
   mein.partien = [...(mein.partien || []), partieNorm({ id:neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner:[], stand:Date.now() })];
@@ -2855,7 +2910,8 @@ function spieleVorschlagHtml(t, meine){
   const vorbei = terminVorbei(t);
   const liste = t.spiele.map(x => ({ x, ...terminSpielZahl(t, x) })).sort((a, b) => b.n - a.n || a.x.name.localeCompare(b.x.name, 'de'));
   const fest = t.optionen.find(o => o.id === t.festgelegt);
-  const nachher = fest && fest.zeit.slice(0, 10) <= heute() && meinHaushaltGueltig();
+  const nachher = fest && fest.zeit.slice(0, 10) <= heute() && meinHaushaltGueltig() && funktionAn('gespielt');
+  if (!funktionAn('spielvorschlaege')) return nachher ? `<button class="knopf zweit breit" type="button" data-t="gespielt" data-id="${esc(t.id)}" style="margin-top:12px">${ic('pokal')}Gespielt eintragen</button>` : '';
   if (!liste.length && (vorbei || !meine) && !nachher) return '';
   return `<p class="termin-abschnitt">Was spielen wir?</p>
     ${liste.map(({ x, n, namen }) => `<div class="option">
@@ -2875,6 +2931,7 @@ function spielVorschlagen(t){
   const gruppen = gruppieren(alleSpiele().filter(s => !t.haushalte.length || t.haushalte.includes(s.hid))).filter(g => !schon.has(nameSchluessel(g.haupt.name)));
   if (!gruppen.length){ toast('Alle Spiele der eingeladenen Haushalte sind schon vorgeschlagen.'); return; }
   spielAuswahl('Spiel vorschlagen', gruppen, sp => {
+    t = D.termine[t.id]; if (!t) return;
     t.spiele.push({ id:neueId('v'), name:sp.name, sid:sp.id, shid:sp.hid, von:E.meinHaushalt, stand:Date.now() });
     markiereT(t.id, `${sp.name} vorgeschlagen`); speichern(); renderTermine(); syncBald(); toast(`„${sp.name}“ vorgeschlagen`);
   }, 'Spiele der eingeladenen Haushalte. Die anderen tippen dann 👍 an.');
@@ -2956,7 +3013,7 @@ function haushaltAktion(was, id){
    Ein Haushalt (ohne Admin-Rechte) schlägt eine neue Familie vor. Die Anfrage steht in seiner eigenen Datei.
    Der Admin gibt sie frei: Er legt den Haushalt an und wählt den Spielkreis. Danach teilt der anfragende
    Haushalt den persönlichen Einladungslink selbst – oder der Admin schickt ihn ihm. */
-function darfAnfragen(){ return rechteAktiv() && !E.admin && meinHaushaltGueltig() && !!E.token; }
+function darfAnfragen(){ return rechteAktiv() && !E.admin && meinHaushaltGueltig() && !!E.token && funktionAn('anfragen'); }
 function meineFreigabe(hid){
   const h = D.haushalte[E.meinHaushalt];
   return !!(h && hid && (h.anfragen || []).some(a => a.status === 'frei' && a.hid === hid && D.haushalte[hid]));
@@ -3008,7 +3065,6 @@ function anfrageAdminText(h, namen){
 }
 function anfrageFormular(){
   if (!darfAnfragen()) return;
-  const mein = D.haushalte[E.meinHaushalt];
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>Neue Familie dazuholen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <p class="text-leise" style="margin-top:-4px">Neue Haushalte legt der Admin an und bestimmt, wer wessen Spiele sieht. Schreib, wen ihr einladen möchtet – nach der Freigabe findest du hier den Einladungslink zum Weiterschicken.</p>
@@ -3022,6 +3078,7 @@ function anfrageFormular(){
     const namen = namenListe(feldVon(f, 'namen').value).map(n => n.slice(0, 40));
     if (!namen.length){ toast('Bitte einen Namen eintragen.', 'fehler'); feldVon(f, 'namen').focus(); return; }
     const jetzt = Date.now(), notiz = feldVon(f, 'notiz').value.trim();
+    const mein = D.haushalte[E.meinHaushalt]; if (!mein) return;
     mein.anfragen = [...(mein.anfragen || []), ...namen.map((name, i) => anfrageNorm({ id:neueId('a'), name, notiz, erstellt:jetzt + i, stand:jetzt, status:'offen' }))];
     markiere(mein.id, `Anfrage: ${namen.join(', ')}`);
     KL['anfragen-eigen'] = true; schreiben(LS.klapp, KL);
@@ -3046,8 +3103,9 @@ function anfrageAktion(was, id, hid){
     markiere(mein.id, `Anfrage ${a.name} entfernt`); speichern(); renderAlles(); syncBald();
   }
 }
-async function anfrageAblehnen(h, a){
-  if (!await frage(`${a.name} nicht freigeben?`, `${h.name} sieht dann bei seiner Anfrage „nicht freigegeben“.`, 'Nicht freigeben')) return;
+async function anfrageAblehnen(h0, a0){
+  if (!await frage(`${a0.name} nicht freigeben?`, `${h0.name} sieht dann bei seiner Anfrage „nicht freigegeben“.`, 'Nicht freigeben')) return;
+  const h = D.haushalte[h0.id], a = h && (h.anfragen || []).find(x => x.id === a0.id); if (!a) return;
   a.status = 'nein'; a.stand = Date.now();
   markiere(h.id, `Anfrage ${a.name} abgelehnt`); speichern(); renderAlles(); syncBald();
 }
@@ -3085,7 +3143,8 @@ function anfrageFreigeben(h, a){
       markiereV(`${name} in ${k.name}`);
     }
     D.verwaltung = verwaltungNorm(D.verwaltung);
-    a.status = 'frei'; a.hid = id; a.stand = jetzt;
+    const h2 = D.haushalte[h.id], a2 = h2 && (h2.anfragen || []).find(x => x.id === a.id);
+    if (a2){ a2.status = 'frei'; a2.hid = id; a2.stand = jetzt; }
     markiere(h.id, `Anfrage ${a.name} freigegeben`);
     speichern(); s.schliessen(); renderAlles(); syncBald();
     setTimeout(() => freigabeFertig(h, id), 260);
@@ -3136,13 +3195,15 @@ function spielerBearbeiten(hid, pid){
   f.addEventListener('submit', e => {
     e.preventDefault();
     const name = feldVon(f, 't').value.trim().slice(0, 30); if (!name) return;
-    if (name !== x.name){ x.name = name; x.stand = Date.now(); h.spieler.sort(nachName); markiere(hid, `Mitspieler ${name} umbenannt`); speichern(); renderAlles(); syncBald(); }
+    const h2 = D.haushalte[hid], x2 = h2 && (h2.spieler || []).find(y => y.id === pid);   // aktueller Stand (ein Abgleich kann ihn ersetzt haben)
+    if (x2 && name !== x2.name){ x2.name = name; x2.stand = Date.now(); h2.spieler.sort(nachName); markiere(hid, `Mitspieler ${name} umbenannt`); speichern(); renderAlles(); syncBald(); }
     s.schliessen();
   });
   $('[data-weg]', s).addEventListener('click', async () => {
     s.schliessen();
     if (!await frage(`${x.name} entfernen?`, `${x.name} steht dann nicht mehr bei ${h.name}.`, 'Entfernen')) return;
-    h.spieler = h.spieler.filter(y => y.id !== pid); h.geloescht[pid] = Date.now();
+    const h2 = D.haushalte[hid]; if (!h2) return;
+    h2.spieler = h2.spieler.filter(y => y.id !== pid); h2.geloescht[pid] = Date.now();
     R.anwesend = (R.anwesend || []).filter(id => id !== pid); schreiben(LS.runde, R);
     markiere(hid, `Mitspieler ${x.name} entfernt`); speichern(); renderAlles(); syncBald();
   });
@@ -3234,8 +3295,8 @@ function einladenHtml(){
   if (!E.admin && rechteAktiv()){
     return mein ? `<p class="text-leise" style="margin:0 0 12px">Für ein weiteres Handy oder Tablet von <b>${esc(mein.name)}</b>: Link teilen und auf dem Gerät öffnen – es gehört dann gleich zu euch.</p>
         <button class="knopf breit" type="button" data-einladen="${esc(mein.id)}">${ic('teilen')}Link für weiteres Gerät teilen</button>
-        <p class="text-leise" style="margin:16px 0 10px">Ihr möchtet eine <b>neue Familie</b> dazuholen? Der Admin gibt sie frei, danach schickt ihr ihr den Link selbst.</p>
-        <button class="knopf zweit breit" type="button" data-anf="neu">${ic('plus')}Neue Familie dazuholen</button>`
+        ${darfAnfragen() ? `<p class="text-leise" style="margin:16px 0 10px">Ihr möchtet eine <b>neue Familie</b> dazuholen? Der Admin gibt sie frei, danach schickt ihr ihr den Link selbst.</p>
+        <button class="knopf zweit breit" type="button" data-anf="neu">${ic('plus')}Neue Familie dazuholen</button>` : ''}`
       : '<p class="text-leise" style="margin:0">Wähle zuerst deinen Haushalt.</p>';
   }
   const liste = haushaltListe(true), vorwahl = (liste.find(h => h.id !== E.meinHaushalt) || liste[0] || {}).id;
@@ -3326,6 +3387,7 @@ function renderEinstellungen(){
   const v = $('#verwaltung');
   if (!v) return;
   v.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) verwaltungAktion(b.dataset.v, b.dataset.kreis); });
+  v.addEventListener('change', e => { const c = e.target.closest('[data-fkt]'); if (c) funktionUmschalten(c.dataset.kreis, c.dataset.fkt, c.checked); });
   v.addEventListener('wahl', e => {
     const g = e.target; if (g.dataset.gruppe !== 'kreis-mitglieder') return;
     const k = D.verwaltung.kreise.find(x => x.id === g.dataset.kreis); if (!k) return;
@@ -3345,16 +3407,16 @@ const HILFE = [
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
-  { id:'verliehen', titel:'Verliehen', seite:'spiele', text:`
+  { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
     <p>In der <b>Spielrunde</b> zählt das Spiel dann beim Haushalt, der es gerade hat. Ist es bei jemandem außerhalb der App, taucht es dort nicht auf. Ist es wieder da: <b>Zurück</b> tippen.</p>` },
-  { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', text:`
+  { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
     <ul><li>Nach dem Spielen: Spiel antippen → <b>Gespielt eintragen</b>, Datum und Gewinner wählen (mehrere bei einem Team).</li>
     <li>Beim Würfeln trägt <b>Das spielen wir!</b> das Spiel gleich für heute ein – den Gewinner trägst du später beim Spiel nach (Stift neben der Partie).</li>
     <li>Nach einem festen Termin gibt es dort <b>Gespielt eintragen</b> für alle Spiele des Abends.</li>
     <li>Unter <b>Spielrunde → Rückblick</b>: am meisten gespielt, lange nicht gespielt, die meisten Siege. Jede Zeile in der Spielrunde zeigt, wann ihr das Spiel zuletzt gespielt habt.</li>
     <li>Der <b>Würfel</b> bevorzugt Spiele, die lange nicht oder noch nie gespielt wurden.</li></ul>` },
-  { id:'anleitung', titel:'Spielanleitung', seite:'spiele', text:`
+  { id:'anleitung', titel:'Spielanleitung', seite:'spiele', fkt:'anleitung', text:`
     <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
     <li><b>Als PDF suchen</b> sucht die Anleitung im Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
     <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
@@ -3371,7 +3433,7 @@ const HILFE = [
     <li><b>Weitere Wünsche</b>: verfügbare Zeit und Art des Spiels.</li>
     <li>Hat mehr als ein Haushalt dasselbe Spiel, erscheint es nur einmal – mit allen Spielfiguren.</li>
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
-  { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', text:`
+  { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', fkt:'termine', text:`
     <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Ort (Gastgeber), mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
     <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
     <li><b>Wo?</b> Ein Ort ist ein Gastgeber-Haushalt und/oder eine Adresse. Mit <b>+ Weiteren Ort zur Abstimmung</b> schlägst du mehrere vor – dann stimmen alle auch über den Ort ab.</li>
@@ -3395,7 +3457,8 @@ const HILFE = [
     <li>Ein Haushalt in keinem Kreis sieht nur die eigenen Spiele.</li>
     <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li>
     <li>Unter <b>Admin-Geräte</b> sieht der Admin, wo er angemeldet ist, und kann andere Geräte aus der Ferne abmelden.</li>
-    <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li></ul>
+    <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li>
+    <li><b>Funktionen</b>: In jedem Spielkreis schaltet der Admin einzelne Funktionen ein oder aus – z. B. Termine, Würfeln, Verleihen. Ein Haushalt in mehreren Spielkreisen bekommt eine Funktion, sobald sie in einem davon an ist. Für Haushalte ohne Spielkreis gilt „Funktionen ohne Spielkreis“. Auf Admin-Geräten ist immer alles an.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
     <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>` },
   { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
@@ -3414,12 +3477,14 @@ const HILFE = [
   { id:'sicherung', titel:'Datensicherung', seite:'einstellungen', text:`
     <p>Einstellungen → <b>Daten</b>: Sicherung herunterladen (alle Spieldaten ohne Fotos) und bei Bedarf wieder einspielen. Die Fotos liegen im Repo auf GitHub.</p>` }
 ];
+function hilfeListe(){ return HILFE.filter(h => !h.fkt || funktionAn(h.fkt)); }
 function hilfeSheet(){
-  const zuerst = HILFE.find(h => h.seite === aktiveSeite) || HILFE[0];
+  const liste = hilfeListe();
+  const zuerst = liste.find(h => h.seite === aktiveSeite) || liste[0];
   const s = sheet(`<div class="sheet-kopf"><h2>Hilfe</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <label class="suche" style="display:block;margin-bottom:10px"><span class="sr">In der Hilfe suchen</span>${ic('suche')}<input type="search" data-hilfe-suche placeholder="In der Hilfe suchen" autocomplete="off"></label>
     <p class="text-leise" data-hilfe-leer style="display:none">Dazu steht nichts in der Hilfe.</p>
-    ${HILFE.map(h => `<details class="klapp hilfe-teil" data-hilfe="${h.id}"${h === zuerst ? ' open' : ''}><summary><span class="klapp-titel">${h.titel}</span><small></small>${ic('pfeil')}</summary><div class="innen">${h.text}</div></details>`).join('')}
+    ${liste.map(h => `<details class="klapp hilfe-teil" data-hilfe="${h.id}"${h === zuerst ? ' open' : ''}><summary><span class="klapp-titel">${h.titel}</span><small></small>${ic('pfeil')}</summary><div class="innen">${h.text}</div></details>`).join('')}
     <p class="fuss">Spieleabend ${VERSION}</p>`, { klasse:'gross' });
   const feld = $('[data-hilfe-suche]', s);
   feld.addEventListener('input', () => hilfeFiltern(s, feld.value, zuerst.id));
@@ -3427,7 +3492,7 @@ function hilfeSheet(){
 function hilfeFiltern(s, eingabe, standardId){
   const q = eingabe.trim().toLowerCase();
   let treffer = 0;
-  for (const h of HILFE){
+  for (const h of hilfeListe()){
     const d = $(`[data-hilfe="${h.id}"]`, s), innen = $('.innen', d), titel = $('.klapp-titel', d);
     innen.innerHTML = h.text; titel.textContent = h.titel;
     if (!q){ d.style.display = ''; d.open = h.id === standardId; continue; }
@@ -3455,6 +3520,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.58', datum:'24.10.2026', neu:[
+    'Admin: Funktionen je Spielkreis ein- und ausschalten – Termine, Ortsabstimmung, „Was spielen wir?“, Würfeln, Gespielt, Spielanleitung, Verleihen, Neue Familie dazuholen',
+    'Eigene Einstellung für Haushalte ohne Spielkreis; auf Admin-Geräten ist immer alles an',
+    'Ausgeschaltete Funktionen verschwinden auch aus der Hilfe; ohne Termine fällt der Reiter weg'] },
   { v:'v1.57', datum:'24.10.2026', neu:[
     'Termine: „Was spielen wir?“ – Spiele vorschlagen, jeder tippt 👍 an; die beliebtesten stehen im Text „Es steht fest …“',
     'Kalendereintrag mit Erinnerung einen Tag vorher',
@@ -3643,18 +3712,35 @@ function verwaltungHtml(){
         <div class="innen">
           <div class="chips" data-gruppe="kreis-mitglieder" data-kreis="${esc(k.id)}" data-mehrfach="1">${alle.map(h =>
             `<button type="button" class="chip figur-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(h.id)}" aria-pressed="${k.haushalte.includes(h.id)}">${figur(h.farbe, 17)}${esc(h.name)}</button>`).join('')}</div>
+          <div style="margin-top:12px">${klapp('kreis-fkt-' + k.id, 'Funktionen', funktionenSchalterHtml(k.id, k.aus), { klasse:'leicht', klein:funktionenKurz(k.aus) })}</div>
           <div class="hh-knoepfe" style="margin-top:12px">
             <button class="knopf zweit" type="button" data-v="kreis-name" data-kreis="${esc(k.id)}">${ic('stift')}Umbenennen</button>
             <button class="knopf gefahr" type="button" data-v="kreis-weg" data-kreis="${esc(k.id)}">${ic('muell')}Löschen</button>
           </div>
         </div></details>`; }).join('')}
     <button class="knopf breit" type="button" data-v="kreis-neu" style="margin-top:4px">${ic('plus')}Neuen Spielkreis anlegen</button>
+    <div style="margin-top:14px">${klapp('v-funktionen', V.kreise.length ? 'Funktionen ohne Spielkreis' : 'Funktionen',
+      `<p class="text-leise text-klein" style="margin:0 0 6px">${V.kreise.length ? 'Gilt für Haushalte, die in keinem Spielkreis sind. Für die anderen stellst du die Funktionen im jeweiligen Spielkreis ein.' : 'Gilt für alle Haushalte. Sobald es Spielkreise gibt, stellst du die Funktionen je Spielkreis ein.'} Auf Admin-Geräten ist immer alles an.</p>
+      ${funktionenSchalterHtml('', V.aus)}`, { klasse:'leicht', klein:funktionenKurz(V.aus) })}</div>
     ${V.kreise.length ? `<div style="margin-top:14px">${klapp('v-wer-sieht', 'Wer sieht wen?', werSiehtWenHtml(), { klasse:'leicht' })}</div>` : ''}
     <div style="margin-top:6px">${klapp('v-geraete', 'Admin-Geräte', adminGeraeteHtml(), { klasse:'leicht', klein:`${V.adminGeraete.length}` })}</div>
     <div class="hh-knoepfe" style="margin-top:14px">
       <button class="knopf rahmen" type="button" data-v="pin-neu">PIN ändern</button>
       <button class="knopf rahmen" type="button" data-v="abmelden">Admin abmelden</button>
     </div>`;
+}
+function funktionenKurz(aus){ const n = FUNKTIONEN.filter(f => aus.includes(f.k)).length; return n ? `${n} aus` : 'alle an'; }
+function funktionenSchalterHtml(kreisId, aus){
+  return FUNKTIONEN.map(f => `<label class="schalter-zeile${f.unter ? ' unter' : ''}"><span><b>${esc(f.t)}</b><small>${esc(f.b)}</small></span>
+    <input type="checkbox" class="schalter" data-fkt="${f.k}" data-kreis="${esc(kreisId)}"${aus.includes(f.k) ? '' : ' checked'}${f.unter && aus.includes(f.unter) ? ' disabled' : ''} aria-label="${esc(f.t)}"></label>`).join('');
+}
+function funktionUmschalten(kreisId, key, an){
+  if (!E.admin) return;
+  const V = D.verwaltung, jetzt = Date.now();
+  const neu = liste => an ? liste.filter(x => x !== key) : [...new Set([...liste, key])].sort();
+  if (kreisId){ const k = V.kreise.find(x => x.id === kreisId); if (!k) return; k.aus = neu(k.aus); k.stand = jetzt; markiereV(`${k.name}: ${key} ${an ? 'an' : 'aus'}`); }
+  else { V.aus = neu(V.aus); V.ausStand = jetzt; markiereV(`Funktion ${key} ${an ? 'an' : 'aus'}`); }
+  speichern(); renderAlles(); syncBald();
 }
 function werSiehtWenHtml(){
   return `<ul class="verlauf">${haushaltListe(true).map(h => {
@@ -3762,12 +3848,13 @@ async function verwaltungAktion(was, kreisId){
     if (V.pinHash && !E.admin){ toast('Es gibt schon eine Admin-PIN.', 'fehler'); return; }
     const pin = await pinSheet(true); if (!pin) return;
     const salz = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
-    Object.assign(V, { pinSalz:salz, pinHash:await sha256(`${salz}:${pin}`), pinStand:Date.now() });
+    const hash = await sha256(`${salz}:${pin}`);
+    Object.assign(D.verwaltung, { pinSalz:salz, pinHash:hash, pinStand:Date.now() });
     adminEintragen();
     aendern('Admin-PIN festgelegt'); toast('PIN gespeichert – du bist Admin');
   }
   if (was === 'anmelden'){
-    const pin = await pinSheet(false, async p => await sha256(`${V.pinSalz}:${p}`) === V.pinHash); if (!pin) return;
+    const pin = await pinSheet(false, async p => await sha256(`${D.verwaltung.pinSalz}:${p}`) === D.verwaltung.pinHash); if (!pin) return;
     adminEintragen(); aendern(`Admin-Anmeldung ${geraetName()}`); toast('Du bist jetzt Admin auf diesem Gerät');
   }
   if (was === 'abmelden'){
@@ -3790,19 +3877,21 @@ async function verwaltungAktion(was, kreisId){
   if (was === 'kreis-neu'){
     const name = await textFrage('Neuer Spielkreis', { label:'Name des Spielkreises', platzhalter:'z. B. Familie B & C', knopf:'Anlegen' }); if (!name) return;
     const id = neueId('k');
-    V.kreise.push({ id, name, haushalte:meinHaushaltGueltig() ? [E.meinHaushalt] : [], stand:Date.now() });
-    D.verwaltung = verwaltungNorm(V);
+    D.verwaltung.kreise.push({ id, name, haushalte:meinHaushaltGueltig() ? [E.meinHaushalt] : [], stand:Date.now() });
+    D.verwaltung = verwaltungNorm(D.verwaltung);
     KL['kreis-' + id] = true; schreiben(LS.klapp, KL);
     aendern(`Spielkreis ${name} angelegt`); toast('Jetzt die Haushalte des Spielkreises antippen');
   }
   const k = V.kreise.find(x => x.id === kreisId);
   if (was === 'kreis-name' && k){
     const name = await textFrage('Spielkreis umbenennen', { wert:k.name, label:'Name des Spielkreises' }); if (!name || name === k.name) return;
-    k.name = name; k.stand = Date.now(); D.verwaltung = verwaltungNorm(V); aendern(`Spielkreis ${name} umbenannt`);
+    const k2 = D.verwaltung.kreise.find(x => x.id === kreisId); if (!k2) return;
+    k2.name = name; k2.stand = Date.now(); D.verwaltung = verwaltungNorm(D.verwaltung); aendern(`Spielkreis ${name} umbenannt`);
   }
   if (was === 'kreis-weg' && k){
     if (!await frage(`„${k.name}“ löschen?`, V.kreise.length === 1 ? 'Ohne Spielkreise sieht danach wieder jeder alle Spiele.' : 'Die Haushalte dieses Kreises sehen sich danach nur noch, wenn sie in einem anderen Kreis zusammen sind.', 'Löschen')) return;
-    V.kreise = V.kreise.filter(x => x.id !== k.id); V.geloescht[k.id] = Date.now();
+    const V2 = D.verwaltung;
+    V2.kreise = V2.kreise.filter(x => x.id !== k.id); V2.geloescht[k.id] = Date.now();
     aendern(`Spielkreis ${k.name} gelöscht`);
   }
 }
@@ -4048,6 +4137,7 @@ function renderSeite(name){
   if (name === 'termine') renderTermine();
 }
 function renderAlles(){
+  funktionenAnpassen();
   renderSpiele();
   termineZahlZeigen(); anfragenZahlZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
@@ -4139,6 +4229,7 @@ function start(){
   geraetKennung();
   const eingeladen = einladungPruefen();
   verdrahten();
+  funktionenAnpassen();
   installHinweis();
   seiteZeigen('spiele');
   terminLinkPruefen();
