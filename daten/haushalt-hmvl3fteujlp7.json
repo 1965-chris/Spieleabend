@@ -79,9 +79,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Deutschlandreise",
-   "anleitung": "",
+   "anleitung": "https://share.google/EleFo87euSCzbqNkV",
    "erstellt": 1792882311086,
-   "geaendert": 1792882311086
+   "geaendert": 1792882438440
   },
   {
    "id": "smvmpi5egc06c",
@@ -656,7 +656,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792882312879,
+   "zuletzt": 1792882440370,
    "name": "",
    "nameStand": 0
   },
