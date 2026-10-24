@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.64",
+ "app": "v1.65",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -236,6 +236,18 @@
    "id": "pmvlejsgaz739",
    "name": "Verena",
    "stand": 1792786090186
+  }
+ ],
+ "geraete": [
+  {
+   "id": "gmvmsq2m8zrb6",
+   "art": "iPhone",
+   "app": false,
+   "version": "v1.65",
+   "erst": 1792870366996,
+   "zuletzt": 1792870366996,
+   "name": "",
+   "nameStand": 0
   }
  ],
  "geloescht": {}
