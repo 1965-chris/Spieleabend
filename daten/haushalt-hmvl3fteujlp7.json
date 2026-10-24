@@ -513,9 +513,23 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792875164293,
-   "zuletzt": 1792875164293,
+   "zuletzt": 1792875708043,
    "name": "",
    "nameStand": 0
+  }
+ ],
+ "nachrichten": [
+  {
+   "id": "nmvmvwkkrjamg",
+   "art": "wunsch",
+   "text": "Bei Terminplanung eine neue Ruprik für Event, Kino, Grillen, Bowling , Budybush usw.",
+   "von": "Christian",
+   "betrifft": [],
+   "erstellt": 1792875706155,
+   "stand": 1792875706155,
+   "status": "offen",
+   "statusStand": 0,
+   "verlauf": []
   }
  ],
  "geloescht": {
