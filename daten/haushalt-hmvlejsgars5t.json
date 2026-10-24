@@ -27,6 +27,25 @@
    "geaendert": 1792863333223
   },
   {
+   "id": "smvmoku8vvvf6",
+   "name": "Ligretto",
+   "bild": "bilder/smvmoku8vvvf6-mvmoku8v.jpg",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 15,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863401503,
+   "geaendert": 1792863401503
+  },
+  {
    "id": "smvmohapumyhm",
    "name": "Slip-Bo",
    "bild": "bilder/smvmohapumyhm-mvmohapx.jpg",
