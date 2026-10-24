@@ -99,7 +99,7 @@
   {
    "id": "smvmno7u64sf5",
    "name": "Hitster Schlager-Paty",
-   "bild": "",
+   "bild": "bilder/smvmno7u64sf5-mvmnoyle.jpg",
    "spielerMin": 2,
    "spielerMax": 10,
    "alterAb": 16,
@@ -114,8 +114,13 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Hitster",
    "anleitung": "",
+   "bildPos": {
+    "x": 12.2,
+    "y": 0,
+    "z": 2.5
+   },
    "erstellt": 1792861879470,
-   "geaendert": 1792861879470
+   "geaendert": 1792861914146
   },
   {
    "id": "smvl4jqa6tocg",
