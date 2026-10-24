@@ -267,7 +267,7 @@
   {
    "id": "smvmpdkc4czoa",
    "name": "Rummikub",
-   "bild": "",
+   "bild": "bilder/smvmpdkc4czoa-mvmpg2cq.jpg",
    "spielerMin": 2,
    "spielerMax": 4,
    "alterAb": 7,
@@ -281,8 +281,13 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Rummikub",
    "anleitung": "https://www.spielregeln.de/wp-content/uploads/2012/02/Spielanleitung_Rummikub.pdf",
+   "bildPos": {
+    "x": 0,
+    "y": 0,
+    "z": 1
+   },
    "erstellt": 1792864741684,
-   "geaendert": 1792864760900
+   "geaendert": 1792864858345
   },
   {
    "id": "smvmlo90hrl0k",
@@ -395,7 +400,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792864744248,
+   "zuletzt": 1792864860657,
    "name": "",
    "nameStand": 0
   },
