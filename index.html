@@ -266,6 +266,22 @@ a.knopf{text-decoration:none}
 .anfrage-status.offen{background:color-mix(in srgb, var(--gelb) 22%, var(--karte));color:var(--tinte)}
 .anfrage-status.nein{background:color-mix(in srgb, var(--rot) 12%, var(--karte));color:var(--rot)}
 .anfrage-notiz{font-size:14px;color:var(--leise);margin:0}
+.feld[hidden]{display:none}
+.nachricht-zeile{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;padding:11px 0;border:0;border-top:1px solid var(--linie);background:none;color:inherit;font:inherit;cursor:pointer}
+.nachricht-zeile:first-child{border-top:0;padding-top:2px}
+.nachricht-kopf{display:flex;align-items:center;gap:7px;font-size:15px}
+.nachricht-art{font-size:13px;color:var(--leise)}
+.nachricht-text{font-size:14.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nachricht-fuss{font-size:12.5px;color:var(--leise);display:flex;align-items:center;gap:6px}
+.nachricht-zeile.neu .nachricht-fuss{color:var(--filz);font-weight:700}
+.neu-punkt{width:8px;height:8px;border-radius:50%;background:var(--rot);flex:none}
+.nachricht-meta{display:flex;align-items:center;gap:7px;margin:-4px 0 4px;flex-wrap:wrap}
+.nachricht-betrifft{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:14px;margin:0 0 12px}
+.nachricht-betrifft span{display:inline-flex;align-items:center;gap:4px}
+.blasen{display:flex;flex-direction:column;gap:8px}
+.blase{max-width:86%;align-self:flex-start;background:var(--grund);border-radius:16px 16px 16px 4px;padding:9px 12px;font-size:15px;overflow-wrap:anywhere}
+.blase.eigen{align-self:flex-end;background:var(--filz-hell);border-radius:16px 16px 4px 16px}
+.blase small{display:block;margin-top:4px;font-size:11.5px;color:var(--leise)}
 .anfrage-knoepfe{display:flex;gap:8px}
 .anfrage-knoepfe .knopf{flex:1;min-height:40px;font-size:14.5px;padding:0 10px}
 /* Spielanleitung */
@@ -646,7 +662,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
     <button type="button" data-seite="runde"><svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg>Spielrunde</button>
     <button type="button" data-seite="termine"><span class="tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.6-4.6"/></svg><span class="tab-zahl" id="termine-zahl" hidden></span></span>Termine</button>
     <button type="button" data-seite="haushalte"><span class="tab-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg><span class="tab-zahl" id="haushalte-zahl" hidden></span></span>Haushalte</button>
-    <button type="button" data-seite="einstellungen"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Einstellungen</button>
+    <button type="button" data-seite="einstellungen"><span class="tab-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="tab-zahl" id="einstellungen-zahl" hidden></span></span>Einstellungen</button>
   </div>
 </nav>
 
@@ -659,7 +675,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.65';
+const VERSION = 'v1.66';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -672,7 +688,8 @@ const FUNKTIONEN = [
   { k:'gespielt', t:'Gespielt & Rückblick', b:'Partien mit Gewinner, Ranglisten' },
   { k:'anleitung', t:'Spielanleitung', b:'Link zur Anleitung oder zum Erklärvideo' },
   { k:'verleihen', t:'Verleihen', b:'Vermerk, wenn ein Spiel ausgeliehen ist' },
-  { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' }
+  { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' },
+  { k:'nachrichten', t:'Nachricht an den Admin', b:'Auffälligkeiten und Wünsche in der App melden' }
 ];
 /* Wertungsarten für den Punkteblock */
 const WERTUNGEN = [
@@ -695,7 +712,7 @@ const DAUERN = [15,30,45,60,90,120,180];
 const LS = {
   daten:'spieleabend.daten', einst:'spieleabend.einst', filter:'spieleabend.filter', runde:'spieleabend.runde',
   log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis',
-  klapp:'spieleabend.aufgeklappt', block:'spieleabend.punkteblock'
+  klapp:'spieleabend.aufgeklappt', block:'spieleabend.punkteblock', gelesen:'spieleabend.gelesen'
 };
 
 /* ---------- Speicher ---------- */
@@ -758,6 +775,8 @@ function klapp(id, titel, inhalt, { standard=false, zwingend=false, klein='', kl
 function istStandalone(){ return window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches; }
 
 const ICONS = {
+  haken:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  brief:'<rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4.5 7.5l7.5 5.5 7.5-5.5"/>',
   personen:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.8 14.1c2.3.2 4.1 1.7 4.7 4.4"/>',
   kuchen:'<path d="M5 20h14v-6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0"/><path d="M12 12V8.5"/><path d="M12 6c.8-.6.8-1.6 0-2.5-.8.9-.8 1.9 0 2.5z"/>',
   uhr:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
@@ -788,7 +807,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
 const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','geloescht']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
 const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand']);
 const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
@@ -798,6 +817,23 @@ function geraetNorm(g){
     name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0 };
 }
 function geraeteSort(a, b){ return a.erst - b.erst || a.id.localeCompare(b.id); }
+/* Nachrichten an den Admin: liegen in der Datei des Haushalts, der sie geschickt hat. Antworten des Admins kommen in den Verlauf. */
+const NACHRICHT_ARTEN = [
+  { k:'fehler', t:'Fehler / Auffälligkeit', e:'🐞' },
+  { k:'wunsch', t:'Änderungswunsch', e:'💡' },
+  { k:'kreis', t:'Haushalt / Spielkreis', e:'🏠' },
+  { k:'sonst', t:'Sonstiges', e:'💬' }
+];
+const NACHRICHT_FELDER = new Set(['id','art','text','von','betrifft','erstellt','stand','status','statusStand','verlauf']);
+function nachrichtNorm(n){
+  const verlauf = (Array.isArray(n.verlauf) ? n.verlauf : []).filter(x => x && x.id && String(x.text || '').trim())
+    .map(x => ({ id:String(x.id), admin:!!x.admin, text:String(x.text).trim().slice(0, 1000), zeit:zahl(x.zeit) || 0 }))
+    .sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id));
+  return { ...unbekannte(n, NACHRICHT_FELDER), id:String(n.id), art:NACHRICHT_ARTEN.some(a => a.k === n.art) ? n.art : 'sonst',
+    text:String(n.text || '').trim().slice(0, 1000), von:String(n.von || '').trim().slice(0, 30),
+    betrifft:Array.isArray(n.betrifft) ? [...new Set(n.betrifft.map(String))].slice(0, 20) : [],
+    erstellt:zahl(n.erstellt) || 0, stand:zahl(n.stand) || 0, status:n.status === 'erledigt' ? 'erledigt' : 'offen', statusStand:zahl(n.statusStand) || 0, verlauf };
+}
 const ANFRAGE_STATUS = ['offen', 'frei', 'nein'];
 function anfrageNorm(a){
   return { id:String(a.id), name:String(a.name || '').trim().slice(0, 40), notiz:String(a.notiz || '').slice(0, 200), erstellt:zahl(a.erstellt) || 0, stand:zahl(a.stand) || 0,
@@ -861,6 +897,7 @@ function haushaltNorm(h){
     anfragen:(Array.isArray(h.anfragen) ? h.anfragen : []).filter(a => a && a.id && String(a.name || '').trim()).map(anfrageNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
     partien:(Array.isArray(h.partien) ? h.partien : []).filter(x => x && x.id).map(partieNorm).filter(x => x.datum && x.name).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id)),
     geraete:(Array.isArray(h.geraete) ? h.geraete : []).filter(x => x && x.id).map(geraetNorm).filter(x => x.zuletzt > grenze).sort(geraeteSort),
+    nachrichten:(Array.isArray(h.nachrichten) ? h.nachrichten : []).filter(x => x && x.id && String(x.text || '').trim()).map(nachrichtNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
     geloescht:g
   };
 }
@@ -868,7 +905,7 @@ function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
     ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}),
-    ...(n.geraete.length ? { geraete:n.geraete } : {}), geloescht:n.geloescht };
+    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
@@ -907,7 +944,17 @@ function zusammenfuehren(lokal, fern){
     ge.set(x.id, { ...basis, erst:Math.min(x.erst || basis.erst, y.erst || basis.erst), name:nm.name, nameStand:nm.nameStand });
   }
   const geraete = [...ge.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= Math.max(x.zuletzt, x.nameStand))).sort(geraeteSort);
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, geloescht:tomb };
+  // Nachrichten: Verlauf beider Seiten zusammenführen, Status nach eigenem Stand
+  const na = new Map();
+  for (const x of B.nachrichten) na.set(x.id, x);
+  for (const x of A.nachrichten){
+    const y = na.get(x.id); if (!y){ na.set(x.id, x); continue; }
+    const vl = new Map(); for (const v of [...y.verlauf, ...x.verlauf]) vl.set(v.id, v);
+    const st = x.statusStand >= y.statusStand ? x : y, basis = x.stand >= y.stand ? x : y;
+    na.set(x.id, nachrichtNorm({ ...basis, verlauf:[...vl.values()], status:st.status, statusStand:st.statusStand, stand:Math.max(x.stand, y.stand) }));
+  }
+  const nachrichten = [...na.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id));
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -3800,6 +3847,9 @@ function renderEinstellungen(){
 
     ${klapp('e-einladen', E.admin || !rechteAktiv() ? 'Haushalte einladen' : 'Weiteres Gerät einladen', einladenHtml())}
 
+    ${nachrichtenMoeglich() ? klapp('e-nachrichten', E.admin ? 'Nachrichten' : 'Nachricht an den Admin', `<div id="nachrichten">${nachrichtenHtml()}</div>`,
+      { zwingend:nachrichtenNeuZahl() > 0, klein:nachrichtenNeuZahl() ? `<span class="neu-punkt"></span>${nachrichtenNeuZahl()} neu` : (E.admin ? `${sichtbareNachrichten().filter(x => x.n.status !== 'erledigt').length} offen` : '') }) : ''}
+
     ${E.admin ? klapp('e-nutzung', 'Wer nutzt die App?', `<div id="nutzung">${nutzungHtml()}</div>`, { klein:`${nutzungZahl()} Gerät${nutzungZahl() === 1 ? '' : 'e'}` }) : ''}
 
     ${adminBereichSichtbar() ? klapp('e-admin', 'Spielkreise & Admin', `<div id="verwaltung">${verwaltungHtml()}</div>`,
@@ -3835,6 +3885,10 @@ function renderEinstellungen(){
   $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
   $('#e-neu').addEventListener('click', allesNeuLaden);
   const nu = $('#nutzung'); if (nu) nu.addEventListener('click', e => { const b = e.target.closest('[data-geraet]'); if (b) geraetSheet(b.dataset.geraet); });
+  const na = $('#nachrichten'); if (na) na.addEventListener('click', e => {
+    const b = e.target.closest('[data-nachricht]'); if (b){ nachrichtSheet(b.dataset.nachricht); return; }
+    if (e.target.closest('[data-nachricht-neu]')) nachrichtFormular();
+  });
   const v = $('#verwaltung');
   if (!v) return;
   v.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) verwaltungAktion(b.dataset.v, b.dataset.kreis); });
@@ -3924,6 +3978,10 @@ const HILFE = [
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
     <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
     <li>Die <b>Pfeile</b> gleichen sofort mit GitHub ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
+  { id:'nachrichten', titel:'Nachricht an den Admin', seite:'einstellungen', fkt:'nachrichten', text:`
+    <p>Dir ist etwas aufgefallen, du hast einen Änderungswunsch – oder ein neuer Haushalt soll mit anderen in einen Spielkreis? Unter <b>Einstellungen → Nachricht an den Admin</b> (oder im ℹ-Fenster) schreibst du es dem Admin.</p>
+    <p>Wähle, worum es geht. Bei <b>Haushalt / Spielkreis</b> tippst du die Haushalte an, die zusammengehören – der Admin kann den Spielkreis dann mit einem Tipp anlegen.</p>
+    <p>Die Antwort des Admins erscheint in derselben Nachricht, die Zahl am Zahnrad zeigt Neues an. Sehen können die Nachrichten in der App nur der Admin und euer Haushalt.</p>` },
   { id:'abgleich', titel:'Abgleich – der Punkt an den Pfeilen', seite:'einstellungen', text:`
     <p class="punkt-zeile"><span class="punkt" data-k="ok"></span>Grün: alles abgeglichen.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="laeuft"></span>Gelb: gleicht gerade ab oder wartet.</p>
@@ -3979,6 +4037,11 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.66', datum:'24.10.2026', neu:[
+    'Nachricht an den Admin: Auffälligkeiten, Änderungswünsche oder „neuer Spielkreis bitte“ direkt in der App schicken (Einstellungen oder ℹ-Fenster)',
+    'Der Admin antwortet in der Nachricht und markiert sie als erledigt; bei Spielkreis-Wünschen legt er den Kreis mit einem Tipp an',
+    'Sichtbar nur für den Admin und den Haushalt, der geschrieben hat – Neues zeigt eine Zahl am Zahnrad'
+  ]},
   { v:'v1.65', datum:'24.10.2026', neu:[
     'Verliehene Spiele: Die Kachel zeigt, bei wem das Spiel jetzt steht („jetzt bei …“ bzw. „jetzt bei euch“)',
     'Filter nach Haushalt zeigt auch die Spiele, die dieser Haushalt gerade ausgeliehen hat',
@@ -4176,6 +4239,7 @@ function infoSheet(){
       <select class="eingabe" data-info-wahl>${VERSIONEN.map(x => `<option value="${x.v}"${x.v === VERSION ? ' selected' : ''}>${x.v} – ${x.datum}${x.v === VERSION ? ' (installiert)' : ''}</option>`).join('')}</select></label>
     <div data-info-text></div>
     <button class="knopf zweit breit" type="button" data-info-hilfe style="margin-top:6px">${ic('frage', 'style="color:var(--rot)"')}Hilfe öffnen</button>
+    ${nachrichtenMoeglich() && !E.admin ? `<button class="knopf zweit breit" type="button" data-info-nachricht style="margin-top:10px">${ic('brief')}Nachricht an den Admin</button>` : ''}
     <p class="info-dank">Entwickelt von <b>Christian Mättig</b><br>in Kooperation mit <b>Claude</b> (Anthropic)</p>
     <button class="knopf breit" type="button" data-zu>Schließen</button>`);
   const wahl = $('[data-info-wahl]', s), text = $('[data-info-text]', s);
@@ -4187,6 +4251,7 @@ function infoSheet(){
   }
   wahl.addEventListener('change', zeigen); zeigen();
   $('[data-info-hilfe]', s).addEventListener('click', () => { s.schliessen(); setTimeout(hilfeSheet, 230); });
+  const nb = $('[data-info-nachricht]', s); if (nb) nb.addEventListener('click', () => { s.schliessen(); setTimeout(() => nachrichtFormular(), 230); });
   neuesteVersion().then(neu => {
     const stand = $('[data-info-stand]', s); if (!stand) return;
     if (!neu){ stand.textContent = 'offline'; stand.classList.add('grau'); return; }
@@ -4294,6 +4359,164 @@ function pinSheet(neu, pruefen=null){
     });
   });
 }
+/* ---------- Nachrichten an den Admin ----------
+   Sichtbar für den Admin und den Haushalt, der sie geschickt hat. Gelesen-Stand wird pro Gerät gemerkt. */
+let GL = lesen(LS.gelesen, {});
+function nachrichtenMoeglich(){ return !!D.verwaltung.pinHash && (E.admin || (!!E.token && meinHaushaltGueltig() && funktionAn('nachrichten'))); }
+function sichtbareNachrichten(){
+  const r = [];
+  for (const h of Object.values(D.haushalte)){
+    if (!E.admin && h.id !== E.meinHaushalt) continue;
+    for (const n of h.nachrichten || []) r.push({ h, n });
+  }
+  return r.sort((a, b) => nachrichtZuletzt(b.n) - nachrichtZuletzt(a.n));
+}
+function nachrichtZuletzt(n){ return Math.max(n.erstellt, n.statusStand, ...n.verlauf.map(v => v.zeit)); }
+/* Neu ist, was die andere Seite geschrieben (oder der Admin erledigt) hat, seit ich die Nachricht zuletzt geöffnet habe */
+function nachrichtNeu(n){
+  const zeiten = E.admin
+    ? (n.status === 'erledigt' ? [] : [n.erstellt, ...n.verlauf.filter(v => !v.admin).map(v => v.zeit)])
+    : [...n.verlauf.filter(v => v.admin).map(v => v.zeit), ...(n.status === 'erledigt' ? [n.statusStand] : [])];
+  return zeiten.length > 0 && Math.max(...zeiten) > (GL[n.id] || 0);
+}
+function nachrichtenNeuZahl(){ return nachrichtenMoeglich() ? sichtbareNachrichten().filter(x => nachrichtNeu(x.n)).length : 0; }
+let nachrichtenVorher = null;
+function nachrichtenZahlZeigen(){
+  const el = $('#einstellungen-zahl'); if (!el) return;
+  const n = nachrichtenNeuZahl(); el.textContent = n; el.hidden = !n;
+  if (nachrichtenVorher !== null && n > nachrichtenVorher) toast(E.admin ? 'Neue Nachricht – siehe Einstellungen' : 'Antwort vom Admin – siehe Einstellungen');
+  nachrichtenVorher = n;
+}
+function artVon(k){ return NACHRICHT_ARTEN.find(a => a.k === k) || NACHRICHT_ARTEN[NACHRICHT_ARTEN.length - 1]; }
+function wannKurz(ts){ return zuletztText(ts); }
+function nachrichtZeileHtml({ h, n }){
+  const a = artVon(n.art), letzte = n.verlauf.length ? n.verlauf[n.verlauf.length - 1] : null, neu = nachrichtNeu(n);
+  return `<button type="button" class="nachricht-zeile${neu ? ' neu' : ''}" data-nachricht="${esc(h.id)}|${esc(n.id)}">
+    <span class="nachricht-kopf">${E.admin ? `${figur(h.farbe, 15)}<b>${esc(h.name)}</b>` : `<b>${a.e} ${esc(a.t)}</b>`}
+      <span class="anfrage-status ${n.status === 'erledigt' ? '' : 'offen'}">${n.status === 'erledigt' ? 'erledigt' : 'offen'}</span></span>
+    ${E.admin ? `<span class="nachricht-art">${a.e} ${esc(a.t)}${n.von ? ` · von ${esc(n.von)}` : ''}</span>` : ''}
+    <span class="nachricht-text">${esc(n.text)}</span>
+    <span class="nachricht-fuss">${neu ? '<span class="neu-punkt"></span>' : ''}${esc(wannKurz(nachrichtZuletzt(n)))}${letzte ? ` · ${letzte.admin ? (E.admin ? 'du hast geantwortet' : 'Antwort vom Admin') : 'neue Rückmeldung'}` : ''}${n.verlauf.length ? ` · ${n.verlauf.length} Antwort${n.verlauf.length === 1 ? '' : 'en'}` : ''}</span>
+  </button>`;
+}
+function nachrichtenHtml(){
+  // Erledigte rutschen in „Erledigt“ – außer es gibt darin etwas Neues zu lesen
+  const alle = sichtbareNachrichten(), oben = x => x.n.status !== 'erledigt' || nachrichtNeu(x.n);
+  const offen = alle.filter(oben), fertig = alle.filter(x => !oben(x));
+  const liste = l => l.map(nachrichtZeileHtml).join('');
+  if (E.admin) return `${offen.length ? liste(offen) : '<p class="text-leise" style="margin:0">Keine offenen Nachrichten.</p>'}
+    ${fertig.length ? `<div style="margin-top:12px">${klapp('nachrichten-fertig', `Erledigt (${fertig.length})`, liste(fertig), { klasse:'leicht' })}</div>` : ''}
+    <p class="block-hinweis">Hier landet, was die Haushalte unter „Nachricht an den Admin“ schicken. Antippen zum Lesen und Antworten.</p>`;
+  return `<p class="text-leise" style="margin:0 0 12px">Dir ist etwas aufgefallen, du hast einen Wunsch – oder ein neuer Haushalt soll in einen Spielkreis? Schreib es dem Admin.</p>
+    <button class="knopf breit" type="button" data-nachricht-neu>${ic('plus')}Neue Nachricht</button>
+    ${alle.length ? `<div style="margin-top:12px">${liste(offen)}${fertig.length ? `<div style="margin-top:10px">${klapp('nachrichten-fertig', `Erledigt (${fertig.length})`, liste(fertig), { klasse:'leicht' })}</div>` : ''}</div>` : ''}
+    <p class="block-hinweis">Sehen können das in der App nur der Admin und euer Haushalt.</p>`;
+}
+function nachrichtFormular(vorwahl){
+  if (!nachrichtenMoeglich() || E.admin) return;
+  const h = D.haushalte[E.meinHaushalt]; if (!h) return;
+  const andere = haushaltListe();
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Nachricht an den Admin</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="feld"><span class="feld-titel">Worum geht’s?</span>${chipsHtml('n-art', NACHRICHT_ARTEN.map(a => ({ w:a.k, t:`${a.e} ${a.t}` })), vorwahl ? [vorwahl] : [], { mehrfach:false })}</div>
+    <div class="feld" data-betrifft${vorwahl === 'kreis' ? '' : ' hidden'}><span class="feld-titel">Welche Haushalte gehören zusammen?</span>${figurChipsHtml('n-hh', [E.meinHaushalt], { liste:andere })}
+      <p class="block-hinweis" style="margin-top:6px">Ein neuer Haushalt taucht hier auf, sobald der Admin ihn angelegt hat. Sonst einfach unten dazuschreiben.</p></div>
+    <label class="feld"><span class="feld-titel">Nachricht</span><textarea class="eingabe" name="text" maxlength="1000" style="min-height:120px" placeholder="z. B. Bitte Familie D mit Familie V und Familie W als neuen Spielkreis anlegen."></textarea></label>
+    ${h.spieler.length ? `<div class="feld"><span class="feld-titel">Wer schreibt? <span class="text-leise" style="font-weight:400">(freiwillig)</span></span>${chipsHtml('n-von', h.spieler.map(x => ({ w:x.name, t:x.name })), [], { mehrfach:false })}</div>` : ''}
+    <p class="block-hinweis" style="margin-top:-4px">Absender: ${esc(h.name)}. Sehen können das in der App nur der Admin und euer Haushalt.</p>
+    <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Senden</button></div></form>`);
+  const f = $('form', s);
+  s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'n-art') $('[data-betrifft]', s).hidden = e.detail[0] !== 'kreis'; });
+  setTimeout(() => { if (vorwahl) feldVon(f, 'text').focus(); }, 300);
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = feldVon(f, 'text').value.trim();
+    if (!text){ toast('Bitte etwas hineinschreiben.', 'fehler'); return; }
+    const art = gewaehlteChips($('[data-gruppe="n-art"]', s))[0] || 'sonst';
+    const vonGr = $('[data-gruppe="n-von"]', s), von = vonGr ? (gewaehlteChips(vonGr)[0] || '') : '';
+    const betrifft = art === 'kreis' ? gewaehlteChips($('[data-gruppe="n-hh"]', s)) : [];
+    const hh = D.haushalte[E.meinHaushalt]; if (!hh){ s.schliessen(); return; }
+    const jetzt = Date.now();
+    hh.nachrichten = [...(hh.nachrichten || []), nachrichtNorm({ id:neueId('n'), art, text, von, betrifft, erstellt:jetzt, stand:jetzt, status:'offen', statusStand:0, verlauf:[] })];
+    markiere(hh.id, 'Nachricht an den Admin'); speichern(); s.schliessen(); renderAlles(); syncBald();
+    toast('Nachricht gesendet');
+  });
+}
+function nachrichtAendern(hid, id, fn, notiz){
+  const h = D.haushalte[hid], n = h && (h.nachrichten || []).find(x => x.id === id); if (!n) return false;
+  fn(n, h); n.stand = Date.now();
+  Object.assign(n, nachrichtNorm(n));
+  markiere(hid, notiz); speichern(); syncBald();
+  return true;
+}
+function nachrichtSheet(wert){
+  const [hid, id] = String(wert).split('|');
+  const finden = () => { const h = D.haushalte[hid]; return h && (h.nachrichten || []).find(x => x.id === id); };
+  let n = finden(); if (!n) return;
+  if (!E.admin && hid !== E.meinHaushalt) return;
+  const h = D.haushalte[hid];
+  const gelesen = () => { GL[id] = Date.now(); schreiben(LS.gelesen, GL); nachrichtenZahlZeigen(); };
+  gelesen();
+  const blase = (text, admin, zeit, wer) => `<div class="blase${admin === E.admin ? ' eigen' : ''}"><div>${esc(text).replace(/\n/g, '<br>')}</div>
+    <small>${esc(wer)} · ${esc(zuletztText(zeit))}</small></div>`;
+  const inhalt = () => {
+    n = finden(); if (!n) return '<p class="text-leise">Diese Nachricht gibt es nicht mehr.</p>';
+    const a = artVon(n.art), bet = n.betrifft.map(x => D.haushalte[x]).filter(Boolean);
+    const darfLoeschen = E.admin || hid === E.meinHaushalt;
+    return `<p class="nachricht-meta">${figur(h.farbe, 16)}<b>${esc(h.name)}</b>${n.von ? ` · ${esc(n.von)}` : ''}
+        <span class="anfrage-status ${n.status === 'erledigt' ? '' : 'offen'}">${n.status === 'erledigt' ? 'erledigt' : 'offen'}</span></p>
+      <p class="nachricht-art" style="margin:0 0 12px">${a.e} ${esc(a.t)}</p>
+      ${bet.length ? `<p class="nachricht-betrifft">Haushalte: ${bet.map(x => `<span>${figur(x.farbe, 14)}${esc(x.name)}</span>`).join('')}</p>` : ''}
+      <div class="blasen">${blase(n.text, false, n.erstellt, n.von || h.name)}
+        ${n.verlauf.map(v => blase(v.text, v.admin, v.zeit, v.admin ? 'Admin' : (h.name))).join('')}</div>
+      ${n.status === 'erledigt' ? `<p class="block-hinweis" style="text-align:center">Als erledigt markiert ${esc(zuletztText(n.statusStand))}${E.admin ? '' : ' – wenn noch etwas fehlt, einfach antworten'}</p>` : ''}
+      <label class="feld" style="margin-top:12px"><span class="sr">Antwort</span><textarea class="eingabe" data-antwort maxlength="1000" style="min-height:80px" placeholder="${E.admin ? 'Antwort an ' + esc(h.name) : 'Noch etwas dazu schreiben'}"></textarea></label>
+      <button class="knopf breit" type="button" data-n="antworten">${E.admin ? 'Antworten' : 'Senden'}</button>
+      ${E.admin ? `<div class="hh-knoepfe" style="margin-top:10px">
+        ${n.status === 'erledigt' ? '<button class="knopf zweit" type="button" data-n="oeffnen">Wieder öffnen</button>' : `<button class="knopf zweit" type="button" data-n="erledigt">${ic('haken')}Erledigt</button>`}
+        ${n.art === 'kreis' && bet.length > 1 ? '<button class="knopf zweit" type="button" data-n="kreis">Spielkreis anlegen</button>' : ''}
+      </div>` : ''}
+      ${darfLoeschen ? `<button class="knopf gefahr breit" type="button" data-n="loeschen" style="margin-top:12px">${ic('muell')}Nachricht löschen</button>` : ''}`;
+  };
+  const s = sheet(`<div class="sheet-kopf"><h2>${E.admin ? 'Nachricht' : 'Nachricht an den Admin'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div><div data-n-inhalt>${inhalt()}</div>`);
+  const neuZeichnen = () => { $('[data-n-inhalt]', s).innerHTML = inhalt(); gelesen(); renderAlles(); };
+  s.addEventListener('click', async e => {
+    const b = e.target.closest('[data-n]'); if (!b) return;
+    const was = b.dataset.n;
+    if (was === 'antworten'){
+      const t = $('[data-antwort]', s).value.trim(); if (!t){ toast('Bitte etwas hineinschreiben.', 'fehler'); return; }
+      nachrichtAendern(hid, id, x => {
+        x.verlauf = [...x.verlauf, { id:neueId('a'), admin:E.admin, text:t, zeit:Date.now() }];
+        if (!E.admin && x.status === 'erledigt'){ x.status = 'offen'; x.statusStand = Date.now(); }
+      }, E.admin ? 'Antwort vom Admin' : 'Nachricht ergänzt');
+      toast(E.admin ? 'Antwort gesendet' : 'Gesendet'); neuZeichnen();
+    }
+    if ((was === 'erledigt' || was === 'oeffnen') && E.admin){
+      nachrichtAendern(hid, id, x => { x.status = was === 'erledigt' ? 'erledigt' : 'offen'; x.statusStand = Date.now(); }, was === 'erledigt' ? 'Nachricht erledigt' : 'Nachricht wieder offen');
+      neuZeichnen();
+    }
+    if (was === 'kreis' && E.admin){
+      const x = finden(); if (!x) return;
+      const bet = x.betrifft.filter(k => D.haushalte[k]);
+      const vorschlag = bet.map(k => D.haushalte[k].name.replace(/^Familie\s+/i, '')).join(' & ').slice(0, 40);
+      const name = await textFrage('Spielkreis anlegen', { wert:vorschlag, label:'Name des Spielkreises', knopf:'Anlegen' }); if (!name) return;
+      const kid = neueId('k');
+      D.verwaltung.kreise.push({ id:kid, name, haushalte:[...bet].sort(), stand:Date.now() });
+      D.verwaltung = verwaltungNorm(D.verwaltung); markiereV(`Spielkreis ${name} angelegt`);
+      nachrichtAendern(hid, id, y => {
+        y.verlauf = [...y.verlauf, { id:neueId('a'), admin:true, text:`Erledigt ✓ Der Spielkreis „${name}“ ist angelegt.`, zeit:Date.now() }];
+        y.status = 'erledigt'; y.statusStand = Date.now();
+      }, 'Spielkreis angelegt');
+      toast(`Spielkreis „${name}“ angelegt`); neuZeichnen();
+    }
+    if (was === 'loeschen'){
+      if (!await frage('Nachricht löschen?', 'Sie verschwindet für den Admin und für euren Haushalt.', 'Löschen')) return;
+      const hh = D.haushalte[hid]; if (!hh) return;
+      hh.nachrichten = (hh.nachrichten || []).filter(x => x.id !== id); hh.geloescht[id] = Date.now();
+      markiere(hid, 'Nachricht gelöscht'); speichern(); syncBald(); s.schliessen(); renderAlles(); toast('Gelöscht');
+    }
+  });
+}
+
 /* ---------- Wer nutzt die App? Jedes Gerät meldet sich beim Abgleich (höchstens alle paar Stunden) ---------- */
 const MELDEN_ALLE = 3 * 3600e3;
 function geraetMelden(){
@@ -4742,7 +4965,7 @@ function renderSeite(name){
 function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
-  termineZahlZeigen(); anfragenZahlZeigen(); blockHinweisZeigen();
+  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
