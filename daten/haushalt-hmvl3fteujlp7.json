@@ -473,7 +473,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792875869176,
+   "zuletzt": 1792875969433,
    "name": "",
    "nameStand": 0
   },
@@ -526,10 +526,17 @@
    "von": "Christian",
    "betrifft": [],
    "erstellt": 1792875706155,
-   "stand": 1792875706155,
+   "stand": 1792875967519,
    "status": "offen",
    "statusStand": 0,
-   "verlauf": []
+   "verlauf": [
+    {
+     "id": "amvmw268upke2",
+     "admin": true,
+     "text": "Wird mit dem nächste update erledigt",
+     "zeit": 1792875967519
+    }
+   ]
   }
  ],
  "geloescht": {
