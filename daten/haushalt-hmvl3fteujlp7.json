@@ -73,7 +73,7 @@
   {
    "id": "smvmnryentu3e",
    "name": "Hitster Music Bingo",
-   "bild": "",
+   "bild": "bilder/smvmnryentu3e-mvmntxam.jpg",
    "spielerMin": 2,
    "spielerMax": 12,
    "alterAb": 16,
@@ -88,8 +88,13 @@
    "bildQuelle": "",
    "link": "",
    "anleitung": "",
+   "bildPos": {
+    "x": 52.9,
+    "y": 33.3,
+    "z": 1
+   },
    "erstellt": 1792862053871,
-   "geaendert": 1792862053871
+   "geaendert": 1792862145742
   },
   {
    "id": "smvmm6fb8wzw4",
