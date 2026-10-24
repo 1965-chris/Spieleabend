@@ -68,11 +68,11 @@
   {
    "id": "smvmpwvne2qnm",
    "name": "Domino Mexican Train",
-   "bild": "",
+   "bild": "bilder/smvmpwvne2qnm-mvmq0iit.jpg",
    "spielerMin": 2,
    "spielerMax": 13,
    "alterAb": 8,
-   "dauer": null,
+   "dauer": 45,
    "kategorien": [],
    "beschreibung": "Mexican Train ist eine beliebte Domino-Variante für 2 bis 13 Spieler, bei der man versucht, als Erster alle eigenen Spielsteine loszuwerden.",
    "bemerkung": "",
@@ -80,7 +80,7 @@
    "link": "",
    "anleitung": "https://www.spielregeln-spielanleitungen.de/spiel/domino-mexican-train/#mexican-train-spielregeln-als-pdf",
    "erstellt": 1792865642810,
-   "geaendert": 1792865702011
+   "geaendert": 1792865812420
   },
   {
    "id": "smvmlb1ssz2x6",
@@ -454,7 +454,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792865644758,
+   "zuletzt": 1792865814435,
    "name": "",
    "nameStand": 0
   },
