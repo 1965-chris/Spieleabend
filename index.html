@@ -194,6 +194,27 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .knopf.gefahr-voll{background:var(--rot);color:#fff}
 .knopf.breit{width:100%}
 a.knopf{text-decoration:none}
+/* Punkteblock */
+.pb-hinweis{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.pb-hinweis span{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pb-zeile{display:grid;grid-template-columns:minmax(0,1fr) auto 96px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--linie)}
+.pb-zeile:first-child{border-top:0}
+.pb-name{display:flex;align-items:center;gap:6px;font-weight:650;min-width:0;overflow:hidden;white-space:nowrap}
+.pb-name span{overflow:hidden;text-overflow:ellipsis}
+.pb-summe{font-family:var(--rund);font-weight:800;font-size:22px;text-align:right;min-width:44px;font-variant-numeric:tabular-nums}
+.pb-summe small{font-size:12px;color:var(--leise);font-weight:600;margin-left:1px}
+.pb-zeile.fuehrt .pb-summe{color:var(--filz)}
+.pb-wert{height:46px;text-align:center;font-size:18px;padding:0 6px}
+.pb-ende{background:color-mix(in srgb, #2E9E5B 13%, var(--karte));border:1.5px solid color-mix(in srgb, #2E9E5B 45%, transparent);border-radius:14px;padding:14px;margin:12px 0 0;text-align:center}
+.pb-ende b{font-family:var(--rund);font-size:20px}
+.pb-platz{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--linie);font-size:16px}
+.pb-platz b{width:28px;font-family:var(--rund);font-size:18px}
+.pb-tabelle-rahmen{overflow-x:auto}
+.pb-tabelle{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.pb-tabelle th,.pb-tabelle td{padding:5px 6px;text-align:right;border-bottom:1px solid var(--linie);white-space:nowrap}
+.pb-tabelle th:first-child,.pb-tabelle td:first-child{text-align:left;color:var(--leise)}
+.pb-tabelle tfoot td{font-weight:800;border-bottom:0}
+.wertung-text{font-size:13.5px;color:var(--leise);margin:2px 0 0}
 /* Funktionen ein-/ausschalten (Admin) */
 .schalter-zeile{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--linie);cursor:pointer}
 .schalter-zeile:first-of-type{border-top:0}
@@ -436,6 +457,16 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .foto-leer .ic{width:36px;height:36px;stroke-width:1.5}
 .foto-vorschau{width:100%;aspect-ratio:4/3;max-height:300px;border-radius:16px}
 .foto-knoepfe{display:flex;gap:8px;margin-top:8px}
+.foto-vorschau.verschiebbar{touch-action:none;cursor:grab;aspect-ratio:1/1;max-height:none;width:min(100%, 320px);margin:0 auto}
+.foto-vorschau.verschiebbar:active{cursor:grabbing}
+.foto-vorschau.verschiebbar::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--filz) 55%, transparent);pointer-events:none}
+.ausschnitt{display:flex;align-items:center;gap:12px;margin-top:10px}
+.ausschnitt-regler{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--leise)}
+.ausschnitt-regler input{flex:1;accent-color:var(--filz)}
+.foto-mini{width:72px;height:54px;border-radius:10px;flex:none;position:relative;overflow:hidden;background:color-mix(in srgb, var(--hf, #888) 22%, var(--karte))}
+.foto-mini img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ausschnitt-hinweis{font-size:13px;color:var(--leise);margin:6px 0 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.ausschnitt-hinweis button{appearance:none;border:0;background:none;color:var(--filz);font-weight:700;font-size:13px;padding:4px 0}
 .foto-knoepfe .knopf{flex:1;min-height:40px;font-size:15px}
 .zwei-spalten{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--linie);border-radius:12px;overflow:hidden;background:var(--karte)}
@@ -549,6 +580,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 <main>
   <div id="update-hinweis"></div>
   <div id="install-hinweis"></div>
+  <div id="block-hinweis"></div>
 
   <!-- Spiele -->
   <section class="seite aktiv" id="seite-spiele" aria-label="Alle Spiele">
@@ -615,7 +647,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.58';
+const VERSION = 'v1.61';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -630,6 +662,14 @@ const FUNKTIONEN = [
   { k:'verleihen', t:'Verleihen', b:'Vermerk, wenn ein Spiel ausgeliehen ist' },
   { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' }
 ];
+/* Wertungsarten für den Punkteblock */
+const WERTUNGEN = [
+  { k:'gewinner', t:'Nur Gewinner', b:'Am Ende den Gewinner antippen.' },
+  { k:'hoch', t:'Punkte – meiste gewinnt', b:'Runde für Runde Punkte eintragen, die App zählt zusammen. Am Ende gewinnt, wer die meisten hat.' },
+  { k:'tief', t:'Punkte – wenigste gewinnt', b:'Runde für Runde Punkte eintragen, die App zählt zusammen. Am Ende gewinnt, wer die wenigsten hat.' },
+  { k:'grenze', t:'Bis zur Grenze', b:'Runden zusammenzählen, bis jemand die Grenze erreicht – dann ist Schluss (z. B. Skyjo bis 100).' },
+  { k:'platz', t:'Platzierung', b:'Die Spieler in der Reihenfolge antippen, in der sie fertig werden (1., 2., 3. …).' }
+];
 const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','geloescht']);
 const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand']);
 function ausListe(a){ return Array.isArray(a) ? [...new Set(a.map(String))].filter(k => /^[a-z]+$/.test(k)).sort() : []; }
@@ -643,7 +683,7 @@ const DAUERN = [15,30,45,60,90,120,180];
 const LS = {
   daten:'spieleabend.daten', einst:'spieleabend.einst', filter:'spieleabend.filter', runde:'spieleabend.runde',
   log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis',
-  klapp:'spieleabend.aufgeklappt'
+  klapp:'spieleabend.aufgeklappt', block:'spieleabend.punkteblock'
 };
 
 /* ---------- Speicher ---------- */
@@ -734,7 +774,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','link','anleitung','verliehen','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geloescht']);
 const ANFRAGE_STATUS = ['offen', 'frei', 'nein'];
@@ -754,6 +794,24 @@ function linkAus(text){
   const url = m[0].replace(/[).,;!?]+$/, '');
   try{ new URL(url); return url.slice(0, 1000); }catch(e){ return ''; }
 }
+/* Bildausschnitt: welcher Teil des Fotos zu sehen ist (x/y in %, Vergrößerung 1–3) */
+function bildPosNorm(p){
+  if (!p || typeof p !== 'object') return null;
+  const k = (v, a, b, d) => { const n = Number(v); return Number.isFinite(n) ? Math.min(b, Math.max(a, Math.round(n * 10) / 10)) : d; };
+  const x = k(p.x, 0, 100, 50), y = k(p.y, 0, 100, 50), z = k(p.z, 1, 3, 1);
+  return x === 50 && y === 50 && z === 1 ? null : { x, y, z };
+}
+function bildAttr(s){
+  if (!s.bild) return '';
+  const p = bildPosNorm(s.bildPos);
+  return ` data-bild="${esc(s.bild)}"${p ? ` data-pos="${p.x} ${p.y} ${p.z}"` : ''}`;
+}
+function bildPosAnwenden(img, p){
+  p = p || { x:50, y:50, z:1 };
+  img.style.objectPosition = `${p.x}% ${p.y}%`;
+  img.style.transformOrigin = `${p.x}% ${p.y}%`;
+  img.style.transform = p.z > 1 ? `scale(${p.z})` : '';
+}
 function spielNorm(s){
   return {
     ...unbekannte(s, SPIEL_FELDER),
@@ -764,6 +822,8 @@ function spielNorm(s){
     bildQuelle:String(s.bildQuelle || ''), link:/^https:\/\//.test(s.link || '') ? s.link : '',
     anleitung:linkAus(s.anleitung),
     ...(verliehenNorm(s.verliehen) ? { verliehen:verliehenNorm(s.verliehen) } : {}),
+    ...(wertungNorm(s.wertung) && wertungNorm(s.wertung).art !== 'gewinner' ? { wertung:wertungNorm(s.wertung) } : {}),
+    ...(bildPosNorm(s.bildPos) ? { bildPos:bildPosNorm(s.bildPos) } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -926,6 +986,8 @@ async function bildEinsetzen(el){
   let img = el.querySelector('img');
   if (!img){ img = document.createElement('img'); img.alt = ''; img.decoding = 'async'; el.appendChild(img); }
   img.src = url; el.classList.add('hat-bild');
+  if (el.dataset.pos){ const [x, y, z] = el.dataset.pos.split(' ').map(Number); bildPosAnwenden(img, { x, y, z }); }
+  el.dispatchEvent(new CustomEvent('bildda', { bubbles:true }));
 }
 function bilderBeobachten(root){ $$('[data-bild]', root).forEach(el => { if (!el.dataset.bild) return; if (bildBeobachter) bildBeobachter.observe(el); else bildEinsetzen(el); }); }
 
@@ -1421,7 +1483,7 @@ function filterAktiv(){
 function karteHtml(s){
   const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
-    <span class="karte-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen && funktionAn('verleihen') ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
+    <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen && funktionAn('verleihen') ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
       <span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span></span></button>`;
 }
@@ -1503,7 +1565,7 @@ function spielDetail(id){
   const h = D.haushalte[sp.hid], farbe = farbeVon(sp.hid);
   const kopien = alleSpiele().filter(x => x.id !== sp.id && nameSchluessel(x.name) === nameSchluessel(sp.name));
   const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <div class="detail-bild" style="--hf:${esc(farbe)}"${sp.bild ? ` data-bild="${esc(sp.bild)}"` : ''}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
+    <div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(sp)}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
     <h2 class="detail-name">${esc(sp.name)}</h2>
     <p class="detail-haushalt">${figur(farbe, 18)}steht bei ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}`).join(', ')}` : ''}</p>
     <div class="fakten-gross">
@@ -1534,6 +1596,7 @@ function spielDetail(id){
     if (v && v.dataset.verl === 'zurueck'){ spielAendern(sp, x => { delete x.verliehen; }, `${sp.name} zurück`); toast('Wieder zu Hause'); neuOeffnen(); }
     const g = e.target.closest('[data-gsp]');
     if (g && g.dataset.gsp === 'neu') partieSheet(sp, { danach:neuOeffnen });
+    if (g && g.dataset.gsp === 'block'){ s.schliessen(); setTimeout(() => punkteblockStart(sp), 240); }
     if (g && g.dataset.gsp === 'bearbeiten'){ const p = allePartien().find(x => x.id === g.dataset.id && x.eigen); if (p) partieSheet(sp, { eintrag:p, danach:neuOeffnen }); }
   });
   if (!darfBearbeiten(sp.hid)) return;
@@ -1970,6 +2033,7 @@ function spielFormular(sp){
   const startHh = sp ? sp.hid : (meinHaushaltGueltig() && sichtbar.some(h => h.id === E.meinHaushalt) ? E.meinHaushalt : sichtbar[0].id);
   const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
   let neuesFoto = null, fotoEntfernt = false, vorschauUrl = null;
+  let pos = bildPosNorm(w.bildPos) || { x:50, y:50, z:1 };      // Bildausschnitt
   let fotoQuelle = '', link = sp ? (sp.link || '') : '';     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>${neu ? 'Spiel eintragen' : 'Spiel bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
@@ -2000,20 +2064,49 @@ function spielFormular(sp){
     if (!neuesFoto && !hatAltes){
       feld.innerHTML = `<button type="button" class="foto-leer" data-foto>${ic('kamera')}Foto der Schachtel aufnehmen</button>`;
     } else {
-      feld.innerHTML = `<div class="foto-vorschau" style="--hf:${esc(farbe())}"${!neuesFoto ? ` data-bild="${esc(w.bild)}"` : ''}>${neuesFoto ? `<img src="${vorschauUrl}" alt="">` : '<span class="platzhalter">…</span>'}</div>
+      feld.innerHTML = `<div class="foto-vorschau verschiebbar" style="--hf:${esc(farbe())}"${!neuesFoto ? ` data-bild="${esc(w.bild)}"` : ''}>${neuesFoto ? `<img src="${vorschauUrl}" alt="">` : '<span class="platzhalter">…</span>'}</div>
+        <div class="ausschnitt"><span class="foto-mini" style="--hf:${esc(farbe())}" title="So sieht die Ansicht aus"><img alt=""></span>
+          <label class="ausschnitt-regler">${ic('suche')}<input type="range" min="1" max="3" step="0.05" value="${pos.z}" data-zoom aria-label="Vergrößern"></label></div>
+        <p class="ausschnitt-hinweis"><span>Bild mit dem Finger verschieben, mit dem Regler vergrößern. Groß: die Kachel, klein: die Ansicht.</span><button type="button" data-mitte>Mitte</button></p>
         <div class="foto-knoepfe"><button type="button" class="knopf zweit" data-foto>${ic('kamera')}Anderes Foto</button><button type="button" class="knopf rahmen" data-foto-weg>Foto entfernen</button></div>`;
       bilderBeobachten(feld);
+      ausschnittZeigen();
     }
   }
+  /* Bildausschnitt: Vorschau und Kachel-Vorschau zeigen pos; Ziehen verschiebt, Regler vergrößert */
+  function ausschnittZeigen(){
+    const haupt = $('.foto-vorschau img', feld), mini = $('.foto-mini img', feld);
+    if (haupt){ bildPosAnwenden(haupt, pos); if (mini && haupt.src && mini.src !== haupt.src) mini.src = haupt.src; }
+    if (mini) bildPosAnwenden(mini, pos);
+  }
+  feld.addEventListener('bildda', ausschnittZeigen);
+  feld.addEventListener('input', e => { if (e.target.matches('[data-zoom]')){ pos = { ...pos, z:Number(e.target.value) }; ausschnittZeigen(); } });
+  let zug = null;
+  feld.addEventListener('pointerdown', e => {
+    const v = e.target.closest('.foto-vorschau'); const img = v && $('img', v); if (!img || !img.naturalWidth) return;
+    e.preventDefault(); v.setPointerCapture(e.pointerId);
+    const cw = v.clientWidth, ch = v.clientHeight, sk = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+    const uw = img.naturalWidth * sk - cw, uh = img.naturalHeight * sk - ch;     // Überstand bei „cover“
+    zug = { id:e.pointerId, x:e.clientX, y:e.clientY, start:{ ...pos }, bx:Math.max(uw * pos.z + (pos.z - 1) * cw, 1), by:Math.max(uh * pos.z + (pos.z - 1) * ch, 1), kannX:uw > 1 || pos.z > 1, kannY:uh > 1 || pos.z > 1 };
+  });
+  feld.addEventListener('pointermove', e => {
+    if (!zug || e.pointerId !== zug.id) return;
+    const g = v => Math.min(100, Math.max(0, Math.round(v * 10) / 10));
+    pos = { ...pos, x:zug.kannX ? g(zug.start.x - (e.clientX - zug.x) / zug.bx * 100) : pos.x, y:zug.kannY ? g(zug.start.y - (e.clientY - zug.y) / zug.by * 100) : pos.y };
+    ausschnittZeigen();
+  });
+  const zugEnde = e => { if (zug && e.pointerId === zug.id) zug = null; };
+  feld.addEventListener('pointerup', zugEnde); feld.addEventListener('pointercancel', zugEnde);
   feld.addEventListener('click', e => {
     if (e.target.closest('[data-foto]')) datei.click();
-    if (e.target.closest('[data-foto-weg]')){ neuesFoto = null; fotoEntfernt = true; fotoZeigen(); }
+    if (e.target.closest('[data-foto-weg]')){ neuesFoto = null; fotoEntfernt = true; pos = { x:50, y:50, z:1 }; fotoZeigen(); }
+    if (e.target.closest('[data-mitte]')){ pos = { x:50, y:50, z:1 }; const r = $('[data-zoom]', feld); if (r) r.value = 1; ausschnittZeigen(); }
   });
   datei.addEventListener('change', async () => {
     const f = datei.files && datei.files[0]; datei.value = ''; if (!f) return;
     feld.innerHTML = `<div class="foto-leer">Foto wird verkleinert …</div>`;
     try{
-      neuesFoto = await fotoVerkleinern(f); fotoQuelle = ''; fotoEntfernt = false;
+      neuesFoto = await fotoVerkleinern(f); fotoQuelle = ''; fotoEntfernt = false; pos = { x:50, y:50, z:1 };
       if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
       vorschauUrl = URL.createObjectURL(neuesFoto);
     }catch(err){ toast(err.message, 'fehler'); }
@@ -2039,7 +2132,7 @@ function spielFormular(sp){
     if (d.beschreibung && !text.value.trim()) text.value = d.beschreibung.slice(0, 600);
     if (d.link) link = d.link;
     if (foto){
-      neuesFoto = foto; fotoEntfernt = false; fotoQuelle = quelle || '';
+      neuesFoto = foto; fotoEntfernt = false; fotoQuelle = quelle || ''; pos = { x:50, y:50, z:1 };
       if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
       vorschauUrl = URL.createObjectURL(foto);
       fotoZeigen();
@@ -2075,6 +2168,7 @@ function spielFormular(sp){
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
       beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
       link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : '')),
+      bildPos: (neuesFoto || (w.bild && !fotoEntfernt)) ? pos : null,
       erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
     });
     if (neuesFoto){
@@ -2107,7 +2201,7 @@ let ZL = new Map();       // zuletzt gespielt (für die Anzeige in der Spielrund
 function zeileHtml(g){
   const s = g.haupt, farbe = farbeVon(s.hid);
   return `<button class="zeile" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
-    <span class="zeile-bild"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
+    <span class="zeile-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span></span>
     <span class="zeile-text"><span class="zeile-name">${esc(s.name)}</span>${faktenHtml(s)}
       <span class="zeile-haushalte">${g.kopien.map(k => `<span>${figur(farbeVon(k.hid), 13)}${esc((D.haushalte[k.hid] || {}).name || '')}${k.ausgeliehenVon ? ' (ausgeliehen)' : ''}</span>`).join('')}</span>
       ${funktionAn('gespielt') ? `<span class="zuletzt">${esc(seitText(ZL.get(nameSchluessel(s.name))))}</span>` : ''}</span></button>`;
@@ -2214,7 +2308,7 @@ function wuerfeln(){
     w.classList.remove('rollt'); wuerfelAugen(w, 6);
     const s = ziel.haupt, farbe = farbeVon(s.hid);
     w.remove(); nameEl.remove();
-    erg.innerHTML = `<div class="detail-bild" style="--hf:${esc(farbe)}"${s.bild ? ` data-bild="${esc(s.bild)}"` : ''}><span class="platzhalter">${esc(initiale(s.name))}</span></div>
+    erg.innerHTML = `<div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span></div>
       <h2 class="detail-name">${esc(s.name)}</h2>${faktenHtml(s)}
       <div class="zeile-haushalte">${ziel.kopien.map(k => `<span>${figur(farbeVon(k.hid), 14)}steht bei ${esc((D.haushalte[k.hid] || {}).name || '')}</span>`).join('')}</div>
       <div class="wurf-knoepfe"><button class="knopf" type="button" data-passt>Das spielen wir!</button><button class="knopf zweit" type="button" data-nochmal>Nochmal würfeln</button></div>`;
@@ -2222,7 +2316,7 @@ function wuerfeln(){
     $('[data-nochmal]', erg).addEventListener('click', () => { zu(); setTimeout(wuerfeln, 220); });
     $('[data-passt]', erg).addEventListener('click', () => {
       zu();
-      if (heuteGespielt(s)) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.');
+      if (funktionAn('gespielt') && meinHaushaltGueltig()) setTimeout(() => punkteblockStart(s, { nurEintragenAnbieten:true }), 220);
     });
   }
   tick();
@@ -2788,15 +2882,48 @@ function standortSpiel(s){
    Jeder Haushalt trägt Partien in seine eigene Datei ein. Haben zwei Haushalte dieselbe Partie
    eingetragen (gleicher Tag, gleiches Spiel, gleiche Gewinner), zählt sie nur einmal. */
 function partieNorm(p){
+  const zahlen = o => { const r = {}; if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)){ const n = Number(v); if (Number.isFinite(n)) r[String(k)] = n; } return r; };
+  const mit = Array.isArray(p.mit) ? [...new Set(p.mit.map(String))].slice(0, 20) : [];
+  const punkte = zahlen(p.punkte), plaetze = zahlen(p.plaetze), w = wertungNorm(p.wertung);
   return { id:String(p.id), datum:/^\d{4}-\d{2}-\d{2}$/.test(p.datum || '') ? p.datum : '', name:String(p.name || '').trim().slice(0, 80),
     sid:String(p.sid || ''), shid:String(p.shid || ''), gewinner:Array.isArray(p.gewinner) ? [...new Set(p.gewinner.map(String))].slice(0, 12) : [],
-    tid:String(p.tid || ''), stand:zahl(p.stand) || 0 };
+    tid:String(p.tid || ''), stand:zahl(p.stand) || 0,
+    // aus dem Punkteblock: Mitspieler, Punkte bzw. Plätze, Anzahl Runden, Wertung
+    ...(mit.length ? { mit } : {}), ...(Object.keys(punkte).length ? { punkte } : {}), ...(Object.keys(plaetze).length ? { plaetze } : {}),
+    ...(zahl(p.runden) ? { runden:zahl(p.runden) } : {}), ...(w && w.art !== 'gewinner' ? { wertung:w } : {}),
+    ...(p.kreis ? { kreis:String(p.kreis) } : {}) };
+}
+/* Wer sieht eine Partie? Nur der Spielkreis, in dem gespielt wurde (und der Admin).
+   Ohne Spielkreis: die Haushalte der Mitspieler und der Haushalt, der gespeichert hat. */
+function spielerHaushalt(pid){
+  if (pid.startsWith('gast:')) return null;
+  if (pid.startsWith('hh:')) return pid.slice(3);
+  const h = Object.values(D.haushalte).find(x => (x.spieler || []).some(y => y.id === pid));
+  return h ? h.id : null;
+}
+function partieHaushalte(von, pids){ return [...new Set([von, ...pids.map(spielerHaushalt)].filter(Boolean))]; }
+function kreisKandidaten(hids){
+  return D.verwaltung.kreise.filter(k => hids.every(h => k.haushalte.includes(h)))
+    .sort((a, b) => a.haushalte.length - b.haushalte.length || a.name.localeCompare(b.name, 'de'));
+}
+function kreisVorschlag(kandidaten){
+  // Passt der in der Spielrunde gewählte Kreis (alle anwesenden Haushalte), nimm den – sonst den kleinsten
+  const sicht = haushaltListe().map(h => h.id), dabei = sicht.filter(id => !(R.ohne || []).includes(id));
+  const runde = kandidaten.find(k => { const ks = k.haushalte.filter(id => sicht.includes(id)); return ks.length === dabei.length && ks.every(id => dabei.includes(id)); });
+  return (runde || kandidaten[0] || {}).id || '';
+}
+function partieSichtbar(p, von){
+  if (E.admin || !kreiseAktiv()) return true;
+  if (!meinHaushaltGueltig()) return false;
+  const k = p.kreis && D.verwaltung.kreise.find(x => x.id === p.kreis);
+  if (k) return k.haushalte.includes(E.meinHaushalt);
+  return partieHaushalte(von, [...(p.mit || []), ...p.gewinner]).includes(E.meinHaushalt);
 }
 function allePartien(){
-  const sicht = sichtbareIds(), m = new Map();
+  const m = new Map();
   for (const h of Object.values(D.haushalte)){
-    if (!sicht.has(h.id)) continue;
     for (const p of h.partien || []){
+      if (!partieSichtbar(p, h.id)) continue;
       const key = `${p.datum}|${nameSchluessel(p.name)}|${[...p.gewinner].sort().join(',')}`;
       const eigen = h.id === E.meinHaushalt, x = m.get(key);
       if (!x || (eigen && !x.eigen)) m.set(key, { ...p, von:h.id, eigen });
@@ -2807,6 +2934,7 @@ function allePartien(){
 function partienZu(name){ const k = nameSchluessel(name); return allePartien().filter(p => nameSchluessel(p.name) === k); }
 function zuletztMap(){ const m = new Map(); for (const p of allePartien()){ const k = nameSchluessel(p.name); if (!m.has(k) || m.get(k) < p.datum) m.set(k, p.datum); } return m; }
 function spielerName(pid){
+  if (pid.startsWith('gast:')) return pid.slice(5);
   if (pid.startsWith('hh:')) return (D.haushalte[pid.slice(3)] || {}).name || '?';
   for (const h of Object.values(D.haushalte)){ const x = (h.spieler || []).find(y => y.id === pid); if (x) return x.name; }
   return '?';
@@ -2817,10 +2945,12 @@ function gespieltHtml(sp){
   return `<div class="anleitung">
     <p class="anleitung-kopf">${ic('pokal')}Gespielt</p>
     <p class="gespielt-zahl">${liste.length ? `${liste.length}× gespielt · zuletzt am ${datumText(liste[0].datum)}` : 'Noch nie gespielt'}</p>
+    ${sp.wertung ? `<p class="wertung-text">Wertung: ${esc(wertungText(sp.wertung))}</p>` : ''}
     ${liste.length ? `<ul class="partien">${liste.slice(0, 6).map(p => `<li><span class="partie-datum">${datumText(p.datum)}</span>
-        <span class="partie-sieger">${p.gewinner.length ? '🏆 ' + esc(p.gewinner.map(spielerName).join(', ')) : 'ohne Gewinner'}</span>
+        <span class="partie-sieger">${partieErgebnisText(p)}</span>
         ${p.eigen ? `<button class="knopf-rund" type="button" data-gsp="bearbeiten" data-id="${esc(p.id)}" aria-label="Partie ändern">${ic('stift')}</button>` : ''}</li>`).join('')}</ul>` : ''}
-    ${meinHaushaltGueltig() ? `<button class="knopf zweit breit" type="button" data-gsp="neu" style="margin-top:10px">${ic('plus')}Gespielt eintragen</button>` : ''}
+    ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${B && B.sid === sp.id ? 'Punkteblock weiter' : 'Punkteblock starten'}</button>
+      <button class="knopf zweit breit" type="button" data-gsp="neu" style="margin-top:8px">${ic('plus')}Nur Gewinner nachtragen</button>` : ''}
   </div>`;
 }
 function gewinnerGruppen(){
@@ -2845,7 +2975,10 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
     const d = feldVon(f, 'datum').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(d)){ toast('Bitte ein Datum wählen.', 'fehler'); return; }
     const gewinner = $$('[data-gruppe="gewinner"] .chip[aria-pressed="true"]', s).map(c => c.dataset.wert);
     const mein = D.haushalte[E.meinHaushalt]; if (!mein) return;
-    const p = partieNorm({ id:eintrag ? eintrag.id : neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
+    const tt = D.termine[eintrag ? eintrag.tid : tid];
+    const kreis = eintrag && eintrag.kreis ? eintrag.kreis
+      : kreisVorschlag(kreisKandidaten([...new Set([...partieHaushalte(mein.id, [...((eintrag && eintrag.mit) || []), ...gewinner]), ...(tt ? tt.haushalte : [])])]));
+    const p = partieNorm({ ...(eintrag || {}), kreis, id:eintrag ? eintrag.id : neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
     mein.partien = [...(mein.partien || []).filter(x => x.id !== p.id), p];
     toast(gewinner.length ? `Eingetragen – 🏆 ${gewinner.map(spielerName).join(', ')}` : 'Eingetragen');
     fertig(`${sp.name} gespielt`);
@@ -2858,11 +2991,12 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
   });
 }
 /* „Das spielen wir!“ beim Würfeln: gleich als gespielt eintragen (Gewinner später) */
-function heuteGespielt(sp){
+function heuteGespielt(sp, mit = [], kreis = null){
   if (!meinHaushaltGueltig() || !funktionAn('gespielt')) return false;
   const mein = D.haushalte[E.meinHaushalt], k = nameSchluessel(sp.name), d = heute();
   if ((mein.partien || []).some(p => p.datum === d && nameSchluessel(p.name) === k)) return false;
-  mein.partien = [...(mein.partien || []), partieNorm({ id:neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner:[], stand:Date.now() })];
+  if (kreis === null) kreis = kreisVorschlag(kreisKandidaten(partieHaushalte(mein.id, mit)));
+  mein.partien = [...(mein.partien || []), partieNorm({ id:neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner:[], mit, kreis, stand:Date.now() })];
   markiere(mein.id, `${sp.name} gespielt`); speichern(); renderAlles(); syncBald();
   return true;
 }
@@ -2957,6 +3091,214 @@ function terminGespielt(t){
   });
   spielAuswahl('Was wurde gespielt?', gruppen, sp => partieSheet(sp, { datum:fest.zeit.slice(0, 10), tid:t.id, danach:() => terminGespielt(t) }),
     'Spiel antippen, Gewinner wählen, speichern – danach geht es mit dem nächsten Spiel weiter.');
+}
+
+/* ---------- Punkteblock: Punkte am Tisch zählen ----------
+   Der laufende Block liegt nur auf diesem Gerät (übersteht auch einen Neustart der App).
+   Am Ende wird das Ergebnis als Partie gespeichert – mit Mitspielern, Punkten bzw. Plätzen und Gewinner. */
+function wertungNorm(w){
+  if (!w || typeof w !== 'object' || !WERTUNGEN.some(x => x.k === w.art)) return null;
+  return { art:w.art, grenze:Math.max(1, Math.min(100000, zahl(w.grenze) || 100)), sieger:w.sieger === 'hoch' ? 'hoch' : 'tief' };
+}
+function wertungText(w){
+  if (!w || w.art === 'gewinner') return 'Nur Gewinner';
+  if (w.art === 'grenze') return `Bis ${w.grenze} Punkte – dann gewinnen die ${w.sieger === 'tief' ? 'wenigsten' : 'meisten'} Punkte`;
+  return WERTUNGEN.find(x => x.k === w.art).t;
+}
+function wenigGewinnt(w){ return !!w && (w.art === 'tief' || (w.art === 'grenze' && w.sieger === 'tief')); }
+let B = lesen(LS.block, null);
+function blockSpeichern(){ schreiben(LS.block, B); blockHinweisZeigen(); }
+function blockHinweisZeigen(){
+  const el = $('#block-hinweis'); if (!el) return;
+  if (!B){ el.innerHTML = ''; return; }
+  const runde = B.w.art === 'gewinner' || B.w.art === 'platz' ? '' : ` · Runde ${B.runden.length + 1}`;
+  el.innerHTML = `<div class="hinweis pb-hinweis"><span>${ic('pokal')}Punkteblock läuft: <b>${esc(B.name)}</b>${runde}</span><button class="knopf" type="button" data-pb-weiter style="min-height:38px;padding:0 14px;flex:none">Weiter</button></div>`;
+  $('[data-pb-weiter]', el).addEventListener('click', punkteblockZeigen);
+}
+function blockSummen(){
+  const s = {}; for (const p of B.mit) s[p.pid] = 0;
+  for (const r of B.runden) for (const [pid, v] of Object.entries(r)) if (pid in s) s[pid] += Number(v) || 0;
+  for (const pid of Object.keys(s)) s[pid] = Math.round(s[pid] * 100) / 100;
+  return s;
+}
+function blockErgebnis(){
+  const art = B.w.art;
+  if (art === 'gewinner') return { gewinner:B.gewinner.slice(), punkte:{}, plaetze:{} };
+  if (art === 'platz'){ const pl = {}; B.plaetze.forEach((pid, i) => { pl[pid] = i + 1; }); return { gewinner:B.plaetze.slice(0, 1), punkte:{}, plaetze:pl }; }
+  const sum = blockSummen(), werte = Object.values(sum);
+  const best = wenigGewinnt(B.w) ? Math.min(...werte) : Math.max(...werte);
+  return { gewinner:B.mit.filter(p => sum[p.pid] === best).map(p => p.pid), punkte:sum, plaetze:{} };
+}
+async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
+  if (!meinHaushaltGueltig()){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
+  if (B){
+    if (B.sid === sp.id){ punkteblockZeigen(); return; }
+    if (!await frage('Neuen Punkteblock anfangen?', `Für „${B.name}“ läuft noch ein Punkteblock. Er wird dabei verworfen.`, 'Neu anfangen')) { punkteblockZeigen(); return; }
+    B = null; blockSpeichern();
+  }
+  const w0 = wertungNorm(sp.wertung) || { art:'gewinner', grenze:100, sieger:'tief' };
+  const anwesend = new Set(R.anwesend || []);
+  const gruppen = gewinnerGruppen();
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Punkteblock: ${esc(sp.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="feld"><span class="feld-titel">Wie wird gewertet?</span>${chipsHtml('pb-art', WERTUNGEN.map(w => ({ w:w.k, t:w.t })), [w0.art], { mehrfach:false, pflicht:true })}
+      <p class="block-hinweis" data-art-text style="margin-top:6px">${esc(WERTUNGEN.find(w => w.k === w0.art).b)}</p></div>
+    <div data-grenze${w0.art === 'grenze' ? '' : ' hidden'}>
+      <label class="feld"><span class="feld-titel">Grenze (Punkte)</span><input class="eingabe" type="number" name="grenze" value="${w0.grenze}" min="1"></label>
+      <div class="feld"><span class="feld-titel">Wer gewinnt, wenn jemand die Grenze erreicht?</span>${chipsHtml('pb-sieger', [{ w:'tief', t:'Wenigste Punkte' }, { w:'hoch', t:'Meiste Punkte' }], [w0.sieger], { mehrfach:false, pflicht:true })}</div></div>
+    ${darfBearbeiten(sp.ausgeliehenVon || sp.hid) ? `<label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="merken" ${sp.wertung ? '' : 'checked'} style="width:22px;height:22px">Diese Wertung für „${esc(sp.name)}“ merken</label>` : ''}
+    <div class="feld"><span class="feld-titel">Wer spielt mit?</span>
+      ${gruppen.map(g => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(g.h.farbe, 14)}${esc(g.h.name)}</p>
+        <div class="chips" data-gruppe="pb-mit" data-mehrfach="1">${g.leute.map(p => `<button type="button" class="chip anw-chip" style="--hf:${esc(g.h.farbe)}" data-wert="${esc(p.pid)}" data-name="${esc(p.name)}" data-farbe="${esc(g.h.farbe)}" aria-pressed="${anwesend.has(p.pid)}">${esc(p.name)}</button>`).join('')}</div></div>`).join('')}
+      <div class="spieler-gruppe"><p class="spieler-hh">Gäste</p><div class="chips" data-gruppe="pb-mit" data-mehrfach="1" data-gaeste></div>
+        <div class="eingabe-reihe" style="margin-top:6px"><input class="eingabe" data-gast placeholder="Name eines Gastes" maxlength="20" autocomplete="off" autocapitalize="words"><button class="knopf zweit" type="button" data-gast-plus>${ic('plus')}</button></div></div></div>
+    ${kreiseAktiv() ? '<div class="feld" data-sichtbar></div>' : ''}
+    <button class="knopf breit" type="submit">Los geht’s</button>
+    ${nurEintragenAnbieten ? `<button class="knopf rahmen breit" type="button" data-nur style="margin-top:10px">Ohne Punkte – nur als gespielt eintragen</button>` : ''}
+  </form>`, { klasse:'gross' });
+  const f = $('form', s);
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe !== 'pb-art') return;
+    const art = e.detail[0]; $('[data-art-text]', s).textContent = (WERTUNGEN.find(w => w.k === art) || {}).b || '';
+    $('[data-grenze]', s).hidden = art !== 'grenze';
+  });
+  const gastDazu = () => {
+    const feld = $('[data-gast]', s), name = feld.value.trim().slice(0, 20); if (!name) return;
+    $('[data-gaeste]', s).insertAdjacentHTML('beforeend', `<button type="button" class="chip anw-chip" data-wert="${esc('gast:' + name)}" data-name="${esc(name)}" data-farbe="#8A93A0" aria-pressed="true">${esc(name)}</button>`);
+    feld.value = ''; feld.focus();
+  };
+  $('[data-gast-plus]', s).addEventListener('click', gastDazu);
+  $('[data-gast]', s).addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); gastDazu(); } });
+  // Wer das Ergebnis später sieht: der Spielkreis, zu dem alle Mitspieler gehören
+  let kreisWahl = null;
+  const gewaehlteMit = () => $$('[data-gruppe="pb-mit"] .chip[aria-pressed="true"]', s).map(c => c.dataset.wert);
+  const sichtbarZeigen = () => {
+    const el = $('[data-sichtbar]', s); if (!el) return;
+    const kand = kreisKandidaten(partieHaushalte(E.meinHaushalt, gewaehlteMit()));
+    if (!kand.some(k => k.id === kreisWahl)) kreisWahl = kreisVorschlag(kand);
+    el.innerHTML = `<span class="feld-titel">Wer sieht das Ergebnis?</span>${kand.length > 1
+      ? `${chipsHtml('pb-kreis', kand.map(k => ({ w:k.id, t:k.name })), [kreisWahl], { mehrfach:false, pflicht:true })}<p class="block-hinweis" style="margin-top:6px">Alle Haushalte des gewählten Spielkreises.</p>`
+      : kand.length ? `<p class="text-klein" style="margin:0">Der Spielkreis <b>${esc(kand[0].name)}</b>.</p>`
+      : '<p class="text-klein" style="margin:0">Die Haushalte der Mitspieler – sie sind in keinem gemeinsamen Spielkreis.</p>'}`;
+  };
+  sichtbarZeigen();
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe === 'pb-mit') sichtbarZeigen();
+    if (e.target.dataset.gruppe === 'pb-kreis') kreisWahl = e.detail[0] || kreisWahl;
+  });
+  $('[data-gaeste]', s).addEventListener('click', () => setTimeout(sichtbarZeigen, 0));
+  const nur = $('[data-nur]', s);
+  if (nur) nur.addEventListener('click', () => { const mit = gewaehlteMit(); s.schliessen(); if (heuteGespielt(sp, mit, kreisWahl || '')) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.'); });
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const art = gewaehlteChips($('[data-gruppe="pb-art"]', s))[0] || 'gewinner';
+    const w = wertungNorm({ art, grenze:feldVon(f, 'grenze').value, sieger:gewaehlteChips($('[data-gruppe="pb-sieger"]', s))[0] });
+    const mit = $$('[data-gruppe="pb-mit"] .chip[aria-pressed="true"]', s).map(c => ({ pid:c.dataset.wert, name:c.dataset.name, farbe:c.dataset.farbe }));
+    if (mit.length < (art === 'gewinner' ? 1 : 2)){ toast(art === 'gewinner' ? 'Bitte antippen, wer mitspielt.' : 'Bitte mindestens zwei Mitspieler antippen.', 'fehler'); return; }
+    const merken = feldVon(f, 'merken');
+    if (merken && merken.checked) spielAendern({ ...sp, hid:sp.ausgeliehenVon || sp.hid }, x => { x.wertung = w; }, `${sp.name}: Wertung`);
+    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:sp.name, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '' };
+    blockSpeichern(); s.schliessen(); setTimeout(punkteblockZeigen, 240);
+  });
+}
+function blockInhaltHtml(){
+  const art = B.w.art;
+  const pName = p => `${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span>`;
+  if (art === 'gewinner'){
+    return `<p class="block-hinweis" style="margin:0 0 10px">Wer hat gewonnen? Antippen (mehrere bei einem Team).</p>
+      <div class="chips">${B.mit.map(p => `<button type="button" class="chip anw-chip" data-pb="sieger" data-pid="${esc(p.pid)}" aria-pressed="${B.gewinner.includes(p.pid)}">${esc(p.name)}</button>`).join('')}</div>
+      <button class="knopf breit" type="button" data-pb="speichern" style="margin-top:16px"${B.gewinner.length ? '' : ' disabled'}>Ergebnis speichern</button>`;
+  }
+  if (art === 'platz'){
+    const offen = B.mit.filter(p => !B.plaetze.includes(p.pid));
+    return `<p class="block-hinweis" style="margin:0 0 10px">Tippe die Spieler in der Reihenfolge an, in der sie fertig werden.</p>
+      ${B.plaetze.map((pid, i) => { const p = B.mit.find(x => x.pid === pid) || { name:'?' }; return `<div class="pb-platz"><b>${i + 1}.</b>${pName(p)}${i === 0 ? ' 🏆' : ''}</div>`; }).join('')}
+      ${offen.length ? `<div class="chips" style="margin-top:10px">${offen.map(p => `<button type="button" class="chip" data-pb="platz" data-pid="${esc(p.pid)}">${esc(p.name)}</button>`).join('')}</div>` : ''}
+      <div class="knopfreihe" style="margin-top:16px">${B.plaetze.length ? '<button class="knopf rahmen" type="button" data-pb="platz-zurueck">Letzten zurück</button>' : ''}
+        <button class="knopf" type="button" data-pb="speichern"${B.plaetze.length >= 1 && !offen.length ? '' : ' disabled'}>Ergebnis speichern</button></div>`;
+  }
+  const sum = blockSummen(), werte = Object.values(sum), wenig = wenigGewinnt(B.w);
+  const fuehrt = B.runden.length ? (wenig ? Math.min(...werte) : Math.max(...werte)) : null;
+  const erg = B.ende ? blockErgebnis() : null;
+  return `<div class="pb-liste">${B.mit.map(p => `<div class="pb-zeile${fuehrt !== null && sum[p.pid] === fuehrt ? ' fuehrt' : ''}">
+      <span class="pb-name">${pName(p)}${fuehrt !== null && sum[p.pid] === fuehrt ? ' 👑' : ''}</span>
+      <span class="pb-summe">${sum[p.pid]}${art === 'grenze' ? `<small>/${B.w.grenze}</small>` : ''}</span>
+      ${B.ende ? '<span></span>' : `<input class="eingabe pb-wert" type="number" step="any" data-pid="${esc(p.pid)}" placeholder="Punkte" aria-label="Punkte für ${esc(p.name)}">`}</div>`).join('')}</div>
+    ${erg ? `<div class="pb-ende"><b>Spielende!</b><p style="margin:6px 0 12px">🏆 ${esc(erg.gewinner.map(pid => (B.mit.find(p => p.pid === pid) || {}).name).join(', '))} mit ${erg.punkte[erg.gewinner[0]]} Punkten</p>
+        <button class="knopf breit" type="button" data-pb="speichern">Ergebnis speichern</button>
+        <button class="knopf rahmen breit" type="button" data-pb="weiter" style="margin-top:8px">Doch weiterspielen</button></div>`
+      : `<button class="knopf breit" type="button" data-pb="runde" style="margin-top:12px">Runde ${B.runden.length + 1} speichern</button>
+        <div class="knopfreihe" style="margin-top:8px">${B.runden.length ? '<button class="knopf rahmen" type="button" data-pb="korrigieren">Letzte Runde ändern</button>' : ''}
+          ${B.runden.length ? '<button class="knopf zweit" type="button" data-pb="beenden">Spiel beenden</button>' : ''}</div>`}
+    ${B.runden.length ? `<div style="margin-top:14px">${klapp('pb-runden', `Runden (${B.runden.length})`, `<div class="pb-tabelle-rahmen"><table class="pb-tabelle"><thead><tr><th></th>${B.mit.map(p => `<th>${esc(p.name)}</th>`).join('')}</tr></thead>
+        <tbody>${B.runden.map((r, i) => `<tr><td>${i + 1}</td>${B.mit.map(p => `<td>${r[p.pid] ?? 0}</td>`).join('')}</tr>`).join('')}</tbody>
+        <tfoot><tr><td>Σ</td>${B.mit.map(p => `<td>${sum[p.pid]}</td>`).join('')}</tr></tfoot></table></div>`, { klasse:'leicht' })}</div>` : ''}`;
+}
+function punkteblockZeigen(){
+  if (!B) return;
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(B.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Später weiter">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-6px">${esc(wertungText(B.w))}</p>
+    <div data-pb-inhalt></div>
+    <button class="knopf gefahr breit" type="button" data-pb-weg style="margin-top:18px">${ic('muell')}Punkteblock verwerfen</button>
+    <p class="block-hinweis">Schließen geht jederzeit – der Punkteblock bleibt auf diesem Gerät erhalten.</p>`, { klasse:'gross', beimSchliessen:blockHinweisZeigen });
+  const el = $('[data-pb-inhalt]', s);
+  const zeichnen = () => { el.innerHTML = blockInhaltHtml(); };
+  zeichnen();
+  el.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.matches('.pb-wert')) return;
+    e.preventDefault();
+    const felder = $$('.pb-wert', el), i = felder.indexOf(e.target);
+    if (i < felder.length - 1) felder[i + 1].focus(); else $('[data-pb="runde"]', el).click();
+  });
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-pb]'); if (!b || b.disabled) return;
+    const was = b.dataset.pb;
+    if (was === 'sieger'){ const pid = b.dataset.pid; B.gewinner = B.gewinner.includes(pid) ? B.gewinner.filter(x => x !== pid) : [...B.gewinner, pid]; blockSpeichern(); zeichnen(); }
+    if (was === 'platz'){ B.plaetze.push(b.dataset.pid); blockSpeichern(); zeichnen(); }
+    if (was === 'platz-zurueck'){ B.plaetze.pop(); blockSpeichern(); zeichnen(); }
+    if (was === 'runde'){
+      const felder = $$('.pb-wert', el);
+      if (!felder.some(x => x.value.trim() !== '')){ toast('Bitte die Punkte der Runde eintragen.', 'fehler'); if (felder[0]) felder[0].focus(); return; }
+      if (felder.some(x => x.value.trim() !== '' && !Number.isFinite(Number(x.value.replace(',', '.'))))){ toast('Bitte nur Zahlen eintragen.', 'fehler'); return; }
+      const r = {}; for (const x of felder) r[x.dataset.pid] = Number(x.value.replace(',', '.')) || 0;
+      B.runden.push(r);
+      if (B.w.art === 'grenze' && Object.values(blockSummen()).some(v => v >= B.w.grenze)) B.ende = true;
+      blockSpeichern(); zeichnen();
+      if (!B.ende){ const erstes = $('.pb-wert', el); if (erstes) erstes.focus(); }
+    }
+    if (was === 'korrigieren'){
+      const r = B.runden.pop(); B.ende = false; blockSpeichern(); zeichnen();
+      if (r) for (const x of $$('.pb-wert', el)) if (x.dataset.pid in r) x.value = r[x.dataset.pid];
+    }
+    if (was === 'beenden'){ B.ende = true; blockSpeichern(); zeichnen(); }
+    if (was === 'weiter'){ B.ende = false; blockSpeichern(); zeichnen(); }
+    if (was === 'speichern'){ blockErgebnisSpeichern(); s.schliessen(); }
+  });
+  $('[data-pb-weg]', s).addEventListener('click', async () => {
+    if (!await frage('Punkteblock verwerfen?', 'Die eingetragenen Punkte gehen verloren. Es wird keine Partie gespeichert.', 'Verwerfen')) return;
+    B = null; blockSpeichern(); s.schliessen(); toast('Punkteblock verworfen');
+  });
+}
+function blockErgebnisSpeichern(){
+  const mein = D.haushalte[E.meinHaushalt]; if (!mein || !B) return;
+  const erg = blockErgebnis();
+  const p = partieNorm({ id:neueId('g'), datum:B.datum, name:B.name, sid:B.sid, shid:B.shid, gewinner:erg.gewinner, mit:B.mit.map(x => x.pid),
+    punkte:erg.punkte, plaetze:erg.plaetze, runden:B.runden.length, wertung:B.w, tid:B.tid || '', kreis:B.kreis || '', stand:Date.now() });
+  // ein „nur gespielt“-Eintrag desselben Tages ohne Ergebnis wird ersetzt
+  const k = nameSchluessel(B.name);
+  mein.partien = [...(mein.partien || []).filter(x => !(x.datum === p.datum && nameSchluessel(x.name) === k && !x.gewinner.length && !(x.mit || []).length)), p];
+  markiere(mein.id, `${B.name} gespielt`);
+  toast(p.gewinner.length ? `Gespeichert – 🏆 ${p.gewinner.map(spielerName).join(', ')}` : 'Gespeichert');
+  B = null; blockSpeichern(); speichern(); renderAlles(); syncBald();
+}
+function partieErgebnisText(p){
+  const namen = ids => ids.map(spielerName).join(', ');
+  if (p.plaetze && Object.keys(p.plaetze).length) return Object.entries(p.plaetze).sort((a, b) => a[1] - b[1]).map(([pid, n]) => `${n}. ${esc(spielerName(pid))}${n === 1 ? ' 🏆' : ''}`).join(' · ');
+  if (p.punkte && Object.keys(p.punkte).length){
+    const wenig = wenigGewinnt(p.wertung);
+    return Object.entries(p.punkte).sort((a, b) => wenig ? a[1] - b[1] : b[1] - a[1])
+      .map(([pid, n]) => `${p.gewinner.includes(pid) ? '🏆 ' : ''}${esc(spielerName(pid))} ${n}`).join(' · ');
+  }
+  return p.gewinner.length ? '🏆 ' + esc(namen(p.gewinner)) : 'ohne Gewinner';
 }
 
 /* ---------- Seite: Haushalte ---------- */
@@ -3406,13 +3748,18 @@ const HILFE = [
     <ul><li>Unten rechts auf <b>+</b> tippen.</li>
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
+    <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler vergrößern – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
     <p>In der <b>Spielrunde</b> zählt das Spiel dann beim Haushalt, der es gerade hat. Ist es bei jemandem außerhalb der App, taucht es dort nicht auf. Ist es wieder da: <b>Zurück</b> tippen.</p>` },
   { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
-    <ul><li>Nach dem Spielen: Spiel antippen → <b>Gespielt eintragen</b>, Datum und Gewinner wählen (mehrere bei einem Team).</li>
-    <li>Beim Würfeln trägt <b>Das spielen wir!</b> das Spiel gleich für heute ein – den Gewinner trägst du später beim Spiel nach (Stift neben der Partie).</li>
+    <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
+    <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
+    <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
+    <li>Der Punkteblock bleibt auf dem Gerät erhalten, auch wenn die App zwischendurch zu ist – oben steht dann <b>Punkteblock läuft … Weiter</b>.</li>
+    <li><b>Wer sieht die Ergebnisse?</b> Nur die Haushalte des Spielkreises, in dem gespielt wurde (und der Admin). Die App nimmt den Kreis, zu dem alle Mitspieler gehören – passen mehrere, wählst du ihn im Punkteblock unter „Wer sieht das Ergebnis?“. Sind die Mitspieler in keinem gemeinsamen Kreis, sehen es nur ihre Haushalte.</li>
+    <li>Ohne Punkteblock: <b>Nur Gewinner nachtragen</b> mit Datum und Gewinner (mehrere bei einem Team).</li>
     <li>Nach einem festen Termin gibt es dort <b>Gespielt eintragen</b> für alle Spiele des Abends.</li>
     <li>Unter <b>Spielrunde → Rückblick</b>: am meisten gespielt, lange nicht gespielt, die meisten Siege. Jede Zeile in der Spielrunde zeigt, wann ihr das Spiel zuletzt gespielt habt.</li>
     <li>Der <b>Würfel</b> bevorzugt Spiele, die lange nicht oder noch nie gespielt wurden.</li></ul>` },
@@ -3520,6 +3867,17 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.61', datum:'24.10.2026', neu:[
+    'Spielergebnisse sieht nur der Spielkreis, in dem gespielt wurde (und der Admin) – egal, welcher Haushalt gespeichert hat',
+    'Punkteblock: „Wer sieht das Ergebnis?“ – passen mehrere Spielkreise, wählst du einen aus'] },
+  { v:'v1.60', datum:'24.10.2026', neu:[
+    'Bildausschnitt: Fotos im Formular verschieben und vergrößern – ihr legt selbst fest, was in Kachel und Ansicht zu sehen ist',
+    'Das große Bild zeigt die Kachel, das kleine die Ansicht; „Mitte“ setzt den Ausschnitt zurück'] },
+  { v:'v1.59', datum:'24.10.2026', neu:[
+    'Punkteblock am Tisch: Runde für Runde Punkte eintragen, die App zählt mit und zeigt, wer vorne liegt',
+    'Wertungen je Spiel: nur Gewinner, meiste Punkte, wenigste Punkte, bis zur Grenze (z. B. Skyjo bis 100) oder Platzierung',
+    'Bei „Bis zur Grenze“ erkennt die App das Spielende selbst; Gäste können mitspielen',
+    'Gespeichert werden Mitspieler, Punkte bzw. Plätze und Gewinner – sichtbar beim Spiel'] },
   { v:'v1.58', datum:'24.10.2026', neu:[
     'Admin: Funktionen je Spielkreis ein- und ausschalten – Termine, Ortsabstimmung, „Was spielen wir?“, Würfeln, Gespielt, Spielanleitung, Verleihen, Neue Familie dazuholen',
     'Eigene Einstellung für Haushalte ohne Spielkreis; auf Admin-Geräten ist immer alles an',
@@ -4139,7 +4497,7 @@ function renderSeite(name){
 function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
-  termineZahlZeigen(); anfragenZahlZeigen();
+  termineZahlZeigen(); anfragenZahlZeigen(); blockHinweisZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
@@ -4230,6 +4588,7 @@ function start(){
   const eingeladen = einladungPruefen();
   verdrahten();
   funktionenAnpassen();
+  blockHinweisZeigen();
   installHinweis();
   seiteZeigen('spiele');
   terminLinkPruefen();
