@@ -27,6 +27,23 @@
    "geaendert": 1792863333223
   },
   {
+   "id": "smvmolqwlg5i6",
+   "name": "Just one",
+   "bild": "bilder/smvmolqwlg5i6-mvmolqwm.jpg",
+   "spielerMin": 3,
+   "spielerMax": 7,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863443830,
+   "geaendert": 1792863443830
+  },
+  {
    "id": "smvmoku8vvvf6",
    "name": "Ligretto",
    "bild": "bilder/smvmoku8vvvf6-mvmoku8v.jpg",
