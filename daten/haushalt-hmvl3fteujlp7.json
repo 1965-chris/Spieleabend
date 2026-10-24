@@ -7,6 +7,26 @@
  "stand": 1792767429031,
  "spiele": [
   {
+   "id": "smvmp3tqd5jpa",
+   "name": "Azul",
+   "bild": "bilder/smvmp3tqd5jpa-mvmp3tqe.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "Azul ist ein Legespiel des deutschen Spieleautors Michael Kiesling, bei dem es darum geht, die Wände des portugiesischen Königspalastes in Evora nach dem Vorbild der südspanischen Alhambra mit prachtvollen Fliesen zu verzieren. Zur Spielvorbereitung bekommt jeder Spieler eine eigene Spielerablage und einen Punktemarker, der auf den Start der Punkteleiste gelegt wird. Entsprechend der Anzahl der Mitspieler werden bis zu neun Manufakturplättchen kreisförmig in die Tischmitte gelegt.\nVon Michael Kiesling, erschienen 2017 bei Plan B Games/Next Move.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Azul_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792864287302,
+   "geaendert": 1792864287302
+  },
+  {
    "id": "smvl5mctidifb",
    "name": "Deutschland: Finden Sie Minden",
    "bild": "bilder/smvl5mctidifb-mvlh4uzc.jpg",
@@ -355,7 +375,7 @@
    "app": true,
    "version": "v1.64",
    "erst": 1792864131177,
-   "zuletzt": 1792864131177,
+   "zuletzt": 1792864289275,
    "name": "",
    "nameStand": 0
   }
