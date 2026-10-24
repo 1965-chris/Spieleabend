@@ -128,6 +128,30 @@
    "geaendert": 1792858328898
   },
   {
+   "id": "smvmlo90hrl0k",
+   "name": "Skip-Bo",
+   "bild": "bilder/smvmlo90hrl0k-mvmlo90i.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 7,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Bei Skip-Bo (auch Pass auf oder Asse raus) handelt es sich um ein Kartenspiel mit 144 Zahlenkarten sowie 18 Skip-Bo-Karten für zwei bis sechs Spieler. Ziel des Spiels ist es, als erster den eigenen Kartenstapel vollständig abzulegen. Dazu nutzt man seine Handkarten inklusive einiger Joker, sowie die Karten der eigenen Hilfsstapel, aufbauend auf den Vorlagen der anderen Mitspieler.\nVon Hazel \"Skip\" Bowman, erschienen 1967 bei The Skip-bo Company (1967),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Skip-Bo",
+   "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 10.6,
+    "z": 1
+   },
+   "erstellt": 1792858521761,
+   "geaendert": 1792858521761
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
