@@ -275,7 +275,7 @@
   {
    "id": "smvmoa7yq1df3",
    "name": "Wizard",
-   "bild": "",
+   "bild": "bilder/smvmoa7yq1df3-mvmobtfj.jpg",
    "spielerMin": 3,
    "spielerMax": 6,
    "alterAb": 10,
@@ -288,8 +288,13 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Wizard_(Spiel)",
    "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 8.4,
+    "z": 1
+   },
    "erstellt": 1792862906066,
-   "geaendert": 1792862906066
+   "geaendert": 1792862980543
   },
   {
    "id": "smvmkhncbgq1e",
