@@ -28,7 +28,7 @@
   {
    "id": "smvmauglb882p",
    "name": "Skyjo",
-   "bild": "bilder/smvmauglb882p-mvmauglb.jpg",
+   "bild": "bilder/smvmauglb882p-mvmayrrr.jpg",
    "spielerMin": 2,
    "spielerMax": 8,
    "alterAb": 8,
@@ -38,11 +38,11 @@
    ],
    "beschreibung": "Skyjo ist ein Kartenspiel des Spieleautors Alexander Bernhardt, das im Jahr 2015 bei dem von ihm gegründeten Verlag Magilano erschienen ist. Zu Beginn des Spiels werden die Spielkarten gemischt und jeder Spieler erhält zwölf Karten, die er ungesehen und verdeckt nebeneinander mit einem Raster von 3 mal 4 Karten vor sich auslegt. Die restlichen Karten bilden einen verdeckten Nachziehstapel, der in der Tischmitte platziert wird.\nVon Alexander Bernhardt, erschienen 2015 bei Magilano.",
    "bemerkung": "",
-   "bildQuelle": "Foto: Francesc Navarro123, CC BY-SA 4.0, Wikimedia Commons",
+   "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Skyjo",
    "anleitung": "",
    "erstellt": 1792840335743,
-   "geaendert": 1792840335743
+   "geaendert": 1792840536855
   }
  ],
  "spieler": [
