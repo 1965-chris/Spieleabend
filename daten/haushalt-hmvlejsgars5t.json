@@ -120,19 +120,19 @@
    "name": "Ligretto",
    "bild": "bilder/smvmoku8vvvf6-mvmoku8v.jpg",
    "spielerMin": 2,
-   "spielerMax": 8,
+   "spielerMax": 4,
    "alterAb": 8,
    "dauer": 15,
    "kategorien": [
     "Kartenspiel"
    ],
-   "beschreibung": "",
+   "beschreibung": "Ligretto ist ein Kartenspiel für zwei bis vier Spieler (mit drei verschiedenfarbigen Paketen (grün, rot, blau) bis zwölf Spieler bzw. bis zu 16 Spieler, wenn das Set aus Ligretto Speed Machine mit verwendet wird), die versuchen, ihre Karten möglichst schnell auf gemeinsame Stapel in der Mitte abzulegen (je von 1–10 und nach Farbe sortiert). Jeder Spieler erhält zu Beginn des Spiels 40 Karten (je 10 Karten der Farben rot, gelb, grün und blau), die auf der Rückseite mit einem speziellen Symbol für diesen Spieler versehen sind. Diese werden zu Spielbeginn gemischt und 10 werden als offener Stapel",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://de.wikipedia.org/wiki/Ligretto",
    "anleitung": "https://share.google/K1mGAAbMZuov5jLmZ",
    "erstellt": 1792863401503,
-   "geaendert": 1792881026613
+   "geaendert": 1792881090015
   },
   {
    "id": "smvmoqmpdlw1e",
