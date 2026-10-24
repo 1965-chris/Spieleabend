@@ -513,7 +513,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792875164293,
-   "zuletzt": 1792875708043,
+   "zuletzt": 1792876210089,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   }
@@ -543,6 +543,18 @@
      "zeit": 1792876031447
     }
    ]
+  },
+  {
+   "id": "nmvmw7bvietto",
+   "art": "sonst",
+   "text": "Bei antworten des haushalts an admin, dannauch möglichkeit des namens geben",
+   "von": "Christian",
+   "betrifft": [],
+   "erstellt": 1792876208093,
+   "stand": 1792876208093,
+   "status": "offen",
+   "statusStand": 0,
+   "verlauf": []
   }
  ],
  "geloescht": {
