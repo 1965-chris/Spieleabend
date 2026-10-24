@@ -7,6 +7,26 @@
  "stand": 1792786090186,
  "spiele": [
   {
+   "id": "smvmojdk65op3",
+   "name": "Flip7",
+   "bild": "bilder/smvmojdk65op3-mvmojdk7.jpg",
+   "spielerMin": 3,
+   "spielerMax": 18,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel",
+    "Glück"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792863333223,
+   "geaendert": 1792863333223
+  },
+  {
    "id": "smvmohapumyhm",
    "name": "Slip-Bo",
    "bild": "bilder/smvmohapumyhm-mvmohapx.jpg",
