@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.61",
+ "app": "v1.63",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -95,6 +95,27 @@
    },
    "erstellt": 1792859369732,
    "geaendert": 1792859480671
+  },
+  {
+   "id": "smvmno7u64sf5",
+   "name": "Hitster Schlager-Paty",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 10,
+   "alterAb": 16,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel",
+    "Allgemeinwissen",
+    "Party"
+   ],
+   "beschreibung": "Hitster ist ein Partyspiel, das 2022 beim Verlag Jumbo Spiele erschienen ist. Zu Beginn einer Spielrunde wird ein DJ ausgesucht, der die einzuordnenden Musiktitel abspielt und auch als Mitspieler am Spiel selbst teilnehmen kann. Der DJ muss ein Ausgabegerät besitzen, mit dem er die QR-Codes der Karten einscannen und die Titel auf Spotify abspielen kann.\nVon Marcus Carleson, erschienen 2022 bei Jumbo Spiele.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Hitster",
+   "anleitung": "",
+   "erstellt": 1792861879470,
+   "geaendert": 1792861879470
   },
   {
    "id": "smvl4jqa6tocg",
