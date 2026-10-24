@@ -486,14 +486,14 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Take_it_easy",
-   "anleitung": "http://www.gamecabinet.com/rules/TakeItEasy.html",
+   "anleitung": "https://share.google/izdMfvokjH8YXrPlv",
    "bildPos": {
     "x": 50,
     "y": 13.9,
     "z": 1
    },
    "erstellt": 1792878379640,
-   "geaendert": 1792878735930
+   "geaendert": 1792878829011
   },
   {
    "id": "smvmoa7yq1df3",
@@ -539,7 +539,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792878720547,
+   "zuletzt": 1792878830936,
    "name": "",
    "nameStand": 0
   },
