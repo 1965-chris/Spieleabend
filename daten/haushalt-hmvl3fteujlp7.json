@@ -504,13 +504,13 @@
    "alterAb": 8,
    "dauer": null,
    "kategorien": [],
-   "beschreibung": "",
+   "beschreibung": "SPIELANLEITUNG: TIMBER (siso)\n\n\nSPIELINHALT\n\n• 45 bunte Kunststoff-Bausteine (Rot, Gelb, Blau)\n• 1 Farbwürfel (Rot, Gelb, Blau, „X“-Symbol, „Zwei Pfeile“)\n\nSPIELVORBEREITUNG\n\n1. Baut aus allen 45 Steinen auf einer stabilen Tischfläche einen Turm auf.\n2. Jede Schicht besteht aus 3 Steinen, die dicht nebeneinanderliegen.\n3. Jede neue Schicht wird im 90-Grad-Winkel (quer) auf die darunterliegende gesetzt.\n4. Die Farben der Steine dürfen beim Aufbau bunt gemischt werden.\n\nSPIELREGELN & ABLAUF\n\nEs wird reihum im Uhrzeigersinn gespielt. Wer am Zug ist, würfelt genau einmal:\n• 🔴 Rot, 🟡 Gelb oder",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "",
    "erstellt": 1792879825330,
-   "geaendert": 1792879825330
+   "geaendert": 1792879942375
   },
   {
    "id": "smvmoa7yq1df3",
@@ -556,7 +556,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792879827297,
+   "zuletzt": 1792879944240,
    "name": "",
    "nameStand": 0
   },
