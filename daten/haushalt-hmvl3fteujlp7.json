@@ -283,6 +283,23 @@
    "geaendert": 1792790212002
   },
   {
+   "id": "smvmx60xy7hhz",
+   "name": "Memory",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 10,
+   "alterAb": 4,
+   "dauer": 30,
+   "kategorien": [],
+   "beschreibung": "Memory (nach englisch memory ‚Gedächtnis‘) ist eine von Ravensburger eingetragene Marke für ein bekanntes Gesellschaftsspiel nach dem Pairs-Prinzip: Paare gleicher, verdeckt aufliegender Kärtchen müssen durch Aufdecken im Wechsel der Spieler erkannt werden. Kinder unter etwa zehn Jahren haben einen Vorteil gegenüber Älteren, der durch eine andere Struktur des Gehirns erklärt werden kann.\nVon William Hurter, erschienen 1959 bei Ravensburger.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Memory_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792877826888,
+   "geaendert": 1792877826888
+  },
+  {
    "id": "smvmpruxvya54",
    "name": "Nobody Ist Perfect",
    "bild": "bilder/smvmpruxvya54-mvmpruxv.jpg",
@@ -492,7 +509,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792877696124,
+   "zuletzt": 1792877828839,
    "name": "",
    "nameStand": 0
   },
