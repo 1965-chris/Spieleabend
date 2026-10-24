@@ -65,6 +65,25 @@
    "geaendert": 1792790432471
   },
   {
+   "id": "smvmzu4z1m05l",
+   "name": "Deutschlandreise",
+   "bild": "bilder/smvmzu4z1m05l-mvmzu4z2.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": 60,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Deutschlandreise ist ein Brettspiel, das als Lernspiel für Kinder und Jugendliche konzipiert wurde. Spielziel ist es eine bestimmte Zahl von gezogenen Städten zu bereisen und am schnellsten wieder zurück zu seinem Ausgangspunkt zu kommen. Dies geschieht durch würfeln und ziehen.\nVon Johann Wilhelm Stündt,, Jochen Zeiss (ab 1962), erschienen 1934 bei Otto Maier Verlag Ravensburg.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Deutschlandreise",
+   "anleitung": "",
+   "erstellt": 1792882311086,
+   "geaendert": 1792882311086
+  },
+  {
    "id": "smvmpi5egc06c",
    "name": "Dixit",
    "bild": "bilder/smvmpi5egc06c-mvmpi5eh.jpg",
@@ -637,7 +656,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792882193173,
+   "zuletzt": 1792882312879,
    "name": "",
    "nameStand": 0
   },
