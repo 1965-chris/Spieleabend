@@ -657,7 +657,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.63';
+const VERSION = 'v1.64';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -786,7 +786,16 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
 const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geloescht']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','geloescht']);
+/* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
+const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand']);
+const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
+function geraetNorm(g){
+  return { ...unbekannte(g, GERAET_FELDER), id:String(g.id), art:GERAET_ARTEN.includes(g.art) ? g.art : 'Computer', app:!!g.app,
+    version:String(g.version || '').slice(0, 12), erst:zahl(g.erst) || 0, zuletzt:zahl(g.zuletzt) || 0,
+    name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0 };
+}
+function geraeteSort(a, b){ return a.erst - b.erst || a.id.localeCompare(b.id); }
 const ANFRAGE_STATUS = ['offen', 'frei', 'nein'];
 function anfrageNorm(a){
   return { id:String(a.id), name:String(a.name || '').trim().slice(0, 40), notiz:String(a.notiz || '').slice(0, 200), erstellt:zahl(a.erstellt) || 0, stand:zahl(a.stand) || 0,
@@ -849,13 +858,15 @@ function haushaltNorm(h){
       .map(p => ({ ...unbekannte(p, SPIELER_FELDER), id:String(p.id), name:String(p.name).trim().slice(0, 30), stand:zahl(p.stand) || 0 })).sort(nachName),
     anfragen:(Array.isArray(h.anfragen) ? h.anfragen : []).filter(a => a && a.id && String(a.name || '').trim()).map(anfrageNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
     partien:(Array.isArray(h.partien) ? h.partien : []).filter(x => x && x.id).map(partieNorm).filter(x => x.datum && x.name).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id)),
+    geraete:(Array.isArray(h.geraete) ? h.geraete : []).filter(x => x && x.id).map(geraetNorm).filter(x => x.zuletzt > grenze).sort(geraeteSort),
     geloescht:g
   };
 }
 function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
-    ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}), geloescht:n.geloescht };
+    ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}),
+    ...(n.geraete.length ? { geraete:n.geraete } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
@@ -885,7 +896,16 @@ function zusammenfuehren(lokal, fern){
   for (const x of B.partien) pa.set(x.id, x);
   for (const x of A.partien){ const y = pa.get(x.id); if (!y || x.stand > y.stand) pa.set(x.id, x); }
   const partien = [...pa.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id));
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geloescht:tomb };
+  // Geräte: die neuere Meldung zählt, der Name (vom Admin vergeben) hat seinen eigenen Stand
+  const ge = new Map();
+  for (const x of B.geraete) ge.set(x.id, x);
+  for (const x of A.geraete){
+    const y = ge.get(x.id); if (!y){ ge.set(x.id, x); continue; }
+    const basis = x.zuletzt >= y.zuletzt ? x : y, nm = x.nameStand >= y.nameStand ? x : y;
+    ge.set(x.id, { ...basis, erst:Math.min(x.erst || basis.erst, y.erst || basis.erst), name:nm.name, nameStand:nm.nameStand });
+  }
+  const geraete = [...ge.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= Math.max(x.zuletzt, x.nameStand))).sort(geraeteSort);
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -1250,6 +1270,8 @@ async function sync(anlass){
     }
     speichern();
     if (neuZeichnen) renderAlles();
+
+    geraetMelden();
 
     // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen.
     //    Benutzt ein anderes Gerät schon eine neuere App-Version, wird nichts hochgeladen, damit nichts verloren geht.
@@ -3767,6 +3789,8 @@ function renderEinstellungen(){
 
     ${klapp('e-einladen', E.admin || !rechteAktiv() ? 'Haushalte einladen' : 'Weiteres Gerät einladen', einladenHtml())}
 
+    ${E.admin ? klapp('e-nutzung', 'Wer nutzt die App?', `<div id="nutzung">${nutzungHtml()}</div>`, { klein:`${nutzungZahl()} Gerät${nutzungZahl() === 1 ? '' : 'e'}` }) : ''}
+
     ${adminBereichSichtbar() ? klapp('e-admin', 'Spielkreise & Admin', `<div id="verwaltung">${verwaltungHtml()}</div>`,
       { klein: E.admin ? 'du bist Admin' : (kreiseAktiv() ? `${D.verwaltung.kreise.length} Spielkreis${D.verwaltung.kreise.length === 1 ? '' : 'e'}` : '') }) : ''}
 
@@ -3799,6 +3823,7 @@ function renderEinstellungen(){
   const imp = $('#e-import'); if (imp) imp.addEventListener('click', () => $('#e-import-datei').click());
   $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
   $('#e-neu').addEventListener('click', allesNeuLaden);
+  const nu = $('#nutzung'); if (nu) nu.addEventListener('click', e => { const b = e.target.closest('[data-geraet]'); if (b) geraetSheet(b.dataset.geraet); });
   const v = $('#verwaltung');
   if (!v) return;
   v.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) verwaltungAktion(b.dataset.v, b.dataset.kreis); });
@@ -3942,6 +3967,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.64', datum:'24.10.2026', neu:[
+    'Für den Admin: „Wer nutzt die App?“ – welche Geräte die App installiert haben oder nur im Browser geöffnet, wann sie zuletzt online waren und welche Version sie nutzen',
+    'Geräte lassen sich dort benennen (z. B. „Omas iPhone“) und alte Einträge entfernen'
+  ]},
   { v:'v1.63', datum:'24.10.2026', neu:[
     'Gleiche Spiele mehrerer Haushalte erscheinen als eine Kachel mit allen Haushalten',
     'Spiel eintragen: Gibt es das Spiel schon, Angaben und Foto mit einem Tipp übernehmen',
@@ -4248,11 +4277,106 @@ function pinSheet(neu, pruefen=null){
     });
   });
 }
+/* ---------- Wer nutzt die App? Jedes Gerät meldet sich beim Abgleich (höchstens alle paar Stunden) ---------- */
+const MELDEN_ALLE = 3 * 3600e3;
+function geraetMelden(){
+  const hid = E.meinHaushalt, h = D.haushalte[hid];
+  if (!h || !E.token || S.neuereApp) return;
+  geraetKennung();
+  const jetzt = Date.now(), m = D.meta[hid] || {}, alt = (h.geraete || []).find(g => g.id === E.geraetId);
+  const art = geraetTyp(), app = istStandalone();
+  // Unverändert und vor kurzem gemeldet? Dann nichts schreiben. Wird der Haushalt ohnehin hochgeladen, die Zeit gleich mitnehmen.
+  if (alt && alt.art === art && alt.app === app && alt.version === VERSION && jetzt - alt.zuletzt < (m.dirty ? 60e3 : MELDEN_ALLE)) return;
+  const neu = { ...(alt || {}), id:E.geraetId, art, app, version:VERSION, erst:alt && alt.erst ? alt.erst : jetzt, zuletzt:jetzt,
+    name:alt ? alt.name : '', nameStand:alt ? alt.nameStand : 0 };
+  h.geraete = [...(h.geraete || []).filter(g => g.id !== E.geraetId), neu].sort(geraeteSort);
+  if (m.dirty) speichern(); else markiere(hid, 'Gerät meldet sich');
+}
+function zuletztText(ts){
+  if (!ts) return 'unbekannt';
+  const tag = t => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+  const tage = Math.round((tag(Date.now()) - tag(ts)) / 864e5);
+  if (tage <= 0) return `heute ${uhrzeit(ts)}`;
+  if (tage === 1) return `gestern ${uhrzeit(ts)}`;
+  if (tage < 7) return `vor ${tage} Tagen`;
+  return datumKurzTs(ts);
+}
+/* Alle gemeldeten Geräte – je Gerät nur die neueste Meldung (falls es den Haushalt gewechselt hat).
+   Wurde der Einladungslink erst im Browser geöffnet und danach die App installiert, ist das dasselbe Gerät. */
+function geraeteUebersicht(){
+  const neu = new Map();
+  for (const h of Object.values(D.haushalte)) for (const g of h.geraete || []){ const x = neu.get(g.id); if (!x || g.zuletzt > x.g.zuletzt) neu.set(g.id, { g, h }); }
+  const liste = [...neu.values()];
+  for (const b of liste.filter(x => !x.g.app).sort((a, b) => b.g.erst - a.g.erst)){
+    const a = liste.find(x => x.g.app && !x.vorher && x.h.id === b.h.id && x.g.art === b.g.art && x.g.erst >= b.g.erst && b.g.zuletzt <= x.g.erst + 2 * 3600e3);
+    if (a){ a.vorher = b.g; b.ersetzt = true; }
+  }
+  return liste.filter(x => !x.ersetzt);
+}
+function nutzungZahl(){ return geraeteUebersicht().length; }
+function nutzungHtml(){
+  const liste = geraeteUebersicht(), jetzt = Date.now();
+  const neueste = [VERSION, ...liste.map(x => x.g.version)].reduce((a, b) => versionZahl(b) > versionZahl(a) ? b : a);
+  const apps = liste.filter(x => x.g.app).length, woche = liste.filter(x => jetzt - x.g.zuletzt < 7 * 864e5).length;
+  const hhs = haushaltListe(true), ohne = hhs.filter(h => !liste.some(x => x.h.id === h.id));
+  const zeile = ({ g, h, vorher }) => {
+    const alter = g.id === E.geraetId ? 0 : jetzt - g.zuletzt, k = alter < 864e5 ? 'ok' : alter < 14 * 864e5 ? 'laeuft' : 'aus';
+    const alt = g.version && versionZahl(g.version) < versionZahl(neueste);
+    return `<li style="align-items:center"><span class="punkt" data-k="${k}" style="margin-top:0"></span>
+      <span style="flex:1;min-width:0"><b>${esc(g.name || g.art)}</b>${g.name ? ` <span class="text-leise">· ${esc(g.art)}</span>` : ''}
+        ${g.id === E.geraetId ? ' <span class="marke-mein">dieses Gerät</span>' : ''}
+        ${g.app ? ' <span class="marke-mein">als App</span>' : ' <span class="marke-mein warn">nur im Browser</span>'}<br>
+        <span class="text-leise text-klein">zuletzt online ${g.id === E.geraetId ? 'jetzt' : esc(zuletztText(g.zuletzt))} · ${vorher ? `Link geöffnet ${esc(datumKurzTs(vorher.erst))}, ` : ''}${g.app ? 'installiert' : 'zuerst'} ${esc(datumKurzTs(g.erst))}
+        · <span${alt ? ' style="color:var(--rot);font-weight:600"' : ''}>${esc(g.version || '?')}${alt ? ' – veraltet' : ''}</span></span></span>
+      <button class="knopf-rund" type="button" data-geraet="${esc(h.id)}|${esc(g.id)}" aria-label="Gerät benennen oder entfernen" style="flex:none">${ic('stift')}</button></li>`;
+  };
+  const gruppen = hhs.map(h => ({ h, g:liste.filter(x => x.h.id === h.id).sort((a, b) => b.g.zuletzt - a.g.zuletzt) })).filter(x => x.g.length);
+  return `
+    <p class="text-leise text-klein" style="margin:0 0 10px">${liste.length ? `<b>${liste.length} Gerät${liste.length === 1 ? '' : 'e'}</b> · ${apps} als App installiert · ${woche} in den letzten 7 Tagen online` : 'Noch hat sich kein Gerät gemeldet.'}</p>
+    ${gruppen.map(({ h, g }) => `<div style="margin-top:12px"><div style="display:flex;align-items:center;gap:8px;font-weight:700">${figur(h.farbe, 17)}${esc(h.name)}</div>
+      <ul class="verlauf" style="margin-top:4px">${g.map(zeile).join('')}</ul></div>`).join('')}
+    ${ohne.length ? `<p class="hinweis" style="margin-top:14px"><b>Noch kein Gerät gemeldet:</b> ${esc(ohne.map(h => h.name).join(', '))}<br>
+      <span class="text-klein">Entweder wurde die App dort noch nicht geöffnet – oder es läuft noch eine Version vor v1.64.</span></p>` : ''}
+    <p class="block-hinweis">Jedes Gerät meldet sich beim Abgleich, höchstens alle 3 Stunden – die Zeit ist also ungefähr. „Nur im Browser“ heißt: Link geöffnet, aber (noch) nicht zum Home-Bildschirm hinzugefügt. Gespeichert werden nur Gerätetyp, App oder Browser, Version und Zeitpunkt.</p>`;
+}
+function datumKurzTs(ts){ return ts ? new Date(ts).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '?'; }
+function geraetSheet(wert){
+  const [hid, gid] = String(wert).split('|'), h = D.haushalte[hid], g = h && (h.geraete || []).find(x => x.id === gid);
+  if (!g) return;
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>${esc(g.name || g.art)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">${esc(h.name)} · ${esc(g.art)} · ${g.app ? 'als App' : 'nur im Browser'}</p>
+    <label class="feld"><span class="feld-titel">Name für dieses Gerät</span><input class="eingabe" name="t" value="${esc(g.name)}" placeholder="z. B. Omas iPhone" maxlength="40" autocomplete="off" autocapitalize="words"></label>
+    <p class="block-hinweis" style="margin-top:-6px">Nur zur Übersicht für dich – die anderen sehen den Namen nicht.</p>
+    <div class="knopfreihe"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Speichern</button></div>
+    ${gid === E.geraetId ? '' : `<button class="knopf gefahr breit" type="button" data-weg style="margin-top:14px">${ic('muell')}Aus der Liste entfernen</button>
+    <p class="block-hinweis">Taucht wieder auf, sobald das Gerät die App erneut öffnet.</p>`}</form>`);
+  const f = $('form', s);
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const hh = D.haushalte[hid], x = hh && (hh.geraete || []).find(y => y.id === gid); if (!x){ s.schliessen(); return; }
+    const t = feldVon(f, 't').value.trim().slice(0, 40);
+    if (t !== x.name){ x.name = t; x.nameStand = Date.now(); markiere(hid, 'Gerät benannt'); speichern(); renderAlles(); syncBald(); }
+    s.schliessen();
+  });
+  const weg = $('[data-weg]', s);
+  if (weg) weg.addEventListener('click', () => {
+    const hh = D.haushalte[hid]; if (!hh){ s.schliessen(); return; }
+    const jetzt = Date.now();
+    hh.geraete = (hh.geraete || []).filter(y => y.id !== gid); hh.geloescht[gid] = jetzt;
+    // Auch ältere Meldungen desselben Geräts in anderen Haushalten mit entfernen
+    for (const o of Object.values(D.haushalte)) if (o.id !== hid && (o.geraete || []).some(y => y.id === gid)){ o.geraete = o.geraete.filter(y => y.id !== gid); o.geloescht[gid] = jetzt; markiere(o.id, 'Gerät entfernt'); }
+    markiere(hid, 'Gerät entfernt'); speichern(); s.schliessen(); renderAlles(); syncBald(); toast('Aus der Liste entfernt');
+  });
+}
+
 /* ---------- Admin-Geräte: Anmeldung merken, aus der Ferne abmelden ---------- */
-function geraetName(){
+function geraetTyp(){
   const ua = navigator.userAgent;
-  const art = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iPad'
-    : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows-PC' : /Mac/.test(ua) ? 'Mac' : 'Computer';
+  return /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iPad'
+    : /iPhone|iPod/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows-PC' : /Mac/.test(ua) ? 'Mac' : 'Computer';
+}
+function geraetName(){
+  const art = geraetTyp();
   const hh = D.haushalte[E.meinHaushalt];
   return hh ? `${art} – ${hh.name}` : art;
 }
