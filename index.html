@@ -177,6 +177,13 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .fakten span{display:inline-flex;align-items:center;gap:4px}
 .fakten .ic{width:15px;height:15px}
 .karte-haushalt{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--leise);margin-top:auto;padding-top:2px}
+.karte-haushalte{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:2px}
+.karte-haushalte .karte-haushalt{margin-top:0;padding-top:0}
+.link-knopf{appearance:none;border:0;background:none;padding:0;font:inherit;color:var(--filz);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;gap:4px}
+.ueber-spiele{margin:16px 0 0;padding:12px 14px;border-radius:14px;background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
+.ueber-spiele h3{font-size:16px;margin:0 0 4px}
+.ueber-spiele .chips{margin-top:8px}
+.ueber-spiele .chip{cursor:default}
 
 /* ---------- Leere Zustände ---------- */
 .leer{text-align:center;padding:36px 16px 12px;color:var(--leise);max-width:420px;margin:0 auto}
@@ -650,7 +657,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.62';
+const VERSION = 'v1.63';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1483,12 +1490,24 @@ function filterAktiv(){
   for (const id of F.haushalte){ const h = D.haushalte[id]; if (h) a.push({ k:'hh:' + id, t:h.name }); }
   return a;
 }
-function karteHtml(s){
+/* Gleiche Spiele mehrerer Haushalte → eine Kachel. Vorne steht die eigene Ausgabe, sonst eine mit Foto. */
+function spielGruppen(liste){
+  const m = new Map();
+  for (const s of liste){ const k = nameSchluessel(s.name) || s.id; if (!m.has(k)) m.set(k, []); m.get(k).push(s); }
+  return [...m.values()].map(kopien => {
+    kopien.sort((a, b) => (b.hid === E.meinHaushalt) - (a.hid === E.meinHaushalt) || (b.bild ? 1 : 0) - (a.bild ? 1 : 0) || a.hid.localeCompare(b.hid));
+    return { haupt:kopien[0], kopien, erstellt:Math.max(...kopien.map(k => k.erstellt || 0)) };
+  });
+}
+function karteHtml(s, kopien){
   const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
+  const mehrere = kopien && kopien.length > 1;
+  const hhZeile = k => `<span class="karte-haushalt">${figur(farbeVon(k.hid), 14)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>`;
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
     <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen && funktionAn('verleihen') ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
-      <span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span></span></button>`;
+      ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
+        : `<span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>`}</span></button>`;
 }
 function renderSpiele(){
   filterBereinigen();
@@ -1520,7 +1539,9 @@ function renderSpiele(){
       <button class="knopf" type="button" data-aktion="spiel-neu">Erstes Spiel eintragen</button></div>`;
     return;
   }
-  zahlEl.textContent = liste.length === alle.length ? `${alle.length} ${alle.length === 1 ? 'Spiel' : 'Spiele'}` : `${liste.length} von ${alle.length} Spielen`;
+  const gruppen = spielGruppen(liste).sort(F.sort === 'neu' ? (a, b) => b.erstellt - a.erstellt : (a, b) => nachName(a.haupt, b.haupt));
+  const gesamt = spielGruppen(alle).length;
+  zahlEl.textContent = gruppen.length === gesamt ? `${gesamt} ${gesamt === 1 ? 'Spiel' : 'Spiele'}` : `${gruppen.length} von ${gesamt} Spielen`;
   if (!liste.length){
     raster.innerHTML = '';
     leer.innerHTML = `<div class="leer"><h3>Kein Spiel passt</h3><p>Mit diesen Filtern bleibt nichts übrig.</p>
@@ -1528,7 +1549,7 @@ function renderSpiele(){
     return;
   }
   leer.innerHTML = '';
-  raster.innerHTML = liste.map(karteHtml).join('');
+  raster.innerHTML = gruppen.map(g => karteHtml(g.haupt, g.kopien)).join('');
   bilderBeobachten(raster);
 }
 function filterSheet(){
@@ -1570,7 +1591,7 @@ function spielDetail(id){
   const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(sp)}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
     <h2 class="detail-name">${esc(sp.name)}</h2>
-    <p class="detail-haushalt">${figur(farbe, 18)}steht bei ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}`).join(', ')}` : ''}</p>
+    <p class="detail-haushalt">${figur(farbe, 18)}steht bei ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `<button type="button" class="link-knopf" data-kopie="${esc(k.id)}">${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}</button>`).join(', ')}` : ''}</p>
     <div class="fakten-gross">
       <div><b>${esc(spielerText(sp))}</b><span>Spieler</span></div>
       <div><b>${sp.alterAb != null ? 'ab ' + sp.alterAb : '–'}</b><span>Jahre</span></div>
@@ -1591,6 +1612,7 @@ function spielDetail(id){
   bilderBeobachten(s);
   const neuOeffnen = () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); };
   s.addEventListener('click', e => {
+    const kp = e.target.closest('[data-kopie]'); if (kp){ s.schliessen(); setTimeout(() => spielDetail(kp.dataset.kopie), 240); return; }
     const b = e.target.closest('[data-anl]');
     if (b && b.dataset.anl === 'suchen') anleitungSheet(sp, neuOeffnen);
     if (b && b.dataset.anl === 'weg') anleitungEntfernen(sp, neuOeffnen);
@@ -1706,7 +1728,10 @@ function spielLoeschen(sp){
   markiere(h.id, `${sp.name} gelöscht`);
   speichern(); renderAlles(); syncBald(); toast(`„${sp.name}“ gelöscht`);
 }
-function fotoWeg(pfad){
+function fotoWeg(pfad, ohne = null){
+  // Übernommene Spiele teilen sich ein Foto – es wird erst gelöscht, wenn kein anderes Spiel es mehr benutzt
+  const ausser = ohne instanceof Set ? ohne : new Set(ohne ? [ohne] : []);
+  if (Object.values(D.haushalte).some(h => h.spiele.some(x => x.bild === pfad && !ausser.has(x.id)))) return;
   if (O.hoch.includes(pfad)){ O.hoch = O.hoch.filter(p => p !== pfad); IDB.del(pfad); }
   else if (!O.weg.includes(pfad)) O.weg.push(pfad);
   offenSpeichern();
@@ -2045,7 +2070,8 @@ function spielFormular(sp){
     <div class="feld"><label class="feld-titel" for="f-name">Name des Spiels</label>
       <div class="eingabe-reihe"><input class="eingabe" id="f-name" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required enterkeyhint="search">
         <button class="knopf zweit" type="button" data-nachschlagen>${ic('suche')}Suchen</button></div>
-      <p class="block-hinweis">Suchen holt Spieler, Alter, Dauer, Beschreibung und ein Foto aus Wikipedia.</p></div>
+      <p class="block-hinweis">Suchen holt Spieler, Alter, Dauer, Beschreibung und ein Foto aus Wikipedia.</p>
+      ${neu ? '<div data-vorhanden></div>' : ''}</div>
     ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
@@ -2151,6 +2177,36 @@ function spielFormular(sp){
     if (e.key === 'Enter'){ e.preventDefault(); if (feldVon(form, 'name').value.trim().length >= 2) $('[data-nachschlagen]', s).click(); }
   });
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'kat') $('#form-kat-wahl', s).textContent = e.detail.join(', '); });
+  // Gibt es das Spiel schon bei einem anderen Haushalt? Dann Angaben (und Foto) übernehmen statt neu eintippen
+  let uebernahme = null;
+  const vorhandenEl = $('[data-vorhanden]', s);
+  const vorhandeneZeigen = () => {
+    if (!vorhandenEl || uebernahme) return;
+    const q = normText(feldVon(form, 'name').value).trim(), ziel = gewaehltesHh();
+    if (q.length < 2){ vorhandenEl.innerHTML = ''; return; }
+    const gruppen = spielGruppen(alleSpiele()).filter(g => normText(g.haupt.name).includes(q) && !g.kopien.some(k => k.hid === ziel))
+      .sort((a, b) => (normText(a.haupt.name).startsWith(q) ? 0 : 1) - (normText(b.haupt.name).startsWith(q) ? 0 : 1) || nachName(a.haupt, b.haupt)).slice(0, 3);
+    vorhandenEl.innerHTML = gruppen.length ? `<p class="text-leise text-klein" style="margin:10px 0 6px">Schon in der App – Angaben und Foto übernehmen:</p>
+      ${gruppen.map(g => `<button type="button" class="vorschlag" data-uebernehmen="${esc(g.haupt.id)}">${figur(farbeVon(g.haupt.hid), 16)}<span><b>${esc(g.haupt.name)}</b> von ${esc((D.haushalte[g.haupt.hid] || {}).name || '')}</span>${ic('plus')}</button>`).join('')}` : '';
+  };
+  let vorhandenTimer = null;
+  feldVon(form, 'name').addEventListener('input', () => { clearTimeout(vorhandenTimer); vorhandenTimer = setTimeout(vorhandeneZeigen, 150); });
+  s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'hh') vorhandeneZeigen(); });
+  if (vorhandenEl) vorhandenEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-uebernehmen]'); if (!b) return;
+    const q = alleSpiele().find(x => x.id === b.dataset.uebernehmen); if (!q) return;
+    feldVon(form, 'name').value = q.name;
+    const st = n => $(`[data-name="${n}"]`, s);
+    stepperSetzen(st('spielerMin'), q.spielerMin ?? null); stepperSetzen(st('spielerMax'), q.spielerMax ?? q.spielerMin ?? null); stepperSetzen(st('alterAb'), q.alterAb ?? null);
+    $$('[data-gruppe="dauer"] .chip', s).forEach(c => c.setAttribute('aria-pressed', String(q.dauer) === c.dataset.wert));
+    $$('[data-gruppe="kat"] .chip', s).forEach(c => c.setAttribute('aria-pressed', q.kategorien.includes(c.dataset.wert)));
+    $('#form-kat-wahl', s).textContent = q.kategorien.join(', ');
+    if (q.beschreibung) feldVon(form, 'beschreibung').value = q.beschreibung;
+    if (q.link) link = q.link;
+    uebernahme = { anleitung:q.anleitung || '', wertung:q.wertung || null };
+    if (q.bild && !neuesFoto){ w.bild = q.bild; w.bildQuelle = q.bildQuelle || ''; fotoEntfernt = false; pos = bildPosNorm(q.bildPos) || { x:50, y:50, z:1 }; fotoZeigen(); }
+    vorhandenEl.innerHTML = `<p class="hinweis" style="margin:10px 0 0">Angaben${q.bild ? ' und Foto' : ''} von ${esc((D.haushalte[q.hid] || {}).name || '')} übernommen – bei Bedarf anpassen.</p>`;
+  });
   s.addEventListener('wert', e => {
     const mn = $('[data-name="spielerMin"]', s), mx = $('[data-name="spielerMax"]', s);
     if (e.target === mn && stepperWert(mx) < e.detail) stepperSetzen(mx, e.detail);
@@ -2172,7 +2228,8 @@ function spielFormular(sp){
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
       beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
-      link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : '')),
+      link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : (w.bildQuelle || ''))),
+      ...(!sp && uebernahme ? { anleitung:uebernahme.anleitung, wertung:uebernahme.wertung } : {}),
       bildPos: (neuesFoto || (w.bild && !fotoEntfernt)) ? pos : null,
       erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
     });
@@ -2181,9 +2238,10 @@ function spielFormular(sp){
       await IDB.put(pfad, neuesFoto);
       bildUrls.set(pfad, URL.createObjectURL(neuesFoto));
       O.hoch.push(pfad);
-      if (sp && sp.bild) fotoWeg(sp.bild);
+      if (sp && sp.bild) fotoWeg(sp.bild, sp.id);
       spiel.bild = pfad;
-    } else if (fotoEntfernt && sp && sp.bild){ fotoWeg(sp.bild); spiel.bild = ''; }
+    } else if (fotoEntfernt && sp && sp.bild){ fotoWeg(sp.bild, sp.id); spiel.bild = ''; }
+    else if (!sp && !fotoEntfernt && w.bild) spiel.bild = w.bild;      // übernommenes Foto
     offenSpeichern();
     if (sp && sp.hid !== hid && D.haushalte[sp.hid]){
       const alt = D.haushalte[sp.hid];
@@ -2534,6 +2592,7 @@ function terminKarteHtml(t){
       ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
       ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
       ${spieleVorschlagHtml(t, meine)}
+      ${terminSpieleHtml(t)}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
                   <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
@@ -3063,6 +3122,14 @@ function spieleVorschlagHtml(t, meine){
     ${!liste.length && meine && !vorbei ? '<p class="text-leise text-klein" style="margin:6px 0 0">Noch keine Vorschläge – schlag Spiele vor, die anderen tippen 👍 an.</p>' : ''}
     ${meine && !vorbei ? `<button class="knopf zweit breit" type="button" data-t="spiel-vorschlagen" data-id="${esc(t.id)}" style="margin-top:10px">${ic('plus')}Spiel vorschlagen</button>` : ''}
     ${nachher ? `<button class="knopf zweit breit" type="button" data-t="gespielt" data-id="${esc(t.id)}" style="margin-top:10px">${ic('pokal')}Gespielt eintragen</button>` : ''}`;
+}
+/* Welche Spiele gibt es bei den eingeladenen Haushalten? (gleiche Spiele nur einmal, mit allen Haushalten) */
+function terminSpieleHtml(t){
+  const gruppen = spielGruppen(alleSpiele().filter(x => !t.haushalte.length || t.haushalte.includes(x.hid))).sort((a, b) => nachName(a.haupt, b.haupt));
+  if (!gruppen.length) return '';
+  return `<div style="margin-top:12px">${klapp('termin-spiele-' + t.id, 'Spiele der Eingeladenen', `<ul class="hh-spiele">${gruppen.map(g => `<li><button type="button" data-spiel="${esc(g.haupt.id)}">${esc(g.haupt.name)}
+      <span>${g.kopien.map(k => figur(farbeVon(k.hid), 13)).join('')} ${esc(spielerText(g.haupt))} Sp.</span></button></li>`).join('')}</ul>`,
+    { klasse:'leicht', klein:`${gruppen.length}` })}</div>`;
 }
 function spielVorschlagen(t){
   if (!meineTerminGruppe(t)) return;
@@ -3615,7 +3682,8 @@ async function haushaltLoeschen(id){
       } else if (r.status !== 404) throw await fehlerAus(r, 'Löschen');
     }catch(e){ toast(e.message, 'fehler'); return; }
   }
-  for (const s of h.spiele) if (s.bild) fotoWeg(s.bild);
+  const eigene = new Set(h.spiele.map(x => x.id));
+  for (const s of h.spiele) if (s.bild) fotoWeg(s.bild, eigene);
   delete D.haushalte[id]; delete D.meta[id];
   if (E.meinHaushalt === id){ E.meinHaushalt = ''; einstSpeichern(); }
   speichern(); renderAlles(); syncBald(); toast(`„${h.name}“ gelöscht`);
@@ -3754,7 +3822,9 @@ const HILFE = [
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler kleiner oder größer machen – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
-    <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
+    <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li>
+    <li><b>Gibt es das Spiel schon</b> bei einem anderen Haushalt? Beim Eintippen des Namens erscheint es unter „Schon in der App“ – antippen übernimmt Angaben und Foto.</li>
+    <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
     <p>In der <b>Spielrunde</b> zählt das Spiel dann beim Haushalt, der es gerade hat. Ist es bei jemandem außerhalb der App, taucht es dort nicht auf. Ist es wieder da: <b>Zurück</b> tippen.</p>` },
@@ -3872,6 +3942,11 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.63', datum:'24.10.2026', neu:[
+    'Gleiche Spiele mehrerer Haushalte erscheinen als eine Kachel mit allen Haushalten',
+    'Spiel eintragen: Gibt es das Spiel schon, Angaben und Foto mit einem Tipp übernehmen',
+    'Termine: „Spiele der Eingeladenen“ – welche Spiele es bei den eingeladenen Haushalten gibt',
+    'Begrüßung beim Einladungslink zeigt, welche Spiele im Spielkreis schon warten'] },
   { v:'v1.62', datum:'24.10.2026', neu:[
     'Kein ungewollter Zoom mehr beim schnellen Tippen (z. B. auf + und −) und keine Textmarkierung auf Knöpfen',
     'iPhone: Nach dem Schließen der Tastatur stehen Leisten und Fenster wieder richtig',
@@ -4013,6 +4088,7 @@ function ueberSheet(neu){
     : '';
   const s = sheet(`<div class="ueber-kopf"><img src="icon.png" alt="" width="64" height="64"><h2>${neu ? 'Willkommen beim Spieleabend!' : 'Worum geht’s?'}</h2></div>
     ${ueberHtml()}
+    ${neu ? '<div data-wartende></div>' : ''}
     ${neu ? `<div class="ueber-schritte"><h3>So geht’s los</h3><ol>
       <li>${E.meinHaushalt && ((D.haushalte[E.meinHaushalt] || {}).name || linkHaushaltName)
         ? `Dieses Gerät gehört zu <b>${esc((D.haushalte[E.meinHaushalt] || {}).name || linkHaushaltName)}</b> – das ist schon eingestellt.`
@@ -4021,7 +4097,26 @@ function ueberSheet(neu){
       <li>Eure eigenen <b>Spiele eintragen</b>: unten rechts auf <b>+</b> tippen.</li></ol></div>` : ''}
     <button class="knopf breit" type="button" data-zu style="margin-top:18px">${neu ? 'Los geht’s' : 'Schließen'}</button>`,
     { beimSchliessen:() => { if (neu) setTimeout(() => { if (!haushaltWechselPruefen()) hausFrage(); }, 300); } });
+  // Sobald die Daten da sind: zeigen, welche Spiele im eigenen Spielkreis schon warten
+  if (neu){
+    const el = $('[data-wartende]', s); let versuche = 0;
+    const zeigen = () => {
+      if (!el.isConnected) return;
+      if (S.letzter && !S.laeuft){ el.innerHTML = wartendeSpieleHtml(); return; }
+      el.innerHTML = '<p class="text-leise text-klein" style="margin:14px 0 0">Spiele werden geladen …</p>';
+      if (++versuche < 45) setTimeout(zeigen, 800); else el.innerHTML = '';
+    };
+    zeigen();
+  }
   return s;
+}
+function wartendeSpieleHtml(){
+  const gruppen = spielGruppen(alleSpiele()).sort((a, b) => nachName(a.haupt, b.haupt));
+  if (!gruppen.length) return '';
+  const hh = [...new Set(gruppen.flatMap(g => g.kopien.map(k => k.hid)))].map(id => D.haushalte[id]).filter(Boolean);
+  return `<div class="ueber-spiele"><h3>${gruppen.length} ${gruppen.length === 1 ? 'Spiel wartet' : 'Spiele warten'} schon auf euch</h3>
+    <p class="text-leise text-klein" style="margin:0">von ${hh.map(h => `${figur(h.farbe, 13)}${esc(h.name)}`).join(', ')}</p>
+    <div class="chips">${gruppen.slice(0, 18).map(g => `<span class="chip">${esc(g.haupt.name)}</span>`).join('')}${gruppen.length > 18 ? `<span class="chip">+ ${gruppen.length - 18} weitere</span>` : ''}</div></div>`;
 }
 function infoSheet(){
   const s = sheet(`<div class="info-kopf">
