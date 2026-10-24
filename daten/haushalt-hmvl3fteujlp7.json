@@ -66,6 +66,25 @@
    "geaendert": 1792790212002
   },
   {
+   "id": "smvml3o7e8wj6",
+   "name": "Oh, Pharao!",
+   "bild": "bilder/smvml3o7e8wj6-mvml3o7f.jpg",
+   "spielerMin": 3,
+   "spielerMax": 4,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Strategie"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792857561675,
+   "geaendert": 1792857561675
+  },
+  {
    "id": "smvmkhncbgq1e",
    "name": "Wort Rummikub",
    "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
