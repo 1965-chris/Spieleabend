@@ -260,6 +260,14 @@ a.knopf{text-decoration:none}
 .termin-knoepfe .knopf{min-height:42px;font-size:14.5px;padding:0 10px}
 .termin-mark{font-size:12px;font-weight:700;color:#fff;background:var(--rot);border-radius:999px;padding:2px 8px;margin-left:6px}
 .zeit-reihe{display:flex;gap:8px;margin-bottom:8px}
+.ort-reihe{display:grid;grid-template-columns:1fr 46px;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--linie)}
+.ort-reihe .eingabe{min-width:0}
+.ort-reihe [data-orttext]{grid-column:1 / -1}
+.ort-reihe .knopf-rund{width:46px;height:46px;border-radius:12px}
+.termin-abschnitt{font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--leise);margin:14px 0 0}
+.option-zeit .figur{vertical-align:-2px;margin-right:4px}
+.fest-wahl{margin:4px 0 14px}
+.fest-wahl .chip{text-align:left}
 .zeit-reihe .eingabe{flex:1;min-width:0}
 .zeit-reihe .knopf-rund{width:46px;height:46px;border-radius:12px}
 .tabs button{appearance:none;border:0;background:none;color:var(--leise);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
@@ -574,7 +582,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.55';
+const VERSION = 'v1.56';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2125,7 +2133,7 @@ function wuerfeln(){
 /* ---------- Termine: Spieleabend planen und abstimmen ----------
    Jede Umfrage ist eine eigene Datei daten/termin-<id>.json. Jede Person stimmt pro Termin mit ja, vielleicht oder nein.
    Stimmen werden einzeln zusammengeführt – stimmen zwei Geräte gleichzeitig ab, bleibt beides erhalten. */
-const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festStand','geloescht']);
+const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','orte','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festOrt','festStand','geloescht']);
 const ANTWORTEN = ['', 'ja', 'vielleicht', 'nein'];
 const ANTWORT_ZEICHEN = { '':'○', ja:'✓', vielleicht:'?', nein:'✗' };
 function zwei(n){ return String(n).padStart(2, '0'); }
@@ -2143,7 +2151,11 @@ function terminNorm(t){
     haushalte:Array.isArray(t.haushalte) ? [...new Set(t.haushalte.map(String))].sort() : [],
     optionen:(Array.isArray(t.optionen) ? t.optionen : []).filter(o => o && o.id && zeitGueltig(o.zeit))
       .map(o => ({ id:String(o.id), zeit:o.zeit, stand:zahl(o.stand) || 0 })).sort((a, b) => a.zeit.localeCompare(b.zeit) || a.id.localeCompare(b.id)),
-    stimmen, festgelegt:String(t.festgelegt || ''), festStand:zahl(t.festStand) || 0, geloescht:g
+    // Orte zur Abstimmung: Gastgeber-Haushalt und/oder freie Ortsangabe
+    orte:(Array.isArray(t.orte) ? t.orte : []).filter(o => o && o.id && (o.hid || String(o.text || '').trim()))
+      .map(o => ({ id:String(o.id), hid:String(o.hid || ''), text:String(o.text || '').trim().slice(0, 80), pos:zahl(o.pos) || 0, stand:zahl(o.stand) || 0 }))
+      .sort((a, b) => a.pos - b.pos || a.id.localeCompare(b.id)),
+    stimmen, festgelegt:String(t.festgelegt || ''), festOrt:String(t.festOrt || ''), festStand:zahl(t.festStand) || 0, geloescht:g
   };
 }
 function terminForm(t){ return { format:1, app:VERSION, ...terminNorm(t) }; }
@@ -2153,6 +2165,8 @@ function terminMischen(lokal, fern){
   const tomb = { ...B.geloescht }; for (const [k, v] of Object.entries(A.geloescht)) tomb[k] = Math.max(tomb[k] || 0, v);
   const o = new Map(); for (const x of B.optionen) o.set(x.id, x);
   for (const x of A.optionen){ const y = o.get(x.id); if (!y || x.stand > y.stand) o.set(x.id, x); }
+  const w = new Map(); for (const x of B.orte) w.set(x.id, x);
+  for (const x of A.orte){ const y = w.get(x.id); if (!y || x.stand > y.stand) w.set(x.id, x); }
   const st = { ...B.stimmen };
   for (const [k, v] of Object.entries(A.stimmen)) if (!st[k] || v.stand > st[k].stand) st[k] = v;
   return terminNorm({
@@ -2160,7 +2174,8 @@ function terminMischen(lokal, fern){
     id:A.id, titel:kopf.titel, notiz:kopf.notiz, ort:kopf.ort, gastgeber:kopf.gastgeber, erstelltVon:A.erstelltVon || B.erstelltVon,
     erstellt:A.erstellt || B.erstellt, stand:kopf.stand, haushalte:kopf.haushalte,
     optionen:[...o.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), stimmen:st,
-    festgelegt:fest.festgelegt, festStand:fest.festStand, geloescht:tomb
+    orte:[...w.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)),
+    festgelegt:fest.festgelegt, festOrt:fest.festOrt, festStand:fest.festStand, geloescht:tomb
   });
 }
 function markiereT(id, notiz){
@@ -2228,6 +2243,15 @@ function optionAuswertung(t, o){
   }
   return w;
 }
+/* Orte: Ältere Umfragen haben nur gastgeber/ort – das gilt dann als einziger Ort */
+function terminOrte(t){
+  if (t.orte && t.orte.length) return t.orte;
+  return (t.gastgeber || t.ort) ? [{ id:'w0', hid:t.gastgeber || '', text:t.ort || '', pos:0, stand:0 }] : [];
+}
+function ortAbstimmung(t){ return (t.orte || []).length > 1; }
+function ortText(o){ const h = D.haushalte[o.hid]; return [h ? `bei ${h.name}` : '', o.text].filter(Boolean).join(', '); }
+function ortHtml(o){ const h = D.haushalte[o.hid]; return `${h ? figur(h.farbe, 15) : ''}${esc(ortText(o))}`; }
+function festerOrt(t){ const orte = terminOrte(t); return orte.length === 1 ? orte[0] : (orte.find(o => o.id === t.festOrt) || null); }
 function terminZeitText(z){
   const d = new Date(z);
   return `${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}, ${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}. um ${zwei(d.getHours())}:${zwei(d.getMinutes())} Uhr`;
@@ -2241,7 +2265,8 @@ function meineTerminGruppe(t){ return meinHaushaltGueltig() ? terminTeilnehmer(t
 function nochNichtAbgestimmt(t){
   if (t.festgelegt || terminVorbei(t) || !terminSichtbar(t)) return false;
   const g = meineTerminGruppe(t); if (!g) return false;
-  return !t.optionen.some(o => g.leute.some(p => stimmeVon(t, o.id, p.pid)));
+  const gewaehlt = liste => liste.some(o => g.leute.some(p => stimmeVon(t, o.id, p.pid)));
+  return !gewaehlt(t.optionen) || (ortAbstimmung(t) && !gewaehlt(t.orte));
 }
 function termineZahlZeigen(){
   const el = $('#termine-zahl'); if (!el) return;
@@ -2265,39 +2290,46 @@ function renderTermine(){
     ${alt.length ? `<div style="margin-top:6px">${klapp('termine-alt', 'Vergangene Spieleabende', alt.map(terminKarteHtml).join(''), { klasse:'leicht', klein:`${alt.length}` })}</div>` : ''}`;
   termineZahlZeigen();
 }
-function terminKarteHtml(t){
-  const fest = t.optionen.find(o => o.id === t.festgelegt);
-  const gast = D.haushalte[t.gastgeber];
-  const meine = meineTerminGruppe(t);
-  const auswertung = t.optionen.map(o => ({ o, w:optionAuswertung(t, o) }));
+function abstimmungHtml(t, liste, titelHtml, festId, meine){
+  const auswertung = liste.map(o => ({ o, w:optionAuswertung(t, o) }));
   const punkte = x => x.w.ja * 2 + x.w.vl;
   const beste = Math.max(0, ...auswertung.map(punkte));
-  const offen = nochNichtAbgestimmt(t);
-  const klein = fest ? `✓ ${terminZeitText(fest.zeit).split(' um ')[0]}` : `${t.optionen.length} Termin${t.optionen.length === 1 ? '' : 'e'}`;
-  const optionen = auswertung.map(x => {
+  return auswertung.map(x => {
     const { o, w } = x;
     const pJa = w.gesamt ? Math.round(w.ja / w.gesamt * 100) : 0, pVl = w.gesamt ? Math.round(w.vl / w.gesamt * 100) : 0;
     const namen = ['ja', 'vielleicht', 'nein'].filter(a => w.namen[a].length)
       .map(a => `${a === 'ja' ? 'Ja' : a === 'vielleicht' ? 'Vielleicht' : 'Nein'}: ${esc(w.namen[a].join(', '))}`).join('<br>');
     return `<div class="option">
-      <div class="option-kopf"><span class="option-zeit">${esc(terminZeitText(o.zeit))}</span>
-        ${fest && fest.id === o.id ? '<span class="beste">festgelegt</span>' : (!fest && beste > 0 && punkte(x) === beste ? '<span class="beste">beste Wahl</span>' : '')}
+      <div class="option-kopf"><span class="option-zeit">${titelHtml(o)}</span>
+        ${festId && festId === o.id ? '<span class="beste">festgelegt</span>' : (!festId && beste > 0 && punkte(x) === beste ? '<span class="beste">beste Wahl</span>' : '')}
         <span class="option-zahl">${w.ja} ja${w.vl ? `, ${w.vl} vielleicht` : ''}</span></div>
       <div class="balken"><i class="ja" style="width:${pJa}%"></i><i class="vl" style="width:${pVl}%"></i></div>
-      ${meine && !fest ? `<div class="chips">${meine.leute.map(p => { const a = stimmeVon(t, o.id, p.pid);
+      ${meine && !t.festgelegt ? `<div class="chips">${meine.leute.map(p => { const a = stimmeVon(t, o.id, p.pid);
           return `<button type="button" class="chip stimme" data-t="stimme" data-id="${esc(t.id)}" data-opt="${esc(o.id)}" data-pid="${esc(p.pid)}" data-a="${a}"><b>${ANTWORT_ZEICHEN[a]}</b>${esc(p.name)}</button>`; }).join('')}</div>` : ''}
       ${namen ? `<p class="stimm-liste">${namen}</p>` : ''}
     </div>`;
   }).join('');
+}
+function terminKarteHtml(t){
+  const fest = t.optionen.find(o => o.id === t.festgelegt);
+  const mehrOrte = ortAbstimmung(t), wo = festerOrt(t);
+  const meine = meineTerminGruppe(t);
+  const offen = nochNichtAbgestimmt(t);
+  const klein = fest ? `✓ ${terminZeitText(fest.zeit).split(' um ')[0]}`
+    : `${t.optionen.length} Termin${t.optionen.length === 1 ? '' : 'e'}${mehrOrte ? ` · ${t.orte.length} Orte` : ''}`;
+  const zeiten = abstimmungHtml(t, t.optionen, o => esc(terminZeitText(o.zeit)), t.festgelegt, meine);
+  const orte = mehrOrte ? abstimmungHtml(t, t.orte, ortHtml, fest ? t.festOrt : '', meine) : '';
   const darf = darfTermin(t);
   return `<details class="klapp block termin" data-klapp="termin-${esc(t.id)}" id="termin-${esc(t.id)}"${klappAuf('termin-' + t.id, true) ? ' open' : ''}>
     <summary><span class="klapp-titel">${esc(t.titel)}${offen ? '<span class="termin-mark">abstimmen</span>' : ''}</span><small>${esc(klein)}</small>${ic('pfeil')}</summary>
     <div class="innen">
-      <p class="termin-meta">${gast ? `${figur(gast.farbe, 15)}bei ${esc(gast.name)}` : ''}${t.ort ? `${gast ? ', ' : ''}${esc(t.ort)}` : ''}</p>
+      ${!mehrOrte && wo ? `<p class="termin-meta">${ortHtml(wo)}</p>` : ''}
       ${t.notiz ? `<p class="termin-notiz">${esc(t.notiz)}</p>` : ''}
-      ${fest ? `<div class="fest-karte"><b>${esc(terminZeitText(fest.zeit))}</b><br><span class="text-leise text-klein">Der Termin steht fest.</span></div>` : ''}
-      ${meine && !fest ? '<p class="block-hinweis" style="margin:0 0 4px">Tippe deine Namen an: ✓ kann, ? vielleicht, ✗ kann nicht.</p>' : ''}
-      ${optionen || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
+      ${fest ? `<div class="fest-karte"><b>${esc(terminZeitText(fest.zeit))}</b>${wo && mehrOrte ? `<br><span>${ortHtml(wo)}</span>` : ''}<br><span class="text-leise text-klein">Der Termin steht fest.</span></div>` : ''}
+      ${meine && !fest ? `<p class="block-hinweis" style="margin:0 0 4px">Tippe deine Namen an: ✓ kann, ? vielleicht, ✗ kann nicht${mehrOrte ? ' – bei „Wann?“ und bei „Wo?“' : ''}.</p>` : ''}
+      ${mehrOrte ? '<p class="termin-abschnitt">Wann?</p>' : ''}
+      ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
+      ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
                   <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
@@ -2325,21 +2357,23 @@ function terminKlick(e){
 }
 function stimmeSetzen(t, optId, pid){
   const g = meineTerminGruppe(t);
-  if (!g || t.festgelegt || !g.leute.some(p => p.pid === pid)) return;
+  if (!g || t.festgelegt || !g.leute.some(p => p.pid === pid) || ![...t.optionen, ...(t.orte || [])].some(o => o.id === optId)) return;
   const key = `${optId}|${pid}`, alt = (t.stimmen[key] || {}).a || '';
   t.stimmen[key] = { a:ANTWORTEN[(ANTWORTEN.indexOf(alt) + 1) % ANTWORTEN.length], stand:Date.now() };
   markiereT(t.id, 'abgestimmt'); speichern(); renderTermine(); syncBald();
 }
 
 /* Texte zum Verschicken */
-function terminWo(t){ const gast = D.haushalte[t.gastgeber]; return [gast ? `bei ${gast.name}` : '', t.ort].filter(Boolean).join(', '); }
+function terminWo(t){ const o = festerOrt(t); return o ? ortText(o) : ''; }
 function terminEinladungText(t){
+  const mehrOrte = ortAbstimmung(t);
   return [
-    `🎲 ${t.titel} – wann habt ihr Zeit?`,
-    terminWo(t) ? `📍 ${terminWo(t)}` : '',
+    `🎲 ${t.titel} – ${mehrOrte ? 'wann und wo passt es euch?' : 'wann habt ihr Zeit?'}`,
+    !mehrOrte && terminWo(t) ? `📍 ${terminWo(t)}` : '',
     '',
-    'Zur Auswahl:',
+    mehrOrte ? '📅 Wann?' : 'Zur Auswahl:',
     ...t.optionen.map((o, i) => `${i + 1}. ${terminZeitText(o.zeit)}`),
+    ...(mehrOrte ? ['', '📍 Wo?', ...t.orte.map((o, i) => `${'abcdefghij'[i] || i + 1}) ${ortText(o)}`)] : []),
     t.notiz ? `\n${t.notiz}` : '',
     '',
     'Bitte in der Spieleabend-App unter „Termine“ für jeden von euch abstimmen (✓ kann, ? vielleicht, ✗ kann nicht).'
@@ -2386,16 +2420,24 @@ function terminFormular(t){
   if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
   if (!neu && !darfTermin(t)) return;
   const sichtbar = haushaltListe();
-  const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id,
-    haushalte:sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }] };
+  const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
+    haushalte:sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
+  const orteVorher = t ? terminOrte(w) : [{ id:neueId('w'), hid:w.gastgeber, text:'', pos:0, stand:0 }];
+  const ortZeile = o => `<div class="ort-reihe" data-ortzeile="${esc(o.id)}">
+    <select class="eingabe" data-gast aria-label="Gastgeber"><option value="">– anderer Ort –</option>${haushaltListe(true).filter(h => sichtbar.some(x => x.id === h.id) || h.id === o.hid)
+      .map(h => `<option value="${esc(h.id)}"${h.id === o.hid ? ' selected' : ''}>bei ${esc(h.name)}</option>`).join('')}</select>
+    <button class="knopf-rund" type="button" data-weg-ort aria-label="Ort entfernen">${ic('x')}</button>
+    <input class="eingabe" data-orttext value="${esc(o.text || '')}" maxlength="80" placeholder="Adresse oder Ort (wenn nötig)" autocomplete="off"></div>`;
   const kreise = meineKreise();
   const zeile = o => `<div class="zeit-reihe" data-zeile="${esc(o.id)}"><input class="eingabe" type="datetime-local" value="${esc(o.zeit)}" data-zeit>
     <button class="knopf-rund" type="button" data-weg-zeit aria-label="Termin entfernen">${ic('x')}</button></div>`;
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>${neu ? 'Spieleabend planen' : 'Termine bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <label class="feld"><span class="feld-titel">Titel</span><input class="eingabe" name="titel" value="${esc(w.titel)}" maxlength="60" autocomplete="off"></label>
-    ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Gastgeber</span>${figurChipsHtml('gastgeber', [w.gastgeber], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
-    <label class="feld"><span class="feld-titel">Ort (wenn nötig)</span><input class="eingabe" name="ort" value="${esc(w.ort)}" maxlength="80" placeholder="z. B. im Gemeinschaftsraum" autocomplete="off"></label>
+    <div class="feld"><span class="feld-titel">Wo?</span>
+      <div data-orte>${orteVorher.map(ortZeile).join('')}</div>
+      <button class="knopf zweit breit" type="button" data-mehr-ort>${ic('plus')}Weiteren Ort zur Abstimmung</button>
+      <p class="block-hinweis" style="margin-top:6px">Mehr als ein Ort: Alle stimmen auch über den Ort ab.</p></div>
     <div class="feld"><span class="feld-titel">Mögliche Termine</span>
       <div data-zeiten>${w.optionen.map(zeile).join('')}</div>
       <button class="knopf zweit breit" type="button" data-mehr>${ic('plus')}Weiteren Termin</button></div>
@@ -2405,9 +2447,20 @@ function terminFormular(t){
     <label class="feld"><span class="feld-titel">Notiz (wenn nötig)</span><textarea class="eingabe" name="notiz" maxlength="300" placeholder="z. B. Jeder bringt ein Spiel mit.">${esc(w.notiz)}</textarea></label>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">${neu ? 'Anlegen' : 'Speichern'}</button></div>
   </form>`, { klasse:'gross' });
-  const form = $('form', s), zeiten = $('[data-zeiten]', s);
-  const zeilenPruefen = () => $$('[data-weg-zeit]', zeiten).forEach(b => b.style.visibility = $$('[data-zeile]', zeiten).length > 1 ? 'visible' : 'hidden');
+  const form = $('form', s), zeiten = $('[data-zeiten]', s), orteEl = $('[data-orte]', s);
+  const zeilenPruefen = () => {
+    $$('[data-weg-zeit]', zeiten).forEach(b => b.style.visibility = $$('[data-zeile]', zeiten).length > 1 ? 'visible' : 'hidden');
+    $$('[data-weg-ort]', orteEl).forEach(b => b.style.visibility = $$('[data-ortzeile]', orteEl).length > 1 ? 'visible' : 'hidden');
+  };
   zeilenPruefen();
+  $('[data-mehr-ort]', s).addEventListener('click', () => {
+    if ($$('[data-ortzeile]', orteEl).length >= 6){ toast('Höchstens 6 Orte.', 'fehler'); return; }
+    const schon = $$('[data-gast]', orteEl).map(x => x.value);
+    const frei = sichtbar.find(h => !schon.includes(h.id));
+    orteEl.insertAdjacentHTML('beforeend', ortZeile({ id:neueId('w'), hid:frei ? frei.id : '', text:'' }));
+    zeilenPruefen();
+  });
+  orteEl.addEventListener('click', e => { const b = e.target.closest('[data-weg-ort]'); if (b && $$('[data-ortzeile]', orteEl).length > 1){ b.closest('[data-ortzeile]').remove(); zeilenPruefen(); } });
   $('[data-mehr]', s).addEventListener('click', () => {
     if ($$('[data-zeile]', zeiten).length >= 10){ toast('Höchstens 10 Termine.', 'fehler'); return; }
     const werte = $$('[data-zeit]', zeiten).map(x => x.value).filter(zeitGueltig).sort();
@@ -2426,21 +2479,33 @@ function terminFormular(t){
     const jetzt = Date.now();
     const zeilen = $$('[data-zeile]', zeiten).map(z => ({ id:z.dataset.zeile, zeit:$('[data-zeit]', z).value.slice(0, 16) })).filter(x => zeitGueltig(x.zeit));
     if (!zeilen.length){ toast('Bitte mindestens einen Termin mit Datum und Uhrzeit eintragen.', 'fehler'); return; }
-    const gg = $('[data-gruppe="gastgeber"]', s), ein = $('[data-gruppe="eingeladen"]', s);
-    const gastgeber = gg ? gewaehlteChips(gg)[0] : w.gastgeber;
+    const ein = $('[data-gruppe="eingeladen"]', s);
+    // Orte: jede Zeile ist ein Gastgeber-Haushalt und/oder eine Ortsangabe; leere Zeilen fallen weg
+    const alteOrte = new Map(orteVorher.map(o => [o.id, o]));
+    const orte = $$('[data-ortzeile]', orteEl).map((z, i) => ({ id:z.dataset.ortzeile, hid:$('[data-gast]', z).value, text:$('[data-orttext]', z).value.trim().slice(0, 80), pos:i }))
+      .filter(o => o.hid || o.text)
+      .map(o => { const alt = alteOrte.get(o.id); return { ...o, stand:alt && alt.hid === o.hid && alt.text === o.text && alt.pos === o.pos ? alt.stand : jetzt }; });
+    const mehrOrte = orte.length > 1;
     let haushalte = ein ? gewaehlteChips(ein) : sichtbar.map(h => h.id);
     for (const id of w.haushalte) if (!sichtbar.some(h => h.id === id) && !haushalte.includes(id)) haushalte.push(id);   // hier nicht sichtbare bleiben eingeladen
-    for (const pflicht of [gastgeber, E.meinHaushalt]) if (pflicht && D.haushalte[pflicht] && !haushalte.includes(pflicht)) haushalte.push(pflicht);
+    for (const pflicht of [...orte.map(o => o.hid), E.meinHaushalt]) if (pflicht && D.haushalte[pflicht] && !haushalte.includes(pflicht)) haushalte.push(pflicht);
     const alteOpt = new Map(w.optionen.map(o => [o.id, o]));
     const optionen = zeilen.map(z => { const alt = alteOpt.get(z.id); return { id:z.id, zeit:z.zeit, stand:alt && alt.zeit === z.zeit ? alt.stand : jetzt }; });
     const geloescht = { ...(w.geloescht || {}) };
     for (const o of w.optionen) if (!optionen.some(x => x.id === o.id)) geloescht[o.id] = jetzt;
+    for (const o of w.orte || []) if (!orte.some(x => x.id === o.id)) geloescht[o.id] = jetzt;
     const id = neu ? neueId('t') : w.id;
+    // Festlegung bleibt nur, wenn Termin (und bei mehreren Orten auch der Ort) noch da ist
+    let festgelegt = w.festgelegt && optionen.some(o => o.id === w.festgelegt) ? w.festgelegt : '';
+    let festOrt = mehrOrte && w.festOrt && orte.some(o => o.id === w.festOrt) ? w.festOrt : '';
+    if (mehrOrte && festgelegt && !festOrt){ festgelegt = ''; }
+    const wo = mehrOrte ? orte.find(o => o.id === festOrt) : orte[0];
     const fertig = terminNorm({
-      ...w, id, titel:feldVon(form, 'titel').value.trim() || 'Spieleabend', ort:feldVon(form, 'ort').value.trim(), notiz:feldVon(form, 'notiz').value.trim(),
-      gastgeber, haushalte, optionen, geloescht, stand:jetzt,
-      erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : gastgeber) : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
-      festgelegt:w.festgelegt && optionen.some(o => o.id === w.festgelegt) ? w.festgelegt : '', festStand:w.festStand || 0
+      ...w, id, titel:feldVon(form, 'titel').value.trim() || 'Spieleabend', notiz:feldVon(form, 'notiz').value.trim(),
+      gastgeber:wo ? wo.hid : '', ort:wo ? wo.text : '',      // für ältere App-Versionen
+      orte, haushalte, optionen, geloescht, stand:jetzt,
+      erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : (orte[0] || {}).hid || '') : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
+      festgelegt, festOrt, festStand:(festgelegt !== w.festgelegt || festOrt !== w.festOrt) ? jetzt : (w.festStand || 0)
     });
     D.termine[id] = fertig;
     markiereT(id, neu ? 'Termine vorgeschlagen' : 'Termine geändert');
@@ -2452,20 +2517,38 @@ function terminFormular(t){
 }
 function terminFestlegen(t){
   if (!darfTermin(t)) return;
-  const s = sheet(`<div class="sheet-kopf"><h2>Termin festlegen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <p class="text-leise" style="margin-top:-4px">Welcher Termin soll es werden?</p>
-    <div style="display:flex;flex-direction:column;gap:8px">${t.optionen.map(o => { const w = optionAuswertung(t, o);
-      return `<button class="treffer" type="button" data-wahl="${esc(o.id)}"><span class="treffer-text"><b>${esc(terminZeitText(o.zeit))}</b><span>${w.ja} ja, ${w.vl} vielleicht, ${w.nein} nein</span></span></button>`; }).join('')}</div>`);
-  s.addEventListener('click', e => {
-    const b = e.target.closest('[data-wahl]'); if (!b) return;
-    t.festgelegt = b.dataset.wahl; t.festStand = Date.now();
-    markiereT(t.id, 'Termin festgelegt'); speichern(); s.schliessen(); renderAlles(); syncBald();
+  const fertig = (zeitId, ortId) => {
+    t.festgelegt = zeitId; t.festOrt = ortId || ''; t.festStand = Date.now();
+    const wo = festerOrt(t); t.gastgeber = wo ? wo.hid : ''; t.ort = wo ? wo.text : ''; t.stand = Date.now();   // für ältere App-Versionen
+    markiereT(t.id, 'Termin festgelegt'); speichern(); renderAlles(); syncBald();
     setTimeout(() => teilenSheet('Allen Bescheid geben', terminFestText(t)), 260);
+  };
+  if (!ortAbstimmung(t)){
+    const s = sheet(`<div class="sheet-kopf"><h2>Termin festlegen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+      <p class="text-leise" style="margin-top:-4px">Welcher Termin soll es werden?</p>
+      <div style="display:flex;flex-direction:column;gap:8px">${t.optionen.map(o => { const w = optionAuswertung(t, o);
+        return `<button class="treffer" type="button" data-wahl="${esc(o.id)}"><span class="treffer-text"><b>${esc(terminZeitText(o.zeit))}</b><span>${w.ja} ja, ${w.vl} vielleicht, ${w.nein} nein</span></span></button>`; }).join('')}</div>`);
+    s.addEventListener('click', e => { const b = e.target.closest('[data-wahl]'); if (!b) return; s.schliessen(); fertig(b.dataset.wahl, ''); });
+    return;
+  }
+  // Mit Ortsabstimmung: Termin und Ort wählen – vorausgewählt ist jeweils die beste Wahl
+  const besteVon = liste => { let b = null, bp = -1; for (const o of liste){ const w = optionAuswertung(t, o), pkt = w.ja * 2 + w.vl; if (pkt > bp){ b = o; bp = pkt; } } return b ? b.id : ''; };
+  const wahlHtml = (gruppe, liste, titel, vor) => `<div class="chips fest-wahl" data-gruppe="${gruppe}" data-mehrfach="0" data-pflicht="1">${liste.map(o => { const w = optionAuswertung(t, o);
+    return `<button type="button" class="chip" data-wert="${esc(o.id)}" aria-pressed="${o.id === vor}">${esc(titel(o))} · ${w.ja} ja${w.vl ? `, ${w.vl} vielleicht` : ''}</button>`; }).join('')}</div>`;
+  const s = sheet(`<div class="sheet-kopf"><h2>Termin festlegen</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="termin-abschnitt" style="margin-top:0">Wann?</p>${wahlHtml('fest-zeit', t.optionen, o => terminZeitText(o.zeit), besteVon(t.optionen))}
+    <p class="termin-abschnitt">Wo?</p>${wahlHtml('fest-ort', t.orte, ortText, besteVon(t.orte))}
+    <button class="knopf breit" type="button" data-festlegen>Festlegen</button>`);
+  $('[data-festlegen]', s).addEventListener('click', () => {
+    const z = gewaehlteChips($('[data-gruppe="fest-zeit"]', s))[0], o = gewaehlteChips($('[data-gruppe="fest-ort"]', s))[0];
+    if (!z || !o){ toast('Bitte Termin und Ort wählen.', 'fehler'); return; }
+    s.schliessen(); fertig(z, o);
   });
 }
 function terminWiederOeffnen(t){
   if (!darfTermin(t)) return;
-  t.festgelegt = ''; t.festStand = Date.now();
+  t.festgelegt = ''; t.festOrt = ''; t.festStand = Date.now();
+  if (ortAbstimmung(t)){ t.gastgeber = ''; t.ort = ''; t.stand = Date.now(); }
   markiereT(t.id, 'Abstimmung wieder geöffnet'); speichern(); renderAlles(); syncBald(); toast('Abstimmung ist wieder offen');
 }
 async function terminLoeschen(t){
@@ -2982,8 +3065,9 @@ const HILFE = [
     <li>Hat mehr als ein Haushalt dasselbe Spiel, erscheint es nur einmal – mit allen Spielfiguren.</li>
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
   { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', text:`
-    <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Gastgeber, mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
+    <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Ort (Gastgeber), mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
     <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
+    <li><b>Wo?</b> Ein Ort ist ein Gastgeber-Haushalt und/oder eine Adresse. Mit <b>+ Weiteren Ort zur Abstimmung</b> schlägst du mehrere vor – dann stimmen alle auch über den Ort ab.</li>
     <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
     <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
     <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
@@ -3062,6 +3146,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.56', datum:'24.10.2026', neu:[
+    'Termine: Auch über den Ort abstimmen – mehrere Orte vorschlagen (Gastgeber-Haushalt und/oder Adresse)',
+    'Jede Person stimmt bei „Wann?“ und „Wo?“ ab; beim Festlegen sind beste Zeit und bester Ort vorausgewählt',
+    'Einladungstext, „Es steht fest …“ und Kalendereintrag nennen den gewählten Ort'] },
   { v:'v1.55', datum:'24.10.2026', neu:[
     'Neue Familie dazuholen: Jeder Haushalt kann eine Familie anfragen und dem Admin per WhatsApp Bescheid geben',
     'Admin: Anfragen oben unter „Haushalte“ (rote Zahl am Reiter) – freigeben mit Spielkreis, auf Wunsch den Link gleich an die anfragende Familie schicken',
