@@ -179,6 +179,8 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .karte-haushalt{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--leise);margin-top:auto;padding-top:2px}
 .karte-haushalte{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:2px}
 .karte-haushalte .karte-haushalt{margin-top:0;padding-top:0}
+.karte-bei{color:var(--filz);font-weight:600;align-items:flex-start}
+.karte-bei .ic{width:14px;height:14px;flex:none;margin-top:1px}
 .link-knopf{appearance:none;border:0;background:none;padding:0;font:inherit;color:var(--filz);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;gap:4px}
 .ueber-spiele{margin:16px 0 0;padding:12px 14px;border-radius:14px;background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
 .ueber-spiele h3{font-size:16px;margin:0 0 4px}
@@ -657,7 +659,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.64';
+const VERSION = 'v1.65';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1474,7 +1476,7 @@ function passt(s, f){
   if (f.alter != null && s.alterAb != null && s.alterAb > f.alter) return false;
   if (f.dauerMax != null && s.dauer != null && s.dauer > f.dauerMax) return false;
   if (f.kategorien && f.kategorien.length && !s.kategorien.some(k => f.kategorien.includes(k))) return false;
-  if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid)) return false;
+  if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid) && !(verliehenAn(s) && f.haushalte.includes(verliehenAn(s).hid))) return false;
   if (f.ohne && f.ohne.includes(s.hid)) return false;
   if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
   return true;
@@ -1517,19 +1519,23 @@ function spielGruppen(liste){
   const m = new Map();
   for (const s of liste){ const k = nameSchluessel(s.name) || s.id; if (!m.has(k)) m.set(k, []); m.get(k).push(s); }
   return [...m.values()].map(kopien => {
-    kopien.sort((a, b) => (b.hid === E.meinHaushalt) - (a.hid === E.meinHaushalt) || (b.bild ? 1 : 0) - (a.bild ? 1 : 0) || a.hid.localeCompare(b.hid));
+    const hier = k => stehtBei(k) === E.meinHaushalt;
+    kopien.sort((a, b) => hier(b) - hier(a) || (b.hid === E.meinHaushalt) - (a.hid === E.meinHaushalt) || (b.bild ? 1 : 0) - (a.bild ? 1 : 0) || a.hid.localeCompare(b.hid));
     return { haupt:kopien[0], kopien, erstellt:Math.max(...kopien.map(k => k.erstellt || 0)) };
   });
 }
 function karteHtml(s, kopien){
   const h = D.haushalte[s.hid], farbe = farbeVon(s.hid);
   const mehrere = kopien && kopien.length > 1;
-  const hhZeile = k => `<span class="karte-haushalt">${figur(farbeVon(k.hid), 14)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>`;
+  // Verliehen: unter dem Haushalt, dem es gehört, steht, wo es gerade ist
+  const beiZeile = k => { const v = verliehenAn(k); return v ? `<span class="karte-haushalt karte-bei">${ic('tausch')}<span>jetzt bei ${esc(v.hid === E.meinHaushalt ? 'euch' : verleihText(v))}</span></span>` : ''; };
+  const hhZeile = k => `<span class="karte-haushalt">${figur(farbeVon(k.hid), 14)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>${beiZeile(k)}`;
+  const v = verliehenAn(s);
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
-    <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${s.verliehen && funktionAn('verleihen') ? `<span class="karte-verliehen">${ic('tausch')}verliehen</span>` : ''}</span>
+    <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${v ? `<span class="karte-verliehen">${ic('tausch')}${v.hid === E.meinHaushalt ? 'ausgeliehen' : 'verliehen'}</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
       ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
-        : `<span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>`}</span></button>`;
+        : `<span class="karte-haushalte"><span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>${beiZeile(s)}</span>`}</span></button>`;
 }
 function renderSpiele(){
   filterBereinigen();
@@ -1613,7 +1619,7 @@ function spielDetail(id){
   const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(sp)}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
     <h2 class="detail-name">${esc(sp.name)}</h2>
-    <p class="detail-haushalt">${figur(farbe, 18)}steht bei ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `<button type="button" class="link-knopf" data-kopie="${esc(k.id)}">${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}</button>`).join(', ')}` : ''}</p>
+    <p class="detail-haushalt">${figur(farbe, 18)}${verliehenAn(sp) ? 'gehört' : 'steht bei'} ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `<button type="button" class="link-knopf" data-kopie="${esc(k.id)}">${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}</button>`).join(', ')}` : ''}</p>
     <div class="fakten-gross">
       <div><b>${esc(spielerText(sp))}</b><span>Spieler</span></div>
       <div><b>${sp.alterAb != null ? 'ab ' + sp.alterAb : '–'}</b><span>Jahre</span></div>
@@ -2922,12 +2928,15 @@ function verliehenNorm(v){
   return hid || name ? { hid, name, seit:zahl(v.seit) || 0 } : null;
 }
 function verleihText(v){ return v ? ((D.haushalte[v.hid] || {}).name || v.name || 'jemand anderen') : ''; }
+function verliehenAn(s){ return s && s.verliehen && funktionAn('verleihen') ? s.verliehen : null; }
+/* Wo das Spiel gerade steht: beim Haushalt, der es ausgeliehen hat – sonst beim eigenen ('' = bei jemandem außerhalb der App) */
+function stehtBei(s){ const v = verliehenAn(s); return v ? (v.hid && D.haushalte[v.hid] ? v.hid : '') : s.hid; }
 function verleihHtml(sp){
   if (!funktionAn('verleihen')) return '';
   const v = sp.verliehen, darf = darfBearbeiten(sp.hid);
   if (!v && !darf) return '';
   return v
-    ? `<div class="verliehen-hinweis">${ic('tausch')}<span>Ausgeliehen an <b>${esc(verleihText(v))}</b>${v.seit ? ` seit ${datumKurz(v.seit)}` : ''}</span>
+    ? `<div class="verliehen-hinweis">${ic('tausch')}<span>${v.hid === E.meinHaushalt ? 'Steht gerade <b>bei euch</b> (ausgeliehen)' : `Ausgeliehen an <b>${esc(verleihText(v))}</b>`}${v.seit ? ` seit ${datumKurz(v.seit)}` : ''}</span>
         ${darf ? '<button class="knopf rahmen" type="button" data-verl="zurueck">Zurück</button>' : ''}</div>`
     : `<button class="knopf rahmen breit" type="button" data-verl="neu" style="margin-top:12px">${ic('tausch')}Verleihen</button>`;
 }
@@ -3401,6 +3410,7 @@ function renderHaushalte(){
   const liste = haushaltListe();
   el.innerHTML = `${anfragenHtml()}${liste.length ? `<div class="hh-liste">${liste.map(h => {
       const n = h.spiele.length, sp = h.spieler || [], wartet = (D.meta[h.id] || {}).dirty, darf = darfBearbeiten(h.id);
+      const geliehen = alleSpiele().filter(s => s.hid !== h.id && verliehenAn(s) && verliehenAn(s).hid === h.id).sort(nachName);
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
@@ -3416,11 +3426,12 @@ function renderHaushalte(){
               ${darf && sp.length ? '<p class="block-hinweis">Namen antippen zum Ändern oder Entfernen.</p>' : ''}
               ${!darf && !sp.length ? '<p class="hh-leer">Noch keine Mitspieler eingetragen.</p>' : ''}`,
             { klasse:'leicht hh-teil', standard:true, klein: sp.length ? esc(sp.map(x => x.name).join(', ')) : 'noch keine' })}
-          ${klapp('hh-sl-' + h.id, 'Spiele', n ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${esc(spielerText(s))} Spieler</span></button></li>`).join('')}</ul>`
+          ${klapp('hh-sl-' + h.id, 'Spiele', n || geliehen.length ? `<ul class="hh-spiele">${h.spiele.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>${verliehenAn(s) ? `verliehen an ${esc(verleihText(s.verliehen))}` : `${esc(spielerText(s))} Spieler`}</span></button></li>`).join('')}
+                ${geliehen.map(s => `<li><button type="button" data-spiel="${esc(s.id)}">${esc(s.name)}<span>ausgeliehen von ${esc((D.haushalte[s.hid] || {}).name || '?')}</span></button></li>`).join('')}</ul>`
               : '<p class="hh-leer">Noch keine Spiele eingetragen.</p>',
-            { klasse:'leicht hh-teil', standard:false, klein:`${n}` })}
+            { klasse:'leicht hh-teil', standard:false, klein:`${n}${geliehen.length ? ` + ${geliehen.length} ausgeliehen` : ''}` })}
           <div class="hh-knoepfe">
-            <button class="knopf zweit" type="button" data-hha="spiele" data-id="${esc(h.id)}" ${n ? '' : 'disabled'}>Als Kacheln zeigen</button>
+            <button class="knopf zweit" type="button" data-hha="spiele" data-id="${esc(h.id)}" ${n || geliehen.length ? '' : 'disabled'}>Als Kacheln zeigen</button>
             ${E.token && (E.admin || !rechteAktiv() || h.id === E.meinHaushalt) ? `<button class="knopf zweit" type="button" data-hha="einladen" data-id="${esc(h.id)}">${ic('teilen')}Einladen</button>` : ''}
             ${h.id !== E.meinHaushalt && darfHaushaltWechseln() ? `<button class="knopf zweit" type="button" data-hha="mein" data-id="${esc(h.id)}">Mein Haushalt</button>` : ''}
             ${darf ? `<button class="knopf zweit" type="button" data-hha="bearbeiten" data-id="${esc(h.id)}">${ic('stift')}Name & Farbe</button>
@@ -3851,7 +3862,8 @@ const HILFE = [
     <li><b>Gibt es das Spiel schon</b> bei einem anderen Haushalt? Beim Eintippen des Namens erscheint es unter „Schon in der App“ – antippen übernimmt Angaben und Foto.</li>
     <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
-    <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
+    <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
+    <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
     <p>In der <b>Spielrunde</b> zählt das Spiel dann beim Haushalt, der es gerade hat. Ist es bei jemandem außerhalb der App, taucht es dort nicht auf. Ist es wieder da: <b>Zurück</b> tippen.</p>` },
   { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
@@ -3967,6 +3979,11 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.65', datum:'24.10.2026', neu:[
+    'Verliehene Spiele: Die Kachel zeigt, bei wem das Spiel jetzt steht („jetzt bei …“ bzw. „jetzt bei euch“)',
+    'Filter nach Haushalt zeigt auch die Spiele, die dieser Haushalt gerade ausgeliehen hat',
+    'Unter Haushalte stehen ausgeliehene Spiele als „ausgeliehen von …“'
+  ]},
   { v:'v1.64', datum:'24.10.2026', neu:[
     'Für den Admin: „Wer nutzt die App?“ – welche Geräte die App installiert haben oder nur im Browser geöffnet, wann sie zuletzt online waren und welche Version sie nutzen',
     'Geräte lassen sich dort benennen (z. B. „Omas iPhone“) und alte Einträge entfernen'
