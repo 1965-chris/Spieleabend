@@ -29,7 +29,7 @@
   {
    "id": "smvmysq1arcxg",
    "name": "Concept",
-   "bild": "",
+   "bild": "bilder/smvmysq1arcxg-mvmyunv1.jpg",
    "spielerMin": 4,
    "spielerMax": 12,
    "alterAb": 10,
@@ -43,7 +43,7 @@
    "link": "https://de.wikipedia.org/wiki/Concept_(Spiel)",
    "anleitung": "",
    "erstellt": 1792880565454,
-   "geaendert": 1792880565454
+   "geaendert": 1792880655948
   },
   {
    "id": "smvl5mctidifb",
@@ -575,7 +575,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792880567353,
+   "zuletzt": 1792880657874,
    "name": "",
    "nameStand": 0
   },
