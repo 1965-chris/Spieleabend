@@ -33,7 +33,9 @@
   }
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+/* Schnelles Tippen (z. B. auf + und −) soll weder zoomen noch Text markieren */
+button,summary,.chip,.stepper,.tabs,.karte,.zeile,.knopf,.knopf-rund,.hh,.treffer,.vorschlag,label.schalter-zeile{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 body{
   margin:0; background:var(--grund); color:var(--tinte);
   font:16px/1.45 var(--text);
@@ -463,6 +465,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .ausschnitt{display:flex;align-items:center;gap:12px;margin-top:10px}
 .ausschnitt-regler{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--leise)}
 .ausschnitt-regler input{flex:1;accent-color:var(--filz)}
+.ausschnitt-regler b{font-size:20px;color:var(--leise);width:14px;text-align:center}
 .foto-mini{width:72px;height:54px;border-radius:10px;flex:none;position:relative;overflow:hidden;background:color-mix(in srgb, var(--hf, #888) 22%, var(--karte))}
 .foto-mini img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ausschnitt-hinweis{font-size:13px;color:var(--leise);margin:6px 0 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -647,7 +650,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.61';
+const VERSION = 'v1.62';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -798,7 +801,7 @@ function linkAus(text){
 function bildPosNorm(p){
   if (!p || typeof p !== 'object') return null;
   const k = (v, a, b, d) => { const n = Number(v); return Number.isFinite(n) ? Math.min(b, Math.max(a, Math.round(n * 10) / 10)) : d; };
-  const x = k(p.x, 0, 100, 50), y = k(p.y, 0, 100, 50), z = k(p.z, 1, 3, 1);
+  const x = k(p.x, 0, 100, 50), y = k(p.y, 0, 100, 50), z = k(p.z, 0.4, 3, 1);
   return x === 50 && y === 50 && z === 1 ? null : { x, y, z };
 }
 function bildAttr(s){
@@ -810,7 +813,7 @@ function bildPosAnwenden(img, p){
   p = p || { x:50, y:50, z:1 };
   img.style.objectPosition = `${p.x}% ${p.y}%`;
   img.style.transformOrigin = `${p.x}% ${p.y}%`;
-  img.style.transform = p.z > 1 ? `scale(${p.z})` : '';
+  img.style.transform = p.z !== 1 ? `scale(${p.z})` : '';
 }
 function spielNorm(s){
   return {
@@ -2066,8 +2069,8 @@ function spielFormular(sp){
     } else {
       feld.innerHTML = `<div class="foto-vorschau verschiebbar" style="--hf:${esc(farbe())}"${!neuesFoto ? ` data-bild="${esc(w.bild)}"` : ''}>${neuesFoto ? `<img src="${vorschauUrl}" alt="">` : '<span class="platzhalter">…</span>'}</div>
         <div class="ausschnitt"><span class="foto-mini" style="--hf:${esc(farbe())}" title="So sieht die Ansicht aus"><img alt=""></span>
-          <label class="ausschnitt-regler">${ic('suche')}<input type="range" min="1" max="3" step="0.05" value="${pos.z}" data-zoom aria-label="Vergrößern"></label></div>
-        <p class="ausschnitt-hinweis"><span>Bild mit dem Finger verschieben, mit dem Regler vergrößern. Groß: die Kachel, klein: die Ansicht.</span><button type="button" data-mitte>Mitte</button></p>
+          <label class="ausschnitt-regler"><b aria-hidden="true">−</b><input type="range" min="0.4" max="3" step="0.05" value="${pos.z}" data-zoom aria-label="Kleiner oder größer"><b aria-hidden="true">+</b></label></div>
+        <p class="ausschnitt-hinweis"><span>Bild mit dem Finger verschieben, mit dem Regler kleiner oder größer machen. Groß: die Kachel, klein: die Ansicht.</span><button type="button" data-mitte>Mitte</button></p>
         <div class="foto-knoepfe"><button type="button" class="knopf zweit" data-foto>${ic('kamera')}Anderes Foto</button><button type="button" class="knopf rahmen" data-foto-weg>Foto entfernen</button></div>`;
       bilderBeobachten(feld);
       ausschnittZeigen();
@@ -2086,13 +2089,15 @@ function spielFormular(sp){
     const v = e.target.closest('.foto-vorschau'); const img = v && $('img', v); if (!img || !img.naturalWidth) return;
     e.preventDefault(); v.setPointerCapture(e.pointerId);
     const cw = v.clientWidth, ch = v.clientHeight, sk = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-    const uw = img.naturalWidth * sk - cw, uh = img.naturalHeight * sk - ch;     // Überstand bei „cover“
-    zug = { id:e.pointerId, x:e.clientX, y:e.clientY, start:{ ...pos }, bx:Math.max(uw * pos.z + (pos.z - 1) * cw, 1), by:Math.max(uh * pos.z + (pos.z - 1) * ch, 1), kannX:uw > 1 || pos.z > 1, kannY:uh > 1 || pos.z > 1 };
+    // Spielraum: größer als der Rahmen → Bild gleitet über den Überstand; kleiner → Bild gleitet im freien Platz
+    const dx = img.naturalWidth * sk * pos.z - cw, dy = img.naturalHeight * sk * pos.z - ch;
+    zug = { id:e.pointerId, x:e.clientX, y:e.clientY, start:{ ...pos }, bx:Math.max(Math.abs(dx), 1), by:Math.max(Math.abs(dy), 1),
+      rx:dx > 0 ? -1 : 1, ry:dy > 0 ? -1 : 1, kannX:Math.abs(dx) > 1, kannY:Math.abs(dy) > 1 };
   });
   feld.addEventListener('pointermove', e => {
     if (!zug || e.pointerId !== zug.id) return;
     const g = v => Math.min(100, Math.max(0, Math.round(v * 10) / 10));
-    pos = { ...pos, x:zug.kannX ? g(zug.start.x - (e.clientX - zug.x) / zug.bx * 100) : pos.x, y:zug.kannY ? g(zug.start.y - (e.clientY - zug.y) / zug.by * 100) : pos.y };
+    pos = { ...pos, x:zug.kannX ? g(zug.start.x + zug.rx * (e.clientX - zug.x) / zug.bx * 100) : pos.x, y:zug.kannY ? g(zug.start.y + zug.ry * (e.clientY - zug.y) / zug.by * 100) : pos.y };
     ausschnittZeigen();
   });
   const zugEnde = e => { if (zug && e.pointerId === zug.id) zug = null; };
@@ -3681,7 +3686,7 @@ function renderEinstellungen(){
     ${klapp('e-github', 'Verbindung zu GitHub', !zugangsfelderSichtbar() ? `
       <p class="text-leise" style="margin:0 0 12px">${E.perEinladung ? 'Diese App wurde über einen Einladungslink eingerichtet. ' : ''}Der Zugang ist hinterlegt und wird nicht angezeigt.</p>
       <label class="feld"><span class="feld-titel">Neuen Einladungslink einfügen</span>
-        <textarea class="eingabe" id="e-einladung" placeholder="https://…#einladung=…" style="min-height:80px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
+        <textarea class="eingabe" id="e-einladung" placeholder="https://…#einladung=…" style="min-height:80px;font-size:16px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
       <button class="knopf zweit breit" type="button" id="e-einladung-ok">Einladung übernehmen</button>
       <p class="block-hinweis">Nur nötig, wenn der Abgleich nicht mehr klappt und du einen neuen Link bekommen hast.</p>` : `
       <label class="feld"><span class="feld-titel">GitHub-Benutzername</span><input class="eingabe" id="e-owner" value="${esc(E.owner)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
@@ -3748,7 +3753,7 @@ const HILFE = [
     <ul><li>Unten rechts auf <b>+</b> tippen.</li>
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
-    <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler vergrößern – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
+    <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler kleiner oder größer machen – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“.</p>
@@ -3867,6 +3872,10 @@ function markieren(wurzel, q){
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
 const VERSIONEN = [
+  { v:'v1.62', datum:'24.10.2026', neu:[
+    'Kein ungewollter Zoom mehr beim schnellen Tippen (z. B. auf + und −) und keine Textmarkierung auf Knöpfen',
+    'iPhone: Nach dem Schließen der Tastatur stehen Leisten und Fenster wieder richtig',
+    'Bildausschnitt: Fotos lassen sich jetzt auch verkleinern – z. B. damit die ganze Schachtel in die Kachel passt'] },
   { v:'v1.61', datum:'24.10.2026', neu:[
     'Spielergebnisse sieht nur der Spielkreis, in dem gespielt wurde (und der Admin) – egal, welcher Haushalt gespeichert hat',
     'Punkteblock: „Wer sieht das Ergebnis?“ – passen mehrere Spielkreise, wählst du einen aus'] },
@@ -4406,7 +4415,7 @@ function willkommen(){
     <p style="margin-top:-4px">Hier sammelt ihr die Spiele aller Haushalte – und findet beim Spieleabend schnell eins, das für alle passt.</p>
     <button class="knopf zweit breit" type="button" id="w-ueber">Worum geht’s? Kurz erklärt</button>
     <label class="feld" style="margin-top:16px"><span class="feld-titel">Einladungslink einfügen</span>
-      <textarea class="eingabe" id="w-link" placeholder="https://…#einladung=…" style="min-height:90px;font-size:14px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
+      <textarea class="eingabe" id="w-link" placeholder="https://…#einladung=…" style="min-height:90px;font-size:16px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
     <button class="knopf breit" type="button" id="w-ok">Einladung übernehmen</button>
     <button class="knopf rahmen breit" type="button" id="w-selbst" style="margin-top:10px">Ich richte die App selbst ein</button>`);
   $('#w-ok', s).addEventListener('click', () => {
@@ -4583,6 +4592,25 @@ function verdrahten(){
   setInterval(adminWache, ADMIN_PRUEF_MS);
 }
 
+/* iOS-Fehler in installierten Web-Apps: Nach dem Schließen der Tastatur bleibt die Ansicht manchmal zu klein –
+   Leisten und Fenster stehen dann zu hoch. Abhilfe: die Seite einmal kurz neu aufbauen lassen (Scroll-Stand bleibt). */
+const hoechsteHoehe = {};       // je Ausrichtung (hoch/quer) die größte gemessene Höhe
+const ausrichtung = () => window.innerWidth > window.innerHeight ? 'quer' : 'hoch';
+function hoeheMerken(){ const k = ausrichtung(); hoechsteHoehe[k] = Math.max(hoechsteHoehe[k] || 0, window.innerHeight); }
+hoeheMerken();
+function eingabeAktiv(){ const a = document.activeElement; return !!(a && a.matches && a.matches('input:not([type=range]):not([type=checkbox]), textarea, select, [contenteditable]')); }
+function ansichtPruefen(){
+  if (eingabeAktiv()) return;
+  const vv = window.visualViewport;
+  const zuKlein = (hoechsteHoehe[ausrichtung()] || 0) - window.innerHeight > 4 || (vv && vv.scale < 1.02 && window.innerHeight - vv.height > 4);
+  if (!zuKlein) return;
+  const y = window.scrollY, rollen = $$('.sheet').map(x => [x, x.scrollTop]);
+  document.body.style.display = 'none'; void document.body.offsetHeight; document.body.style.display = '';
+  window.scrollTo(window.scrollX, y); for (const [x, t] of rollen) x.scrollTop = t;
+}
+addEventListener('resize', () => { if (!eingabeAktiv()) hoeheMerken(); });
+document.addEventListener('focusout', () => setTimeout(ansichtPruefen, 160));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', () => setTimeout(ansichtPruefen, 160));
 function start(){
   geraetKennung();
   const eingeladen = einladungPruefen();
