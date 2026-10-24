@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.52",
+ "app": "v1.61",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -64,6 +64,25 @@
    "anleitung": "https://share.google/sghXh9QADnRG9PcLJ",
    "erstellt": 1792769291215,
    "geaendert": 1792790212002
+  },
+  {
+   "id": "smvmkhncbgq1e",
+   "name": "Wort Rummikub",
+   "bild": "bilder/smvmkhncbgq1e-mvmkhncc.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Allgemeinwissen"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792856534123,
+   "geaendert": 1792856534123
   }
  ],
  "spieler": [
