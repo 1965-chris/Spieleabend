@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.65",
+ "app": "v1.66",
  "pinHash": "bbadc6e05980bbd1cb3a18da8ab6f99dff455a73a70a03113383f701e842c00f",
  "pinSalz": "bf42f5c2140250f126bdf921",
  "pinStand": 1792777561392,
@@ -30,8 +30,10 @@
    "stand": 1792788097573
   }
  ],
- "aus": [],
- "ausStand": 0,
+ "aus": [
+  "termine"
+ ],
+ "ausStand": 1792872092162,
  "adminGeraete": [
   {
    "id": "gmvlch98lgubm",
