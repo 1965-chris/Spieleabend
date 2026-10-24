@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.66",
+ "app": "v1.67",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -471,9 +471,9 @@
    "id": "gmvlch98lgubm",
    "art": "iPhone",
    "app": true,
-   "version": "v1.66",
+   "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792871416795,
+   "zuletzt": 1792873267795,
    "name": "",
    "nameStand": 0
   },
