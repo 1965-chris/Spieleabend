@@ -461,6 +461,28 @@
    "geaendert": 1792871331227
   },
   {
+   "id": "smvmzn8k3y3ol",
+   "name": "Scotland Yard",
+   "bild": "bilder/smvmzn8k3y3ol-mvmzn8k4.jpg",
+   "spielerMin": 3,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie",
+    "Kooperativ",
+    "Rätsel & Krimi"
+   ],
+   "beschreibung": "Scotland Yard ist ein Brettspiel mit strategischen und kooperativen Elementen für zwei bis sechs Spieler. Ein Spieler spielt den flüchtigen Verbrecher Mister X. Die anderen Spieler nehmen die Rolle von Detektiven ein.\nVon Autorengruppe, erschienen 1983 bei Ravensburger (1983, 1996, 2003, 2013),.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Didierfm2, CC0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Scotland_Yard_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1792881989139,
+   "geaendert": 1792881989139
+  },
+  {
    "id": "smvmlo90hrl0k",
    "name": "Skip-Bo",
    "bild": "bilder/smvmlo90hrl0k-mvmlo90i.jpg",
@@ -615,7 +637,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792881922323,
+   "zuletzt": 1792881990957,
    "name": "",
    "nameStand": 0
   },
