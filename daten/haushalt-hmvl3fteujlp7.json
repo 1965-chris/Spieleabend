@@ -187,6 +187,25 @@
    "geaendert": 1792857603056
   },
   {
+   "id": "smvmo8ih7nf7b",
+   "name": "Phase 10",
+   "bild": "bilder/smvmf4u04ymd3-mvmfk31c.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 10,
+   "dauer": 180,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Phase 10 ist ein Kartenspiel. Jeder Spieler erhält zehn Karten. Der Spieler, der beginnt, zieht verdeckt eine Karte vom Stapel oder nimmt die oberste Karte des Ablagestapels.\nVon Kenneth Johnson, erschienen 1985 bei K&K International (1985),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Phase_10",
+   "anleitung": "https://www.brettspiele-report.de/images/phase_10/Spielanleitung_Phase_10.pdf",
+   "erstellt": 1792862826379,
+   "geaendert": 1792862826379
+  },
+  {
    "id": "smvmlf0wcuu22",
    "name": "Qwixx",
    "bild": "bilder/smvmlf0wcuu22-mvmlf0wd.jpg",
