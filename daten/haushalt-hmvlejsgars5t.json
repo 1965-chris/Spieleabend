@@ -220,15 +220,17 @@
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 7,
-   "dauer": null,
-   "kategorien": [],
-   "beschreibung": "",
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Bei Skip-Bo (auch Pass auf oder Asse raus) handelt es sich um ein Kartenspiel mit 144 Zahlenkarten sowie 18 Skip-Bo-Karten für zwei bis sechs Spieler. Ziel des Spiels ist es, als erster den eigenen Kartenstapel vollständig abzulegen. Dazu nutzt man seine Handkarten inklusive einiger Joker, sowie die Karten der eigenen Hilfsstapel, aufbauend auf den Vorlagen der anderen Mitspieler.\nVon Hazel \"Skip\" Bowman, erschienen 1967 bei The Skip-bo Company (1967),.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://de.wikipedia.org/wiki/Skip-Bo",
    "anleitung": "",
    "erstellt": 1792863236228,
-   "geaendert": 1792863549399
+   "geaendert": 1792881314105
   }
  ],
  "spieler": [
