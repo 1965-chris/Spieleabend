@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.64",
+ "app": "v1.65",
  "id": "hmvlehndf8gpw",
  "name": "Familie Wodarz Baumberg",
  "farbe": "#E0A100",
@@ -26,8 +26,8 @@
    "version": "v1.64",
    "erst": 1792867921490,
    "zuletzt": 1792867921490,
-   "name": "",
-   "nameStand": 0
+   "name": "Anke",
+   "nameStand": 1792869546577
   }
  ],
  "geloescht": {}
