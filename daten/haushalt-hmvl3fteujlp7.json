@@ -247,7 +247,7 @@
   {
    "id": "smvmx0dfb82d6",
    "name": "Hotel",
-   "bild": "",
+   "bild": "bilder/smvmx0dfb82d6-mvmx36e9.jpg",
    "spielerMin": 2,
    "spielerMax": 4,
    "alterAb": 8,
@@ -261,7 +261,7 @@
    "link": "https://de.wikipedia.org/wiki/Hotel_(Spiel)",
    "anleitung": "",
    "erstellt": 1792877563127,
-   "geaendert": 1792877563127
+   "geaendert": 1792877693985
   },
   {
    "id": "smvl4jqa6tocg",
@@ -492,7 +492,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792877565053,
+   "zuletzt": 1792877696124,
    "name": "",
    "nameStand": 0
   },
