@@ -9,7 +9,7 @@
   {
    "id": "smvma0zpe7ly8",
    "name": "Cabo",
-   "bild": "",
+   "bild": "bilder/smvma0zpe7ly8-mvmas2jl.jpg",
    "spielerMin": 2,
    "spielerMax": 5,
    "alterAb": 8,
@@ -23,7 +23,7 @@
    "link": "https://www.wikidata.org/wiki/Q3514630",
    "anleitung": "http://www.smiling-monster.de/spiele/smg007/download/SMG-Cabo-DE.pdf",
    "erstellt": 1792838960835,
-   "geaendert": 1792840071503
+   "geaendert": 1792840224225
   }
  ],
  "spieler": [
