@@ -31,10 +31,13 @@
   }
  ],
  "aus": [
+  "anleitung",
+  "gespielt",
   "orte",
-  "spielvorschlaege"
+  "spielvorschlaege",
+  "wuerfeln"
  ],
- "ausStand": 1792872100491,
+ "ausStand": 1792872105266,
  "adminGeraete": [
   {
    "id": "gmvlch98lgubm",
