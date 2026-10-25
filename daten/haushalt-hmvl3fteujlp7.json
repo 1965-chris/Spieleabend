@@ -459,13 +459,13 @@
    "alterAb": 8,
    "dauer": null,
    "kategorien": [],
-   "beschreibung": "",
+   "beschreibung": "Quibble ist das geniale Partyspiel, bei dem nicht zählt, was du sagst, sondern wie du es sagst!\nLies einen stinknormalen Satz wie „Der Kaffee ist fertig“ mit geheimer Emotion vor – ob in totaler Panik, purer Erotik oder arrogant gelangweilt. Wer deine Mimik und Stimme durchschaut und richtig darauf wettet, kassiert die Punkte.\nSuperschnell kapiert, extrem lustig und der absolute Lachgarant für jeden Spieleabend!",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "http://ftp.informatik.rwth-aachen.de/keirat/txt/Q/Quibble.html",
    "erstellt": 1792917591908,
-   "geaendert": 1792920371446
+   "geaendert": 1792920615444
   },
   {
    "id": "smvmlf0wcuu22",
@@ -707,7 +707,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792920364577,
+   "zuletzt": 1792920617398,
    "name": "",
    "nameStand": 0
   },
