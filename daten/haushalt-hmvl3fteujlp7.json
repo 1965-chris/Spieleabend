@@ -50,8 +50,8 @@
    "name": "Das Spiel der Namen",
    "bild": "",
    "spielerMin": 2,
-   "spielerMax": 4,
-   "alterAb": 8,
+   "spielerMax": 5,
+   "alterAb": 14,
    "dauer": null,
    "kategorien": [],
    "beschreibung": "",
@@ -60,7 +60,7 @@
    "link": "",
    "anleitung": "",
    "erstellt": 1792917743779,
-   "geaendert": 1792917743779
+   "geaendert": 1792920788215
   },
   {
    "id": "smvnkwaezsdjk",
@@ -711,7 +711,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792920718471,
+   "zuletzt": 1792920790068,
    "name": "",
    "nameStand": 0
   },
