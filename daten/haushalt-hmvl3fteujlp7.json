@@ -46,6 +46,23 @@
    "geaendert": 1792880783891
   },
   {
+   "id": "smvnkxl0jcxnt",
+   "name": "Das Spiel der Namen",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792917743779,
+   "geaendert": 1792917743779
+  },
+  {
    "id": "smvnkwaezsdjk",
    "name": "Der Dativ Ist dem Genetiv sein Tod",
    "bild": "",
@@ -690,7 +707,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792917685251,
+   "zuletzt": 1792917745667,
    "name": "",
    "nameStand": 0
   },
