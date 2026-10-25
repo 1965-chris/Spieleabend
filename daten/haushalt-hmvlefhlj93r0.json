@@ -123,10 +123,17 @@
    "von": "Rolf",
    "betrifft": [],
    "erstellt": 1792923981381,
-   "stand": 1792923981381,
+   "stand": 1792926705948,
    "status": "offen",
    "statusStand": 0,
-   "verlauf": []
+   "verlauf": [
+    {
+     "id": "amvnq9o9n63es",
+     "admin": true,
+     "text": "Dzu solltest du wissen das die KI nicht unbedingt zugriff auf mein repro hat. \nAber ich werde es abklären.",
+     "zeit": 1792926705948
+    }
+   ]
   }
  ],
  "geloescht": {}
