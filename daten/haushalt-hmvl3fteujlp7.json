@@ -487,8 +487,11 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Qwixx",
    "anleitung": "https://share.google/ENKRdQ2kh8MWMnDJR",
+   "wertung": {
+    "art": "qwixx"
+   },
    "erstellt": 1792858091341,
-   "geaendert": 1792858328898
+   "geaendert": 1792939681282
   },
   {
    "id": "smvmpdkc4czoa",
@@ -711,7 +714,7 @@
    "app": true,
    "version": "v1.70",
    "erst": 1792864131177,
-   "zuletzt": 1792939138296,
+   "zuletzt": 1792939683146,
    "name": "",
    "nameStand": 0
   },
