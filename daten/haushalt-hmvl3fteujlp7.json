@@ -71,13 +71,13 @@
    "alterAb": 12,
    "dauer": 30,
    "kategorien": [],
-   "beschreibung": "",
+   "beschreibung": "Der Dativ ist dem Genitiv sein Tod: Das große Spiel handelt von den Kuriositäten der deutschen Sprache und nimmt Bezug auf das gleichnamige Buch von Bastian Sick.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://www.spielregeln-spielanleitungen.de/spiel/der-dativ-ist-dem-genitiv-sein-tod/",
    "erstellt": 1792917683387,
-   "geaendert": 1792920021705
+   "geaendert": 1792920184230
   },
   {
    "id": "smvl5mctidifb",
@@ -707,7 +707,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792919995160,
+   "zuletzt": 1792920186189,
    "name": "",
    "nameStand": 0
   },
