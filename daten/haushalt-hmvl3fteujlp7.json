@@ -75,9 +75,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
-   "anleitung": "",
+   "anleitung": "https://www.spielregeln-spielanleitungen.de/spiel/der-dativ-ist-dem-genitiv-sein-tod/",
    "erstellt": 1792917683387,
-   "geaendert": 1792917683387
+   "geaendert": 1792919915573
   },
   {
    "id": "smvl5mctidifb",
@@ -707,7 +707,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792917745667,
+   "zuletzt": 1792919917489,
    "name": "",
    "nameStand": 0
   },
