@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.69",
+ "app": "v1.70",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#2E9E5B",
@@ -123,15 +123,21 @@
    "von": "Rolf",
    "betrifft": [],
    "erstellt": 1792923981381,
-   "stand": 1792926705948,
-   "status": "offen",
-   "statusStand": 0,
+   "stand": 1792939258334,
+   "status": "erledigt",
+   "statusStand": 1792939258334,
    "verlauf": [
     {
      "id": "amvnq9o9n63es",
      "admin": true,
      "text": "Dzu solltest du wissen das die KI nicht unbedingt zugriff auf mein repro hat. \nAber ich werde es abklären.",
      "zeit": 1792926705948
+    },
+    {
+     "id": "amvnxqo9ezzjk",
+     "admin": true,
+     "text": "Kniffel, Wizzard, Phase 0 und Quixx sind als spezial Blöcke drinnen. Bei weiteren, sag einfch Bescheid",
+     "zeit": 1792939256402
     }
    ]
   }
