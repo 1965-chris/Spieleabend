@@ -759,30 +759,10 @@
    "nameStand": 1792875867192
   }
  ],
- "nachrichten": [
-  {
-   "id": "nmvmw7bvietto",
-   "art": "sonst",
-   "text": "Bei antworten des haushalts an admin, dannauch möglichkeit des namens geben",
-   "von": "Christian",
-   "betrifft": [],
-   "erstellt": 1792876208093,
-   "stand": 1792926723305,
-   "status": "erledigt",
-   "statusStand": 1792926723305,
-   "verlauf": [
-    {
-     "id": "amvmw9mwjs78u",
-     "admin": false,
-     "text": "Eigentlich immer , Admin möchte ja wissen mit wem er schreibt, also vorm öffnen des Textfelder Namen wählen, wenn bekanntes Gerät Namen vorgeben",
-     "zeit": 1792876315699
-    }
-   ]
-  }
- ],
  "geloescht": {
   "smvl5fcpzf8ho": 1792790445845,
   "smvmkrhu8f0ir": 1792857440174,
-  "nmvmvwkkrjamg": 1792958718087
+  "nmvmvwkkrjamg": 1792958718087,
+  "nmvmw7bvietto": 1792958729325
  }
 }
