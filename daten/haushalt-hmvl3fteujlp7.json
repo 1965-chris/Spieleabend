@@ -68,8 +68,8 @@
    "bild": "bilder/smvnkwaezsdjk-mvnm9slz.jpg",
    "spielerMin": 2,
    "spielerMax": 5,
-   "alterAb": 8,
-   "dauer": null,
+   "alterAb": 12,
+   "dauer": 30,
    "kategorien": [],
    "beschreibung": "",
    "bemerkung": "",
@@ -77,7 +77,7 @@
    "link": "",
    "anleitung": "https://www.spielregeln-spielanleitungen.de/spiel/der-dativ-ist-dem-genitiv-sein-tod/",
    "erstellt": 1792917683387,
-   "geaendert": 1792919993111
+   "geaendert": 1792920021705
   },
   {
    "id": "smvl5mctidifb",
