@@ -54,13 +54,13 @@
    "alterAb": 14,
    "dauer": null,
    "kategorien": [],
-   "beschreibung": "",
+   "beschreibung": "Das einzigartige Spiel um Deutschlands Namen, ihre Häufigkeiten und Bedeutungen.\nKommt Merkel wirklich von makellos? Ist Meier häufiger als Schmidt? Und waren Pinkepanks Schmiede und Puffpaffs Jäger?\nSchätzen Sie clever, tippen Sie richtig und erfahren Sie alles über Deutschlands Namen!\nVon Jauch bis Gottschalk, Mozart bis Müller und Zickendraht bis Büchsenschütz: Über 8 Millionen Deutsche werden beim Nachnamen genannt? Sind Sie mit von der Partie?",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://www.spiele4us.de/wp-content/uploads/2022/10/das-spiel-der-namen-gebraucht-g003700810.pdf",
    "erstellt": 1792917743779,
-   "geaendert": 1792920951616
+   "geaendert": 1792921227590
   },
   {
    "id": "smvnkwaezsdjk",
@@ -711,7 +711,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792920918865,
+   "zuletzt": 1792921229556,
    "name": "",
    "nameStand": 0
   },
