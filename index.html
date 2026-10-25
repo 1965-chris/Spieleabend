@@ -267,6 +267,9 @@ a.knopf{text-decoration:none}
 .anfrage-status.nein{background:color-mix(in srgb, var(--rot) 12%, var(--karte));color:var(--rot)}
 .anfrage-notiz{font-size:14px;color:var(--leise);margin:0}
 .feld[hidden]{display:none}
+@keyframes wackeln{0%,100%{transform:none}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.wackeln{animation:wackeln .45s ease}
+.wackeln .feld-titel{color:var(--rot)}
 .nachricht-zeile{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;padding:11px 0;border:0;border-top:1px solid var(--linie);background:none;color:inherit;font:inherit;cursor:pointer}
 .nachricht-zeile:first-child{border-top:0;padding-top:2px}
 .nachricht-kopf{display:flex;align-items:center;gap:7px;font-size:15px}
@@ -451,6 +454,10 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .hinweis{background:var(--filz-hell);border-radius:12px;padding:11px 13px;font-size:14px;margin:0 0 12px}
 .hinweis[hidden]{display:none}
 .kreis-leiste{margin:0 0 12px}
+.termin-neu-knoepfe{display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+.termin-neu-knoepfe .knopf{flex:1 1 150px}
+.termin-rubrik{font-family:var(--rund);font-size:18px;font-weight:800;margin:18px 0 10px}
+.termin-neu-knoepfe + .termin-rubrik{margin-top:4px}
 .kreis-knopf{display:inline-flex;align-items:center;gap:8px;min-height:38px;max-width:100%;padding:0 12px 0 14px;border-radius:999px;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);font:inherit;font-size:14.5px;cursor:pointer}
 .kreis-knopf > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .kreis-knopf .ic{width:16px;height:16px;flex:none;transform:rotate(90deg);color:var(--leise)}
@@ -650,7 +657,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <!-- Termine -->
   <section class="seite" id="seite-termine" aria-label="Termine">
     <h2 class="seiten-titel">Termine</h2>
-    <p class="unterzeile">Spieleabend planen: Termine vorschlagen, alle stimmen in der App ab, dann steht der Termin fest.</p>
+    <p class="unterzeile">Spieleabend oder Kino, Bowling &amp; Co. planen: Termine vorschlagen, alle stimmen in der App ab, dann steht der Termin fest.</p>
     <div id="termine-inhalt"></div>
   </section>
 
@@ -689,7 +696,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.67';
+const VERSION = 'v1.68';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -698,6 +705,7 @@ const FUNKTIONEN = [
   { k:'termine', t:'Termine', b:'Spieleabende planen, abstimmen, in den Kalender' },
   { k:'orte', t:'Über den Ort abstimmen', b:'Mehrere Orte zur Wahl stellen', unter:'termine' },
   { k:'spielvorschlaege', t:'„Was spielen wir?“', b:'Spiele für den Abend vorschlagen und 👍', unter:'termine' },
+  { k:'unternehmungen', t:'Kino, Bowling & Co.', b:'Auch andere Treffen planen – Kino, Bowling, Essen, Grillen …', unter:'termine' },
   { k:'wuerfeln', t:'Würfeln', b:'In der Spielrunde ein Spiel auslosen' },
   { k:'gespielt', t:'Gespielt & Rückblick', b:'Partien mit Gewinner, Ranglisten' },
   { k:'anleitung', t:'Spielanleitung', b:'Link zur Anleitung oder zum Erklärvideo' },
@@ -841,7 +849,7 @@ const NACHRICHT_ARTEN = [
 const NACHRICHT_FELDER = new Set(['id','art','text','von','betrifft','erstellt','stand','status','statusStand','verlauf']);
 function nachrichtNorm(n){
   const verlauf = (Array.isArray(n.verlauf) ? n.verlauf : []).filter(x => x && x.id && String(x.text || '').trim())
-    .map(x => ({ id:String(x.id), admin:!!x.admin, text:String(x.text).trim().slice(0, 1000), zeit:zahl(x.zeit) || 0 }))
+    .map(x => ({ id:String(x.id), admin:!!x.admin, text:String(x.text).trim().slice(0, 1000), zeit:zahl(x.zeit) || 0, ...(x.von ? { von:String(x.von).trim().slice(0, 30) } : {}) }))
     .sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id));
   return { ...unbekannte(n, NACHRICHT_FELDER), id:String(n.id), art:NACHRICHT_ARTEN.some(a => a.k === n.art) ? n.art : 'sonst',
     text:String(n.text || '').trim().slice(0, 1000), von:String(n.von || '').trim().slice(0, 30),
@@ -2521,7 +2529,18 @@ function wuerfeln(){
 /* ---------- Termine: Spieleabend planen und abstimmen ----------
    Jede Umfrage ist eine eigene Datei daten/termin-<id>.json. Jede Person stimmt pro Termin mit ja, vielleicht oder nein.
    Stimmen werden einzeln zusammengeführt – stimmen zwei Geräte gleichzeitig ab, bleibt beides erhalten. */
-const TERMIN_FELDER = new Set(['format','app','id','titel','notiz','ort','gastgeber','orte','spiele','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festOrt','festStand','geloescht']);
+/* Was ist geplant? Spieleabend oder etwas anderes (Kino, Bowling, Essen …) */
+const TERMIN_ARTEN = [
+  { k:'spiele', t:'Spieleabend', e:'🎲', ort:'hh' },
+  { k:'kino', t:'Kino', e:'🎬', ort:'z. B. UCI Kino Düsseldorf' },
+  { k:'bowling', t:'Bowling', e:'🎳', ort:'z. B. Bowlingcenter Langenfeld' },
+  { k:'essen', t:'Essen gehen', e:'🍽️', ort:'z. B. Restaurant, Adresse' },
+  { k:'grillen', t:'Grillen', e:'🔥', ort:'hh' },
+  { k:'sonst', t:'Etwas anderes', e:'✨', ort:'Wo trefft ihr euch?' }
+];
+function terminArt(t){ return TERMIN_ARTEN.find(a => a.k === (t && t.art)) || TERMIN_ARTEN[0]; }
+function istSpieleabend(t){ return terminArt(t).k === 'spiele'; }
+const TERMIN_FELDER = new Set(['format','app','id','art','titel','notiz','ort','gastgeber','orte','spiele','erstelltVon','erstellt','stand','haushalte','optionen','stimmen','festgelegt','festOrt','festStand','geloescht']);
 const ANTWORTEN = ['', 'ja', 'vielleicht', 'nein'];
 const ANTWORT_ZEICHEN = { '':'○', ja:'✓', vielleicht:'?', nein:'✗' };
 function zwei(n){ return String(n).padStart(2, '0'); }
@@ -2534,7 +2553,7 @@ function terminNorm(t){
   if (t.stimmen && typeof t.stimmen === 'object') for (const [k, v] of Object.entries(t.stimmen)) if (v && ANTWORTEN.includes(v.a) && k.includes('|')) stimmen[k] = { a:v.a, stand:zahl(v.stand) || 0 };
   return {
     ...unbekannte(t, TERMIN_FELDER),
-    id:String(t.id), titel:String(t.titel || 'Spieleabend').slice(0, 60), notiz:String(t.notiz || '').slice(0, 300), ort:String(t.ort || '').slice(0, 80),
+    id:String(t.id), art:TERMIN_ARTEN.some(a => a.k === t.art) ? t.art : 'spiele', titel:String(t.titel || terminArt(t).t).slice(0, 60), notiz:String(t.notiz || '').slice(0, 300), ort:String(t.ort || '').slice(0, 80),
     gastgeber:String(t.gastgeber || ''), erstelltVon:String(t.erstelltVon || ''), erstellt:zahl(t.erstellt) || 0, stand:zahl(t.stand) || 0,
     haushalte:Array.isArray(t.haushalte) ? [...new Set(t.haushalte.map(String))].sort() : [],
     optionen:(Array.isArray(t.optionen) ? t.optionen : []).filter(o => o && o.id && zeitGueltig(o.zeit))
@@ -2564,7 +2583,7 @@ function terminMischen(lokal, fern){
   for (const [k, v] of Object.entries(A.stimmen)) if (!st[k] || v.stand > st[k].stand) st[k] = v;
   return terminNorm({
     ...unbekannte(B, TERMIN_FELDER), ...unbekannte(A, TERMIN_FELDER),
-    id:A.id, titel:kopf.titel, notiz:kopf.notiz, ort:kopf.ort, gastgeber:kopf.gastgeber, erstelltVon:A.erstelltVon || B.erstelltVon,
+    id:A.id, art:kopf.art, titel:kopf.titel, notiz:kopf.notiz, ort:kopf.ort, gastgeber:kopf.gastgeber, erstelltVon:A.erstelltVon || B.erstelltVon,
     erstellt:A.erstellt || B.erstellt, stand:kopf.stand, haushalte:kopf.haushalte,
     optionen:[...o.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), stimmen:st,
     orte:[...w.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)),
@@ -2675,13 +2694,20 @@ function renderTermine(){
   const erste = t => (t.optionen.find(o => o.id === t.festgelegt) || t.optionen[0] || { zeit:'9999' }).zeit;
   const aktuell = alle.filter(t => !terminVorbei(t)).sort((a, b) => erste(a).localeCompare(erste(b)));
   const alt = alle.filter(terminVorbei).sort((a, b) => erste(b).localeCompare(erste(a)));
-  const kannAnlegen = E.admin || meinHaushaltGueltig();
+  const kannAnlegen = E.admin || meinHaushaltGueltig(), andere = funktionAn('unternehmungen');
+  // Zwei Rubriken: Spieleabende und andere Unternehmungen (Kino, Bowling …)
+  const spieleabende = aktuell.filter(istSpieleabend), sonstige = aktuell.filter(t => !istSpieleabend(t));
+  const rubriken = sonstige.length > 0;
   el.innerHTML = `
-    ${kannAnlegen ? `<button class="knopf breit" type="button" data-t="neu" style="margin-bottom:14px">${ic('plus')}Spieleabend planen</button>`
+    ${kannAnlegen ? `<div class="termin-neu-knoepfe">
+        <button class="knopf" type="button" data-t="neu" data-art="spiele">${ic('plus')}Spieleabend planen</button>
+        ${andere ? `<button class="knopf zweit" type="button" data-t="neu" data-art="">${ic('plus')}Kino, Bowling &amp; Co.</button>` : ''}</div>`
       : `<p class="hinweis">Wähle zuerst deinen Haushalt, dann kannst du abstimmen und selbst einladen.</p>`}
-    ${aktuell.length ? aktuell.map(terminKarteHtml).join('')
-      : `<div class="leer" style="padding-top:10px">${wuerfelHtml('mini-wuerfel', 4)}<h3>Noch nichts geplant</h3><p>Schlag ein paar Termine vor – die anderen stimmen in der App ab.</p></div>`}
-    ${alt.length ? `<div style="margin-top:6px">${klapp('termine-alt', 'Vergangene Spieleabende', alt.map(terminKarteHtml).join(''), { klasse:'leicht', klein:`${alt.length}` })}</div>` : ''}`;
+    ${!aktuell.length ? `<div class="leer" style="padding-top:10px">${wuerfelHtml('mini-wuerfel', 4)}<h3>Noch nichts geplant</h3><p>Schlag ein paar Termine vor – die anderen stimmen in der App ab.</p></div>`
+      : rubriken ? `<h3 class="termin-rubrik">🎲 Spieleabende</h3>${spieleabende.length ? spieleabende.map(terminKarteHtml).join('') : '<p class="text-leise" style="margin:0 0 12px">Gerade kein Spieleabend geplant.</p>'}
+          <h3 class="termin-rubrik">🎳 Kino, Bowling &amp; Co.</h3>${sonstige.map(terminKarteHtml).join('')}`
+      : aktuell.map(terminKarteHtml).join('')}
+    ${alt.length ? `<div style="margin-top:6px">${klapp('termine-alt', 'Vergangene Termine', alt.map(terminKarteHtml).join(''), { klasse:'leicht', klein:`${alt.length}` })}</div>` : ''}`;
   termineZahlZeigen();
 }
 function abstimmungHtml(t, liste, titelHtml, festId, meine){
@@ -2715,7 +2741,7 @@ function terminKarteHtml(t){
   const orte = mehrOrte ? abstimmungHtml(t, t.orte, ortHtml, fest ? t.festOrt : '', meine) : '';
   const darf = darfTermin(t);
   return `<details class="klapp block termin" data-klapp="termin-${esc(t.id)}" id="termin-${esc(t.id)}"${klappAuf('termin-' + t.id, true) ? ' open' : ''}>
-    <summary><span class="klapp-titel">${esc(t.titel)}${offen ? '<span class="termin-mark">abstimmen</span>' : ''}</span><small>${esc(klein)}</small>${ic('pfeil')}</summary>
+    <summary><span class="klapp-titel">${terminArt(t).e} ${esc(t.titel)}${offen ? '<span class="termin-mark">abstimmen</span>' : ''}</span><small>${esc(klein)}</small>${ic('pfeil')}</summary>
     <div class="innen">
       ${!mehrOrte && wo ? `<p class="termin-meta">${ortHtml(wo)}</p>` : ''}
       ${t.notiz ? `<p class="termin-notiz">${esc(t.notiz)}</p>` : ''}
@@ -2724,8 +2750,7 @@ function terminKarteHtml(t){
       ${mehrOrte ? '<p class="termin-abschnitt">Wann?</p>' : ''}
       ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
       ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
-      ${spieleVorschlagHtml(t, meine)}
-      ${terminSpieleHtml(t)}
+      ${istSpieleabend(t) ? spieleVorschlagHtml(t, meine) + terminSpieleHtml(t) : ''}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
                   <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
@@ -2740,7 +2765,7 @@ function terminKarteHtml(t){
 function terminKlick(e){
   const b = e.target.closest('[data-t]'); if (!b) return;
   const was = b.dataset.t, t = D.termine[b.dataset.id];
-  if (was === 'neu') return terminFormular();
+  if (was === 'neu') return terminFormular(null, b.dataset.art);
   if (!t) return;
   if (was === 'stimme') return stimmeSetzen(t, b.dataset.opt, b.dataset.pid);
   if (was === 'lust') return lustSetzen(t, b.dataset.sp, b.dataset.pid);
@@ -2768,7 +2793,7 @@ function terminWo(t){ const o = festerOrt(t); return o ? ortText(o) : ''; }
 function terminEinladungText(t){
   const mehrOrte = ortAbstimmung(t);
   return [
-    `🎲 ${t.titel} – ${mehrOrte ? 'wann und wo passt es euch?' : 'wann habt ihr Zeit?'}`,
+    `${terminArt(t).e} ${t.titel} – ${mehrOrte ? 'wann und wo passt es euch?' : 'wann habt ihr Zeit?'}`,
     !mehrOrte && terminWo(t) ? `📍 ${terminWo(t)}` : '',
     '',
     mehrOrte ? '📅 Wann?' : 'Zur Auswahl:',
@@ -2783,9 +2808,9 @@ function terminFestText(t){
   const o = t.optionen.find(x => x.id === t.festgelegt); if (!o) return '';
   const w = optionAuswertung(t, o);
   return [
-    `🎲 Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
+    `${terminArt(t).e} Es steht fest: ${t.titel} am ${terminZeitText(o.zeit)}${terminWo(t) ? ' ' + terminWo(t) : ''}.`,
     w.namen.ja.length ? `Dabei: ${w.namen.ja.join(', ')}` : '',
-    (() => { if (!funktionAn('spielvorschlaege')) return '';
+    (() => { if (!funktionAn('spielvorschlaege') || !istSpieleabend(t)) return '';
       const top = t.spiele.map(x => ({ x, n:terminSpielZahl(t, x).n })).filter(y => y.n).sort((a, b) => b.n - a.n).slice(0, 3);
       return top.length ? `🎯 Auf dem Tisch: ${top.map(y => `${y.x.name} (${y.n} 👍)`).join(', ')}` : ''; })(),
     'Wir freuen uns!'
@@ -2818,8 +2843,11 @@ function eineWocheSpaeter(z){
   const d = new Date(z); d.setDate(d.getDate() + 7);
   return `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}T${zwei(d.getHours())}:${zwei(d.getMinutes())}`;
 }
-function terminFormular(t){
+function terminFormular(t, artVorwahl){
   const neu = !t;
+  // Art: beim neuen Termin vom Knopf vorgegeben („spiele“) oder noch offen („“ = Kino, Bowling & Co.)
+  const artenWahl = funktionAn('unternehmungen') || (t && !istSpieleabend(t));
+  const startArt = t ? terminArt(t).k : (artVorwahl === undefined ? 'spiele' : artVorwahl);
   if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
   if (!neu && !darfTermin(t)) return;
   // Zur Wahl stehen die Haushalte des gewählten Spielkreises – beim Bearbeiten auch die schon Eingeladenen
@@ -2828,20 +2856,24 @@ function terminFormular(t){
     .filter(h => funktionAn('termine', h.id) || (t && t.haushalte.includes(h.id)) || h.id === E.meinHaushalt);
   // Ohne gewählten Spielkreis, aber in mehreren: erst mal nur der eigene Haushalt – den Kreis wählt man oben
   const erstNurIch = !t && !ak && arbeitsKreise().length > 1 && meinHaushaltGueltig();
-  const w = t ? terminNorm(t) : { titel:'Spieleabend', ort:'', notiz:'', gastgeber:meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
+  const startOrtHh = !!startArt && (TERMIN_ARTEN.find(a => a.k === startArt) || {}).ort === 'hh';
+  const w = t ? terminNorm(t) : { art:startArt || 'sonst', titel:startArt ? terminArt({ art:startArt }).t : '', ort:'', notiz:'',
+    gastgeber:!startOrtHh ? '' : meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
     haushalte:erstNurIch ? [E.meinHaushalt] : sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
   const orteVorher = t ? terminOrte(w) : [{ id:neueId('w'), hid:w.gastgeber, text:'', pos:0, stand:0 }];
+  const ortPlatzhalter = k => { const a = TERMIN_ARTEN.find(x => x.k === k); return a && a.ort !== 'hh' ? a.ort : 'Adresse oder Ort (wenn nötig)'; };
   const ortZeile = o => `<div class="ort-reihe" data-ortzeile="${esc(o.id)}">
     <select class="eingabe" data-gast aria-label="Gastgeber"><option value="">– anderer Ort –</option>${haushaltListe(true).filter(h => sichtbar.some(x => x.id === h.id) || h.id === o.hid)
       .map(h => `<option value="${esc(h.id)}"${h.id === o.hid ? ' selected' : ''}>bei ${esc(h.name)}</option>`).join('')}</select>
     <button class="knopf-rund" type="button" data-weg-ort aria-label="Ort entfernen">${ic('x')}</button>
-    <input class="eingabe" data-orttext value="${esc(o.text || '')}" maxlength="80" placeholder="Adresse oder Ort (wenn nötig)" autocomplete="off"></div>`;
+    <input class="eingabe" data-orttext value="${esc(o.text || '')}" maxlength="80" placeholder="${esc(ortPlatzhalter(startArt))}" autocomplete="off"></div>`;
   const kreise = meineKreise();
   const zeile = o => `<div class="zeit-reihe" data-zeile="${esc(o.id)}"><input class="eingabe" type="datetime-local" value="${esc(o.zeit)}" data-zeit>
     <button class="knopf-rund" type="button" data-weg-zeit aria-label="Termin entfernen">${ic('x')}</button></div>`;
   const s = sheet(`<form novalidate>
-    <div class="sheet-kopf"><h2>${neu ? 'Spieleabend planen' : 'Termine bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <label class="feld"><span class="feld-titel">Titel</span><input class="eingabe" name="titel" value="${esc(w.titel)}" maxlength="60" autocomplete="off"></label>
+    <div class="sheet-kopf"><h2>${!neu ? 'Termine bearbeiten' : startArt === 'spiele' ? 'Spieleabend planen' : 'Treffen planen'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${artenWahl ? `<div class="feld"><span class="feld-titel">Was ist geplant?</span>${chipsHtml('t-art', TERMIN_ARTEN.map(a => ({ w:a.k, t:`${a.e} ${a.t}` })), startArt ? [startArt] : [], { mehrfach:false, pflicht:true })}</div>` : ''}
+    <label class="feld"><span class="feld-titel">Titel</span><input class="eingabe" name="titel" value="${esc(w.titel)}" maxlength="60" autocomplete="off" placeholder="z. B. Weihnachtsmarkt"></label>
     <div class="feld"><span class="feld-titel">Wo?</span>
       <div data-orte>${orteVorher.map(ortZeile).join('')}</div>
       ${funktionAn('orte') ? `<button class="knopf zweit breit" type="button" data-mehr-ort>${ic('plus')}Weiteren Ort zur Abstimmung</button>
@@ -2883,6 +2915,22 @@ function terminFormular(t){
     return kreiseAktiv() && ids.length > 1 && !kreisKandidaten(ids).length; };
   const fremdZeigen = () => { const el = $('[data-fremd]', s); if (el) el.hidden = !fremdMischung(); };
   fremdZeigen();
+  // Art gewechselt: Titel und Ort-Vorgabe mitziehen, solange noch nichts Eigenes eingetragen ist
+  let artJetzt = startArt;
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe !== 't-art') return;
+    const neueArt = e.detail[0] || ''; if (!neueArt || neueArt === artJetzt) return;
+    const titelFeld = feldVon(form, 'titel'), alteArt = TERMIN_ARTEN.find(a => a.k === artJetzt);
+    if (!titelFeld.value.trim() || (alteArt && titelFeld.value.trim() === alteArt.t)) titelFeld.value = neueArt === 'sonst' ? '' : terminArt({ art:neueArt }).t;
+    const zeilen = $$('[data-ortzeile]', orteEl);
+    if (neu && zeilen.length === 1 && !$('[data-orttext]', zeilen[0]).value.trim()){
+      const zuHause = (TERMIN_ARTEN.find(a => a.k === neueArt) || {}).ort === 'hh';
+      $('[data-gast]', zeilen[0]).value = zuHause && meinHaushaltGueltig() ? E.meinHaushalt : '';
+    }
+    $$('[data-orttext]', orteEl).forEach(x => x.placeholder = ortPlatzhalter(neueArt));
+    $('.sheet-kopf h2', s).textContent = !neu ? 'Termine bearbeiten' : neueArt === 'spiele' ? 'Spieleabend planen' : 'Treffen planen';
+    artJetzt = neueArt;
+  });
   s.addEventListener('wahl', e => {
     if (e.target.dataset.gruppe === 'eingeladen'){ $$('[data-gruppe="t-kreis"] .chip', s).forEach(c => c.setAttribute('aria-pressed', 'false')); fremdZeigen(); return; }
     if (e.target.dataset.gruppe !== 't-kreis') return;
@@ -2893,6 +2941,9 @@ function terminFormular(t){
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const jetzt = Date.now();
+    const artGr = $('[data-gruppe="t-art"]', s), art = artGr ? (gewaehlteChips(artGr)[0] || '') : (t ? terminArt(t).k : 'spiele');
+    if (!art){ toast('Bitte wählen, was geplant ist – Kino, Bowling …', 'fehler'); artGr.scrollIntoView({ block:'center', behavior:'smooth' }); return; }
+    if (art === 'sonst' && !feldVon(form, 'titel').value.trim()){ toast('Bitte einen Titel eintragen.', 'fehler'); feldVon(form, 'titel').focus(); return; }
     const zeilen = $$('[data-zeile]', zeiten).map(z => ({ id:z.dataset.zeile, zeit:$('[data-zeit]', z).value.slice(0, 16) })).filter(x => zeitGueltig(x.zeit));
     if (!zeilen.length){ toast('Bitte mindestens einen Termin mit Datum und Uhrzeit eintragen.', 'fehler'); return; }
     const ein = $('[data-gruppe="eingeladen"]', s);
@@ -2919,7 +2970,7 @@ function terminFormular(t){
     if (mehrOrte && festgelegt && !festOrt){ festgelegt = ''; }
     const wo = mehrOrte ? orte.find(o => o.id === festOrt) : orte[0];
     let fertig = terminNorm({
-      ...w, id, titel:feldVon(form, 'titel').value.trim() || 'Spieleabend', notiz:feldVon(form, 'notiz').value.trim(),
+      ...w, id, art, titel:feldVon(form, 'titel').value.trim() || terminArt({ art }).t, notiz:feldVon(form, 'notiz').value.trim(),
       gastgeber:wo ? wo.hid : '', ort:wo ? wo.text : '',      // für ältere App-Versionen
       orte, haushalte, optionen, geloescht, stand:jetzt,
       erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : (orte[0] || {}).hid || '') : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
@@ -3003,7 +3054,7 @@ function kalenderDatei(t){
     'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' }));
-  a.download = `spieleabend-${o.zeit.slice(0, 10)}.ics`;
+  a.download = `${istSpieleabend(t) ? 'spieleabend' : terminArt(t).k}-${o.zeit.slice(0, 10)}.ics`;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
 /* Link aus der Einladung in einem Browser, in dem die App nicht eingerichtet ist (z. B. iPhone: WhatsApp öffnet Safari, nicht die App) */
@@ -4032,6 +4083,7 @@ const HILFE = [
     <li><b>Würfeln</b> lost eins der passenden Spiele aus.</li></ul>` },
   { id:'termine', titel:'Termine – sich zum Spieleabend verabreden', seite:'termine', fkt:'termine', text:`
     <ul><li>Unter <b>Termine</b> auf <b>Spieleabend planen</b> tippen: Ort (Gastgeber), mögliche Termine (mit <b>+ Weiteren Termin</b> beliebig viele) und die eingeladenen Haushalte wählen. Ein Spielkreis wählt seine Haushalte auf einmal aus.</li>
+    <li><b>Kino, Bowling &amp; Co.</b>: Für andere Treffen den zweiten Knopf nehmen und wählen, was geplant ist – 🎬 Kino, 🎳 Bowling, 🍽️ Essen gehen, 🔥 Grillen oder ✨ etwas anderes. Diese Termine stehen in einer eigenen Rubrik; abgestimmt wird genauso.</li>
     <li>Nach dem Anlegen erscheint der Einladungstext mit allen Terminen – <b>Jetzt teilen</b> schickt ihn z. B. per WhatsApp an alle.</li>
     <li><b>Wo?</b> Ein Ort ist ein Gastgeber-Haushalt und/oder eine Adresse. Mit <b>+ Weiteren Ort zur Abstimmung</b> schlägst du mehrere vor – dann stimmen alle auch über den Ort ab.</li>
     <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
@@ -4066,6 +4118,7 @@ const HILFE = [
     <li>Die <b>Pfeile</b> gleichen sofort mit GitHub ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
   { id:'nachrichten', titel:'Nachricht an den Admin', seite:'einstellungen', fkt:'nachrichten', text:`
     <p>Dir ist etwas aufgefallen, du hast einen Änderungswunsch – oder ein neuer Haushalt soll mit anderen in einen Spielkreis? Unter <b>Einstellungen → Nachricht an den Admin</b> (oder im ℹ-Fenster) schreibst du es dem Admin.</p>
+    <p>Zuerst antippen, <b>wer schreibt</b> – so weiß der Admin, mit wem aus eurem Haushalt er schreibt. Das Gerät merkt sich den Namen fürs nächste Mal.</p>
     <p>Wähle, worum es geht. Bei <b>Haushalt / Spielkreis</b> tippst du die Haushalte an, die zusammengehören – der Admin kann den Spielkreis dann mit einem Tipp anlegen.</p>
     <p>Die Antwort des Admins erscheint in derselben Nachricht, die Zahl am Zahnrad zeigt Neues an. Sehen können die Nachrichten in der App nur der Admin und euer Haushalt.</p>` },
   { id:'abgleich', titel:'Abgleich – der Punkt an den Pfeilen', seite:'einstellungen', text:`
@@ -4122,7 +4175,19 @@ function markieren(wurzel, q){
 }
 
 /* ---------- Info: Version und Neuerungen (i oben rechts) ---------- */
+/* Neuerungen, die nur den Admin betreffen, sehen nur Admin-Geräte im Info-Fenster */
+function NUR_ADMIN(t){ return { t, admin:true }; }
+function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
+function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.68', datum:'25.10.2026', neu:[
+    'Termine: neue Rubrik „Kino, Bowling &amp; Co.“ – auch Kino, Bowling, Essen gehen, Grillen oder etwas anderes planen und abstimmen',
+    'Spieleabende und andere Treffen stehen getrennt; „Was spielen wir?“ gibt es nur beim Spieleabend',
+    'Nachricht an den Admin: zuerst auswählen, wer schreibt – auch bei Antworten; das Gerät merkt sich den Namen',
+    NUR_ADMIN('Admin sieht bei jeder Nachricht und jeder Rückmeldung, wer aus dem Haushalt geschrieben hat'),
+    NUR_ADMIN('Neuer Funktions-Schalter je Spielkreis: „Kino, Bowling &amp; Co.“'),
+    NUR_ADMIN('Neuerungen, die nur den Admin betreffen, erscheinen im Info-Fenster nur noch auf Admin-Geräten (mit „nur Admin“ markiert)')
+  ]},
   { v:'v1.67', datum:'24.10.2026', neu:[
     'In mehreren Spielkreisen? Oben „Spielkreis: …“ antippen und wählen, mit welchem Kreis ihr gerade spielt – die App zeigt dann nur dessen Haushalte, Spiele und Ergebnisse',
     'Neue Termine laden nur den gewählten Spielkreis ein; ohne Wahl fragt die App erst, für welchen Kreis',
@@ -4130,7 +4195,8 @@ const VERSIONEN = [
   ]},
   { v:'v1.66', datum:'24.10.2026', neu:[
     'Nachricht an den Admin: Auffälligkeiten, Änderungswünsche oder „neuer Spielkreis bitte“ direkt in der App schicken (Einstellungen oder ℹ-Fenster)',
-    'Der Admin antwortet in der Nachricht und markiert sie als erledigt; bei Spielkreis-Wünschen legt er den Kreis mit einem Tipp an',
+    'Die Antwort des Admins erscheint in derselben Nachricht – darauf lässt sich direkt antworten',
+    NUR_ADMIN('Admin: antworten, als erledigt markieren; bei Spielkreis-Wünschen den Kreis mit einem Tipp anlegen'),
     'Sichtbar nur für den Admin und den Haushalt, der geschrieben hat – Neues zeigt eine Zahl am Zahnrad'
   ]},
   { v:'v1.65', datum:'24.10.2026', neu:[
@@ -4139,8 +4205,8 @@ const VERSIONEN = [
     'Unter Haushalte stehen ausgeliehene Spiele als „ausgeliehen von …“'
   ]},
   { v:'v1.64', datum:'24.10.2026', neu:[
-    'Für den Admin: „Wer nutzt die App?“ – welche Geräte die App installiert haben oder nur im Browser geöffnet, wann sie zuletzt online waren und welche Version sie nutzen',
-    'Geräte lassen sich dort benennen (z. B. „Omas iPhone“) und alte Einträge entfernen'
+    NUR_ADMIN('Für den Admin: „Wer nutzt die App?“ – welche Geräte die App installiert haben oder nur im Browser geöffnet, wann sie zuletzt online waren und welche Version sie nutzen'),
+    NUR_ADMIN('Geräte lassen sich dort benennen (z. B. „Omas iPhone“) und alte Einträge entfernen')
   ]},
   { v:'v1.63', datum:'24.10.2026', neu:[
     'Gleiche Spiele mehrerer Haushalte erscheinen als eine Kachel mit allen Haushalten',
@@ -4163,8 +4229,8 @@ const VERSIONEN = [
     'Bei „Bis zur Grenze“ erkennt die App das Spielende selbst; Gäste können mitspielen',
     'Gespeichert werden Mitspieler, Punkte bzw. Plätze und Gewinner – sichtbar beim Spiel'] },
   { v:'v1.58', datum:'24.10.2026', neu:[
-    'Admin: Funktionen je Spielkreis ein- und ausschalten – Termine, Ortsabstimmung, „Was spielen wir?“, Würfeln, Gespielt, Spielanleitung, Verleihen, Neue Familie dazuholen',
-    'Eigene Einstellung für Haushalte ohne Spielkreis; auf Admin-Geräten ist immer alles an',
+    NUR_ADMIN('Admin: Funktionen je Spielkreis ein- und ausschalten – Termine, Ortsabstimmung, „Was spielen wir?“, Würfeln, Gespielt, Spielanleitung, Verleihen, Neue Familie dazuholen'),
+    NUR_ADMIN('Eigene Einstellung für Haushalte ohne Spielkreis; auf Admin-Geräten ist immer alles an'),
     'Ausgeschaltete Funktionen verschwinden auch aus der Hilfe; ohne Termine fällt der Reiter weg'] },
   { v:'v1.57', datum:'24.10.2026', neu:[
     'Termine: „Was spielen wir?“ – Spiele vorschlagen, jeder tippt 👍 an; die beliebtesten stehen im Text „Es steht fest …“',
@@ -4178,13 +4244,13 @@ const VERSIONEN = [
     'Einladungstext, „Es steht fest …“ und Kalendereintrag nennen den gewählten Ort'] },
   { v:'v1.55', datum:'24.10.2026', neu:[
     'Neue Familie dazuholen: Jeder Haushalt kann eine Familie anfragen und dem Admin per WhatsApp Bescheid geben',
-    'Admin: Anfragen oben unter „Haushalte“ (rote Zahl am Reiter) – freigeben mit Spielkreis, auf Wunsch den Link gleich an die anfragende Familie schicken',
+    NUR_ADMIN('Admin: Anfragen oben unter „Haushalte“ (rote Zahl am Reiter) – freigeben mit Spielkreis, auf Wunsch den Link gleich an die anfragende Familie schicken'),
     'Nach der Freigabe teilt die anfragende Familie den Einladungslink selbst („Eure Einladungen“)',
-    'Vorschlag beim Freigeben: eigener Spielkreis „… & Freunde“ – Gäste sehen nur die Spiele ihrer Gastgeber'] },
+    NUR_ADMIN('Vorschlag beim Freigeben: eigener Spielkreis „… & Freunde“ – Gäste sehen nur die Spiele ihrer Gastgeber')] },
   { v:'v1.54', datum:'24.10.2026', neu:[
     'Persönlicher Einladungslink je Haushalt: Wer ihn öffnet, gehört gleich zum richtigen Haushalt – keine Liste mit fremden Haushalten mehr',
     'Haushalte: neuer Knopf „Einladen“; jeder Haushalt kann seine weiteren Geräte selbst einladen',
-    'Neuer Haushalt (Admin): Spielkreise gleich beim Anlegen wählen, danach direkt den Link verschicken',
+    NUR_ADMIN('Neuer Haushalt (Admin): Spielkreise gleich beim Anlegen wählen, danach direkt den Link verschicken'),
     'Öffnet ein Gerät den Link eines anderen Haushalts, fragt die App vor dem Wechsel nach'] },
   { v:'v1.53', datum:'24.10.2026', neu:[
     'Neu im Info-Fenster: „Worum geht’s im Spieleabend?“ – was die App kann, kurz erklärt',
@@ -4206,12 +4272,12 @@ const VERSIONEN = [
     'Einladung mit Schritt-für-Schritt-Anleitung: iPhone/iPad mit Safari, Android mit Chrome',
     'Hinweis zum Installieren jetzt auch auf Android – mit Knopf „Installieren“, wo Chrome das anbietet'] },
   { v:'v1.45', datum:'23.10.2026', neu:[
-    'Fernabmeldung wirkt jetzt auch bei geöffneter App – nach etwa 20 Sekunden, ohne Neustart'] },
+    NUR_ADMIN('Fernabmeldung wirkt jetzt auch bei geöffneter App – nach etwa 20 Sekunden, ohne Neustart')] },
   { v:'v1.44', datum:'23.10.2026', neu:[
-    'Admin-Geräte: Der Admin sieht, auf welchen Geräten er angemeldet ist',
-    'Andere Geräte lassen sich aus der Ferne als Admin abmelden – einzeln oder alle auf einmal'] },
+    NUR_ADMIN('Admin-Geräte: Der Admin sieht, auf welchen Geräten er angemeldet ist'),
+    NUR_ADMIN('Andere Geräte lassen sich aus der Ferne als Admin abmelden – einzeln oder alle auf einmal')] },
   { v:'v1.43', datum:'23.10.2026', neu:[
-    'Auf Geräten ohne Admin ist der Bereich „Spielkreise &amp; Admin“ ausgeblendet',
+    NUR_ADMIN('Auf Geräten ohne Admin ist der Bereich „Spielkreise &amp; Admin“ ausgeblendet'),
     'Geräte ohne Admin zeigen keine GitHub-Zugangsfelder mehr – bei Bedarf wird ein neuer Einladungslink eingefügt'] },
   { v:'v1.42', datum:'23.10.2026', neu:[
     'Rechte: Sobald es einen Admin gibt, ändert jeder nur noch seinen eigenen Haushalt – Spiele, Mitspieler, Name und Farbe',
@@ -4233,11 +4299,11 @@ const VERSIONEN = [
     'Neu: <b>i</b> – Info mit allen Versionen und was jeweils neu ist; zeigt an, ob es eine neuere Version gibt',
     'Hilfe hat jetzt einen eigenen <b>?</b>-Knopf und ein Suchfeld, das die Fundstellen gelb markiert',
     'Der Abgleich ist jetzt der Pfeil-Knopf oben rechts mit farbigem Punkt',
-    'Einladungslink: der GitHub-Zugang steckt unkenntlich im Link',
-    'Per Einladung eingerichtete Geräte zeigen keine GitHub-Zugangsdaten mehr, der Schlüssel lässt sich nirgends mehr anzeigen'] },
+    NUR_ADMIN('Einladungslink: der GitHub-Zugang steckt unkenntlich im Link'),
+    NUR_ADMIN('Per Einladung eingerichtete Geräte zeigen keine GitHub-Zugangsdaten mehr, der Schlüssel lässt sich nirgends mehr anzeigen')] },
   { v:'v1.20', datum:'23.10.2026', neu:[
     'Spielkreise: Der Admin legt fest, welche Haushalte gegenseitig ihre Spiele sehen',
-    'Admin-PIN, Übersicht „Wer sieht wen?“',
+    NUR_ADMIN('Admin-PIN, Übersicht „Wer sieht wen?“'),
     'Spielrunde: Spielkreis mit einem Tipp auswählen',
     'Hilfe mit aufklappbaren Themen'] },
   { v:'v1.10', datum:'23.10.2026', neu:[
@@ -4266,7 +4332,7 @@ const UEBER_LEAD = 'Jeder von uns hat Spiele im Schrank – aber wer weiß schon
 const UEBER_PUNKTE = [
   ['📚', 'Alle Spiele auf einen Blick', 'Jeder Haushalt trägt seine Spiele mit Foto ein. Den Namen eintippen genügt – Spielerzahl, Alter und Dauer holt die App aus Wikipedia.'],
   ['🎲', 'Das passende Spiel finden', 'Sagt der App, wer heute mitspielt. Sie zeigt, welche Spiele für eure Runde passen – und würfelt auf Wunsch eins aus.'],
-  ['📅', 'Gemeinsam verabreden', 'Termine vorschlagen, jeder stimmt in der App ab. Steht der Termin, kommt er mit einem Tipp in den Kalender.'],
+  ['📅', 'Gemeinsam verabreden', 'Spieleabend – oder auch Kino, Bowling und Grillen: Termine vorschlagen, jeder stimmt in der App ab. Steht der Termin, kommt er mit einem Tipp in den Kalender.'],
   ['📖', 'Spielanleitung immer dabei', 'Zu jedem Spiel die Anleitung oder ein Erklärvideo – praktisch, wenn wieder jemand sagt: „So haben wir das aber immer gespielt!“'],
   ['✨', 'Ganz einfach', 'Kein Konto, kein Passwort, keine Werbung. Läuft auf iPhone, iPad und Android und ist auf allen Geräten automatisch auf dem gleichen Stand.']
 ];
@@ -4338,7 +4404,8 @@ function infoSheet(){
   function zeigen(){
     const x = VERSIONEN.find(y => y.v === wahl.value) || VERSIONEN[0];
     text.innerHTML = `<p class="text-leise text-klein" style="margin:0 0 8px">Veröffentlicht am ${x.datum}${x.v === VERSION ? ' · installiert' : ''}</p>
-      <ul class="info-liste">${x.neu.map(n => `<li>${n}</li>`).join('')}</ul>`;
+      ${x.neu.some(neuSichtbar) ? `<ul class="info-liste">${x.neu.filter(neuSichtbar).map(n => `<li>${neuText(n)}${typeof n !== 'string' && n.admin ? ' <span class="marke-mein grau">nur Admin</span>' : ''}</li>`).join('')}</ul>`
+        : '<p class="text-leise" style="margin:0">Verbesserungen im Hintergrund – für dich ändert sich nichts.</p>'}`;
   }
   wahl.addEventListener('change', zeigen); zeigen();
   $('[data-info-hilfe]', s).addEventListener('click', () => { s.schliessen(); setTimeout(hilfeSheet, 230); });
@@ -4485,9 +4552,9 @@ function nachrichtZeileHtml({ h, n }){
   return `<button type="button" class="nachricht-zeile${neu ? ' neu' : ''}" data-nachricht="${esc(h.id)}|${esc(n.id)}">
     <span class="nachricht-kopf">${E.admin ? `${figur(h.farbe, 15)}<b>${esc(h.name)}</b>` : `<b>${a.e} ${esc(a.t)}</b>`}
       <span class="anfrage-status ${n.status === 'erledigt' ? '' : 'offen'}">${n.status === 'erledigt' ? 'erledigt' : 'offen'}</span></span>
-    ${E.admin ? `<span class="nachricht-art">${a.e} ${esc(a.t)}${n.von ? ` · von ${esc(n.von)}` : ''}</span>` : ''}
+    ${E.admin ? `<span class="nachricht-art">${a.e} ${esc(a.t)} · ${n.von ? `von <b>${esc(n.von)}</b>` : 'ohne Namen'}</span>` : `<span class="nachricht-art">${n.von ? `von ${esc(n.von)}` : ''}</span>`}
     <span class="nachricht-text">${esc(n.text)}</span>
-    <span class="nachricht-fuss">${neu ? '<span class="neu-punkt"></span>' : ''}${esc(wannKurz(nachrichtZuletzt(n)))}${letzte ? ` · ${letzte.admin ? (E.admin ? 'du hast geantwortet' : 'Antwort vom Admin') : 'neue Rückmeldung'}` : ''}${n.verlauf.length ? ` · ${n.verlauf.length} Antwort${n.verlauf.length === 1 ? '' : 'en'}` : ''}</span>
+    <span class="nachricht-fuss">${neu ? '<span class="neu-punkt"></span>' : ''}${esc(wannKurz(nachrichtZuletzt(n)))}${letzte ? ` · ${letzte.admin ? (E.admin ? 'du hast geantwortet' : 'Antwort vom Admin') : `Rückmeldung${letzte.von ? ' von ' + esc(letzte.von) : ''}`}` : ''}${n.verlauf.length ? ` · ${n.verlauf.length} Antwort${n.verlauf.length === 1 ? '' : 'en'}` : ''}</span>
   </button>`;
 }
 function nachrichtenHtml(){
@@ -4503,16 +4570,34 @@ function nachrichtenHtml(){
     ${alle.length ? `<div style="margin-top:12px">${liste(offen)}${fertig.length ? `<div style="margin-top:10px">${klapp('nachrichten-fertig', `Erledigt (${fertig.length})`, liste(fertig), { klasse:'leicht' })}</div>` : ''}</div>` : ''}
     <p class="block-hinweis">Sehen können das in der App nur der Admin und euer Haushalt.</p>`;
 }
+/* Wer aus dem Haushalt schreibt? Muss gewählt werden – das Gerät merkt sich die letzte Wahl. */
+function werSchreibtHtml(h){
+  const namen = (h.spieler || []).map(x => x.name), vor = namen.includes(E.ichName) ? E.ichName : '';
+  return `<div class="feld" data-wer-feld><span class="feld-titel">Wer schreibt?</span>
+    ${namen.length ? chipsHtml('n-von', namen.map(n => ({ w:n, t:n })), vor ? [vor] : [], { mehrfach:false })
+      : `<input class="eingabe" name="von" value="${esc(E.ichName || '')}" maxlength="30" placeholder="Dein Name" autocomplete="off" autocapitalize="words">`}</div>`;
+}
+function werSchreibt(wurzel){
+  const gr = $('[data-gruppe="n-von"]', wurzel);
+  const name = gr ? (gewaehlteChips(gr)[0] || '') : (($('[data-wer-feld] input', wurzel) || {}).value || '').trim().slice(0, 30);
+  if (!name){
+    toast('Bitte zuerst auswählen, wer schreibt.', 'fehler');
+    const feld = $('[data-wer-feld]', wurzel); if (feld){ feld.scrollIntoView({ block:'center', behavior:'smooth' }); feld.classList.remove('wackeln'); void feld.offsetWidth; feld.classList.add('wackeln'); }
+    return '';
+  }
+  if (name !== E.ichName){ E.ichName = name; einstSpeichern(); }
+  return name;
+}
 function nachrichtFormular(vorwahl){
   if (!nachrichtenMoeglich() || E.admin) return;
   const h = D.haushalte[E.meinHaushalt]; if (!h) return;
   const andere = haushaltListe();
   const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Nachricht an den Admin</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${werSchreibtHtml(h)}
     <div class="feld"><span class="feld-titel">Worum geht’s?</span>${chipsHtml('n-art', NACHRICHT_ARTEN.map(a => ({ w:a.k, t:`${a.e} ${a.t}` })), vorwahl ? [vorwahl] : [], { mehrfach:false })}</div>
     <div class="feld" data-betrifft${vorwahl === 'kreis' ? '' : ' hidden'}><span class="feld-titel">Welche Haushalte gehören zusammen?</span>${figurChipsHtml('n-hh', [E.meinHaushalt], { liste:andere })}
       <p class="block-hinweis" style="margin-top:6px">Ein neuer Haushalt taucht hier auf, sobald der Admin ihn angelegt hat. Sonst einfach unten dazuschreiben.</p></div>
     <label class="feld"><span class="feld-titel">Nachricht</span><textarea class="eingabe" name="text" maxlength="1000" style="min-height:120px" placeholder="z. B. Bitte Familie D mit Familie V und Familie W als neuen Spielkreis anlegen."></textarea></label>
-    ${h.spieler.length ? `<div class="feld"><span class="feld-titel">Wer schreibt? <span class="text-leise" style="font-weight:400">(freiwillig)</span></span>${chipsHtml('n-von', h.spieler.map(x => ({ w:x.name, t:x.name })), [], { mehrfach:false })}</div>` : ''}
     <p class="block-hinweis" style="margin-top:-4px">Absender: ${esc(h.name)}. Sehen können das in der App nur der Admin und euer Haushalt.</p>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Senden</button></div></form>`);
   const f = $('form', s);
@@ -4521,9 +4606,9 @@ function nachrichtFormular(vorwahl){
   f.addEventListener('submit', e => {
     e.preventDefault();
     const text = feldVon(f, 'text').value.trim();
+    const von = werSchreibt(s); if (!von) return;
     if (!text){ toast('Bitte etwas hineinschreiben.', 'fehler'); return; }
     const art = gewaehlteChips($('[data-gruppe="n-art"]', s))[0] || 'sonst';
-    const vonGr = $('[data-gruppe="n-von"]', s), von = vonGr ? (gewaehlteChips(vonGr)[0] || '') : '';
     const betrifft = art === 'kreis' ? gewaehlteChips($('[data-gruppe="n-hh"]', s)) : [];
     const hh = D.haushalte[E.meinHaushalt]; if (!hh){ s.schliessen(); return; }
     const jetzt = Date.now();
@@ -4558,9 +4643,10 @@ function nachrichtSheet(wert){
       <p class="nachricht-art" style="margin:0 0 12px">${a.e} ${esc(a.t)}</p>
       ${bet.length ? `<p class="nachricht-betrifft">Haushalte: ${bet.map(x => `<span>${figur(x.farbe, 14)}${esc(x.name)}</span>`).join('')}</p>` : ''}
       <div class="blasen">${blase(n.text, false, n.erstellt, n.von || h.name)}
-        ${n.verlauf.map(v => blase(v.text, v.admin, v.zeit, v.admin ? 'Admin' : (h.name))).join('')}</div>
+        ${n.verlauf.map(v => blase(v.text, v.admin, v.zeit, v.admin ? 'Admin' : (v.von || h.name))).join('')}</div>
       ${n.status === 'erledigt' ? `<p class="block-hinweis" style="text-align:center">Als erledigt markiert ${esc(zuletztText(n.statusStand))}${E.admin ? '' : ' – wenn noch etwas fehlt, einfach antworten'}</p>` : ''}
-      <label class="feld" style="margin-top:12px"><span class="sr">Antwort</span><textarea class="eingabe" data-antwort maxlength="1000" style="min-height:80px" placeholder="${E.admin ? 'Antwort an ' + esc(h.name) : 'Noch etwas dazu schreiben'}"></textarea></label>
+      ${E.admin ? '' : `<div style="margin-top:14px">${werSchreibtHtml(h)}</div>`}
+      <label class="feld" style="margin-top:12px"><span class="sr">Antwort</span><textarea class="eingabe" data-antwort maxlength="1000" style="min-height:80px" placeholder="${E.admin ? 'Antwort an ' + esc(n.von ? `${n.von} (${h.name})` : h.name) : 'Noch etwas dazu schreiben'}"></textarea></label>
       <button class="knopf breit" type="button" data-n="antworten">${E.admin ? 'Antworten' : 'Senden'}</button>
       ${E.admin ? `<div class="hh-knoepfe" style="margin-top:10px">
         ${n.status === 'erledigt' ? '<button class="knopf zweit" type="button" data-n="oeffnen">Wieder öffnen</button>' : `<button class="knopf zweit" type="button" data-n="erledigt">${ic('haken')}Erledigt</button>`}
@@ -4574,9 +4660,10 @@ function nachrichtSheet(wert){
     const b = e.target.closest('[data-n]'); if (!b) return;
     const was = b.dataset.n;
     if (was === 'antworten'){
+      const von = E.admin ? '' : werSchreibt(s); if (!E.admin && !von) return;
       const t = $('[data-antwort]', s).value.trim(); if (!t){ toast('Bitte etwas hineinschreiben.', 'fehler'); return; }
       nachrichtAendern(hid, id, x => {
-        x.verlauf = [...x.verlauf, { id:neueId('a'), admin:E.admin, text:t, zeit:Date.now() }];
+        x.verlauf = [...x.verlauf, { id:neueId('a'), admin:E.admin, text:t, zeit:Date.now(), ...(von ? { von } : {}) }];
         if (!E.admin && x.status === 'erledigt'){ x.status = 'offen'; x.statusStand = Date.now(); }
       }, E.admin ? 'Antwort vom Admin' : 'Nachricht ergänzt');
       toast(E.admin ? 'Antwort gesendet' : 'Gesendet'); neuZeichnen();
