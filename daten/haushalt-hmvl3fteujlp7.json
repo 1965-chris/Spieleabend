@@ -417,6 +417,23 @@
    "geaendert": 1792862826379
   },
   {
+   "id": "smvnkubtwbhxe",
+   "name": "Quibble",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792917591908,
+   "geaendert": 1792917591908
+  },
+  {
    "id": "smvmlf0wcuu22",
    "name": "Qwixx",
    "bild": "bilder/smvmlf0wcuu22-mvmlf0wd.jpg",
@@ -656,7 +673,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792913893386,
+   "zuletzt": 1792917593807,
    "name": "",
    "nameStand": 0
   },
