@@ -696,7 +696,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.68';
+const VERSION = 'v1.69';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1120,21 +1120,23 @@ async function gh(methode, pfad, body){
       });
     }catch(e){
       if (i < 2 && navigator.onLine !== false){ await warte(900 * (i + 1)); continue; }
-      throw new Error(navigator.onLine === false ? 'Kein Internet – die Änderungen bleiben gespeichert und gehen später raus.' : 'GitHub ist gerade nicht erreichbar.');
+      throw new Error(navigator.onLine === false ? 'Kein Internet – die Änderungen bleiben gespeichert und gehen später raus.' : technikSichtbar() ? 'GitHub ist gerade nicht erreichbar.' : 'Der Abgleich ist gerade nicht erreichbar – später nochmal versuchen.');
     }
     if (r.status >= 500 && i < 2){ await warte(900 * (i + 1)); continue; }
     return r;
   }
 }
+/* Technische Einzelheiten (GitHub, Repo) nur auf Admin-Geräten bzw. auf dem selbst eingerichteten Gerät nennen */
+function technikSichtbar(){ return E.admin || zugangsfelderSichtbar(); }
 async function fehlerAus(r, was){
   let msg = ''; try{ msg = (await r.json()).message || ''; }catch(e){}
   const rest = r.headers.get('x-ratelimit-remaining');
-  if (r.status === 401) return new Error('Der Schlüssel stimmt nicht oder ist abgelaufen.');
+  if (r.status === 401) return new Error(technikSichtbar() ? 'Der Schlüssel stimmt nicht oder ist abgelaufen.' : 'Der Zugang stimmt nicht mehr – bitte beim Admin einen neuen Einladungslink holen.');
   if ((r.status === 403 || r.status === 429) && (rest === '0' || /rate limit/i.test(msg)))
-    return new Error(E.token ? 'GitHub-Abrufgrenze erreicht – in einer Stunde geht es weiter.' : 'Ohne Schlüssel erlaubt GitHub nur 60 Abrufe pro Stunde. Bitte später nochmal.');
-  if (r.status === 403) return new Error(`Der Schlüssel darf in diesem Repo nichts ändern${msg ? ` (GitHub: ${msg})` : ''}.`);
+    return new Error(!technikSichtbar() ? 'Gerade zu viele Abrufe – in einer Stunde geht es weiter.' : E.token ? 'GitHub-Abrufgrenze erreicht – in einer Stunde geht es weiter.' : 'Ohne Schlüssel erlaubt GitHub nur 60 Abrufe pro Stunde. Bitte später nochmal.');
+  if (r.status === 403) return new Error(technikSichtbar() ? `Der Schlüssel darf in diesem Repo nichts ändern${msg ? ` (GitHub: ${msg})` : ''}.` : 'Der Zugang darf nichts ändern – bitte dem Admin Bescheid geben.');
   if (r.status === 404) return new Error(`${was}: nicht gefunden.`);
-  return new Error(`${was}: GitHub meldet ${r.status}${msg ? ' – ' + msg : ''}`);
+  return new Error(technikSichtbar() ? `${was}: GitHub meldet ${r.status}${msg ? ' – ' + msg : ''}` : `${was}: Fehler ${r.status} – später nochmal versuchen.`);
 }
 function b64Bytes(bytes){ let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); }
 function b64AusText(s){ return b64Bytes(new TextEncoder().encode(s)); }
@@ -1143,8 +1145,8 @@ async function b64AusBlob(blob){ return b64Bytes(new Uint8Array(await blob.array
 
 async function repoPruefen(){
   const r = await gh('GET', '');
-  if (r.status === 404) throw new Error(`Repo „${E.owner}/${E.repo}“ nicht gefunden – Benutzername und Repo in den Einstellungen prüfen.`);
-  if (!r.ok) throw await fehlerAus(r, 'Repo');
+  if (r.status === 404) throw new Error(technikSichtbar() ? `Repo „${E.owner}/${E.repo}“ nicht gefunden – Benutzername und Repo in den Einstellungen prüfen.` : 'Die Daten wurden nicht gefunden – bitte dem Admin Bescheid geben.');
+  if (!r.ok) throw await fehlerAus(r, technikSichtbar() ? 'Repo' : 'Abgleich');
   const j = await r.json();
   if (j.default_branch && j.default_branch !== E.branch){ E.branch = j.default_branch; einstSpeichern(); }
   return j;
@@ -1171,7 +1173,7 @@ async function verwaltungLesen(){
   if (!r.ok) throw await fehlerAus(r, 'Verwaltung lesen');
   const j = await r.json();
   try{ return { daten:JSON.parse(textAusB64(j.content)), sha:j.sha }; }
-  catch(e){ throw new Error('Die Datei verwaltung.json ist beschädigt – bitte auf GitHub prüfen.'); }
+  catch(e){ throw new Error(technikSichtbar() ? 'Die Datei verwaltung.json ist beschädigt – bitte auf GitHub prüfen.' : 'Die Spielkreise lassen sich nicht lesen – bitte dem Admin Bescheid geben.'); }
 }
 async function verwaltungHochladen(){
   const m = D.metaV;
@@ -1201,7 +1203,7 @@ async function dateiLesen(id){
   if (!r.ok) throw await fehlerAus(r, 'Haushalt lesen');
   const j = await r.json();
   let daten;
-  try{ daten = JSON.parse(textAusB64(j.content)); }catch(e){ throw new Error(`Die Datei ${dateiName(id)} ist beschädigt – bitte auf GitHub prüfen.`); }
+  try{ daten = JSON.parse(textAusB64(j.content)); }catch(e){ throw new Error(technikSichtbar() ? `Die Datei ${dateiName(id)} ist beschädigt – bitte auf GitHub prüfen.` : 'Die Daten eines Haushalts lassen sich nicht lesen – bitte dem Admin Bescheid geben.'); }
   if (!daten || typeof daten !== 'object') throw new Error(`Die Datei ${dateiName(id)} ist leer.`);
   daten.id = id;
   return { daten, sha:j.sha };
@@ -1234,7 +1236,7 @@ async function haushaltHochladen(id){
     }
     throw await fehlerAus(r, 'Speichern');
   }
-  throw new Error('Speichern bei GitHub hat nach mehreren Versuchen nicht geklappt.');
+  throw new Error(technikSichtbar() ? 'Speichern bei GitHub hat nach mehreren Versuchen nicht geklappt.' : 'Speichern hat nach mehreren Versuchen nicht geklappt – später nochmal versuchen.');
 }
 async function fotosHochladen(){
   let n = 0;
@@ -3931,7 +3933,7 @@ function einladenHtml(){
         `<option value="${esc(h.id)}"${h.id === vorwahl ? ' selected' : ''}>${esc(h.name)}${h.id === E.meinHaushalt ? ' (eigener Haushalt)' : ''}</option>`).join('')}</select></label>
       <button class="knopf breit" type="button" data-einladen="auswahl">${ic('teilen')}Einladungslink teilen</button>` : ''}
     <button class="knopf zweit breit" type="button" data-aktion="haushalt-neu" style="margin-top:10px">${ic('plus')}Neuen Haushalt anlegen</button>
-    <p class="block-hinweis">Schick die Links nur an Familie und Freunde – sie richten die App mit dem Schlüssel ein.</p>`;
+    <p class="block-hinweis">Schick die Links nur an Familie und Freunde${technikSichtbar() ? ' – sie richten die App mit dem Schlüssel ein' : ''}.</p>`;
 }
 function renderEinstellungen(){
   const el = $('#einstellungen-inhalt');
@@ -3965,7 +3967,7 @@ function renderEinstellungen(){
           { klasse:'leicht' })}</div>` : ''}`,
       { zwingend:!!S.fehler, klein:`<span class="punkt" data-k="${z.k}"></span>${esc(z.t)}` })}
 
-    ${klapp('e-github', 'Verbindung zu GitHub', !zugangsfelderSichtbar() ? `
+    ${klapp('e-github', E.admin || zugangsfelderSichtbar() ? 'Verbindung zu GitHub' : 'Verbindung', !zugangsfelderSichtbar() ? `
       <p class="text-leise" style="margin:0 0 12px">${E.perEinladung ? 'Diese App wurde über einen Einladungslink eingerichtet. ' : ''}Der Zugang ist hinterlegt und wird nicht angezeigt.</p>
       <label class="feld"><span class="feld-titel">Neuen Einladungslink einfügen</span>
         <textarea class="eingabe" id="e-einladung" placeholder="https://…#einladung=…" style="min-height:80px;font-size:16px" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></label>
@@ -3994,9 +3996,9 @@ function renderEinstellungen(){
         <button class="knopf zweit" type="button" id="e-export">Sicherung herunterladen</button>
         ${!rechteAktiv() || E.admin ? '<button class="knopf zweit" type="button" id="e-import">Sicherung einspielen</button>' : ''}
         <input type="file" accept="application/json,.json" id="e-import-datei" class="sr" tabindex="-1">
-        <button class="knopf rahmen" type="button" id="e-neu">Alles neu von GitHub laden</button>
+        <button class="knopf rahmen" type="button" id="e-neu">Alles neu laden</button>
       </div>
-      <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos liegen im Repo.</p>`)}
+      <p class="block-hinweis">Die Sicherung enthält alle Spieldaten ohne Fotos – die Fotos sind online gespeichert.</p>`)}
     <p class="fuss versions-tipp" id="e-version">Spieleabend ${VERSION}</p>`;
   doppelTipp($('#e-version'), adminUmschalten);
 
@@ -4039,7 +4041,7 @@ function renderEinstellungen(){
 /* ---------- Hilfe (ℹ️ oben rechts) ---------- */
 const HILFE = [
   { id:'ueberblick', titel:'So funktioniert der Spieleabend', text:`
-    <p>Jeder Haushalt trägt seine Spiele mit Foto ein. Alle Geräte gleichen sich automatisch über GitHub ab.</p>
+    <p>Jeder Haushalt trägt seine Spiele mit Foto ein. Alle Geräte gleichen sich automatisch ab.</p>
     <p>Beim Spieleabend sagt ihr der App unter <b>Spielrunde</b>, wie viele ihr seid und wer mitspielt. Sie zeigt, welche Spiele passen – und würfelt auf Wunsch eins aus.</p>
     <p>Unter <b>Termine</b> verabredet ihr euch: Termine vorschlagen, jeder stimmt in der App ab, dann steht der Abend fest.</p>` },
   { id:'spiele', titel:'Spiel eintragen', seite:'spiele', text:`
@@ -4109,31 +4111,33 @@ const HILFE = [
     <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li>
     <li><b>Funktionen</b>: In jedem Spielkreis schaltet der Admin einzelne Funktionen ein oder aus – z. B. Termine, Würfeln, Verleihen. Ein Haushalt in mehreren Spielkreisen bekommt eine Funktion, sobald sie in einem davon an ist. Für Haushalte ohne Spielkreis gilt „Funktionen ohne Spielkreis“. Auf Admin-Geräten ist immer alles an.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
-    <p>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>
+    <p data-nur-admin>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>
     <p><b>In mehreren Spielkreisen?</b> Oben auf den Seiten steht dann „Spielkreis: …“. Antippen und wählen, mit welchem Kreis ihr gerade spielt – dann zeigt die App nur dessen Haushalte, Spiele und Ergebnisse, und neue Termine laden nur diesen Kreis ein. Das gilt nur auf dem jeweiligen Gerät und lässt sich jederzeit zurück auf „Alle zusammen“ stellen.</p>
     <p>Beim Planen eines Termins warnt die App, wenn Haushalte eingeladen werden, die in keinem gemeinsamen Spielkreis sind.</p>` },
   { id:'knoepfe', titel:'Die Knöpfe oben rechts', text:`
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
     <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
-    <li>Die <b>Pfeile</b> gleichen sofort mit GitHub ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
+    <li>Die <b>Pfeile</b> gleichen sofort ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
   { id:'nachrichten', titel:'Nachricht an den Admin', seite:'einstellungen', fkt:'nachrichten', text:`
     <p>Dir ist etwas aufgefallen, du hast einen Änderungswunsch – oder ein neuer Haushalt soll mit anderen in einen Spielkreis? Unter <b>Einstellungen → Nachricht an den Admin</b> (oder im ℹ-Fenster) schreibst du es dem Admin.</p>
     <p>Zuerst antippen, <b>wer schreibt</b> – so weiß der Admin, mit wem aus eurem Haushalt er schreibt. Das Gerät merkt sich den Namen fürs nächste Mal.</p>
     <p>Wähle, worum es geht. Bei <b>Haushalt / Spielkreis</b> tippst du die Haushalte an, die zusammengehören – der Admin kann den Spielkreis dann mit einem Tipp anlegen.</p>
-    <p>Die Antwort des Admins erscheint in derselben Nachricht, die Zahl am Zahnrad zeigt Neues an. Sehen können die Nachrichten in der App nur der Admin und euer Haushalt.</p>` },
+    <p>Die Antwort des Admins erscheint in derselben Nachricht, die Zahl am Zahnrad zeigt Neues an. Die Nachricht geht an den Admin; euer Haushalt sieht sie auch.</p>` },
   { id:'abgleich', titel:'Abgleich – der Punkt an den Pfeilen', seite:'einstellungen', text:`
     <p class="punkt-zeile"><span class="punkt" data-k="ok"></span>Grün: alles abgeglichen.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="laeuft"></span>Gelb: gleicht gerade ab oder wartet.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="fehler"></span>Rot: ein Problem – die Pfeile antippen zeigt den Grund.</p>
     <p class="punkt-zeile"><span class="punkt" data-k="aus"></span>Grau: offline oder ohne Schlüssel.</p>
     <p>Änderungen ohne Internet bleiben auf dem Gerät und werden später automatisch nachgereicht.</p>` },
-  { id:'zugang', titel:'Einladungslink und GitHub-Zugang', seite:'einstellungen', text:`
-    <p>Der Einladungslink richtet die App mit dem GitHub-Zugang ein. Der Zugang steckt verschlüsselt im Link und wird in der App nirgends angezeigt.</p>
-    <p>Auf Geräten, die per Einladung eingerichtet wurden, sind die GitHub-Einstellungen ausgeblendet. Funktioniert der Abgleich dort nicht mehr, einfach einen neuen Einladungslink einfügen.</p>` },
+  { id:'zugang', titel:'Einladungslink und Zugang', seite:'einstellungen', text:`
+    <p>Der Einladungslink richtet die App mit dem Zugang ein. Der Zugang steckt verschlüsselt im Link und wird in der App nirgends angezeigt.</p>
+    <p>Auf Geräten, die per Einladung eingerichtet wurden, sind die Zugangs-Einstellungen ausgeblendet. Funktioniert der Abgleich dort nicht mehr, einfach einen neuen Einladungslink einfügen.</p>` },
   { id:'sicherung', titel:'Datensicherung', seite:'einstellungen', text:`
-    <p>Einstellungen → <b>Daten</b>: Sicherung herunterladen (alle Spieldaten ohne Fotos) und bei Bedarf wieder einspielen. Die Fotos liegen im Repo auf GitHub.</p>` }
+    <p>Einstellungen → <b>Daten</b>: Sicherung herunterladen (alle Spieldaten ohne Fotos) und bei Bedarf wieder einspielen. Die Fotos sind online gespeichert und kommen beim Abgleich wieder.</p>` }
 ];
-function hilfeListe(){ return HILFE.filter(h => !h.fkt || funktionAn(h.fkt)); }
+/* Teile mit data-nur-admin sieht nur der Admin (z. B. Hinweise zur Technik dahinter) */
+function fuerGeraet(html){ return E.admin ? html : String(html).replace(/<(p|li|span) data-nur-admin>[\s\S]*?<\/\1>/g, ''); }
+function hilfeListe(){ return HILFE.filter(h => !h.fkt || funktionAn(h.fkt)).map(h => ({ ...h, text:fuerGeraet(h.text) })); }
 function hilfeSheet(){
   const liste = hilfeListe();
   const zuerst = liste.find(h => h.seite === aktiveSeite) || liste[0];
@@ -4180,6 +4184,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.69', datum:'25.10.2026', neu:[
+    NUR_ADMIN('Hinweise zur Technik dahinter („Ordnungshilfe, kein Schutz“, Repo, GitHub) erscheinen nur noch auf Admin-Geräten'),
+    NUR_ADMIN('Auf den anderen Geräten heißt es neutral „Verbindung“, „Alles neu laden“, „online gespeichert“')
+  ]},
   { v:'v1.68', datum:'25.10.2026', neu:[
     'Termine: neue Rubrik „Kino, Bowling &amp; Co.“ – auch Kino, Bowling, Essen gehen, Grillen oder etwas anderes planen und abstimmen',
     'Spieleabende und andere Treffen stehen getrennt; „Was spielen wir?“ gibt es nur beim Spieleabend',
@@ -4261,7 +4269,7 @@ const VERSIONEN = [
     'Vorschläge aus dem Wikipedia-Artikel, wenn dort eine Anleitung verlinkt ist',
     'Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen'] },
   { v:'v1.51', datum:'23.10.2026', neu:[
-    'Einladungstext, „Es steht fest …“ und Kalendereintrag ohne Link – die GitHub-Adresse bleibt unter euch'] },
+    NUR_ADMIN('Einladungstext, „Es steht fest …“ und Kalendereintrag ohne Link – die GitHub-Adresse bleibt unter euch')] },
   { v:'v1.50', datum:'23.10.2026', neu:[
     'Neuer Bereich „Termine“: Spieleabend planen, mehrere Termine vorschlagen und die Einladung per WhatsApp &amp; Co. verschicken',
     'Jede Person stimmt einzeln ab (✓ kann, ? vielleicht, ✗ kann nicht) – die App zeigt die beste Wahl',
@@ -4278,7 +4286,7 @@ const VERSIONEN = [
     NUR_ADMIN('Andere Geräte lassen sich aus der Ferne als Admin abmelden – einzeln oder alle auf einmal')] },
   { v:'v1.43', datum:'23.10.2026', neu:[
     NUR_ADMIN('Auf Geräten ohne Admin ist der Bereich „Spielkreise &amp; Admin“ ausgeblendet'),
-    'Geräte ohne Admin zeigen keine GitHub-Zugangsfelder mehr – bei Bedarf wird ein neuer Einladungslink eingefügt'] },
+    NUR_ADMIN('Geräte ohne Admin zeigen keine GitHub-Zugangsfelder mehr – bei Bedarf wird ein neuer Einladungslink eingefügt')] },
   { v:'v1.42', datum:'23.10.2026', neu:[
     'Rechte: Sobald es einen Admin gibt, ändert jeder nur noch seinen eigenen Haushalt – Spiele, Mitspieler, Name und Farbe',
     'Spiele und Mitspieler anderer Haushalte lassen sich nur noch ansehen',
@@ -4317,7 +4325,7 @@ const VERSIONEN = [
   { v:'v1.00', datum:'23.10.2026', neu:[
     'Erste Version: Haushalte mit Spielfigur, Spiele mit Foto, Suche und Filter',
     'Spielrunde mit Würfeln',
-    'Abgleich über GitHub, Einladungslink für weitere Haushalte und Geräte'] }
+    'Abgleich zwischen allen Geräten, Einladungslink für weitere Haushalte und Geräte'] }
 ];
 async function neuesteVersion(){
   try{
@@ -4568,7 +4576,7 @@ function nachrichtenHtml(){
   return `<p class="text-leise" style="margin:0 0 12px">Dir ist etwas aufgefallen, du hast einen Wunsch – oder ein neuer Haushalt soll in einen Spielkreis? Schreib es dem Admin.</p>
     <button class="knopf breit" type="button" data-nachricht-neu>${ic('plus')}Neue Nachricht</button>
     ${alle.length ? `<div style="margin-top:12px">${liste(offen)}${fertig.length ? `<div style="margin-top:10px">${klapp('nachrichten-fertig', `Erledigt (${fertig.length})`, liste(fertig), { klasse:'leicht' })}</div>` : ''}</div>` : ''}
-    <p class="block-hinweis">Sehen können das in der App nur der Admin und euer Haushalt.</p>`;
+    <p class="block-hinweis">Die Nachricht geht an den Admin; euer Haushalt sieht sie auch.</p>`;
 }
 /* Wer aus dem Haushalt schreibt? Muss gewählt werden – das Gerät merkt sich die letzte Wahl. */
 function werSchreibtHtml(h){
@@ -4598,7 +4606,7 @@ function nachrichtFormular(vorwahl){
     <div class="feld" data-betrifft${vorwahl === 'kreis' ? '' : ' hidden'}><span class="feld-titel">Welche Haushalte gehören zusammen?</span>${figurChipsHtml('n-hh', [E.meinHaushalt], { liste:andere })}
       <p class="block-hinweis" style="margin-top:6px">Ein neuer Haushalt taucht hier auf, sobald der Admin ihn angelegt hat. Sonst einfach unten dazuschreiben.</p></div>
     <label class="feld"><span class="feld-titel">Nachricht</span><textarea class="eingabe" name="text" maxlength="1000" style="min-height:120px" placeholder="z. B. Bitte Familie D mit Familie V und Familie W als neuen Spielkreis anlegen."></textarea></label>
-    <p class="block-hinweis" style="margin-top:-4px">Absender: ${esc(h.name)}. Sehen können das in der App nur der Admin und euer Haushalt.</p>
+    <p class="block-hinweis" style="margin-top:-4px">Absender: ${esc(h.name)}. Die Nachricht geht an den Admin; euer Haushalt sieht sie auch.</p>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Senden</button></div></form>`);
   const f = $('form', s);
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'n-art') $('[data-betrifft]', s).hidden = e.detail[0] !== 'kreis'; });
@@ -4992,7 +5000,7 @@ async function sicherungEinspielen(datei){
 }
 async function allesNeuLaden(){
   const offen = Object.keys(D.haushalte).filter(id => (D.meta[id] || {}).dirty);
-  if (!await frage('Alles neu laden?', offen.length ? 'Noch nicht hochgeladene Änderungen bleiben erhalten, alles andere wird frisch von GitHub geholt.' : 'Alle Spiele werden frisch von GitHub geholt.', 'Neu laden', false)) return;
+  if (!await frage('Alles neu laden?', offen.length ? 'Noch nicht hochgeladene Änderungen bleiben erhalten, alles andere wird frisch geladen.' : 'Alle Spiele werden frisch geladen.', 'Neu laden', false)) return;
   for (const id of Object.keys(D.haushalte)) if (!(D.meta[id] || {}).dirty){ delete D.haushalte[id]; delete D.meta[id]; }
   for (const m of Object.values(D.meta)) m.sha = null;
   D.metaV.sha = null;
