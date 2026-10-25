@@ -744,7 +744,7 @@
    "app": true,
    "version": "v1.70",
    "erst": 1792871140289,
-   "zuletzt": 1792958657990,
+   "zuletzt": 1792958720117,
    "name": "iPhone 6S Plus / Christian",
    "nameStand": 1792871414764
   },
@@ -760,31 +760,6 @@
   }
  ],
  "nachrichten": [
-  {
-   "id": "nmvmvwkkrjamg",
-   "art": "wunsch",
-   "text": "Bei Terminplanung eine neue Ruprik für Event, Kino, Grillen, Bowling , Budybush usw.",
-   "von": "Christian",
-   "betrifft": [],
-   "erstellt": 1792875706155,
-   "stand": 1792926712903,
-   "status": "erledigt",
-   "statusStand": 1792926712903,
-   "verlauf": [
-    {
-     "id": "amvmw268upke2",
-     "admin": true,
-     "text": "Wird mit dem nächste update erledigt",
-     "zeit": 1792875967519
-    },
-    {
-     "id": "amvmw3jkne9i3",
-     "admin": false,
-     "text": "Ok",
-     "zeit": 1792876031447
-    }
-   ]
-  },
   {
    "id": "nmvmw7bvietto",
    "art": "sonst",
@@ -807,6 +782,7 @@
  ],
  "geloescht": {
   "smvl5fcpzf8ho": 1792790445845,
-  "smvmkrhu8f0ir": 1792857440174
+  "smvmkrhu8f0ir": 1792857440174,
+  "nmvmvwkkrjamg": 1792958718087
  }
 }
