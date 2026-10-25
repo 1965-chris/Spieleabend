@@ -58,9 +58,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
-   "anleitung": "",
+   "anleitung": "https://www.spiele4us.de/wp-content/uploads/2022/10/das-spiel-der-namen-gebraucht-g003700810.pdf",
    "erstellt": 1792917743779,
-   "geaendert": 1792920788215
+   "geaendert": 1792920916907
   },
   {
    "id": "smvnkwaezsdjk",
@@ -711,7 +711,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792920790068,
+   "zuletzt": 1792920918865,
    "name": "",
    "nameStand": 0
   },
