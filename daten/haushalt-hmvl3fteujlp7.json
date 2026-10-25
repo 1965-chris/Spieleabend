@@ -46,6 +46,23 @@
    "geaendert": 1792880783891
   },
   {
+   "id": "smvnkwaezsdjk",
+   "name": "Der Dativ Ist dem Genetiv sein Tod",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1792917683387,
+   "geaendert": 1792917683387
+  },
+  {
    "id": "smvl5mctidifb",
    "name": "Deutschland: Finden Sie Minden",
    "bild": "bilder/smvl5mctidifb-mvlh4uzc.jpg",
@@ -673,7 +690,7 @@
    "app": true,
    "version": "v1.67",
    "erst": 1792864131177,
-   "zuletzt": 1792917593807,
+   "zuletzt": 1792917685251,
    "name": "",
    "nameStand": 0
   },
