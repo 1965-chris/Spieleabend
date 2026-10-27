@@ -686,13 +686,16 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Wizard_(Spiel)",
    "anleitung": "https://www.brettspielwelt.de/Hilfe/Anleitungen/Wizard",
+   "wertung": {
+    "art": "wizard"
+   },
    "bildPos": {
     "x": 50,
     "y": 8.4,
     "z": 1
    },
    "erstellt": 1792862906066,
-   "geaendert": 1792863188223
+   "geaendert": 1793127619276
   }
  ],
  "spieler": [
@@ -714,7 +717,7 @@
    "app": true,
    "version": "v1.70",
    "erst": 1792864131177,
-   "zuletzt": 1793127490389,
+   "zuletzt": 1793127621247,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
