@@ -246,9 +246,6 @@ a.knopf{text-decoration:none}
 .kn-wahl.eng .kn-knopf{min-height:46px}
 .kn-knopf b{font-family:var(--rund);font-size:19px}
 .kn-knopf small{font-size:15px;color:var(--leise);letter-spacing:-1px}
-.mini-stepper{display:inline-flex;align-items:center;gap:6px;flex:none}
-.mini-stepper .knopf-rund{width:36px;height:36px;font-size:20px;font-weight:700}
-.mini-stepper b{min-width:24px;text-align:center;font-family:var(--rund);font-size:18px;font-variant-numeric:tabular-nums}
 .wz-runde{background:var(--grund);border-radius:14px;padding:10px 12px}
 .wz-kopf{margin:0;font-size:14.5px}
 .wz-zeile{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--linie)}
@@ -262,7 +259,24 @@ a.knopf{text-decoration:none}
 .p10-eingabe{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
 .p10-stand{font-size:18px}
 .p10-liste{margin:0;padding-left:22px;font-size:14px;line-height:1.6}
-.qx-karte{border:1.5px solid var(--linie);border-radius:14px;padding:8px 12px;margin:0 0 10px}
+.qx-karte{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--karte);border:1.5px solid var(--linie);border-radius:14px;padding:10px 12px;margin:0 0 10px;cursor:pointer}
+.qx-karte:disabled{cursor:default}
+.qx-uebersicht{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.qx-uebersicht .qx-farbe{flex-direction:column;align-items:flex-start;gap:1px;font-family:var(--rund);font-size:19px;font-weight:800;padding-left:20px;position:relative}
+.qx-uebersicht .qx-farbe::before{position:absolute;left:0;top:5px}
+.qx-uebersicht .qx-farbe small{font-family:var(--schrift, inherit);font-size:12px;font-weight:600;color:var(--leise)}
+.qx-tipp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--filz);font-weight:650}
+.qx-tipp .ic{width:15px;height:15px}
+.qx-reihe{margin:0 0 10px}
+.qx-reihe .qx-farbe{margin:0 0 6px}
+.qx-live{font-size:15px;margin:-6px 0 8px}
+.qx-live b{font-family:var(--rund);font-size:22px}
+.zahl-wahl{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.zahl-wahl.kurz{grid-template-columns:repeat(5,1fr)}
+.zahl-wahl .kn-knopf{min-height:48px}
+.kn-knopf[aria-pressed="true"]{background:var(--filz);border-color:var(--filz);color:#fff}
+.kn-knopf[aria-pressed="true"] small{color:rgba(255,255,255,.85)}
+.wert-knopf{min-width:56px;height:42px;border-radius:12px;border:1.5px solid var(--filz);background:var(--karte);color:var(--tinte);font-family:var(--rund);font-weight:800;font-size:20px;cursor:pointer;flex:none}
 .qx-karte.fuehrt{border-color:var(--filz)}
 .qx-kopf{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
 .qx-gesamt{font-family:var(--rund);font-size:22px}
@@ -742,7 +756,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.70';
+const VERSION = 'v1.71';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -3664,10 +3678,6 @@ function hoechsteGewinnen(sum){
   const best = Math.max(...B.mit.map(p => sum[p.pid]));
   return { gewinner:B.mit.filter(p => sum[p.pid] === best).map(p => p.pid), punkte:sum, plaetze:{} };
 }
-function stapelHtml(name, wert, attrs, { min=0, max=99 } = {}){
-  return `<span class="mini-stepper"><button type="button" class="knopf-rund" data-pb="${name}" ${attrs} data-d="-1"${wert <= min ? ' disabled' : ''} aria-label="weniger">−</button>
-    <b>${wert}</b><button type="button" class="knopf-rund" data-pb="${name}" ${attrs} data-d="1"${wert >= max ? ' disabled' : ''} aria-label="mehr">+</button></span>`;
-}
 function summenListeHtml(werte, { fuehrtWenig=false, text=null } = {}){
   const zahlen = B.mit.map(p => werte[p.pid]);
   const best = fuehrtWenig ? Math.min(...zahlen) : Math.max(...zahlen);
@@ -3750,7 +3760,8 @@ const BLOECKE = {
           <p class="termin-abschnitt" style="margin-top:6px">${ansage ? 'Ansagen: Wie viele Stiche macht jeder?' : 'Stiche: Wie viele hat jeder bekommen?'}</p>
           ${B.mit.map(p => `<div class="wz-zeile"><span class="pb-name">${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span></span>
             ${ansage ? '' : `<small class="text-leise">Ansage ${wz.a[p.pid] || 0}</small>`}
-            ${stapelHtml('x-wz', werte[p.pid] || 0, `data-pid="${esc(p.pid)}"`, { max:r })}</div>`).join('')}
+            <button type="button" class="wert-knopf" data-pb="x-wz-wahl" data-pid="${esc(p.pid)}" aria-label="${ansage ? 'Ansage' : 'Stiche'} für ${esc(p.name)}">${werte[p.pid] || 0}</button></div>`).join('')}
+          <p class="block-hinweis" style="margin:6px 0 0">Zahl antippen – danach geht es automatisch mit dem nächsten Spieler weiter.</p>
           <p class="wz-summe${!ansage && summe !== r ? ' falsch' : ''}">${ansage ? `Angesagt: ${summe} – ${summe === r ? 'geht genau auf' : summe > r ? `${summe - r} mehr, als es Stiche gibt` : `${r - summe} weniger, als es Stiche gibt`}` : `Stiche zusammen: ${summe} von ${r}`}</p>
           ${ansage ? '<button class="knopf breit" type="button" data-pb="x-wz-los">Ansagen fertig – los geht’s</button>'
             : `<button class="knopf breit" type="button" data-pb="x-wz-runde"${summe === r ? '' : ' disabled'}>Runde ${r} speichern</button>
@@ -3766,7 +3777,7 @@ const BLOECKE = {
     },
     klick(b, zeichnen){
       const wz = B.wz || (B.wz = { phase:'ansage', a:{}, s:{} }), was = b.dataset.pb, r = B.runden.length + 1;
-      if (was === 'x-wz'){ const ziel = wz.phase === 'ansage' ? wz.a : wz.s; ziel[b.dataset.pid] = Math.max(0, Math.min(r, (ziel[b.dataset.pid] || 0) + Number(b.dataset.d))); }
+      if (was === 'x-wz-wahl'){ wizardWahlSheet(b.dataset.pid, zeichnen); return; }
       if (was === 'x-wz-los'){ wz.phase = 'stiche'; wz.s = {}; }
       if (was === 'x-wz-ansage') wz.phase = 'ansage';
       if (was === 'x-wz-runde'){
@@ -3833,21 +3844,61 @@ const BLOECKE = {
       const best = Math.max(...B.mit.map(p => pk[p.pid].gesamt));
       return `<p class="block-hinweis" style="margin:0 0 8px">Am Ende für jeden die Kreuze je Farbe zählen (das Schloss zählt mit) und die Fehlwürfe eintragen.</p>
         ${B.mit.map(p => { const bl = (B.blatt && B.blatt[p.pid]) || {}, x = pk[p.pid];
-          return `<div class="qx-karte${B.ende && x.gesamt === best ? ' fuehrt' : ''}"><div class="qx-kopf"><span class="pb-name">${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span>${B.ende && x.gesamt === best ? ' 👑' : ''}</span><b class="qx-gesamt">${x.gesamt}</b></div>
-            ${QWIXX.map((f, i) => `<div class="qx-zeile"><span class="qx-farbe" style="--qx:${f.c}">${f.t}</span>${stapelHtml('x-qx', Number(bl[f.k]) || 0, `data-pid="${esc(p.pid)}" data-f="${f.k}"`, { max:12 })}<span class="qx-pkt">${x.farben[i]}</span></div>`).join('')}
-            <div class="qx-zeile"><span class="qx-farbe fehl">Fehlwürfe</span>${stapelHtml('x-qx', Number(bl.f) || 0, `data-pid="${esc(p.pid)}" data-f="f"`, { max:4 })}<span class="qx-pkt">${x.fehl ? '−' + x.fehl : 0}</span></div></div>`; }).join('')}
+          return `<button type="button" class="qx-karte${B.ende && x.gesamt === best ? ' fuehrt' : ''}" data-pb="x-qx-auf" data-pid="${esc(p.pid)}"${B.ende ? ' disabled' : ''}>
+            <span class="qx-kopf"><span class="pb-name">${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span>${B.ende && x.gesamt === best ? ' 👑' : ''}</span><b class="qx-gesamt">${x.gesamt}</b></span>
+            <span class="qx-uebersicht">${QWIXX.map((f, i) => `<span class="qx-farbe" style="--qx:${f.c}">${Number(bl[f.k]) || 0}<small>${x.farben[i]}</small></span>`).join('')}
+              <span class="qx-farbe fehl">${Number(bl.f) || 0}<small>${x.fehl ? '−' + x.fehl : 0}</small></span></span>
+            ${B.ende ? '' : `<span class="qx-tipp">${ic('stift')}Antippen zum Eintragen</span>`}</button>`; }).join('')}
         ${B.ende ? blockEndeHtml() : '<button class="knopf breit" type="button" data-pb="beenden" style="margin-top:12px">Auswerten</button>'}
-        <p class="block-hinweis">Kreuze → Punkte: 1→1, 2→3, 3→6, 4→10, 5→15, 6→21, 7→28, 8→36, 9→45, 10→55, 11→66, 12→78.</p>`;
+        <p class="block-hinweis">Je Farbe zählt die Zahl der Kreuze: 1→1, 2→3, 3→6, 4→10, 5→15, 6→21, 7→28, 8→36, 9→45, 10→55, 11→66, 12→78 Punkte. Fehlwurf −5.</p>`;
     },
-    klick(b, zeichnen){
-      if (b.dataset.pb !== 'x-qx') return;
-      B.blatt = B.blatt || {}; const bl = B.blatt[b.dataset.pid] = { ...(B.blatt[b.dataset.pid] || {}) }, f = b.dataset.f;
-      bl[f] = Math.max(0, Math.min(f === 'f' ? 4 : 12, (Number(bl[f]) || 0) + Number(b.dataset.d)));
-      blockSpeichern(); zeichnen();
-    },
+    klick(b, zeichnen){ if (b.dataset.pb === 'x-qx-auf') qwixxSheet(b.dataset.pid, zeichnen); },
     ergebnis(){ return hoechsteGewinnen(Object.fromEntries(B.mit.map(p => [p.pid, qwixxPunkte(p.pid).gesamt]))); }
   }
 };
+/* Wizard: Zahl wählen, danach automatisch der nächste Spieler */
+function wizardWahlSheet(pid, zeichnen){
+  const wz = B.wz || (B.wz = { phase:'ansage', a:{}, s:{} }), r = B.runden.length + 1, ansage = wz.phase === 'ansage';
+  const i = B.mit.findIndex(x => x.pid === pid), p = B.mit[i]; if (!p) return;
+  const ziel = ansage ? wz.a : wz.s, naechster = B.mit[i + 1];
+  const s = sheet(`<div class="sheet-kopf"><h2>${ansage ? 'Ansage' : 'Stiche'}: ${esc(p.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Runde ${r} · ${r} Karte${r === 1 ? '' : 'n'}${ansage ? '' : ` · angesagt: ${wz.a[pid] || 0}`}</p>
+    <div class="zahl-wahl">${Array.from({ length:r + 1 }, (_, n) => `<button type="button" class="kn-knopf" data-wert="${n}" aria-pressed="${(ziel[pid] || 0) === n}"><b>${n}</b></button>`).join('')}</div>
+    <p class="block-hinweis">${naechster ? `Danach geht es weiter mit ${esc(naechster.name)}.` : 'Das ist der letzte Spieler dieser Runde.'}</p>`,
+    { beimSchliessen:zeichnen });
+  s.addEventListener('click', e => {
+    const b = e.target.closest('[data-wert]'); if (!b) return;
+    ziel[pid] = Number(b.dataset.wert); blockSpeichern(); s.schliessen();
+    if (naechster) setTimeout(() => wizardWahlSheet(naechster.pid, zeichnen), 260);
+  });
+}
+/* Qwixx: ein Fenster je Spieler mit allen Farben – je Farbe einmal die Zahl der Kreuze antippen */
+function qwixxSheet(pid, zeichnen){
+  const i = B.mit.findIndex(x => x.pid === pid), p = B.mit[i]; if (!p) return;
+  const naechster = B.mit[i + 1], dreieck = n => n * (n + 1) / 2;
+  const reihe = (f, max, pkt) => `<div class="qx-reihe"><p class="qx-farbe${f.k === 'f' ? ' fehl' : ''}" style="--qx:${f.c || 'transparent'}">${f.t}</p>
+    <div class="zahl-wahl${max < 12 ? ' kurz' : ''}" data-f="${f.k}">${Array.from({ length:max + 1 }, (_, n) => `<button type="button" class="kn-knopf" data-wert="${n}"><b>${n}</b><small>${pkt(n)}</small></button>`).join('')}</div></div>`;
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(p.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="qx-live">Punkte: <b data-qx-summe></b></p>
+    <p class="text-leise" style="margin:-4px 0 10px">Je Farbe die Zahl der Kreuze antippen (Schloss zählt mit). Klein darunter: die Punkte.</p>
+    ${QWIXX.map(f => reihe(f, 12, n => dreieck(n))).join('')}
+    ${reihe({ k:'f', t:'Fehlwürfe' }, 4, n => n ? '−' + n * 5 : '0')}
+    <div class="knopfreihe" style="margin-top:14px"><button class="knopf ${naechster ? 'rahmen' : ''}" type="button" data-zu>Fertig</button>
+      ${naechster ? `<button class="knopf" type="button" data-weiter>Weiter: ${esc(naechster.name)}</button>` : ''}</div>`,
+    { klasse:'gross', beimSchliessen:zeichnen });
+  const zeigen = () => {
+    const bl = (B.blatt && B.blatt[pid]) || {};
+    $$('[data-f]', s).forEach(g => $$('[data-wert]', g).forEach(b => b.setAttribute('aria-pressed', String((Number(bl[g.dataset.f]) || 0) === Number(b.dataset.wert)))));
+    $('[data-qx-summe]', s).textContent = qwixxPunkte(pid).gesamt;
+  };
+  zeigen();
+  s.addEventListener('click', e => {
+    if (e.target.closest('[data-weiter]')){ s.schliessen(); setTimeout(() => qwixxSheet(naechster.pid, zeichnen), 260); return; }
+    const b = e.target.closest('[data-wert]'), g = b && b.closest('[data-f]'); if (!g) return;
+    B.blatt = B.blatt || {}; B.blatt[pid] = { ...(B.blatt[pid] || {}), [g.dataset.f]:Number(b.dataset.wert) };
+    blockSpeichern(); zeigen();
+  });
+}
 function wizardRunden(){ return B && B.mit.length ? Math.floor(60 / B.mit.length) : 0; }
 function wizardPunkte(a, s){ return a === s ? 20 + 10 * s : -10 * Math.abs(a - s); }
 function wizardSummen(){
@@ -4371,6 +4422,7 @@ const HILFE = [
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
     <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
     <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte) und <b>Qwixx</b> (Kreuze je Farbe auswerten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
+    <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
     <li>Der Punkteblock bleibt auf dem Gerät erhalten, auch wenn die App zwischendurch zu ist – oben steht dann <b>Punkteblock läuft … Weiter</b>.</li>
@@ -4497,6 +4549,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.71', datum:'27.10.2026', neu:[
+    'Qwixx: Auswahlfenster je Spieler – je Farbe einmal die Zahl der Kreuze antippen statt jedes Kreuz einzeln, „Weiter“ springt zum nächsten Spieler',
+    'Wizard: Ansagen und Stiche per Auswahlfenster – nach dem Antippen öffnet sich automatisch der nächste Spieler',
+    'Alle Eingabefelder geprüft: nach Speichern, Senden oder Abbrechen sind sie beim nächsten Öffnen wieder leer'
+  ]},
   { v:'v1.70', datum:'25.10.2026', neu:[
     'Eigene Spielblöcke: Kniffel (der ganze Zettel mit Bonus und Endsumme), Wizard (Ansagen, Stiche, Punkte je Runde), Phase 10 (Phasen abhaken, Minuspunkte) und Qwixx (Kreuze je Farbe auswerten)',
     'Die App erkennt diese Spiele am Namen – beim Eintragen und auch bei Spielen, die schon da sind',
