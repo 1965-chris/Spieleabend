@@ -110,7 +110,7 @@
    "app": true,
    "version": "v1.70",
    "erst": 1792865586242,
-   "zuletzt": 1793106014979,
+   "zuletzt": 1793106091749,
    "name": "Rolf",
    "nameStand": 1792866969029
   }
@@ -123,9 +123,9 @@
    "von": "Rolf",
    "betrifft": [],
    "erstellt": 1792923981381,
-   "stand": 1792939258334,
-   "status": "erledigt",
-   "statusStand": 1792939258334,
+   "stand": 1793106089700,
+   "status": "offen",
+   "statusStand": 1793106089700,
    "verlauf": [
     {
      "id": "amvnq9o9n63es",
@@ -138,6 +138,13 @@
      "admin": true,
      "text": "Kniffel, Wizzard, Phase 0 und Quixx sind als spezial Blöcke drinnen. Bei weiteren, sag einfch Bescheid",
      "zeit": 1792939256402
+    },
+    {
+     "id": "amvqp2hnokqeq",
+     "admin": false,
+     "text": "👍",
+     "zeit": 1793106089700,
+     "von": "Rolf"
     }
    ]
   }
