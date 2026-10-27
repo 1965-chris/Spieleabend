@@ -447,8 +447,11 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Phase_10",
    "anleitung": "https://www.brettspiele-report.de/images/phase_10/Spielanleitung_Phase_10.pdf",
+   "wertung": {
+    "art": "phase10"
+   },
    "erstellt": 1792862826379,
-   "geaendert": 1792862826379
+   "geaendert": 1793130162868
   },
   {
    "id": "smvnkubtwbhxe",
@@ -717,7 +720,7 @@
    "app": true,
    "version": "v1.71",
    "erst": 1792864131177,
-   "zuletzt": 1793129828402,
+   "zuletzt": 1793130164784,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
