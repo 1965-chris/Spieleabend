@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.70",
+ "app": "v1.71",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#2E9E5B",
@@ -123,7 +123,7 @@
    "von": "Rolf",
    "betrifft": [],
    "erstellt": 1792923981381,
-   "stand": 1793127539611,
+   "stand": 1793130432280,
    "status": "erledigt",
    "statusStand": 1793127539611,
    "verlauf": [
@@ -145,6 +145,12 @@
      "text": "👍",
      "zeit": 1793106089700,
      "von": "Rolf"
+    },
+    {
+     "id": "amvr3k8igllvb",
+     "admin": true,
+     "text": "Habe die spieleblöcke nochnal für wizzard, quixx und phase 10 ändern lassen.",
+     "zeit": 1793130432280
     }
    ]
   }
