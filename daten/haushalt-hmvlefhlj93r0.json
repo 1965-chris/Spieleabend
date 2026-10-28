@@ -46,8 +46,11 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Phase_10",
    "anleitung": "https://www.brettspiele-report.de/images/phase_10/Spielanleitung_Phase_10.pdf",
+   "wertung": {
+    "art": "phase10"
+   },
    "erstellt": 1792847538148,
-   "geaendert": 1792923632978
+   "geaendert": 1793215362843
   },
   {
    "id": "smvmauglb882p",
