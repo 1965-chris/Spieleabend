@@ -29,9 +29,13 @@
    "log": [
     {
      "t": "runde"
+    },
+    {
+     "t": "gelb",
+     "i": 2
     }
    ],
-   "stand": 1793220709540,
+   "stand": 1793220715258,
    "geraet": "gmvlcjlfyw1x1"
   },
   "pmvl9l3p8z309": {
