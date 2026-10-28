@@ -681,6 +681,99 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 /* Installationshinweis */
 .install{display:flex;gap:10px;align-items:flex-start}
 .install p{margin:0;flex:1}
+
+/* ---------- Ganz schön clever: Blatt wie das Original ---------- */
+.sheet.gsc-sheet{background:#15171c;color:#eef0f4;padding:0}
+.gsc{--ge:#f2c230;--bl:#4a8ff0;--gr:#4cc35a;--or:#f39a2e;--li:#a66ee3;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.gsc .knopf.rahmen{background:transparent;color:#eef0f4;border-color:#4a4f5a}
+.gsc .knopf.zweit{background:#2a2e36;color:#eef0f4}
+.gsc .knopf-rund{background:#2a2e36;color:#eef0f4}
+.gsc-kopf{position:sticky;top:0;z-index:3;background:#15171c;padding:12px 14px 8px;border-bottom:1px solid #2b2f37}
+.gsc-titel{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gsc-titel h2{margin:0;font-family:var(--rund);font-size:20px;font-weight:800}
+.gsc-tabs{display:flex;gap:6px;overflow-x:auto;margin:10px 0 2px;scrollbar-width:none}
+.gsc-tab{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1.5px solid #3a3f49;background:#1e2128;color:#cfd3da;font:inherit;font-size:14px;cursor:pointer}
+.gsc-tab b{font-family:var(--rund);color:#fff}
+.gsc-tab.an{border-color:#fff;background:#fff;color:#15171c}.gsc-tab.an b{color:#15171c}
+.gsc-status{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px;font-size:14px;color:#b9bec8}
+.gsc-status b{color:#fff}
+.gsc-gesamt{font-family:var(--rund);font-size:22px}
+.gsc-nur-sehen{margin:8px 0 0;font-size:13.5px;color:#f2c230}
+.gsc-offen{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;padding:6px 8px;border-radius:12px;background:#3a2f0b;border:1.5px solid #f2c230}
+.gsc-offen > span{font-size:13px;font-weight:700;color:#f2c230}
+.gsc-chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 10px 0 5px;border-radius:999px;border:0;background:#fff;color:#15171c;font:inherit;font-size:14px;font-weight:650;cursor:pointer;animation:gsc-puls 1.6s ease-in-out infinite}
+.gsc-chip.an{outline:3px solid #f2c230}
+.gsc-modus{margin:8px 0 0;display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:14px;color:#fff}
+.gsc-modus .knopf{min-height:34px;padding:0 12px;font-size:13.5px;flex:none}
+.gsc-bereich{margin:12px 12px 0;padding:10px;border-radius:16px;border:2px solid var(--c);background:#1b1e24;box-shadow:0 0 14px rgba(0,0,0,.4)}
+@supports (background:color-mix(in srgb, red 10%, blue)){
+  .gsc-bereich{background:color-mix(in srgb, var(--c) 9%, #17191e);box-shadow:0 0 12px color-mix(in srgb, var(--c) 45%, transparent), inset 0 0 10px color-mix(in srgb, var(--c) 22%, transparent)}
+}
+.gsc-bereich h3{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;font-family:var(--rund);font-size:16px;color:var(--c)}
+.gsc-bereich h3 small{color:#aab0bb;font-weight:600;font-family:inherit;font-size:12.5px}
+.gsc-bereich h3 b{margin-left:auto;color:#fff;font-size:20px}
+.gsc-klein{font-size:12px;color:#9aa1ad;margin:8px 0 0;line-height:1.35}
+.gsc-gitter{display:grid;grid-template-columns:repeat(4,1fr) 34px;gap:6px;align-items:center;justify-items:stretch}
+.gsc-z{position:relative;height:46px;border-radius:10px;border:0;background:#fff;color:#1b1d22;font-family:var(--rund);font-weight:800;font-size:20px;cursor:pointer;padding:0;box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+.gsc-z small{font-size:13px;font-weight:700;color:#a0a6b0}
+.gsc-z.x{color:#b4bac4}
+.gsc-z.x::after,.gsc-z.vor::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:34px;font-weight:900;color:#15171c;line-height:1}
+.gsc-z.vor{cursor:default;opacity:.95}
+.gsc-z.naechst,.gsc-z.ziel{outline:3px solid var(--c);outline-offset:1px;animation:gsc-puls 1.4s ease-in-out infinite}
+.gsc-z:disabled{cursor:default}
+@keyframes gsc-puls{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.0)}50%{box-shadow:0 0 0 5px rgba(255,255,255,.35)}}
+.gsc-rb{display:grid;place-items:center}
+.gsc-rb.unten{margin-top:2px}
+.gsc-b{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 4px;border-radius:7px;font-size:13px;font-weight:800;line-height:1;color:#fff;opacity:.42;flex:none}
+.gsc-b.an{opacity:1;box-shadow:0 0 0 2px #fff}
+.gsc-b.leer{background:transparent;opacity:0}
+.gsc-b.gsc-gelb{background:var(--ge);color:#1b1d22}.gsc-b.gsc-blau{background:var(--bl)}.gsc-b.gsc-gruen{background:var(--gr);color:#1b1d22}
+.gsc-b.gsc-orange{background:var(--or);color:#1b1d22}.gsc-b.gsc-lila{background:var(--li)}
+.gsc-b.gsc-schwarz{background:#000;border:1.5px solid #cfd3da}.gsc-b.gsc-fuchs{background:#c8372d}
+.gsc-stern{display:grid;place-items:center;height:32px;border-radius:50%;font-family:var(--rund);font-weight:800;font-size:15px;color:#1b1d22;background:var(--c);opacity:.45}
+.gsc-stern.an{opacity:1;box-shadow:0 0 10px var(--c)}
+.gsc-stern.klein{height:22px;min-width:22px;font-size:11.5px;padding:0 3px}
+.gsc-wuerfel{display:flex;align-items:center;justify-content:center;gap:3px;color:#cfd3da;font-weight:800}
+.gsc-wuerfel i{width:17px;height:17px;border-radius:4px;background:#fff;display:inline-block}.gsc-wuerfel i.bl{background:var(--bl)}
+.gsc-leiter{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;margin-top:10px;text-align:center;font-family:var(--rund);font-weight:800;font-size:12.5px;color:#9fb9e8}
+.gsc-leiter small{display:block;font-family:inherit;font-weight:600;font-size:10px;color:#77808e}
+.gsc-leiter .an{color:#fff;background:var(--bl);border-radius:6px}
+.gsc-leiter .an small{color:#e6eefc}
+.gsc-leiter.oben{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(74,143,240,.45)}
+.gsc-reihe{display:grid;grid-template-columns:repeat(6,1fr);gap:8px 6px}
+.gsc-f{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.gsc-f .gsc-z{width:100%;height:44px;font-size:19px}
+.gsc-ueber{min-height:22px;display:grid;place-items:center}
+.gsc-reihe.kleiner .gsc-f + .gsc-f .gsc-z::before{content:"<";position:absolute;left:-7px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:900;color:var(--li)}
+.gsc-runden{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.gsc-rd{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;border-radius:10px;background:#23262d;border:1.5px solid #343843}
+.gsc-rd b{font-family:var(--rund);font-size:18px}
+.gsc-rd.jetzt{border-color:#fff;background:#2f333c}
+.gsc-rd.vorbei{opacity:.55}
+.gsc-rd.vorbei b{text-decoration:line-through}
+.gsc-rd.aus{opacity:.25}
+.gsc-aktionen{display:grid;gap:8px;margin-top:10px}
+.gsc-akt{display:flex;align-items:center;gap:8px}
+.gsc-akt .knopf,.gsc-akt > b{min-height:38px;padding:0 12px;font-size:14px;flex:none;margin-left:auto}
+.gsc-kreise{display:flex;gap:4px;flex-wrap:wrap}
+.gsc-kreise i{width:17px;height:17px;border-radius:50%;background:#3a3f49;position:relative}
+.gsc-kreise i.an,.gsc-kreise i.weg{background:#fff}
+.gsc-kreise i.weg::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:900;color:#c8372d;font-style:normal}
+.gsc-summe{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px;font-weight:700;color:#9aa1ad}
+.gsc-summe span{min-width:36px;padding:4px 6px;border-radius:8px;background:var(--c, #333);color:#1b1d22;font-family:var(--rund);font-weight:800;text-align:center}
+.gsc-summe span.fuchs{background:#c8372d;color:#fff}
+.gsc-summe b{font-family:var(--rund);font-size:24px;color:#fff;margin-left:4px}
+.gsc-fuss{display:flex;gap:8px;margin:14px 12px 0}
+.gsc-fuss .knopf{flex:1}
+.gsc-unten{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 14px 0}
+.gsc .link-knopf{color:#9aa1ad;font-size:13px}
+.gsc-tabelle{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
+.gsc-tabelle th,.gsc-tabelle td{padding:6px 4px;text-align:right;border-bottom:1px solid #2f333c;white-space:nowrap}
+.gsc-tabelle th:first-child,.gsc-tabelle td:first-child{text-align:left}
+.kn-knopf.nein{opacity:.45;text-decoration:line-through}
+.gsc-wahl-hinweis{min-height:22px;margin:12px 0 0;color:var(--rot);font-weight:650;font-size:14.5px}
+.gsc-ziele{display:grid;gap:8px}
+.gsc-ziel{min-height:48px;border-radius:12px;border:2px solid var(--c);background:var(--karte);color:var(--tinte);font:inherit;font-weight:700;font-size:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -700,6 +793,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div id="update-hinweis"></div>
   <div id="install-hinweis"></div>
   <div id="block-hinweis"></div>
+  <div id="live-hinweis"></div>
   <div id="kreis-leiste" class="kreis-leiste" hidden></div>
 
   <!-- Spiele -->
@@ -767,7 +861,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.72';
+const VERSION = 'v1.73';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -802,7 +896,9 @@ const SPEZIAL = [
     passt:n => n.startsWith('phase10') && !n.includes('wurfel') },
   { k:'qwixx', t:'Qwixx-Auswertung', min:1, b:'Am Ende je Farbe die Kreuze und die Fehlwürfe eintragen – die App rechnet die Punkte aus.',
     passt:n => n.includes('qwixx') },
-  { k:'clever', t:'Ganz-schön-clever-Auswertung', min:1, b:'Am Ende vom eigenen Block übertragen: fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila und die Füchse – die App rechnet alles zusammen.',
+  { k:'gsc', t:'Ganz-schön-clever-Block', min:1, max:4, b:'Der Original-Block zum Antippen: Kreuze und Zahlen eintragen, die App prüft die Regeln, zeigt offene Boni, zählt Neuwürfe, +1 und Füchse – und rechnet alles aus.',
+    passt:n => n.startsWith('ganzschonclever') || n.startsWith('thatsprettyclever') },
+  { k:'clever', t:'Nur Endabrechnung (Papierblock)', min:1, b:'Wer auf Papier spielt: am Ende vom eigenen Block übertragen: fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila und die Füchse – die App rechnet alles zusammen.',
     passt:n => n.startsWith('ganzschonclever') || n.startsWith('thatsprettyclever') }
 ];
 /* Bekannte Spiele mit üblicher Wertung – beim Anlegen schon voreingestellt */
@@ -830,7 +926,7 @@ const DAUERN = [15,30,45,60,90,120,180];
 const LS = {
   daten:'spieleabend.daten', einst:'spieleabend.einst', filter:'spieleabend.filter', runde:'spieleabend.runde',
   log:'spieleabend.verlauf', offen:'spieleabend.offen', letzter:'spieleabend.letzter', hinweis:'spieleabend.installhinweis',
-  klapp:'spieleabend.aufgeklappt', block:'spieleabend.punkteblock', gelesen:'spieleabend.gelesen'
+  klapp:'spieleabend.aufgeklappt', block:'spieleabend.punkteblock', gelesen:'spieleabend.gelesen', live:'spieleabend.partie'
 };
 
 /* ---------- Speicher ---------- */
@@ -860,10 +956,12 @@ function geraetKennung(){ if (!E.geraetId){ E.geraetId = neueId('g'); einstSpeic
 function datenVorbereiten(){
   D.verwaltung = verwaltungNorm(D.verwaltung); if (!D.metaV) D.metaV = {};
   if (!D.termine) D.termine = {}; if (!D.metaT) D.metaT = {};
+  if (!D.runden) D.runden = {}; if (!D.metaR) D.metaR = {};
   if ((D.datenstand || 1) < DATENSTAND){
     for (const m of Object.values(D.meta)) m.sha = null;
     D.metaV.sha = null; D.datenstand = DATENSTAND;
     for (const m of Object.values(D.metaT)) m.sha = null;
+    for (const m of Object.values(D.metaR)) m.sha = null;
   }
 }
 function einstSpeichern(){ schreiben(LS.einst, E); }
@@ -1205,13 +1303,13 @@ async function fotoVerkleinern(datei){
 /* ---------- GitHub ---------- */
 function api(pfad){ return `https://api.github.com/repos/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}${pfad}`; }
 function kopfzeilen(){ const h = { Accept:'application/vnd.github+json' }; if (E.token) h.Authorization = 'Bearer ' + E.token; return h; }
-async function gh(methode, pfad, body){
+async function gh(methode, pfad, body, extra){
   for (let i = 0; i < 3; i++){
     let r;
     try{
       r = await fetch(api(pfad), {
         method:methode, cache:'no-store',
-        headers: body ? { ...kopfzeilen(), 'Content-Type':'application/json' } : kopfzeilen(),
+        headers: { ...(body ? { ...kopfzeilen(), 'Content-Type':'application/json' } : kopfzeilen()), ...(extra || {}) },
         body: body ? JSON.stringify(body) : undefined
       });
     }catch(e){
@@ -1249,7 +1347,7 @@ async function repoPruefen(){
 }
 async function verzeichnisLesen(){
   const r = await gh('GET', `/contents/daten?ref=${encodeURIComponent(E.branch)}`);
-  const liste = new Map(); liste.termine = new Map();
+  const liste = new Map(); liste.termine = new Map(); liste.runden = new Map();
   if (r.status === 404) return liste;
   if (!r.ok) throw await fehlerAus(r, 'Datenordner');
   const j = await r.json();
@@ -1260,6 +1358,8 @@ async function verzeichnisLesen(){
     if (d.name === 'verwaltung.json' && d.type === 'file') liste.verwaltung = d.sha;
     const t = /^termin-([A-Za-z0-9_-]+)\.json$/.exec(d.name);
     if (t && d.type === 'file') liste.termine.set(t[1], d.sha);
+    const ru = /^runde-([A-Za-z0-9_-]+)\.json$/.exec(d.name);
+    if (ru && d.type === 'file') liste.runden.set(ru[1], d.sha);
   }
   return liste;
 }
@@ -1420,7 +1520,23 @@ async function sync(anlass){
       } else D.termine[id] = terminNorm(fern.daten);
       m.sha = fern.sha; m.aufServer = true; neuZeichnen = true;
     }
+    // Laufende Partien (daten/runde-<id>.json)
+    for (const [id, sha] of liste.runden){
+      const m = D.metaR[id] || (D.metaR[id] = {});
+      if (m.sha === sha && D.runden[id]){ m.aufServer = true; continue; }
+      if (m.laeuft) continue;
+      const fern = await rundeLesen(id);
+      if (!fern.daten) continue;
+      D.runden[id] = D.runden[id] ? rundeMischen(D.runden[id], fern.daten) : rundeNorm(fern.daten);
+      m.sha = fern.sha; m.etag = fern.etag; m.aufServer = true; neuZeichnen = true;
+    }
     if (liste.size || liste.termine.size){
+      for (const id of Object.keys(D.runden)){
+        const m = D.metaR[id] || {};
+        if (liste.runden.has(id) || !m.aufServer || D.runden[id].lokal || m.laeuft) continue;
+        delete D.runden[id]; delete D.metaR[id]; neuZeichnen = true;
+        if (LIVE && LIVE.id === id){ LIVE = null; liveSpeichern(); }
+      }
       for (const id of Object.keys(D.termine)){
         const m = D.metaT[id] || {};
         if (liste.termine.has(id) || !m.aufServer) continue;
@@ -1444,7 +1560,7 @@ async function sync(anlass){
 
     // 3) Eigene Änderungen hochladen – Fotos zuerst, damit die Spieldaten nie auf fehlende Fotos zeigen.
     //    Benutzt ein anderes Gerät schon eine neuere App-Version, wird nichts hochgeladen, damit nichts verloren geht.
-    const wartet = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT).some(m => m.dirty) || O.hoch.length;
+    const wartet = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT).some(m => m.dirty) || O.hoch.length || rundenWarten();
     if (S.neuereApp && E.token && wartet) throw new Error(`Hochladen angehalten: Ein anderes Gerät benutzt schon Version ${S.neuereApp}. Bitte die App neu laden – deine Änderungen bleiben so lange hier gespeichert.`);
     if (E.token){
       st.fotos = await fotosHochladen();
@@ -1452,6 +1568,8 @@ async function sync(anlass){
       for (const id of Object.keys(D.haushalte)) if ((D.meta[id] || {}).dirty){ if (await haushaltHochladen(id)) gemischt = true; st.hoch++; }
       if (D.metaV.dirty){ if (await verwaltungHochladen()) gemischt = true; st.hoch++; }
       for (const id of Object.keys(D.termine)) if ((D.metaT[id] || {}).dirty){ if (await terminHochladen(id)) gemischt = true; st.hoch++; }
+      for (const id of Object.keys(D.runden)) if ((D.metaR[id] || {}).dirty && !D.runden[id].lokal){ if (await rundeHochladen(id)) gemischt = true; st.hoch++; }
+      await rundenAufraeumen();
       if (gemischt) renderAlles();
       await fotosAufraeumen();
     }
@@ -1479,7 +1597,7 @@ function syncZustand(){
   if (!E.owner || !E.repo) return { k:'aus', t:'Nicht verbunden' };
   if (S.laeuft) return { k:'laeuft', t:'Gleicht ab …' };
   if (navigator.onLine === false) return { k:'aus', t:'Offline' };
-  const offen = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT || {}).some(m => m.dirty) || O.hoch.length > 0;
+  const offen = Object.values(D.meta).some(m => m.dirty) || D.metaV.dirty || Object.values(D.metaT || {}).some(m => m.dirty) || O.hoch.length > 0 || rundenWarten();
   if (offen && !E.token) return { k:'aus', t:'Nur auf diesem Gerät' };
   if (S.fehler) return { k:'fehler', t:'Nicht abgeglichen' };
   if (offen) return { k:'laeuft', t:'Wartet …' };
@@ -3322,7 +3440,7 @@ function gespieltHtml(sp){
     ${liste.length ? `<ul class="partien">${liste.slice(0, 6).map(p => `<li><span class="partie-datum">${datumText(p.datum)}</span>
         <span class="partie-sieger">${partieErgebnisText(p)}</span>
         ${p.eigen ? `<button class="knopf-rund" type="button" data-gsp="bearbeiten" data-id="${esc(p.id)}" aria-label="Partie ändern">${ic('stift')}</button>` : ''}</li>`).join('')}</ul>` : ''}
-    ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${B && B.sid === sp.id ? `${spezialVon(B.w) ? esc(spezialVon(B.w).t) : 'Punkteblock'} weiter` : `${esc((spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || { t:'Punkteblock' }).t)} starten`}</button>
+    ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id ? 'Ganz-schön-clever-Block weiter' : B && B.sid === sp.id ? `${spezialVon(B.w) ? esc(spezialVon(B.w).t) : 'Punkteblock'} weiter` : `${esc((spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || { t:'Punkteblock' }).t)} starten`}</button>
       <button class="knopf zweit breit" type="button" data-gsp="neu" style="margin-top:8px">${ic('plus')}Nur Gewinner nachtragen</button>` : ''}
   </div>`;
 }
@@ -3524,6 +3642,7 @@ function blockErgebnis(){
 }
 async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
   if (!meinHaushaltGueltig()){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
+  if (LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id){ gscZeigen(); return; }
   if (B){
     if (B.sid === sp.id){ punkteblockZeigen(); return; }
     if (!await frage('Neuen Punkteblock anfangen?', `Für „${B.name}“ läuft noch ein Punkteblock. Er wird dabei verworfen.`, 'Neu anfangen')) { punkteblockZeigen(); return; }
@@ -3532,8 +3651,9 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
   const erkannt = vorlageFuer(sp.name);
   const w0 = { grenze:100, sieger:'tief', ...(wertungNorm(sp.wertung) || erkannt || { art:'gewinner' }) };
   // Spezieller Spielblock: der gemerkte oder der am Namen erkannte – er steht dann vorne in der Auswahl
-  const spez = spezialVon(w0) || spezialVon(erkannt);
-  const arten = [...(spez ? [{ k:spez.k, t:'🎲 ' + spez.t, b:spez.b }] : []), ...WERTUNGEN];
+  const nk = nameSchluessel(sp.name), nk2 = nk.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
+  const spezAlle = [...new Set([spezialVon(w0), ...SPEZIAL.filter(x => x.passt(nk) || x.passt(nk2))].filter(Boolean))];
+  const arten = [...spezAlle.map(x => ({ k:x.k, t:'🎲 ' + x.t, b:x.b })), ...WERTUNGEN];
   const anwesend = new Set(R.anwesend || []);
   const gruppen = gewinnerGruppen();
   const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Punkteblock: ${esc(sp.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
@@ -3542,6 +3662,11 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     <div data-grenze${w0.art === 'grenze' ? '' : ' hidden'}>
       <label class="feld"><span class="feld-titel">Grenze (Punkte)</span><input class="eingabe" type="number" name="grenze" value="${w0.grenze}" min="1"></label>
       <div class="feld"><span class="feld-titel">Wer gewinnt, wenn jemand die Grenze erreicht?</span>${chipsHtml('pb-sieger', [{ w:'tief', t:'Wenigste Punkte' }, { w:'hoch', t:'Meiste Punkte' }], [w0.sieger], { mehrfach:false, pflicht:true })}</div></div>
+    <div data-gsc-opt${w0.art === 'gsc' ? '' : ' hidden'}>
+      <div class="feld"><span class="feld-titel">Wo wird gespielt?</span>${chipsHtml('gsc-modus', [{ w:'jeder', t:'Jeder auf seinem Handy' }, { w:'eins', t:'Alle auf diesem Gerät' }], ['jeder'], { mehrfach:false, pflicht:true })}
+        <p class="block-hinweis" style="margin-top:6px" data-gsc-modus-text>Die anderen tippen in ihrer App auf „Mitspielen“ – die Blätter werden laufend abgeglichen, jeder sieht die Punkte der anderen.</p></div>
+      <div class="feld" data-gsc-ich-feld><span class="feld-titel">Wer bist du?</span><div class="chips" data-gruppe="gsc-ich" data-mehrfach="0" data-pflicht="1" data-gsc-ich></div></div>
+    </div>
     ${darfBearbeiten(sp.ausgeliehenVon || sp.hid) ? `<label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="merken" ${sp.wertung ? '' : 'checked'} style="width:22px;height:22px">Diese Wertung für „${esc(sp.name)}“ merken</label>` : ''}
     <div class="feld"><span class="feld-titel">Wer spielt mit?</span>
       ${gruppen.map(g => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(g.h.farbe, 14)}${esc(g.h.name)}</p>
@@ -3557,6 +3682,25 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     if (e.target.dataset.gruppe !== 'pb-art') return;
     const art = e.detail[0]; $('[data-art-text]', s).textContent = (arten.find(w => w.k === art) || {}).b || '';
     $('[data-grenze]', s).hidden = art !== 'grenze';
+    $('[data-gsc-opt]', s).hidden = art !== 'gsc';
+  });
+  // Ganz schön clever: „Wer bist du?“ aus den angetippten Spielern des eigenen Haushalts
+  const ichZeigen = () => {
+    const box = $('[data-gsc-ich]', s); if (!box) return;
+    const vorher = gewaehlteChips(box)[0];
+    const meine = $$('[data-gruppe="pb-mit"] .chip[aria-pressed="true"]', s).filter(c => spielerHaushalt(c.dataset.wert) === E.meinHaushalt);
+    const wahl = meine.some(c => c.dataset.wert === vorher) ? vorher : ((meine.find(c => c.dataset.name === E.ichName) || meine[0] || {}).dataset || {}).wert;
+    box.innerHTML = meine.map(c => `<button type="button" class="chip" data-wert="${esc(c.dataset.wert)}" aria-pressed="${c.dataset.wert === wahl}">${esc(c.dataset.name)}</button>`).join('')
+      || '<p class="text-leise text-klein" style="margin:0">Niemand aus eurem Haushalt spielt mit – dieses Gerät führt dann nur die Gäste.</p>';
+  };
+  ichZeigen();
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe === 'pb-mit') ichZeigen();
+    if (e.target.dataset.gruppe === 'gsc-modus'){
+      const eins = e.detail[0] === 'eins';
+      $('[data-gsc-ich-feld]', s).hidden = eins;
+      $('[data-gsc-modus-text]', s).textContent = eins ? 'Ein Gerät für alle: oben zwischen den Spielern umschalten.' : 'Die anderen tippen in ihrer App auf „Mitspielen“ – die Blätter werden laufend abgeglichen, jeder sieht die Punkte der anderen.';
+    }
   });
   const gastDazu = () => {
     const feld = $('[data-gast]', s), name = feld.value.trim().slice(0, 20); if (!name) return;
@@ -3582,7 +3726,7 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     if (e.target.dataset.gruppe === 'pb-mit') sichtbarZeigen();
     if (e.target.dataset.gruppe === 'pb-kreis') kreisWahl = e.detail[0] || kreisWahl;
   });
-  $('[data-gaeste]', s).addEventListener('click', () => setTimeout(sichtbarZeigen, 0));
+  $('[data-gaeste]', s).addEventListener('click', () => setTimeout(() => { sichtbarZeigen(); ichZeigen(); }, 0));
   const nur = $('[data-nur]', s);
   if (nur) nur.addEventListener('click', () => { const mit = gewaehlteMit(); s.schliessen(); if (heuteGespielt(sp, mit, kreisWahl || '')) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.'); });
   f.addEventListener('submit', e => {
@@ -3595,6 +3739,11 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     if (mit.length > max){ toast(`${sx.t}: höchstens ${max} Mitspieler.`, 'fehler'); return; }
     const merken = feldVon(f, 'merken');
     if (merken && merken.checked) spielAendern({ ...sp, hid:sp.ausgeliehenVon || sp.hid }, x => { x.wertung = w; }, `${sp.name}: Wertung`);
+    if (art === 'gsc'){
+      const modus = gewaehlteChips($('[data-gruppe="gsc-modus"]', s))[0] || 'jeder';
+      const ich = modus === 'eins' ? '' : (gewaehlteChips($('[data-gsc-ich]', s))[0] || '');
+      s.schliessen(); setTimeout(() => gscStarten({ sp, mit, modus, ich, kreis:kreisWahl || '' }), 240); return;
+    }
     B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:sp.name, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{} };
     blockSpeichern(); s.schliessen(); setTimeout(punkteblockZeigen, 240);
   });
@@ -3679,6 +3828,516 @@ function punkteblockZeigen(){
     B = null; blockSpeichern(); s.schliessen(); toast('Punkteblock verworfen');
   });
 }
+/* ---------- Ganz schön clever: der Original-Block zum Antippen ----------
+   Aufbau wie auf dem Papierblock. Jedes Blatt ist eine Liste von Einträgen (log) – daraus ergibt sich alles andere:
+   angekreuzte Felder, erreichte Boni, offene Boni, Neuwürfe, +1, Füchse und Punkte. Rückgängig = letzten Eintrag entfernen. */
+const GSC = {
+  gelb:{ werte:[3, 6, 5, 0, 2, 1, 0, 5, 1, 0, 2, 4, 0, 3, 4, 6],          // 0 = schon vorgedruckt angekreuzt
+    reihen:['X:blau', 'Z:orange:4', 'X:gruen', 'F'], spalten:[10, 14, 16, 20], diag:[0, 5, 10, 15] },
+  blau:{ reihen:[{ z:[1, 2, 3], b:'Z:orange:5' }, { z:[4, 5, 6, 7], b:'X:gelb' }, { z:[8, 9, 10, 11], b:'F' }],
+    spalten:[{ z:[4, 8], b:'NW' }, { z:[1, 5, 9], b:'X:gruen' }, { z:[2, 6, 10], b:'Z:lila:6' }, { z:[3, 7, 11], b:'P1' }],
+    punkte:[0, 1, 2, 4, 7, 11, 16, 22, 29, 37, 46, 56] },
+  gruen:{ min:[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6], bonus:{ 3:'P1', 5:'X:blau', 6:'F', 8:'Z:lila:6', 9:'NW' } },
+  orange:{ mal:[1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 3], bonus:{ 2:'NW', 4:'X:gelb', 5:'P1', 7:'F', 9:'Z:lila:6' } },
+  lila:{ bonus:{ 2:'NW', 3:'X:blau', 4:'P1', 5:'X:gelb', 6:'F', 7:'NW', 8:'X:gruen', 9:'Z:orange:6', 10:'P1' } },
+  runden:['NW', 'P1', 'NW', 'X6', '', '']
+};
+const GSC_FARBEN = { gelb:{ t:'Gelb', n:'gelbes' }, blau:{ t:'Blau', n:'blaues' }, gruen:{ t:'Grün', n:'grünes' }, orange:{ t:'Orange', n:'oranges' }, lila:{ t:'Lila', n:'lila' } };
+function gscRundenZahl(n){ return n <= 2 ? 6 : n === 3 ? 5 : 4; }
+function gscBonusInfo(b){ const [art, farbe, wert] = String(b || '').split(':'); return { art, farbe:farbe || '', wert:Number(wert) || 0 }; }
+function gscBonusText(b){
+  const x = gscBonusInfo(b), f = GSC_FARBEN[x.farbe];
+  if (x.art === 'X') return `Kreuz in ${f.t}`;
+  if (x.art === 'Z') return `${x.wert} in ${f.t}`;
+  if (x.art === 'X6') return 'Kreuz oder 6';
+  return { NW:'Neuwurf', P1:'+1-Aktion', F:'Fuchs' }[x.art] || '';
+}
+function gscBadge(b, an){
+  if (!b) return '<span class="gsc-b leer"></span>';
+  const x = gscBonusInfo(b);
+  const inhalt = x.art === 'X' ? '✕' : x.art === 'Z' ? x.wert : x.art === 'F' ? '🦊' : x.art === 'NW' ? '↻' : x.art === 'P1' ? '+1' : '✕|6';
+  const kl = x.farbe ? 'gsc-' + x.farbe : x.art === 'F' ? 'gsc-fuchs' : 'gsc-schwarz';
+  return `<span class="gsc-b ${kl}${an ? ' an' : ''}" title="${esc(gscBonusText(b))}">${inhalt}</span>`;
+}
+function gscStand(log){
+  const s = { gelb:new Set([3, 6, 9, 12]), blau:new Set(), gruen:[], orange:[], lila:[], runde:0, nw:[0, 0], p1:[0, 0], fuechse:0, bonus:[], benutzt:new Set() };
+  const geben = (id, b) => {
+    if (!b || s.bonus.some(x => x.id === id)) return;
+    s.bonus.push({ id, b });
+    if (b === 'NW') s.nw[0]++; if (b === 'P1') s.p1[0]++; if (b === 'F') s.fuechse++;
+  };
+  const pruefen = () => {
+    for (let r = 0; r < 4; r++) if ([0, 1, 2, 3].every(c => s.gelb.has(r * 4 + c))) geben('ge-r' + r, GSC.gelb.reihen[r]);
+    if (GSC.gelb.diag.every(i => s.gelb.has(i))) geben('ge-d', 'P1');
+    GSC.blau.reihen.forEach((x, i) => { if (x.z.every(z => s.blau.has(z))) geben('bl-r' + i, x.b); });
+    GSC.blau.spalten.forEach((x, i) => { if (x.z.every(z => s.blau.has(z))) geben('bl-s' + i, x.b); });
+    s.gruen.forEach((_, i) => geben('gr-' + i, GSC.gruen.bonus[i]));
+    s.orange.forEach((_, i) => geben('or-' + i, GSC.orange.bonus[i]));
+    s.lila.forEach((_, i) => geben('li-' + i, GSC.lila.bonus[i]));
+  };
+  for (const a of log || []){
+    if (!a || typeof a.t !== 'string') continue;
+    if (a.q) s.benutzt.add(a.q);
+    if (a.t === 'runde'){ s.runde++; geben('ru-' + s.runde, GSC.runden[s.runde - 1]); }
+    else if (a.t === 'gelb') s.gelb.add(a.i);
+    else if (a.t === 'blau') s.blau.add(a.i);
+    else if (a.t === 'gruen' && s.gruen.length < 11) s.gruen.push({ v:a.v, q:a.q });
+    else if (a.t === 'orange' && s.orange.length < 11) s.orange.push({ v:a.v, w:a.v * GSC.orange.mal[s.orange.length], q:a.q });
+    else if (a.t === 'lila' && s.lila.length < 11) s.lila.push({ v:a.v, q:a.q });
+    else if (a.t === 'nw') s.nw[1]++;
+    else if (a.t === 'p1') s.p1[1]++;
+    pruefen();
+  }
+  s.offen = s.bonus.filter(x => /^(X|Z)/.test(x.b) && !s.benutzt.has(x.id));
+  const spalteVoll = c => [0, 1, 2, 3].every(r => s.gelb.has(r * 4 + c));
+  const p = {
+    gelb:GSC.gelb.spalten.reduce((a, w, c) => a + (spalteVoll(c) ? w : 0), 0), blau:GSC.blau.punkte[s.blau.size] || 0,
+    gruen:s.gruen.length * (s.gruen.length + 1) / 2, orange:s.orange.reduce((a, x) => a + x.w, 0), lila:s.lila.reduce((a, x) => a + x.v, 0)
+  };
+  p.kleinste = Math.min(p.gelb, p.blau, p.gruen, p.orange, p.lila); p.fuchs = s.fuechse * p.kleinste;
+  p.gesamt = p.gelb + p.blau + p.gruen + p.orange + p.lila + p.fuchs;
+  s.punkte = p;
+  return s;
+}
+function gscFrei(s, farbe){
+  return farbe === 'gelb' ? s.gelb.size < 16 : farbe === 'blau' ? s.blau.size < 11 : farbe === 'gruen' ? s.gruen.length < 11
+    : farbe === 'orange' ? s.orange.length < 11 : farbe === 'lila' ? s.lila.length < 11 : false;
+}
+/* Ist ein Eintrag erlaubt? Sonst ein Hinweis, was nicht passt. */
+function gscFehler(s, a){
+  if (a.q && !s.offen.some(x => x.id === a.q)) return 'Dieser Bonus ist schon verbraucht.';
+  if (a.t === 'gelb') return s.gelb.has(a.i) ? 'Dieses Feld ist schon angekreuzt.' : '';
+  if (a.t === 'blau') return s.blau.has(a.i) ? 'Diese Zahl ist schon angekreuzt.' : '';
+  if (a.t === 'gruen'){
+    const i = s.gruen.length; if (i >= 11) return 'Grün ist schon voll.';
+    if (!a.q && a.v < GSC.gruen.min[i]) return `Hier muss mindestens eine ${GSC.gruen.min[i]} hin – die ${a.v} ist zu klein.`;
+    return '';
+  }
+  if (a.t === 'orange') return s.orange.length >= 11 ? 'Orange ist schon voll.' : '';
+  if (a.t === 'lila'){
+    const i = s.lila.length; if (i >= 11) return 'Lila ist schon voll.';
+    const vor = i ? s.lila[i - 1].v : 0;
+    if (vor && vor !== 6 && a.v <= vor) return `Die Zahl muss höher sein als die ${vor} davor. Nur nach einer 6 geht wieder jede Zahl.`;
+    return '';
+  }
+  if (a.t === 'nw') return s.nw[0] > s.nw[1] ? '' : 'Kein Neuwurf mehr frei.';
+  if (a.t === 'p1') return s.p1[0] > s.p1[1] ? '' : 'Keine +1-Aktion mehr frei.';
+  return '';
+}
+
+/* ---------- Laufende Partien (Ganz schön clever): eine Datei je Partie (daten/runde-<id>.json) ----------
+   Jedes Gerät schreibt nur die Blätter, die es selbst spielt; beim Zusammenführen gewinnt je Blatt der neuere Stand.
+   Solange das Blatt offen ist, schaut die App alle paar Sekunden nach, was die anderen eingetragen haben. */
+let LIVE = lesen(LS.live, null);
+function liveSpeichern(){ schreiben(LS.live, LIVE); }
+const RUNDE_FELDER = new Set(['format','app','id','art','name','sid','shid','hid','geraet','datum','start','kreis','mit','modus','blaetter','ende','endeStand','gespeichert','stand']);
+function rundeNorm(r){
+  r = r || {};
+  const bl = {};
+  if (r.blaetter && typeof r.blaetter === 'object') for (const [pid, b] of Object.entries(r.blaetter)) if (b && Array.isArray(b.log))
+    bl[pid] = { log:b.log.filter(a => a && typeof a.t === 'string').slice(0, 500), stand:zahl(b.stand) || 0, geraet:String(b.geraet || '') };
+  return { ...unbekannte(r, RUNDE_FELDER), id:String(r.id), art:'gsc', name:String(r.name || 'Ganz schön clever').slice(0, 80), sid:String(r.sid || ''), shid:String(r.shid || ''),
+    hid:String(r.hid || ''), geraet:String(r.geraet || ''), datum:/^\d{4}-\d{2}-\d{2}$/.test(r.datum || '') ? r.datum : heute(), start:zahl(r.start) || 0, kreis:String(r.kreis || ''),
+    mit:(Array.isArray(r.mit) ? r.mit : []).filter(p => p && p.pid).map(p => ({ pid:String(p.pid), name:String(p.name || '?').slice(0, 30), farbe:String(p.farbe || '#8A93A0') })).slice(0, 4),
+    modus:r.modus === 'eins' ? 'eins' : 'jeder', blaetter:bl, ende:!!r.ende, endeStand:zahl(r.endeStand) || 0, gespeichert:!!r.gespeichert, stand:zahl(r.stand) || 0 };
+}
+function rundeMischen(a, b){
+  const A = rundeNorm(a), Z = rundeNorm(b), kopf = A.stand >= Z.stand ? A : Z, e = A.endeStand >= Z.endeStand ? A : Z;
+  const bl = { ...Z.blaetter };
+  for (const [pid, x] of Object.entries(A.blaetter)) if (!bl[pid] || x.stand > bl[pid].stand) bl[pid] = x;
+  return rundeNorm({ ...unbekannte(Z, RUNDE_FELDER), ...unbekannte(A, RUNDE_FELDER), ...kopf, blaetter:bl, ende:e.ende, endeStand:e.endeStand,
+    gespeichert:A.gespeichert || Z.gespeichert, stand:Math.max(A.stand, Z.stand) });
+}
+function rundenWarten(){ return Object.entries(D.metaR || {}).some(([id, m]) => m.dirty && D.runden[id] && !D.runden[id].lokal); }
+function rundeDatei(id){ return `daten/runde-${id}.json`; }
+function markiereR(id, notiz){ const m = D.metaR[id] || (D.metaR[id] = {}); m.dirty = true; m.zaehler = (m.zaehler || 0) + 1; m.notizen = [...(m.notizen || []), notiz].slice(-4); }
+async function rundeLesen(id, etag){
+  const r = await gh('GET', `/contents/${rundeDatei(id)}?ref=${encodeURIComponent(E.branch)}`, null, etag ? { 'If-None-Match':etag } : null);
+  if (r.status === 304) return { gleich:true };
+  if (r.status === 404) return { daten:null, sha:null };
+  if (!r.ok) throw await fehlerAus(r, 'Spielblatt lesen');
+  const j = await r.json();
+  let daten; try{ daten = JSON.parse(textAusB64(j.content)); }catch(e){ throw new Error('Ein Spielblatt ist beschädigt.'); }
+  daten.id = id;
+  return { daten, sha:j.sha, etag:r.headers.get('etag') || '' };
+}
+async function rundeHochladen(id){
+  const m = D.metaR[id] || (D.metaR[id] = {});
+  if (m.laeuft) return false;
+  m.laeuft = true;
+  try{
+    let gemischt = false;
+    for (let versuch = 0; versuch < 6; versuch++){
+      const r = D.runden[id]; if (!r || r.lokal) return gemischt;
+      const stand = m.zaehler || 0;
+      const body = { message:`${r.name}: ${(m.notizen || []).join(', ').slice(0, 100) || 'Spielblatt'}`, content:b64AusText(JSON.stringify({ format:1, app:VERSION, ...rundeNorm(r) }, null, 1)), branch:E.branch };
+      if (m.sha) body.sha = m.sha;
+      const res = await gh('PUT', `/contents/${rundeDatei(id)}`, body);
+      if (res.ok){
+        const j = await res.json();
+        m.sha = j.content && j.content.sha; m.etag = ''; m.aufServer = true; m.dirty = (m.zaehler || 0) !== stand; if (!m.dirty) m.notizen = [];
+        speichern(); if (m.dirty) continue; return gemischt;
+      }
+      if (res.status === 409 || res.status === 422){
+        // Ein anderes Gerät war schneller: frischen Stand holen, zusammenführen, nochmal
+        const fern = await rundeLesen(id);
+        if (fern.daten){ D.runden[id] = rundeMischen(D.runden[id], fern.daten); m.sha = fern.sha; gemischt = true; }
+        else if (m.aufServer){ delete D.runden[id]; delete D.metaR[id]; speichern(); return true; }
+        else m.sha = null;
+        speichern(); await warte(120 + Math.random() * 380); continue;
+      }
+      throw await fehlerAus(res, 'Spielblatt speichern');
+    }
+    throw new Error('Das Spielblatt ließ sich nicht speichern.');
+  }finally{ m.laeuft = false; }
+}
+/* Schnell nachschauen (nur diese eine Datei; „nicht geändert“-Antworten belasten das Abruf-Kontingent nicht) */
+async function rundeAbrufen(id){
+  const m = D.metaR[id] || (D.metaR[id] = {});
+  if (m.laeuft || !E.token) return false;
+  const shaVorher = m.sha;
+  const fern = await rundeLesen(id, m.etag);
+  // Während des Nachschauens selbst gespeichert? Dann ist diese Antwort schon veraltet.
+  if (fern.gleich || m.laeuft || m.sha !== shaVorher) return false;
+  if (!fern.daten){
+    if (!m.aufServer || !D.runden[id]) return false;
+    delete D.runden[id]; delete D.metaR[id];
+    if (LIVE && LIVE.id === id){ LIVE = null; liveSpeichern(); }
+    speichern(); return true;
+  }
+  m.etag = fern.etag;
+  if (fern.sha === m.sha && D.runden[id]) return false;
+  // Immer zusammenführen: je Blatt gewinnt der neuere Stand – so geht kein eigener Eintrag verloren
+  D.runden[id] = D.runden[id] ? rundeMischen(D.runden[id], fern.daten) : rundeNorm(fern.daten);
+  m.sha = fern.sha; m.aufServer = true; speichern();
+  return true;
+}
+const LIVE_T = { timer:null };
+function rundeBald(id){ clearTimeout(LIVE_T.timer); LIVE_T.timer = setTimeout(() => rundeSofort(id), 600); }
+async function rundeSofort(id){
+  if (!E.token || S.neuereApp || !D.runden[id] || D.runden[id].lokal) return;
+  const m = D.metaR[id] || {};
+  if (m.laeuft){ rundeBald(id); return; }
+  try{ if (await rundeHochladen(id)) gscNeuZeichnen(); }
+  catch(e){ protokoll(`Spielblatt: ${e.message || e}`, false); setTimeout(() => rundeBald(id), 4000); }
+  statusZeigen();
+}
+async function rundeEntfernen(id){
+  const m = D.metaR[id] || {};
+  if (m.aufServer && E.token){
+    try{
+      const r = await gh('GET', `/contents/${rundeDatei(id)}?ref=${encodeURIComponent(E.branch)}`);
+      if (r.ok){ const j = await r.json(); await gh('DELETE', `/contents/${rundeDatei(id)}`, { message:'Spielblatt aufgeräumt', sha:j.sha, branch:E.branch }); }
+    }catch(e){ return false; }
+  }
+  delete D.runden[id]; delete D.metaR[id];
+  if (LIVE && LIVE.id === id){ LIVE = null; liveSpeichern(); }
+  speichern(); return true;
+}
+/* Fertige (gespeicherte) Partien nach einigen Stunden aufräumen, liegengebliebene nach zwei Tagen */
+async function rundenAufraeumen(){
+  const jetzt = Date.now();
+  for (const r of Object.values(D.runden || {})){
+    const alt = (r.gespeichert && r.endeStand && jetzt - r.endeStand > 6 * 3600e3) || (r.start && jetzt - r.start > 48 * 3600e3);
+    if (alt && !(D.metaR[r.id] || {}).dirty) await rundeEntfernen(r.id);
+  }
+}
+function gscDarf(r, pid){ const b = r.blaetter[pid]; return r.modus === 'eins' || (!!b && b.geraet === E.geraetId); }
+function gscIstGastgeber(r){ return r.geraet === E.geraetId || r.modus === 'eins'; }
+/* Kann ich bei einer Partie mitspielen? (ein Spieler meines Haushalts, dessen Blatt noch kein Gerät hat) */
+function gscMitspielbar(r){
+  if (!r || r.modus !== 'jeder' || r.ende || r.gespeichert || Date.now() - r.start > 12 * 3600e3 || r.geraet === E.geraetId) return [];
+  if (LIVE && LIVE.id === r.id) return [];
+  return r.mit.filter(p => spielerHaushalt(p.pid) === E.meinHaushalt);
+}
+function liveHinweisZeigen(){
+  const el = $('#live-hinweis'); if (!el) return;
+  const r = LIVE && D.runden[LIVE.id];
+  if (LIVE && !r){ LIVE = null; liveSpeichern(); }
+  if (r){
+    const s = gscStand((r.blaetter[LIVE.pid] || { log:[] }).log);
+    el.innerHTML = `<div class="hinweis pb-hinweis"><span>🎲 <b>${esc(r.name)}</b>${r.ende ? ' · Spielende' : ` · Runde ${s.runde} · ${s.punkte.gesamt} Punkte`}</span>
+      <button class="knopf" type="button" data-live-weiter style="min-height:38px;padding:0 14px;flex:none">${r.ende ? 'Ergebnis' : 'Weiter'}</button></div>`;
+    $('[data-live-weiter]', el).addEventListener('click', () => gscZeigen());
+    return;
+  }
+  const offen = Object.values(D.runden || {}).filter(x => gscMitspielbar(x).length).sort((a, b) => b.start - a.start)[0];
+  if (offen){
+    const gast = D.haushalte[offen.hid];
+    el.innerHTML = `<div class="hinweis pb-hinweis"><span>🎲 <b>${esc(offen.name)}</b> läuft${gast ? ` bei ${esc(gast.name)}` : ''} – spielst du mit?</span>
+      <button class="knopf" type="button" data-live-mit style="min-height:38px;padding:0 14px;flex:none">Mitspielen</button></div>`;
+    $('[data-live-mit]', el).addEventListener('click', () => gscMitspielen(offen.id));
+    return;
+  }
+  el.innerHTML = '';
+}
+async function gscMitspielen(id){
+  const r = D.runden[id]; if (!r) return;
+  const kandidaten = gscMitspielbar(r); if (!kandidaten.length) return;
+  const nehmen = async p => {
+    const b = r.blaetter[p.pid];
+    if (b && b.geraet && b.geraet !== E.geraetId && !await frage(`${p.name} spielt schon`, `${p.name} spielt schon auf einem anderen Gerät. Trotzdem hier weiterspielen?`, 'Hier spielen', false)) return;
+    const jetzt = Date.now();
+    r.blaetter[p.pid] = { log:b && b.log.length ? b.log : [{ t:'runde' }], stand:jetzt, geraet:E.geraetId };
+    LIVE = { id, pid:p.pid, sid:r.sid }; liveSpeichern();
+    if (p.name !== E.ichName){ E.ichName = p.name; einstSpeichern(); }
+    speichern(); markiereR(id, `${p.name} spielt mit`); rundeSofort(id);
+    renderAlles(); gscZeigen();
+  };
+  const frei = kandidaten.filter(p => !(r.blaetter[p.pid] || {}).geraet);
+  if (kandidaten.length === 1) return nehmen(kandidaten[0]);
+  const s = sheet(`<div class="sheet-kopf"><h2>Wer bist du?</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">${esc(r.name)} – wähle, wessen Blatt du auf diesem Gerät spielst.</p>
+    <div class="chips">${kandidaten.map(p => `<button type="button" class="chip anw-chip" data-wer="${esc(p.pid)}"${frei.includes(p) ? '' : ' style="opacity:.6"'}>${esc(p.name)}${frei.includes(p) ? '' : ' (spielt schon)'}</button>`).join('')}</div>`);
+  s.addEventListener('click', e => { const b = e.target.closest('[data-wer]'); if (!b) return; s.schliessen(); setTimeout(() => nehmen(kandidaten.find(p => p.pid === b.dataset.wer)), 240); });
+}
+function gscStarten({ sp, mit, modus, ich, kreis }){
+  const id = neueId('r'), jetzt = Date.now(), blaetter = {};
+  for (const p of mit){
+    const hier = modus === 'eins' || p.pid === ich || p.pid.startsWith('gast:');
+    blaetter[p.pid] = { log:[{ t:'runde' }], stand:jetzt, geraet:hier ? E.geraetId : '' };
+  }
+  D.runden[id] = { ...rundeNorm({ id, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, hid:E.meinHaushalt, geraet:E.geraetId, datum:heute(), start:jetzt, kreis, mit, modus, blaetter, stand:jetzt }),
+    ...(modus === 'eins' ? { lokal:true } : {}) };
+  // Zuerst das Blatt des Geräte-Besitzers zeigen (zuletzt gewählter Name), sonst das erste
+  const zuerst = ich || (mit.find(p => p.name === E.ichName) || mit[0]).pid;
+  LIVE = { id, pid:zuerst, sid:sp.id }; liveSpeichern(); speichern();
+  if (modus === 'jeder'){ markiereR(id, 'Partie gestartet'); rundeSofort(id); }
+  renderAlles(); gscZeigen();
+}
+
+/* ---------- Das Blatt auf dem Bildschirm ---------- */
+let GSCUI = null;
+function gscNeuZeichnen(){
+  if (!GSCUI || !GSCUI.s.isConnected) return;
+  const el = $('[data-gsc-inhalt]', GSCUI.s), oben = GSCUI.s.scrollTop;
+  el.innerHTML = gscHtml(); GSCUI.s.scrollTop = oben;
+}
+function gscZeigen(){
+  if (!LIVE || !D.runden[LIVE.id]) return;
+  if (GSCUI && GSCUI.s.isConnected){ gscNeuZeichnen(); return; }
+  const s = sheet(`<div class="gsc" data-gsc-inhalt></div>`, { klasse:'gross gsc-sheet', beimSchliessen:() => {
+    if (GSCUI){ clearInterval(GSCUI.poll); GSCUI = null; } liveHinweisZeigen();
+  } });
+  GSCUI = { s, pid:LIVE.pid, modus:null, poll:null };
+  gscNeuZeichnen();
+  // Andere Geräte: alle paar Sekunden nachschauen (nur solange das Blatt offen und sichtbar ist)
+  const r = D.runden[LIVE.id];
+  if (r && r.modus === 'jeder') GSCUI.poll = setInterval(async () => {
+    if (document.visibilityState !== 'visible' || !LIVE) return;
+    try{ const id = LIVE.id; if (await rundeAbrufen(id)){ if (!LIVE || !D.runden[id]){ toast('Die Partie wurde beendet.'); s.schliessen(); return; } gscNeuZeichnen(); liveHinweisZeigen(); } }catch(e){ /* beim nächsten Mal */ }
+  }, 4000);
+  s.addEventListener('click', gscKlick);
+}
+function gscHtml(){
+  const r = D.runden[LIVE.id]; if (!r) return '';
+  if (!r.mit.some(p => p.pid === GSCUI.pid)) GSCUI.pid = r.mit[0].pid;
+  const pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = gscStand(bl.log), p = s.punkte;
+  const darf = gscDarf(r, pid) && !r.ende, R = gscRundenZahl(r.mit.length), erreicht = id => s.bonus.some(x => x.id === id);
+  if (GSCUI.modus && !s.offen.some(x => x.id === GSCUI.modus.q)) GSCUI.modus = null;
+  const modus = darf ? GSCUI.modus : null;
+  const kopf = `<div class="gsc-kopf">
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2><button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => { const st = gscStand((r.blaetter[x.pid] || { log:[] }).log);
+      return `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${st.punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`; }).join('')}</div>` : ''}
+    ${r.ende ? '' : `<div class="gsc-status"><span>Runde <b>${s.runde}</b> von ${R}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
+    ${!darf && !r.ende ? `<p class="gsc-nur-sehen">👁 Das Blatt von ${esc(ich ? ich.name : '')} – nur zum Ansehen${(r.blaetter[pid] || {}).geraet ? '' : ' (noch nicht mitgespielt)'}.</p>` : ''}
+    ${darf && s.offen.length ? `<div class="gsc-offen"><span>Bonus einlösen:</span>${s.offen.map(x => `<button type="button" class="gsc-chip${modus && modus.q === x.id ? ' an' : ''}" data-gsc-bonus="${x.id}">${gscBadge(x.b, true)}${esc(gscBonusText(x.b))}</button>`).join('')}</div>` : ''}
+    ${modus ? `<p class="gsc-modus">Tippe ein freies ${GSC_FARBEN[modus.farbe].n} Feld für dein Bonus-Kreuz. <button type="button" class="knopf rahmen" data-gsc="modus-weg">Abbrechen</button></p>` : ''}
+  </div>`;
+  if (r.ende) return kopf + gscErgebnisHtml(r);
+  const kreise = (plus, minus) => Array.from({ length:Math.max(7, plus) }, (_, i) => `<i class="${i < minus ? 'weg' : i < plus ? 'an' : ''}"></i>`).join('');
+  const runden = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-runden">${Array.from({ length:6 }, (_, i) => {
+      const nr = i + 1; return `<span class="gsc-rd${nr < s.runde ? ' vorbei' : nr === s.runde ? ' jetzt' : ''}${nr > R ? ' aus' : ''}"><b>${nr}</b>${GSC.runden[i] ? gscBadge(GSC.runden[i], nr <= s.runde) : ''}</span>`; }).join('')}</div>
+    ${darf ? (s.runde < R ? `<button type="button" class="knopf zweit breit" data-gsc="runde" style="margin-top:8px">Runde ${s.runde + 1} beginnen</button>` : '<p class="gsc-klein" style="text-align:center;margin:8px 0 0">Letzte Runde</p>') : ''}
+    <div class="gsc-aktionen">
+      <div class="gsc-akt"><span class="gsc-b gsc-schwarz an">↻</span><span class="gsc-kreise">${kreise(s.nw[0], s.nw[1])}</span>
+        ${darf ? `<button type="button" class="knopf zweit" data-gsc="nw"${s.nw[0] > s.nw[1] ? '' : ' disabled'}>Neuwurf (${s.nw[0] - s.nw[1]})</button>` : `<b>${s.nw[0] - s.nw[1]}</b>`}</div>
+      <div class="gsc-akt"><span class="gsc-b gsc-schwarz an">+1</span><span class="gsc-kreise">${kreise(s.p1[0], s.p1[1])}</span>
+        ${darf ? `<button type="button" class="knopf zweit" data-gsc="p1"${s.p1[0] > s.p1[1] ? '' : ' disabled'}>+1 (${s.p1[0] - s.p1[1]})</button>` : `<b>${s.p1[0] - s.p1[1]}</b>`}</div>
+    </div></section>`;
+  const ziel = f => modus && modus.farbe === f;
+  const gelb = `<section class="gsc-bereich" style="--c:var(--ge)"><h3>Gelb<b>${p.gelb}</b></h3><div class="gsc-gitter">${[0, 1, 2, 3].map(rr => [0, 1, 2, 3].map(c => {
+      const i = rr * 4 + c, w = GSC.gelb.werte[i], vor = w === 0, x = s.gelb.has(i);
+      return `<button type="button" class="gsc-z${vor ? ' vor' : x ? ' x' : ''}${ziel('gelb') && !x ? ' ziel' : ''}" data-gsc-zelle="gelb|${i}"${vor ? ' disabled' : ''}>${vor ? '' : w}</button>`; }).join('')
+      + `<span class="gsc-rb">${gscBadge(GSC.gelb.reihen[rr], erreicht('ge-r' + rr))}</span>`).join('')}
+    ${GSC.gelb.spalten.map((w, c) => `<span class="gsc-stern${[0, 1, 2, 3].every(rr => s.gelb.has(rr * 4 + c)) ? ' an' : ''}">${w}</span>`).join('')}<span class="gsc-rb">${gscBadge('P1', erreicht('ge-d'))}</span></div>
+    <p class="gsc-klein">Senkrecht fertig: Punkte darunter · Waagrecht fertig: Bonus rechts · Diagonale ↘: +1</p></section>`;
+  const blau = `<section class="gsc-bereich" style="--c:var(--bl)"><h3>Blau <small>Blau + Weiß</small><b>${p.blau}</b></h3>
+    <div class="gsc-leiter oben">${GSC.blau.punkte.slice(1).map((w, n) => `<span class="${s.blau.size === n + 1 ? 'an' : ''}">${w}<small>${n + 1}</small></span>`).join('')}</div><div class="gsc-gitter">${[0, 1, 2].map(rr => [0, 1, 2, 3].map(c => {
+      const i = rr * 4 + c;
+      if (!i) return '<span class="gsc-wuerfel" aria-hidden="true"><i class="bl"></i>+<i></i></span>';
+      const x = s.blau.has(i);
+      return `<button type="button" class="gsc-z${x ? ' x' : ''}${ziel('blau') && !x ? ' ziel' : ''}" data-gsc-zelle="blau|${i}">${i + 1}</button>`; }).join('')
+      + `<span class="gsc-rb">${gscBadge(GSC.blau.reihen[rr].b, erreicht('bl-r' + rr))}</span>`).join('')}
+    ${GSC.blau.spalten.map((x, c) => `<span class="gsc-rb unten">${gscBadge(x.b, erreicht('bl-s' + c))}</span>`).join('')}<span></span></div>
+    </section>`;
+  const reihe = (farbe, liste, oben, leer, zeigen, boni) => `<div class="gsc-reihe${farbe === 'lila' ? ' kleiner' : ''}">${Array.from({ length:11 }, (_, i) => {
+      const e = liste[i], naechst = i === liste.length && darf;
+      return `<div class="gsc-f"><span class="gsc-ueber">${oben(i)}</span>
+        <button type="button" class="gsc-z${e ? ' voll' : ''}${naechst ? ' naechst' : ''}" data-gsc-feld="${farbe}|${i}">${e ? zeigen(e) : `<small>${leer(i)}</small>`}</button>
+        ${gscBadge(boni[i], i < liste.length)}</div>`; }).join('')}</div>`;
+  const gruen = `<section class="gsc-bereich" style="--c:var(--gr)"><h3>Grün<b>${p.gruen}</b></h3>
+    ${reihe('gruen', s.gruen, i => `<span class="gsc-stern klein${i < s.gruen.length ? ' an' : ''}">${(i + 1) * (i + 2) / 2}</span>`, i => '≥' + GSC.gruen.min[i], e => e.v ? e.v : '✕', GSC.gruen.bonus)}
+    <p class="gsc-klein">Von links nach rechts. Die Zahl muss mindestens so groß sein wie im Feld. Punkte: der Stern über dem letzten Feld.</p></section>`;
+  const orange = `<section class="gsc-bereich" style="--c:var(--or)"><h3>Orange<b>${p.orange}</b></h3>
+    ${reihe('orange', s.orange, () => '', i => GSC.orange.mal[i] > 1 ? '×' + GSC.orange.mal[i] : '', e => e.w, GSC.orange.bonus)}
+    <p class="gsc-klein">Von links nach rechts, jede Zahl erlaubt – bei ×2/×3 wird die Zahl vervielfacht.</p></section>`;
+  const lila = `<section class="gsc-bereich" style="--c:var(--li)"><h3>Lila<b>${p.lila}</b></h3>
+    ${reihe('lila', s.lila, () => '', () => '', e => e.v, GSC.lila.bonus)}
+    <p class="gsc-klein">Jede Zahl muss höher sein als die davor – nach einer 6 geht wieder alles.</p></section>`;
+  const summe = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-summe">
+    <span style="--c:var(--ge)">${p.gelb}</span>+<span style="--c:var(--bl)">${p.blau}</span>+<span style="--c:var(--gr)">${p.gruen}</span>+<span style="--c:var(--or)">${p.orange}</span>+<span style="--c:var(--li)">${p.lila}</span>
+    +<span class="fuchs">🦊${s.fuechse}×${p.kleinste}</span>=<b>${p.gesamt}</b></div>
+    <p class="gsc-klein" style="text-align:center">Jeder Fuchs zählt so viel wie die schwächste Farbe.</p></section>`;
+  const fuss = `<div class="gsc-fuss">
+    ${darf ? `<button type="button" class="knopf rahmen" data-gsc="rueck"${bl.log.length > 1 ? '' : ' disabled'}>↶ Rückgängig</button>` : ''}
+    <button type="button" class="knopf" data-gsc="auswerten">Spielende</button></div>
+    <div class="gsc-unten">${gscIstGastgeber(r) ? '<button type="button" class="link-knopf" data-gsc="abbrechen">Partie abbrechen</button>'
+      : '<button type="button" class="link-knopf" data-gsc="verlassen">Auf diesem Gerät nicht mehr mitspielen</button>'}
+      ${r.modus === 'jeder' ? `<span class="gsc-klein">${(D.metaR[r.id] || {}).dirty ? 'wird abgeglichen …' : 'abgeglichen'}</span>` : ''}</div>`;
+  return kopf + runden + gelb + blau + gruen + orange + lila + summe + fuss;
+}
+function gscErgebnisHtml(r){
+  const zeilen = r.mit.map(x => ({ x, s:gscStand((r.blaetter[x.pid] || { log:[] }).log) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt);
+  const best = zeilen.length ? zeilen[0].s.punkte.gesamt : 0;
+  return `<section class="gsc-bereich" style="--c:#4cc35a"><h3>Spielende</h3>
+    <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th><th style="color:var(--ge)">Ge</th><th style="color:var(--bl)">Bl</th><th style="color:var(--gr)">Gr</th><th style="color:var(--or)">Or</th><th style="color:var(--li)">Li</th><th>🦊</th><th>Σ</th></tr></thead>
+    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td><td>${p.gelb}</td><td>${p.blau}</td><td>${p.gruen}</td><td>${p.orange}</td><td>${p.lila}</td><td>${p.fuchs}</td><td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
+    <p style="text-align:center;font-size:18px;margin:12px 0">🏆 ${esc(zeilen.filter(z => z.s.punkte.gesamt === best).map(z => z.x.name).join(', '))} mit ${best} Punkten</p>
+    ${r.gespeichert ? '<p class="gsc-klein" style="text-align:center">✓ Das Ergebnis ist gespeichert.</p>'
+      : '<button type="button" class="knopf breit" data-gsc="speichern">Ergebnis speichern</button><button type="button" class="knopf rahmen breit" data-gsc="weiterspielen" style="margin-top:8px">Doch weiterspielen</button>'}
+    <button type="button" class="knopf ${r.gespeichert ? '' : 'rahmen '}breit" data-gsc="fertig" style="margin-top:8px">Schließen</button></section>`;
+}
+/* Ein Eintrag aufs eigene Blatt */
+function gscEintragen(a){
+  const r = LIVE && D.runden[LIVE.id]; if (!r) return false;
+  const pid = GSCUI.pid; if (!gscDarf(r, pid) || r.ende) return false;
+  const bl = r.blaetter[pid] || (r.blaetter[pid] = { log:[{ t:'runde' }], stand:0, geraet:E.geraetId });
+  const vorher = gscStand(bl.log), fehler = gscFehler(vorher, a);
+  if (fehler){ toast(fehler, 'fehler'); return false; }
+  bl.log = [...bl.log, Object.fromEntries(Object.entries(a).filter(([, v]) => v !== undefined && v !== null && v !== ''))];
+  bl.stand = Date.now();
+  const nachher = gscStand(bl.log), neu = nachher.bonus.filter(x => !vorher.bonus.some(y => y.id === x.id) && !x.id.startsWith('ru-'));
+  if (neu.length) toast('Bonus: ' + neu.map(x => gscBonusText(x.b)).join(', ') + '!');
+  gscGeaendert(r, 'Eintrag');
+  return true;
+}
+function gscGeaendert(r, notiz){
+  speichern();
+  if (!r.lokal){ markiereR(r.id, notiz); rundeBald(r.id); }
+  gscNeuZeichnen(); liveHinweisZeigen();
+}
+function gscZahlSheet(farbe, s, fertig){
+  const liste = farbe === 'gruen' ? s.gruen : farbe === 'orange' ? s.orange : s.lila, i = liste.length;
+  const mal = farbe === 'orange' ? GSC.orange.mal[i] : 1;
+  const titel = farbe === 'gruen' ? `mindestens ${GSC.gruen.min[i]}` : farbe === 'orange' ? (mal > 1 ? `zählt ×${mal}` : 'jede Zahl') : (i && s.lila[i - 1].v !== 6 ? `höher als ${s.lila[i - 1].v}` : 'jede Zahl');
+  const hs = sheet(`<div class="sheet-kopf"><h2>${GSC_FARBEN[farbe].t} · Feld ${i + 1}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Welche Zahl trägst du ein? (${titel})</p>
+    <div class="zahl-wahl gsc-wahl">${[1, 2, 3, 4, 5, 6].map(v => { const f = gscFehler(s, { t:farbe, v });
+      return `<button type="button" class="kn-knopf${f ? ' nein' : ''}" data-wert="${v}"><b>${v}</b>${mal > 1 ? `<small>= ${v * mal}</small>` : ''}</button>`; }).join('')}</div>
+    <p class="gsc-wahl-hinweis" data-hinweis></p>`);
+  hs.addEventListener('click', e => {
+    const b = e.target.closest('[data-wert]'); if (!b) return;
+    const v = Number(b.dataset.wert), f = gscFehler(s, { t:farbe, v });
+    if (f){ const h = $('[data-hinweis]', hs); h.textContent = '⚠️ ' + f; h.classList.remove('wackeln'); void h.offsetWidth; h.classList.add('wackeln'); return; }
+    hs.schliessen(); fertig(v);
+  });
+}
+function gscBonusEinloesen(id){
+  const r = D.runden[LIVE.id], s = gscStand((r.blaetter[GSCUI.pid] || { log:[] }).log), x = s.offen.find(y => y.id === id); if (!x) return;
+  const info = gscBonusInfo(x.b);
+  const verfall = async farbe => {
+    if (await frage('Bonus verfällt', `In ${GSC_FARBEN[farbe].t} ist kein Feld mehr frei – der Bonus „${gscBonusText(x.b)}“ verfällt.`, 'Verstanden', false)) gscEintragen({ t:'verfall', q:id });
+  };
+  const ausfuehren = (art, farbe, wert) => {
+    if (!gscFrei(s, farbe)) return verfall(farbe);
+    if (art === 'X' && (farbe === 'gelb' || farbe === 'blau')){ GSCUI.modus = GSCUI.modus && GSCUI.modus.q === id ? null : { q:id, farbe }; gscNeuZeichnen(); return; }
+    if (art === 'X') return gscEintragen({ t:'gruen', v:0, q:id });                  // grünes Kreuz: immer das nächste Feld
+    if (farbe === 'lila' && wert < 6 && s.lila.length && s.lila[s.lila.length - 1].v !== 6 && wert <= s.lila[s.lila.length - 1].v) return verfall(farbe);
+    gscEintragen({ t:farbe, v:wert, q:id });
+  };
+  if (info.art !== 'X6') return ausfuehren(info.art, info.farbe, info.wert);
+  // Runde 4: ein Kreuz in Gelb, Blau oder Grün – oder eine 6 in Orange oder Lila
+  const ziele = [['X', 'gelb'], ['X', 'blau'], ['X', 'gruen'], ['Z', 'orange'], ['Z', 'lila']].filter(([, f]) => gscFrei(s, f));
+  if (!ziele.length) return gscEintragen({ t:'verfall', q:id });
+  const ws = sheet(`<div class="sheet-kopf"><h2>Kreuz oder 6</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Bonus aus Runde 4: ein Kreuz in Gelb, Blau oder Grün – oder eine 6 in Orange oder Lila.</p>
+    <div class="gsc-ziele">${ziele.map(([art, f]) => `<button type="button" class="gsc-ziel" style="--c:var(--${{ gelb:'ge', blau:'bl', gruen:'gr', orange:'or', lila:'li' }[f]})" data-ziel="${art}|${f}">${art === 'X' ? '✕ Kreuz' : '6'} in ${GSC_FARBEN[f].t}</button>`).join('')}</div>`);
+  ws.addEventListener('click', e => { const b = e.target.closest('[data-ziel]'); if (!b) return; const [art, f] = b.dataset.ziel.split('|'); ws.schliessen(); setTimeout(() => ausfuehren(art, f, 6), 230); });
+}
+async function gscKlick(e){
+  const r = LIVE && D.runden[LIVE.id]; if (!r || !GSCUI) return;
+  const tab = e.target.closest('[data-gsc-tab]');
+  if (tab){
+    GSCUI.pid = tab.dataset.gscTab; GSCUI.modus = null;
+    if (r.modus === 'eins'){ LIVE.pid = GSCUI.pid; liveSpeichern(); }     // ein Gerät für alle: beim nächsten Öffnen wieder dieses Blatt
+    gscNeuZeichnen(); return;
+  }
+  const pid = GSCUI.pid, darf = gscDarf(r, pid) && !r.ende, name = (r.mit.find(p => p.pid === pid) || {}).name || '';
+  const s = gscStand((r.blaetter[pid] || { log:[] }).log);
+  const zelle = e.target.closest('[data-gsc-zelle]'), feld = e.target.closest('[data-gsc-feld]'), bonus = e.target.closest('[data-gsc-bonus]'), knopf = e.target.closest('[data-gsc]');
+  if ((zelle || feld || bonus) && !darf){ if (!r.ende) toast(`Das ist das Blatt von ${name} – nur zum Ansehen.`); return; }
+  if (zelle){
+    const [farbe, i] = zelle.dataset.gscZelle.split('|'), m = GSCUI.modus && GSCUI.modus.farbe === farbe ? GSCUI.modus : null;
+    if ((farbe === 'gelb' ? s.gelb : s.blau).has(Number(i))){ toast('Schon angekreuzt – „Rückgängig“ nimmt den letzten Eintrag zurück.'); return; }
+    if (gscEintragen({ t:farbe, i:Number(i), q:m ? m.q : undefined }) && m){ GSCUI.modus = null; gscNeuZeichnen(); }
+    return;
+  }
+  if (feld){
+    const [farbe, i] = feld.dataset.gscFeld.split('|'), liste = farbe === 'gruen' ? s.gruen : farbe === 'orange' ? s.orange : s.lila;
+    if (Number(i) < liste.length){ toast('Schon eingetragen – „Rückgängig“ nimmt den letzten Eintrag zurück.'); return; }
+    if (Number(i) > liste.length){ toast(`Bitte von links nach rechts – als Nächstes ist Feld ${liste.length + 1} dran.`, 'fehler'); return; }
+    gscZahlSheet(farbe, s, v => gscEintragen({ t:farbe, v }));
+    return;
+  }
+  if (bonus){ gscBonusEinloesen(bonus.dataset.gscBonus); return; }
+  if (!knopf) return;
+  const was = knopf.dataset.gsc;
+  if (was === 'zu'){ GSCUI.s.schliessen(); return; }
+  if (was === 'modus-weg'){ GSCUI.modus = null; gscNeuZeichnen(); return; }
+  if (was === 'nw' || was === 'p1'){ gscEintragen({ t:was }); return; }
+  if (was === 'runde'){ gscEintragen({ t:'runde' }); return; }
+  if (was === 'rueck'){
+    const bl = r.blaetter[pid]; if (!bl || bl.log.length < 2) return;
+    bl.log = bl.log.slice(0, -1); bl.stand = Date.now(); GSCUI.modus = null; gscGeaendert(r, 'Rückgängig'); return;
+  }
+  if (was === 'auswerten'){
+    if (!await frage('Spielende?', 'Die Blätter aller Spieler werden ausgewertet. Mit „Doch weiterspielen“ geht es danach noch weiter.', 'Auswerten', false)) return;
+    r.ende = true; r.endeStand = Date.now(); r.stand = Date.now(); gscGeaendert(r, 'Spielende'); return;
+  }
+  if (was === 'weiterspielen'){ r.ende = false; r.endeStand = Date.now(); r.stand = Date.now(); gscGeaendert(r, 'weiter'); return; }
+  if (was === 'speichern'){ gscErgebnisSpeichern(r); return; }
+  if (was === 'fertig'){
+    if (!r.gespeichert && !await frage('Ohne Speichern schließen?', 'Das Ergebnis ist noch nicht gespeichert.', 'Trotzdem schließen')) return;
+    LIVE = null; liveSpeichern();
+    if (r.lokal) delete D.runden[r.id];
+    speichern(); GSCUI.s.schliessen(); renderAlles(); return;
+  }
+  if (was === 'verlassen'){
+    if (!await frage('Nicht mehr mitspielen?', `Das Blatt von ${name} bleibt erhalten – ein anderes Gerät kann es übernehmen.`, 'Verlassen')) return;
+    const b = r.blaetter[LIVE.pid]; if (b && b.geraet === E.geraetId){ b.geraet = ''; b.stand = Date.now(); gscGeaendert(r, 'verlassen'); }
+    LIVE = null; liveSpeichern(); GSCUI.s.schliessen(); renderAlles(); return;
+  }
+  if (was === 'abbrechen'){
+    if (!await frage('Partie abbrechen?', 'Alle Blätter dieser Partie werden gelöscht – auch auf den anderen Geräten. Es wird kein Ergebnis gespeichert.', 'Abbrechen')) return;
+    GSCUI.s.schliessen(); await rundeEntfernen(r.id); renderAlles(); toast('Partie abgebrochen');
+  }
+}
+function gscErgebnisSpeichern(r){
+  const mein = D.haushalte[E.meinHaushalt]; if (!mein){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
+  const punkte = Object.fromEntries(r.mit.map(x => [x.pid, gscStand((r.blaetter[x.pid] || { log:[] }).log).punkte.gesamt]));
+  const best = Math.max(...Object.values(punkte));
+  const p = partieNorm({ id:neueId('g'), datum:r.datum, name:r.name, sid:r.sid, shid:r.shid, gewinner:r.mit.filter(x => punkte[x.pid] === best).map(x => x.pid),
+    mit:r.mit.map(x => x.pid), punkte, wertung:{ art:'gsc' }, kreis:r.kreis, stand:Date.now() });
+  const k = nameSchluessel(r.name);
+  mein.partien = [...(mein.partien || []).filter(x => !(x.datum === p.datum && nameSchluessel(x.name) === k && !x.gewinner.length && !(x.mit || []).length)), p];
+  markiere(mein.id, `${r.name} gespielt`);
+  r.gespeichert = true; r.stand = Date.now();
+  toast(`Gespeichert – 🏆 ${p.gewinner.map(spielerName).join(', ')}`);
+  gscGeaendert(r, 'Ergebnis gespeichert'); syncBald();
+}
+
 /* ---------- Spezielle Spielblöcke ----------
    Jeder Block bringt eigene Ansicht (html), eigene Bedienung (klick, data-pb="x-…") und eigene Auswertung (ergebnis). */
 function blockEndeHtml(zusatz){
@@ -4526,6 +5185,8 @@ const HILFE = [
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
     <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
     <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten) und <b>Ganz schön clever</b> (Farben und Füchse auswerten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
+    <li><b>Ganz schön clever</b> gibt es als <b>Original-Block zum Antippen</b>: Kreuze in Gelb und Blau antippen, in Grün, Orange und Lila die Zahl wählen. Die App prüft die Regeln (z. B. Lila: „Die Zahl muss höher sein“, Grün: Mindestwert) und sagt, was nicht passt. Erreichte Boni stehen oben unter <b>Bonus einlösen</b>, bis sie eingetragen sind. Neuwürfe und +1 zählt die App mit, Runden-Boni gibt es mit <b>Runde … beginnen</b>, <b>↶ Rückgängig</b> nimmt den letzten Eintrag zurück.</li>
+    <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
@@ -4653,6 +5314,13 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.73', datum:'28.10.2026', neu:[
+    'Ganz schön clever als Original-Block zum Antippen: Gelb, Blau, Grün, Orange, Lila, Runden, Neuwürfe, +1 und Füchse wie auf dem Papier',
+    'Die App prüft die Regeln und sagt, was nicht passt – z. B. „Die Zahl muss höher sein als die 4 davor“ in Lila oder „mindestens eine 3“ in Grün',
+    'Erreichte Boni stehen oben, bis sie eingetragen sind (Kreuz, Zahl, „Kreuz oder 6“); Neuwurf und +1 werden gesammelt und eingesetzt',
+    'Jeder auf seinem Handy: Die anderen tippen auf „Mitspielen“, die Blätter werden laufend abgeglichen, jeder sieht die Punkte der anderen',
+    'Am Ende: Auswertung aller Blätter mit Sieger, Ergebnis speichern wie gewohnt; wer auf Papier spielt, nimmt „Nur Endabrechnung“'
+  ]},
   { v:'v1.72', datum:'28.10.2026', neu:[
     'Neuer Spielblock „Ganz schön clever“: am Ende vom eigenen Block übertragen – fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila, Füchse',
     'Die App rechnet jede Farbe aus und wertet die Füchse mit der schwächsten Farbe; bei Orange und Lila einfach die Zahlen antippen, die App zählt zusammen'
@@ -5635,7 +6303,7 @@ function renderSeite(name){
 function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
-  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); kreisLeisteZeigen();
+  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); liveHinweisZeigen(); kreisLeisteZeigen(); gscNeuZeichnen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
