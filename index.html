@@ -268,6 +268,17 @@ a.knopf{text-decoration:none}
 .qx-tipp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--filz);font-weight:650}
 .qx-tipp .ic{width:15px;height:15px}
 .qx-reihe{margin:0 0 10px}
+.qx-uebersicht.gc{grid-template-columns:repeat(6,1fr)}
+.qx-uebersicht .qx-farbe.fuchs{padding-left:0}
+.qx-farbe.fuchs::before{display:none}
+.gc-pkt{margin-left:auto;font-weight:600;font-size:13px;color:var(--leise);padding-left:10px}
+.qx-reihe > .qx-farbe{display:flex}
+.gc-zahlen{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.gc-zahl{height:44px;padding:0 4px;text-align:center;font-size:18px}
+.gc-zahl::-webkit-inner-spin-button,.gc-zahl::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.gc-zahl{-moz-appearance:textfield;appearance:textfield}
+.gc-pad{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:6px}
+.gc-pad .kn-knopf{min-height:42px}
 .qx-reihe .qx-farbe{margin:0 0 6px}
 .qx-live{font-size:15px;margin:-6px 0 8px}
 .qx-live b{font-family:var(--rund);font-size:22px}
@@ -756,7 +767,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.71';
+const VERSION = 'v1.72';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -790,7 +801,9 @@ const SPEZIAL = [
   { k:'phase10', t:'Phase-10-Block', min:2, max:6, b:'Jede Runde abhaken, wer seine Phase geschafft hat, und die Minuspunkte eintragen. Wer zuerst Phase 10 schafft, gewinnt – bei Gleichstand die wenigsten Punkte.',
     passt:n => n.startsWith('phase10') && !n.includes('wurfel') },
   { k:'qwixx', t:'Qwixx-Auswertung', min:1, b:'Am Ende je Farbe die Kreuze und die Fehlwürfe eintragen – die App rechnet die Punkte aus.',
-    passt:n => n.includes('qwixx') }
+    passt:n => n.includes('qwixx') },
+  { k:'clever', t:'Ganz-schön-clever-Auswertung', min:1, b:'Am Ende vom eigenen Block übertragen: fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila und die Füchse – die App rechnet alles zusammen.',
+    passt:n => n.startsWith('ganzschonclever') || n.startsWith('thatsprettyclever') }
 ];
 /* Bekannte Spiele mit üblicher Wertung – beim Anlegen schon voreingestellt */
 const VORLAGEN = [
@@ -3466,9 +3479,11 @@ function terminGespielt(t){
    Am Ende wird das Ergebnis als Partie gespeichert – mit Mitspielern, Punkten bzw. Plätzen und Gewinner. */
 function spezialVon(w){ return w ? SPEZIAL.find(x => x.k === w.art) || null : null; }
 function vorlageFuer(name){
-  const n = nameSchluessel(name);
-  const sp = SPEZIAL.find(x => x.passt(n)); if (sp) return { art:sp.k };
-  const v = VORLAGEN.find(x => x.passt(n)); return v ? wertungNorm({ grenze:100, sieger:'tief', ...v.w }) : null;
+  // auch „ae/oe/ue“ statt Umlaut erkennen (z. B. „Ganz schoen clever“)
+  const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
+  const passt = x => x.passt(n) || x.passt(n2);
+  const sp = SPEZIAL.find(passt); if (sp) return { art:sp.k };
+  const v = VORLAGEN.find(passt); return v ? wertungNorm({ grenze:100, sieger:'tief', ...v.w }) : null;
 }
 function wertungNorm(w){
   if (w && typeof w === 'object' && SPEZIAL.some(x => x.k === w.art)) return { art:w.art };
@@ -3854,6 +3869,24 @@ const BLOECKE = {
     },
     klick(b, zeichnen){ if (b.dataset.pb === 'x-qx-auf') qwixxSheet(b.dataset.pid, zeichnen); },
     ergebnis(){ return hoechsteGewinnen(Object.fromEntries(B.mit.map(p => [p.pid, qwixxPunkte(p.pid).gesamt]))); }
+  },
+  /* Ganz schön clever: Auswertung am Ende vom eigenen Block */
+  clever:{
+    html(){
+      const pk = Object.fromEntries(B.mit.map(p => [p.pid, cleverPunkte(p.pid)]));
+      const best = Math.max(...B.mit.map(p => pk[p.pid].gesamt));
+      return `<p class="block-hinweis" style="margin:0 0 8px">Am Ende für jeden die Karte antippen und vom Block übertragen – die App rechnet Farben und Füchse zusammen.</p>
+        ${B.mit.map(p => { const x = pk[p.pid], sieg = B.ende && x.gesamt === best;
+          return `<button type="button" class="qx-karte${sieg ? ' fuehrt' : ''}" data-pb="x-gc-auf" data-pid="${esc(p.pid)}"${B.ende ? ' disabled' : ''}>
+            <span class="qx-kopf"><span class="pb-name">${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span>${sieg ? ' 👑' : ''}</span><b class="qx-gesamt">${x.gesamt}</b></span>
+            <span class="qx-uebersicht gc">${CLEVER.map(f => `<span class="qx-farbe" style="--qx:${f.c}">${x[f.k]}</span>`).join('')}
+              <span class="qx-farbe fuchs">🦊${x.fuechse}<small>${x.fuchsPunkte}</small></span></span>
+            ${B.ende ? '' : `<span class="qx-tipp">${ic('stift')}Antippen zum Eintragen</span>`}</button>`; }).join('')}
+        ${B.ende ? blockEndeHtml() : '<button class="knopf breit" type="button" data-pb="beenden" style="margin-top:12px">Auswerten</button>'}
+        <p class="block-hinweis">Gelb: Spalten 10 · 14 · 16 · 20 · Blau nach Kreuzen 1 · 2 · 4 · 7 · 11 · 16 · 22 · 29 · 37 · 46 · 56 · Grün nach Feldern 1 · 3 · 6 · 10 … 66 · Orange und Lila: Summe der Zahlen · jeder Fuchs zählt so viel wie die schwächste Farbe.</p>`;
+    },
+    klick(b, zeichnen){ if (b.dataset.pb === 'x-gc-auf') cleverSheet(b.dataset.pid, zeichnen); },
+    ergebnis(){ return hoechsteGewinnen(Object.fromEntries(B.mit.map(p => [p.pid, cleverPunkte(p.pid).gesamt]))); }
   }
 };
 /* Wizard: Zahl wählen, danach automatisch der nächste Spieler */
@@ -3897,6 +3930,77 @@ function qwixxSheet(pid, zeichnen){
     const b = e.target.closest('[data-wert]'), g = b && b.closest('[data-f]'); if (!g) return;
     B.blatt = B.blatt || {}; B.blatt[pid] = { ...(B.blatt[pid] || {}), [g.dataset.f]:Number(b.dataset.wert) };
     blockSpeichern(); zeigen();
+  });
+}
+const CLEVER = [{ k:'gelb', t:'Gelb', c:'#E2B100' }, { k:'blau', t:'Blau', c:'#2F6FDE' }, { k:'gruen', t:'Grün', c:'#2E9E5B' }, { k:'orange', t:'Orange', c:'#EE7A1E' }, { k:'lila', t:'Lila', c:'#8E5BD6' }];
+const CLEVER_GELB = [10, 14, 16, 20];
+const CLEVER_BLAU = [0, 1, 2, 4, 7, 11, 16, 22, 29, 37, 46, 56];
+function cleverWerte(pid){ return (B.blatt && B.blatt[pid]) || {}; }
+function cleverPunkte(pid){
+  const bl = cleverWerte(pid), summe = l => (Array.isArray(l) ? l : []).reduce((a, v) => a + (Number(v) || 0), 0);
+  const n = k => Math.max(0, Math.min(11, Number(bl[k]) || 0));
+  const x = {
+    gelb:(Array.isArray(bl.gelb) ? bl.gelb : []).reduce((a, i) => a + (CLEVER_GELB[i] || 0), 0),
+    blau:CLEVER_BLAU[n('blau')], gruen:n('gruen') * (n('gruen') + 1) / 2,
+    orange:summe(bl.orange), lila:summe(bl.lila), fuechse:Math.max(0, Math.min(5, Number(bl.fuechse) || 0))
+  };
+  x.kleinste = Math.min(x.gelb, x.blau, x.gruen, x.orange, x.lila);
+  x.fuchsPunkte = x.fuechse * x.kleinste;
+  x.gesamt = x.gelb + x.blau + x.gruen + x.orange + x.lila + x.fuchsPunkte;
+  return x;
+}
+/* Ein Fenster je Spieler: Gelb (fertige Spalten), Blau/Grün (Anzahl), Orange/Lila (die 11 Zahlen), Füchse */
+function cleverSheet(pid, zeichnen){
+  const i = B.mit.findIndex(x => x.pid === pid), p = B.mit[i]; if (!p) return;
+  const naechster = B.mit[i + 1];
+  const grid = (k, max, pkt) => `<div class="zahl-wahl" data-gc="${k}">${Array.from({ length:max + 1 }, (_, n) => `<button type="button" class="kn-knopf" data-wert="${n}"><b>${n}</b><small>${pkt(n)}</small></button>`).join('')}</div>`;
+  const zahlen = k => `<div class="gc-zahlen" data-gc-liste="${k}">${Array.from({ length:11 }, (_, n) => `<input class="eingabe gc-zahl" type="number" inputmode="numeric" min="0" max="18" data-i="${n}" aria-label="${k === 'orange' ? 'Orange' : 'Lila'} Feld ${n + 1}">`).join('')}</div>
+    <div class="gc-pad" data-gc-pad="${k}">${[1, 2, 3, 4, 5, 6].map(z => `<button type="button" class="kn-knopf" data-tipp="${z}"><b>${z}</b></button>`).join('')}<button type="button" class="kn-knopf" data-tipp="weg" aria-label="Letzte Zahl löschen"><b>⌫</b></button></div>`;
+  const kopf = (f, extra) => `<p class="qx-farbe" style="--qx:${f.c}">${f.t}<span class="gc-pkt" data-gc-pkt="${f.k}"></span></p>${extra ? `<p class="text-leise text-klein" style="margin:-2px 0 6px">${extra}</p>` : ''}`;
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(p.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="qx-live">Punkte: <b data-gc-summe></b></p>
+    <div class="qx-reihe">${kopf(CLEVER[0], 'Welche Spalten sind komplett angekreuzt?')}
+      <div class="zahl-wahl kurz gc-gelb">${CLEVER_GELB.map((w, n) => `<button type="button" class="kn-knopf" data-spalte="${n}"><b>${n + 1}.</b><small>${w}</small></button>`).join('')}</div></div>
+    <div class="qx-reihe">${kopf(CLEVER[1], 'Wie viele Kreuze?')}${grid('blau', 11, n => CLEVER_BLAU[n])}</div>
+    <div class="qx-reihe">${kopf(CLEVER[2], 'Wie viele Felder angekreuzt?')}${grid('gruen', 11, n => n * (n + 1) / 2)}</div>
+    <div class="qx-reihe">${kopf(CLEVER[3], 'Die eingetragenen Zahlen von links nach rechts – bei ×2/×3 die verdoppelte bzw. verdreifachte Zahl.')}${zahlen('orange')}</div>
+    <div class="qx-reihe">${kopf(CLEVER[4], 'Die eingetragenen Zahlen von links nach rechts.')}${zahlen('lila')}</div>
+    <div class="qx-reihe"><p class="qx-farbe fuchs">🦊 Füchse<span class="gc-pkt" data-gc-pkt="fuchs"></span></p>
+      <p class="text-leise text-klein" style="margin:-2px 0 6px">Jeder Fuchs zählt so viel wie deine schwächste Farbe.</p>${grid('fuechse', 5, () => '')}</div>
+    <div class="knopfreihe" style="margin-top:14px"><button class="knopf ${naechster ? 'rahmen' : ''}" type="button" data-zu>Fertig</button>
+      ${naechster ? `<button class="knopf" type="button" data-weiter>Weiter: ${esc(naechster.name)}</button>` : ''}</div>`,
+    { klasse:'gross', beimSchliessen:zeichnen });
+  const bl = () => { B.blatt = B.blatt || {}; return (B.blatt[pid] = B.blatt[pid] || {}); };
+  // Zahlen in die Felder schreiben (beim Öffnen)
+  for (const k of ['orange', 'lila']){ const l = Array.isArray(bl()[k]) ? bl()[k] : []; $$(`[data-gc-liste="${k}"] input`, s).forEach((f, n) => { f.value = l[n] == null || l[n] === '' ? '' : l[n]; }); }
+  const zeigen = () => {
+    const w = bl(), x = cleverPunkte(pid);
+    $$('[data-spalte]', s).forEach(b => b.setAttribute('aria-pressed', String((w.gelb || []).includes(Number(b.dataset.spalte)))));
+    $$('[data-gc]', s).forEach(g => $$('[data-wert]', g).forEach(b => b.setAttribute('aria-pressed', String((Number(w[g.dataset.gc]) || 0) === Number(b.dataset.wert)))));
+    for (const f of CLEVER) $(`[data-gc-pkt="${f.k}"]`, s).textContent = `${x[f.k]} Punkte`;
+    $('[data-gc-pkt="fuchs"]', s).textContent = x.fuechse ? `${x.fuechse} × ${x.kleinste} (schwächste Farbe) = ${x.fuchsPunkte} Punkte` : '';
+    $('[data-gc-summe]', s).textContent = x.gesamt;
+  };
+  const listeLesen = k => { bl()[k] = $$(`[data-gc-liste="${k}"] input`, s).map(f => f.value.trim() === '' ? null : Math.max(0, Math.min(18, Number(f.value) || 0))); blockSpeichern(); zeigen(); };
+  zeigen();
+  s.addEventListener('input', e => { const l = e.target.closest('[data-gc-liste]'); if (l) listeLesen(l.dataset.gcListe); });
+  s.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.matches('.gc-zahl')) return;
+    e.preventDefault(); const alle = $$('.gc-zahl', s), n = alle.indexOf(e.target); if (n < alle.length - 1) alle[n + 1].focus(); else e.target.blur();
+  });
+  s.addEventListener('click', e => {
+    if (e.target.closest('[data-weiter]')){ s.schliessen(); setTimeout(() => cleverSheet(naechster.pid, zeichnen), 260); return; }
+    const sp = e.target.closest('[data-spalte]');
+    if (sp){ const n = Number(sp.dataset.spalte), g = new Set(bl().gelb || []); g.has(n) ? g.delete(n) : g.add(n); bl().gelb = [...g].sort(); blockSpeichern(); zeigen(); return; }
+    const t = e.target.closest('[data-tipp]');
+    if (t){
+      const k = t.closest('[data-gc-pad]').dataset.gcPad, felder = $$(`[data-gc-liste="${k}"] input`, s);
+      if (t.dataset.tipp === 'weg'){ const voll = felder.filter(f => f.value !== ''); if (voll.length) voll[voll.length - 1].value = ''; }
+      else { const frei = felder.find(f => f.value === ''); if (frei) frei.value = t.dataset.tipp; else toast('Alle 11 Felder sind schon gefüllt.'); }
+      listeLesen(k); return;
+    }
+    const b = e.target.closest('[data-wert]'), g = b && b.closest('[data-gc]'); if (!g) return;
+    bl()[g.dataset.gc] = Number(b.dataset.wert); blockSpeichern(); zeigen();
   });
 }
 function wizardRunden(){ return B && B.mit.length ? Math.floor(60 / B.mit.length) : 0; }
@@ -4421,7 +4525,7 @@ const HILFE = [
   { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
     <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
-    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte) und <b>Qwixx</b> (Kreuze je Farbe auswerten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
+    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten) und <b>Ganz schön clever</b> (Farben und Füchse auswerten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
@@ -4549,6 +4653,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.72', datum:'28.10.2026', neu:[
+    'Neuer Spielblock „Ganz schön clever“: am Ende vom eigenen Block übertragen – fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila, Füchse',
+    'Die App rechnet jede Farbe aus und wertet die Füchse mit der schwächsten Farbe; bei Orange und Lila einfach die Zahlen antippen, die App zählt zusammen'
+  ]},
   { v:'v1.71', datum:'27.10.2026', neu:[
     'Qwixx: Auswahlfenster je Spieler – je Farbe einmal die Zahl der Kreuze antippen statt jedes Kreuz einzeln, „Weiter“ springt zum nächsten Spieler',
     'Wizard: Ansagen und Stiche per Auswahlfenster – nach dem Antippen öffnet sich automatisch der nächste Spieler',
