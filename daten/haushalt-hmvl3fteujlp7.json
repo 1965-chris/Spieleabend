@@ -537,8 +537,11 @@
     "Qwixx gemixxt",
     "Qwixx Connected"
    ],
+   "anleitungen": {
+    "qwixxgemixxt": "https://gesellschaftsspiele.spielen.de/uploads/files/382/54bce41a632eb.pdf"
+   },
    "erstellt": 1792858091341,
-   "geaendert": 1793264219478
+   "geaendert": 1793267007064
   },
   {
    "id": "smvmpdkc4czoa",
@@ -764,7 +767,7 @@
    "app": true,
    "version": "v1.79",
    "erst": 1792864131177,
-   "zuletzt": 1793266456435,
+   "zuletzt": 1793267008994,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
