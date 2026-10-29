@@ -344,7 +344,7 @@
   {
    "id": "smvt7ww1cpkud",
    "name": "Kniffel",
-   "bild": "",
+   "bild": "bilder/smvt7ww1cpkud-mvt82nc7.jpg",
    "spielerMin": 2,
    "spielerMax": 8,
    "alterAb": 8,
@@ -361,7 +361,7 @@
     "art": "kniffel"
    },
    "erstellt": 1793258673457,
-   "geaendert": 1793258812057
+   "geaendert": 1793258942118
   },
   {
    "id": "smvl4jqa6tocg",
@@ -748,7 +748,7 @@
    "app": true,
    "version": "v1.76",
    "erst": 1792864131177,
-   "zuletzt": 1793258813884,
+   "zuletzt": 1793258944089,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
