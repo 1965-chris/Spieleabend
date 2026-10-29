@@ -186,7 +186,8 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .anleitung-variante small{color:var(--leise);font-size:12.5px}
 .anleitung-variante .anleitung-knoepfe{margin-top:0}
 .gsc-titel h2{flex:1;min-width:0}
-.gsc-regeln{text-decoration:none}
+.gsc-regeln{text-decoration:none;color:inherit}
+.sheet-kopf .gsc-regeln{margin-left:auto;flex:none}
 .karte-varianten{font-size:13px;font-weight:650;color:var(--filz);line-height:1.25;overflow-wrap:anywhere}
 .detail-varianten{margin:-4px 0 8px;font-size:15px;color:var(--filz)}
 .partie-variante{display:inline-block;padding:1px 7px;border-radius:999px;background:color-mix(in srgb, var(--filz) 16%, var(--karte));color:var(--tinte);font-size:12.5px;font-weight:650}
@@ -1015,7 +1016,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.78';
+const VERSION = 'v1.79';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -4084,7 +4085,7 @@ function blockInhaltHtml(){
 }
 function punkteblockZeigen(){
   if (!B) return;
-  const s = sheet(`<div class="sheet-kopf"><h2>${esc(B.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Später weiter">${ic('x')}</button></div>
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(B.name)}</h2>${liveAnleitungKnopf(B)}<button class="knopf-rund" type="button" data-zu aria-label="Später weiter">${ic('x')}</button></div>
     <p class="text-leise" style="margin-top:-6px">${esc(wertungText(B.w))}</p>
     <div data-pb-inhalt></div>
     <button class="knopf gefahr breit" type="button" data-pb-weg style="margin-top:18px">${ic('muell')}Punkteblock verwerfen</button>
@@ -6558,7 +6559,7 @@ const HILFE = [
     <li>Danach öffnet <b>Spielanleitung öffnen</b> sie mit einem Tipp – auf allen Geräten. Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen.</li>
     <li>Gespeichert wird nur der Link, keine Datei. Den Link speichern oder ändern kann der Haushalt, dem das Spiel gehört, oder der Admin.</li>
     <li><b>Varianten</b> (z. B. Clever 4ever bei Ganz schön clever) haben darunter je einen eigenen Link. Für manche Spiele kennt die App die Anleitung vom Verlag schon („vom Verlag“) – sie gilt, bis ihr einen eigenen Link speichert.</li>
-    <li>Im Spielblock von <b>Ganz schön clever</b> und <b>Clever 4ever</b> öffnet das Buch oben die passende Anleitung.</li></ul>` },
+    <li>In <b>jedem Spielblock</b> (Punkteblock, Kniffel, Wizard, Phase 10, Qwixx, die Clever-Blöcke …) öffnet das <b>Buch oben</b> die Anleitung, sobald eine da ist – bei einer Variante die der Variante.</li></ul>` },
   { id:'finden', titel:'Spiele finden und filtern', seite:'spiele', text:`
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
     <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>` },
@@ -6671,6 +6672,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.79', datum:'29.10.2026', neu:[
+    'Spielanleitung in jedem Spielblock: Ist beim Spiel eine Anleitung hinterlegt (oder kennt die App sie vom Verlag), öffnet das Buch oben rechts sie – auch im normalen Punkteblock, bei Kniffel, Wizard, Phase 10 und der Qwixx-Auswertung',
+    'Bei Varianten öffnet das Buch die Anleitung der Variante',
+    'Doppelt so clever: Blatt noch einmal mit dem Original verglichen – alle Felder, Boni und Punkte stimmen'
+  ]},
   { v:'v1.78', datum:'29.10.2026', neu:[
     'Qwixx als Original-Block zum Antippen: Kreuze von links nach rechts, Übersprungenes wird ausgegraut, das letzte Feld erst ab 5 Kreuzen – dann ist die Reihe mit dem Schloss zu',
     'Fehlwürfe zählen je −5, die Punkte je Farbe rechnet die App; schließt jemand eine Reihe, sehen es alle („🔒 Rot (Christian)“) und bei 2 Reihen oder 4 Fehlwürfen kommt „Spielende“',
