@@ -197,8 +197,11 @@
     "y": 28.2,
     "z": 1
    },
+   "varianten": [
+    "Clever 4ever"
+   ],
    "erstellt": 1792857905885,
-   "geaendert": 1793157886585
+   "geaendert": 1793256416760
   },
   {
    "id": "smvmooj15f76j",
@@ -723,7 +726,7 @@
    "app": true,
    "version": "v1.75",
    "erst": 1792864131177,
-   "zuletzt": 1793256349980,
+   "zuletzt": 1793256418677,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
