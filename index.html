@@ -180,6 +180,10 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .karte-haushalte{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:2px}
 .karte-haushalte .karte-haushalt{margin-top:0;padding-top:0}
 .karte-bei{color:var(--filz);font-weight:600;align-items:flex-start}
+.karte-varianten{font-size:13px;font-weight:650;color:var(--filz);line-height:1.25;overflow-wrap:anywhere}
+.detail-varianten{margin:-4px 0 8px;font-size:15px;color:var(--filz)}
+.partie-variante{display:inline-block;padding:1px 7px;border-radius:999px;background:color-mix(in srgb, var(--filz) 16%, var(--karte));color:var(--tinte);font-size:12.5px;font-weight:650}
+.chip.vorschlag-chip{border-style:dashed}
 .karte-bei .ic{width:14px;height:14px;flex:none;margin-top:1px}
 .link-knopf{appearance:none;border:0;background:none;padding:0;font:inherit;color:var(--filz);text-decoration:underline;text-underline-offset:2px;display:inline-flex;align-items:center;gap:4px}
 .ueber-spiele{margin:16px 0 0;padding:12px 14px;border-radius:14px;background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
@@ -684,7 +688,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 
 /* ---------- Ganz schön clever: Blatt wie das Original ---------- */
 .sheet.gsc-sheet{background:#15171c;color:#eef0f4;padding:0}
-.gsc{--ge:#f2c230;--bl:#4a8ff0;--gr:#4cc35a;--or:#f39a2e;--li:#a66ee3;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.gsc{--ge:#f2c230;--bl:#4a8ff0;--gr:#4cc35a;--or:#f39a2e;--li:#a66ee3;--gra:#b9c0cb;--ro:#ec6fae;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 .gsc .knopf.rahmen{background:transparent;color:#eef0f4;border-color:#4a4f5a}
 .gsc .knopf.zweit{background:#2a2e36;color:#eef0f4}
 .gsc .knopf-rund{background:#2a2e36;color:#eef0f4}
@@ -774,6 +778,65 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .gsc-wahl-hinweis{min-height:22px;margin:12px 0 0;color:var(--rot);font-weight:650;font-size:14.5px}
 .gsc-ziele{display:grid;gap:8px}
 .gsc-ziel{min-height:48px;border-radius:12px;border:2px solid var(--c);background:var(--karte);color:var(--tinte);font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+/* ---------- Clever 4ever ---------- */
+.gsc-b.c4b-gelb{background:var(--ge);color:#1b1d22}.gsc-b.c4b-blau{background:var(--bl)}.gsc-b.c4b-grau{background:var(--gra);color:#1b1d22}
+.gsc-b.c4b-gruen{background:var(--gr);color:#1b1d22}.gsc-b.c4b-rosa{background:var(--ro)}.gsc-b.c4b-schwarz{background:#000;border:1.5px solid #cfd3da}
+.gsc-b.c4b-silber{border-radius:50%;background:radial-gradient(circle at 38% 32%,#fff 0 12%,#d5dae1 32%,#8c939e 72%,#5d636c)}
+.gsc-b.mini{min-width:15px;height:15px;padding:0 2px;border-radius:4px;font-size:9.5px;opacity:.85}
+.gsc-b.mini.an{box-shadow:0 0 0 1.5px #fff}
+.gsc-b.mini.c4b-silber{border-radius:50%;padding:0}
+.c4-akt{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px}
+.c4-akt small{display:block;font-size:12px;color:#aab0bb;margin-bottom:3px}
+.c4-akt .gsc-kreise{align-items:center}
+.c4-akt .gsc-kreise i{width:15px;height:15px}
+.c4-akt .knopf{min-height:36px;padding:0 10px;font-size:13.5px}
+.c4-akt > b{justify-self:end;padding-right:8px;font-family:var(--rund)}
+.c4-modus{flex-wrap:wrap}
+.c4-modus > span:first-child{flex:1 1 200px;line-height:1.35}
+.c4-modus-knoepfe{display:flex;gap:6px;margin-left:auto}
+.c4-gelb{display:grid;grid-template-columns:16px repeat(5,1fr) 40px;gap:3px 7px;align-items:center}
+.c4-gelb .gsc-z{height:42px}
+.c4-zeichen{font-family:var(--rund);font-weight:900;font-size:18px;color:var(--ge);text-align:center}
+.c4-rsum{font-family:var(--rund);font-weight:800;font-size:14px;color:#fff;text-align:right;white-space:nowrap}
+.c4-bz{display:grid;place-items:center;min-height:17px}
+.c4-steigend::before{content:"<";position:absolute;left:-7px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:900;color:var(--ge)}
+.gsc-z.gesperrt{opacity:.3}
+.c4-blau{display:grid;grid-template-columns:18px repeat(6,1fr) 28px;gap:5px;align-items:center}
+.c4-blau .gsc-z{height:40px;font-size:17px;border-radius:8px}
+.c4-blau .gsc-z.x::after{font-size:28px}
+.c4-bl-z{display:grid;place-items:center;height:24px;border-radius:5px;background:var(--bl);color:#fff;font-family:var(--rund);font-weight:800;font-size:12.5px}
+.c4-blau .gsc-z.dg{background:linear-gradient(45deg,#fff 44%,#d3e3fc 44% 56%,#fff 56%)}
+.c4-blau .gsc-z.ag{background:linear-gradient(135deg,#fff 44%,#d3e3fc 44% 56%,#fff 56%)}
+.c4-blau .gsc-stern.klein{height:24px;font-size:11px}
+.c4-grau{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;background:#0e0f12;border:1px solid #0e0f12;border-radius:6px;overflow:hidden}
+.c4-gs{display:grid;place-items:center;height:18px;background:#24272e;color:#aab0bb;font-family:var(--rund);font-weight:800;font-size:10px}
+.c4-gs.an{background:var(--gra);color:#15171c}
+.c4-g{position:relative;aspect-ratio:1;min-width:0;border:0;padding:0;display:grid;place-items:center;cursor:pointer;border-radius:0}
+.c4-gW{background:#f3f4f6}.c4-gL{background:#a9afb8}.c4-gD{background:#5b616a}
+.c4-g.x::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:17px;font-weight:900;color:#15171c;line-height:1}
+.c4-gD.x::after{color:#fff}
+.c4-g.x .gsc-b{opacity:.35}
+.c4-g.kann{box-shadow:inset 0 0 0 2px #f2c230}
+.c4-g.ziel{box-shadow:inset 0 0 0 2.5px #fff,inset 0 0 0 5px #f2c230}
+.c4-g.start::before{content:"";position:absolute;inset:0;pointer-events:none;border:0 solid #e0453a}
+.c4-g.rt::before{border-top-width:2.5px}.c4-g.rr::before{border-right-width:2.5px}.c4-g.ru::before{border-bottom-width:2.5px}.c4-g.rl::before{border-left-width:2.5px}
+.c4-fuechse{display:flex;gap:6px;margin-top:8px}
+.c4-fuchs{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;min-height:30px;padding:0 4px;border-radius:9px;font-size:12px;font-weight:700;color:#15171c;opacity:.6;white-space:nowrap}
+.c4-fW{background:#f3f4f6}.c4-fL{background:#a9afb8}.c4-fD{background:#5b616a;color:#fff}
+.c4-fuchs.an{opacity:1;box-shadow:0 0 0 2.5px #c8372d}
+.c4-dreieck{position:relative;width:100%;height:50px;border-radius:10px;background:#fff;overflow:hidden;box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+.c4-dreieck::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top right,transparent calc(50% - 1.3px),var(--gr) calc(50% - 1.3px) calc(50% + 1.3px),transparent calc(50% + 1.3px))}
+.c4-do,.c4-du{position:absolute;inset:0;border:0;padding:0;margin:0;background:transparent;cursor:pointer;font-family:var(--rund);font-weight:800;font-size:17px;color:#1b1d22}
+.c4-do{clip-path:polygon(0 0,100% 0,100% 100%)}
+.c4-du{clip-path:polygon(0 0,0 100%,100% 100%)}
+.c4-do span{position:absolute;top:4px;right:7px}
+.c4-du span{position:absolute;bottom:5px;left:7px}
+.c4-do.naechst,.c4-du.naechst{animation:c4-blink 1.4s ease-in-out infinite}
+.c4-do.ziel,.c4-du.ziel{animation:c4-blink-z 1.2s ease-in-out infinite}
+@keyframes c4-blink{0%,100%{background:rgba(76,195,90,.12)}50%{background:rgba(76,195,90,.5)}}
+@keyframes c4-blink-z{0%,100%{background:rgba(242,194,48,.15)}50%{background:rgba(242,194,48,.65)}}
+.c4-rosa .gsc-z.kreis::after{content:"";position:absolute;inset:4px;border:2.5px solid var(--ro);border-radius:50%}
+.gsc-z .c4-auto{position:absolute;bottom:1px;left:0;right:0;font-size:9px;font-weight:700;color:#9aa1ad}
 </style>
 </head>
 <body>
@@ -861,7 +924,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.73';
+const VERSION = 'v1.75';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -898,6 +961,8 @@ const SPEZIAL = [
     passt:n => n.includes('qwixx') },
   { k:'gsc', t:'Ganz-schön-clever-Block', min:1, max:4, b:'Der Original-Block zum Antippen: Kreuze und Zahlen eintragen, die App prüft die Regeln, zeigt offene Boni, zählt Neuwürfe, +1 und Füchse – und rechnet alles aus.',
     passt:n => n.startsWith('ganzschonclever') || n.startsWith('thatsprettyclever') },
+  { k:'c4', t:'Clever-4ever-Block', min:1, max:4, b:'Der Original-Block zum Antippen: Gelb, Blau, Grau, Grün und Rosa wie auf dem Papier – die App prüft die Regeln, zeigt offene ?-Boni, zählt Nachwürfeln, Zusatzwürfel, Silber polieren und Füchse – und rechnet alles aus.',
+    passt:n => n.startsWith('clever4ever') || n.startsWith('cleverforever') },
   { k:'clever', t:'Nur Endabrechnung (Papierblock)', min:1, b:'Wer auf Papier spielt: am Ende vom eigenen Block übertragen: fertige gelbe Spalten, Kreuze in Blau und Grün, die Zahlen in Orange und Lila und die Füchse – die App rechnet alles zusammen.',
     passt:n => n.startsWith('ganzschonclever') || n.startsWith('thatsprettyclever') }
 ];
@@ -1021,7 +1086,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','varianten','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1097,8 +1162,35 @@ function spielNorm(s){
     ...(verliehenNorm(s.verliehen) ? { verliehen:verliehenNorm(s.verliehen) } : {}),
     ...(wertungNorm(s.wertung) && wertungNorm(s.wertung).art !== 'gewinner' ? { wertung:wertungNorm(s.wertung) } : {}),
     ...(bildPosNorm(s.bildPos) ? { bildPos:bildPosNorm(s.bildPos) } : {}),
+    ...(variantenNorm(s.varianten).length ? { varianten:variantenNorm(s.varianten) } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
+}
+/* Varianten: weitere Ausgaben zum selben Spiel (z. B. „Clever 4ever“ bei „Ganz schön clever“) –
+   stehen auf der Kachel, werden beim Suchen gefunden, ihr Spielblock wird beim Spiel mit angeboten */
+function variantenNorm(v){
+  const aus = [], schon = new Set();
+  for (const x of Array.isArray(v) ? v : []){
+    const t = String(x || '').trim().slice(0, 60), k = nameSchluessel(t);
+    if (!t || !k || schon.has(k)) continue;
+    schon.add(k); aus.push(t);
+  }
+  return aus.slice(0, 8);
+}
+/* alle Varianten eines Spiels – auch die, die ein anderer Haushalt bei seiner Ausgabe eingetragen hat */
+function variantenVon(sp){
+  const k = nameSchluessel(sp.name);
+  return variantenNorm([...(sp.varianten || []), ...alleSpiele().filter(x => nameSchluessel(x.name) === k).flatMap(x => x.varianten || [])]).filter(v => nameSchluessel(v) !== k);
+}
+const VARIANTEN_FAMILIEN = [
+  { passt:n => /^(ganzschonclever|doppeltsoclever|cleverhochdrei|clever4ever|cleverforever|thatsprettyclever|twiceasclever|clevercubed)/.test(n),
+    namen:['Ganz schön clever', 'Doppelt so clever', 'Clever hoch drei', 'Clever 4ever'] }
+];
+function variantenVorschlaege(name, schon){
+  const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
+  const f = VARIANTEN_FAMILIEN.find(x => x.passt(n) || x.passt(n2)); if (!f) return [];
+  const weg = new Set([n, n2, ...schon.map(nameSchluessel)]);
+  return f.namen.filter(x => !weg.has(nameSchluessel(x)));
 }
 function haushaltNorm(h){
   const g = {};
@@ -1807,7 +1899,7 @@ function passt(s, f){
   if (f.kategorien && f.kategorien.length && !s.kategorien.some(k => f.kategorien.includes(k))) return false;
   if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid) && !(verliehenAn(s) && f.haushalte.includes(verliehenAn(s).hid))) return false;
   if (f.ohne && f.ohne.includes(s.hid)) return false;
-  if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
+  if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, ...(s.varianten || []), s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
   return true;
 }
 function gruppieren(liste){
@@ -1859,10 +1951,10 @@ function karteHtml(s, kopien){
   // Verliehen: unter dem Haushalt, dem es gehört, steht, wo es gerade ist
   const beiZeile = k => { const v = verliehenAn(k); return v ? `<span class="karte-haushalt karte-bei">${ic('tausch')}<span>jetzt bei ${esc(v.hid === E.meinHaushalt ? 'euch' : verleihText(v))}</span></span>` : ''; };
   const hhZeile = k => `<span class="karte-haushalt">${figur(farbeVon(k.hid), 14)}${esc((D.haushalte[k.hid] || {}).name || '')}</span>${beiZeile(k)}`;
-  const v = verliehenAn(s);
+  const v = verliehenAn(s), varianten = variantenNorm([...(s.varianten || []), ...(kopien || []).flatMap(k => k.varianten || [])]).filter(x => nameSchluessel(x) !== nameSchluessel(s.name));
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
     <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${v ? `<span class="karte-verliehen">${ic('tausch')}${v.hid === E.meinHaushalt ? 'ausgeliehen' : 'verliehen'}</span>` : ''}</span>
-    <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${faktenHtml(s)}
+    <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${varianten.length ? `<span class="karte-varianten">＋ ${esc(varianten.join(' · '))}</span>` : ''}${faktenHtml(s)}
       ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
         : `<span class="karte-haushalte"><span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>${beiZeile(s)}</span>`}</span></button>`;
 }
@@ -1948,6 +2040,7 @@ function spielDetail(id){
   const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(sp)}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
     <h2 class="detail-name">${esc(sp.name)}</h2>
+    ${variantenVon(sp).length ? `<p class="detail-varianten">＋ Variante${variantenVon(sp).length > 1 ? 'n' : ''}: <b>${esc(variantenVon(sp).join(' · '))}</b></p>` : ''}
     <p class="detail-haushalt">${figur(farbe, 18)}${verliehenAn(sp) ? 'gehört' : 'steht bei'} ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `<button type="button" class="link-knopf" data-kopie="${esc(k.id)}">${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}</button>`).join(', ')}` : ''}</p>
     <div class="fakten-gross">
       <div><b>${esc(spielerText(sp))}</b><span>Spieler</span></div>
@@ -1978,7 +2071,7 @@ function spielDetail(id){
     if (v && v.dataset.verl === 'zurueck'){ spielAendern(sp, x => { delete x.verliehen; }, `${sp.name} zurück`); toast('Wieder zu Hause'); neuOeffnen(); }
     const g = e.target.closest('[data-gsp]');
     if (g && g.dataset.gsp === 'neu') partieSheet(sp, { danach:neuOeffnen });
-    if (g && g.dataset.gsp === 'block'){ s.schliessen(); setTimeout(() => punkteblockStart(sp), 240); }
+    if (g && g.dataset.gsp === 'block'){ s.schliessen(); setTimeout(() => punkteblockStart(sp, { variante:g.dataset.variante || '' }), 240); }
     if (g && g.dataset.gsp === 'bearbeiten'){ const p = allePartien().find(x => x.id === g.dataset.id && x.eigen); if (p) partieSheet(sp, { eintrag:p, danach:neuOeffnen }); }
   });
   if (!darfBearbeiten(sp.hid)) return;
@@ -2440,6 +2533,10 @@ function spielFormular(sp){
         { klasse:'leicht feld', standard:true, klein:esc(w.kategorien.join(', ')), kleinId:'form-kat-wahl' })}
     <label class="feld"><span class="feld-titel">Kurz erklärt</span><textarea class="eingabe" name="beschreibung" maxlength="600" placeholder="Worum geht es? z. B. Begriffe erklären, zeichnen und pantomimisch darstellen.">${esc(w.beschreibung)}</textarea></label>
     <label class="feld"><span class="feld-titel">Bemerkung</span><input class="eingabe" name="bemerkung" value="${esc(w.bemerkung)}" maxlength="120" placeholder="z. B. mit Erweiterung, verliehen an …"></label>
+    <div class="feld"><span class="feld-titel">Varianten</span>
+      <div data-varianten></div>
+      <div class="eingabe-reihe" style="margin-top:6px"><input class="eingabe" data-variante placeholder="z. B. Clever 4ever" maxlength="60" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button class="knopf zweit" type="button" data-variante-plus aria-label="Variante dazu">${ic('plus')}</button></div>
+      <p class="block-hinweis">Weitere Ausgaben zum selben Spiel. Sie stehen auf der Kachel – und gibt es für eine Variante einen eigenen Spielblock, startet er direkt beim Spiel.</p></div>
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Speichern</button></div>
   </form>`, { klasse:'gross', beimSchliessen:() => { if (vorschauUrl) setTimeout(() => URL.revokeObjectURL(vorschauUrl), 500); } });
   const form = $('form', s), datei = $('#foto-datei', s), feld = $('#foto-feld', s);
@@ -2534,6 +2631,27 @@ function spielFormular(sp){
     if (e.key === 'Enter'){ e.preventDefault(); if (feldVon(form, 'name').value.trim().length >= 2) $('[data-nachschlagen]', s).click(); }
   });
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'kat') $('#form-kat-wahl', s).textContent = e.detail.join(', '); });
+  // Varianten: eintippen oder Vorschlag antippen, mit ✕ wieder entfernen
+  let varianten = variantenNorm(w.varianten);
+  const variantenZeigen = () => {
+    const vs = variantenVorschlaege(feldVon(form, 'name').value, varianten);
+    $('[data-varianten]', s).innerHTML = (varianten.length ? `<div class="chips">${varianten.map((v, i) => `<button type="button" class="chip weg" data-variante-weg="${i}" aria-label="${esc(v)} entfernen">${esc(v)}${ic('x')}</button>`).join('')}</div>` : '')
+      + (vs.length ? `<div class="chips" style="margin-top:6px">${vs.map(v => `<button type="button" class="chip vorschlag-chip" data-variante-dazu="${esc(v)}">+ ${esc(v)}</button>`).join('')}</div>` : '');
+  };
+  const varianteDazu = text => {
+    const v = String(text || '').trim(); if (!v) return;
+    if (nameSchluessel(v) === nameSchluessel(feldVon(form, 'name').value)){ toast('Das ist der Name des Spiels selbst.', 'fehler'); return; }
+    varianten = variantenNorm([...varianten, v]); variantenZeigen();
+  };
+  variantenZeigen();
+  $('[data-varianten]', s).addEventListener('click', e => {
+    const weg = e.target.closest('[data-variante-weg]'), dazu = e.target.closest('[data-variante-dazu]');
+    if (weg){ varianten.splice(Number(weg.dataset.varianteWeg), 1); variantenZeigen(); }
+    if (dazu) varianteDazu(dazu.dataset.varianteDazu);
+  });
+  $('[data-variante-plus]', s).addEventListener('click', () => { const f = $('[data-variante]', s); varianteDazu(f.value); f.value = ''; });
+  $('[data-variante]', s).addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('[data-variante-plus]', s).click(); } });
+  feldVon(form, 'name').addEventListener('input', () => variantenZeigen());
   // Gibt es das Spiel schon bei einem anderen Haushalt? Dann Angaben (und Foto) übernehmen statt neu eintippen
   let uebernahme = null;
   const vorhandenEl = $('[data-vorhanden]', s);
@@ -2585,6 +2703,7 @@ function spielFormular(sp){
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
       beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
+      varianten: [...varianten, $('[data-variante]', s).value].filter(v => nameSchluessel(v) !== nameSchluessel(name)),
       link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : (w.bildQuelle || ''))),
       ...(!sp && uebernahme ? { anleitung:uebernahme.anleitung, wertung:uebernahme.wertung } : {}),
       bildPos: (neuesFoto || (w.bild && !fotoEntfernt)) ? pos : null,
@@ -3432,15 +3551,19 @@ function spielerName(pid){
 }
 function gespieltHtml(sp){
   if (!funktionAn('gespielt')) return '';
-  const liste = partienZu(sp.name);
+  const varianten = variantenVon(sp), k = nameSchluessel(sp.name);
+  const liste = [sp.name, ...varianten].flatMap(partienZu).sort((a, b) => b.datum.localeCompare(a.datum) || b.stand - a.stand);
+  const laeuft = (LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id) || (B && B.sid === sp.id);
+  const extra = laeuft || !meinHaushaltGueltig() ? [] : varianten.map(v => ({ v, x:spezialVon(vorlageFuer(v)) })).filter(o => o.x && o.x.k !== (spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || {}).k);
   return `<div class="anleitung">
     <p class="anleitung-kopf">${ic('pokal')}Gespielt</p>
     <p class="gespielt-zahl">${liste.length ? `${liste.length}× gespielt · zuletzt am ${datumText(liste[0].datum)}` : 'Noch nie gespielt'}</p>
     ${(() => { const w = wertungNorm(sp.wertung) || vorlageFuer(sp.name); return w && w.art !== 'gewinner' ? `<p class="wertung-text">${spezialVon(w) ? 'Spielblock' : 'Wertung'}: ${esc(wertungText(w))}</p>` : ''; })()}
     ${liste.length ? `<ul class="partien">${liste.slice(0, 6).map(p => `<li><span class="partie-datum">${datumText(p.datum)}</span>
-        <span class="partie-sieger">${partieErgebnisText(p)}</span>
+        <span class="partie-sieger">${nameSchluessel(p.name) !== k ? `<span class="partie-variante">${esc(p.name)}</span> ` : ''}${partieErgebnisText(p)}</span>
         ${p.eigen ? `<button class="knopf-rund" type="button" data-gsp="bearbeiten" data-id="${esc(p.id)}" aria-label="Partie ändern">${ic('stift')}</button>` : ''}</li>`).join('')}</ul>` : ''}
-    ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id ? 'Ganz-schön-clever-Block weiter' : B && B.sid === sp.id ? `${spezialVon(B.w) ? esc(spezialVon(B.w).t) : 'Punkteblock'} weiter` : `${esc((spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || { t:'Punkteblock' }).t)} starten`}</button>
+    ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id ? `${liveBlockName(D.runden[LIVE.id])} weiter` : B && B.sid === sp.id ? `${spezialVon(B.w) ? esc(spezialVon(B.w).t) : 'Punkteblock'} weiter` : `${esc((spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || { t:'Punkteblock' }).t)} starten`}</button>
+      ${extra.map(o => `<button class="knopf breit" type="button" data-gsp="block" data-variante="${esc(o.v)}" style="margin-top:8px">${ic('pokal')}${esc(o.x.t)} starten</button>`).join('')}
       <button class="knopf zweit breit" type="button" data-gsp="neu" style="margin-top:8px">${ic('plus')}Nur Gewinner nachtragen</button>` : ''}
   </div>`;
 }
@@ -3452,7 +3575,10 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
   const vor = eintrag ? eintrag.gewinner : [];
   const anwesend = new Set(R.anwesend || []);
   const gruppen = gewinnerGruppen().map(g => ({ ...g, leute:anwesend.size && !eintrag ? [...g.leute].sort((a, b) => (anwesend.has(b.pid) ? 1 : 0) - (anwesend.has(a.pid) ? 1 : 0)) : g.leute }));
+  const namen = [sp.name, ...variantenVon(sp)];
+  const name0 = (eintrag && namen.find(n => nameSchluessel(n) === nameSchluessel(eintrag.name))) || (eintrag ? eintrag.name : sp.name);
   const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Gespielt: ${esc(sp.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${namen.length > 1 ? `<div class="feld"><span class="feld-titel">Was wurde gespielt?</span>${chipsHtml('p-variante', namen.map(n => ({ w:n, t:n })), [name0], { mehrfach:false, pflicht:true })}</div>` : ''}
     <label class="feld"><span class="feld-titel">Wann?</span><input class="eingabe" type="date" name="datum" value="${esc(eintrag ? eintrag.datum : (datum || heute()))}"></label>
     <div class="feld"><span class="feld-titel">Wer hat gewonnen?</span>
       ${gruppen.map(g => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(g.h.farbe, 14)}${esc(g.h.name)}</p>
@@ -3469,10 +3595,11 @@ function partieSheet(sp, { datum = '', tid = '', eintrag = null, danach = null }
     const tt = D.termine[eintrag ? eintrag.tid : tid];
     const kreis = eintrag && eintrag.kreis ? eintrag.kreis
       : kreisVorschlag(kreisKandidaten([...new Set([...partieHaushalte(mein.id, [...((eintrag && eintrag.mit) || []), ...gewinner]), ...(tt ? tt.haushalte : [])])]));
-    const p = partieNorm({ ...(eintrag || {}), kreis, id:eintrag ? eintrag.id : neueId('g'), datum:d, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
+    const name = (namen.length > 1 && gewaehlteChips($('[data-gruppe="p-variante"]', s))[0]) || name0;
+    const p = partieNorm({ ...(eintrag || {}), kreis, id:eintrag ? eintrag.id : neueId('g'), datum:d, name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, gewinner, tid:eintrag ? eintrag.tid : tid, stand:Date.now() });
     mein.partien = [...(mein.partien || []).filter(x => x.id !== p.id), p];
     toast(gewinner.length ? `Eingetragen – 🏆 ${gewinner.map(spielerName).join(', ')}` : 'Eingetragen');
-    fertig(`${sp.name} gespielt`);
+    fertig(`${name} gespielt`);
   });
   const weg = $('[data-weg]', s);
   if (weg) weg.addEventListener('click', () => {
@@ -3498,7 +3625,7 @@ function rueckblickHtml(){
   for (const p of partien){ const k = nameSchluessel(p.name), x = zaehl.get(k) || { name:p.name, n:0 }; x.n++; zaehl.set(k, x); }
   const meist = [...zaehl.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'de')).slice(0, 5);
   const zl = zuletztMap();
-  const lange = gruppieren(alleSpiele()).map(g => ({ name:g.haupt.name, d:zl.get(nameSchluessel(g.haupt.name)) || '' }))
+  const lange = gruppieren(alleSpiele()).map(g => ({ name:g.haupt.name, d:[g.haupt.name, ...variantenVon(g.haupt)].map(n => zl.get(nameSchluessel(n)) || '').sort().pop() }))
     .sort((a, b) => a.d.localeCompare(b.d) || a.name.localeCompare(b.name, 'de')).slice(0, 5);
   const siege = new Map(); for (const p of partien) for (const pid of p.gewinner) siege.set(pid, (siege.get(pid) || 0) + 1);
   const sieger = [...siege.entries()].map(([pid, n]) => ({ name:spielerName(pid), n })).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'de')).slice(0, 5);
@@ -3640,7 +3767,7 @@ function blockErgebnis(){
   const best = wenigGewinnt(B.w) ? Math.min(...werte) : Math.max(...werte);
   return { gewinner:B.mit.filter(p => sum[p.pid] === best).map(p => p.pid), punkte:sum, plaetze:{} };
 }
-async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
+async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '' } = {}){
   if (!meinHaushaltGueltig()){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
   if (LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id){ gscZeigen(); return; }
   if (B){
@@ -3648,26 +3775,34 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     if (!await frage('Neuen Punkteblock anfangen?', `Für „${B.name}“ läuft noch ein Punkteblock. Er wird dabei verworfen.`, 'Neu anfangen')) { punkteblockZeigen(); return; }
     B = null; blockSpeichern();
   }
-  const erkannt = vorlageFuer(sp.name);
-  const w0 = { grenze:100, sieger:'tief', ...(wertungNorm(sp.wertung) || erkannt || { art:'gewinner' }) };
+  // Varianten (z. B. „Clever 4ever“ bei „Ganz schön clever“): erst wählen, was gespielt wird – danach richten sich die Wertungen
+  const namen = [sp.name, ...variantenVon(sp)];
+  let spielName = namen.find(n => nameSchluessel(n) === nameSchluessel(variante)) || sp.name;
+  const startWertung = name => ({ grenze:100, sieger:'tief', ...((name === sp.name ? wertungNorm(sp.wertung) : null) || vorlageFuer(name) || { art:'gewinner' }) });
   // Spezieller Spielblock: der gemerkte oder der am Namen erkannte – er steht dann vorne in der Auswahl
-  const nk = nameSchluessel(sp.name), nk2 = nk.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
-  const spezAlle = [...new Set([spezialVon(w0), ...SPEZIAL.filter(x => x.passt(nk) || x.passt(nk2))].filter(Boolean))];
-  const arten = [...spezAlle.map(x => ({ k:x.k, t:'🎲 ' + x.t, b:x.b })), ...WERTUNGEN];
+  const artenFuer = (name, w) => {
+    const nk = nameSchluessel(name), nk2 = nk.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
+    const spezAlle = [...new Set([spezialVon(w), ...SPEZIAL.filter(x => x.passt(nk) || x.passt(nk2))].filter(Boolean))];
+    return [...spezAlle.map(x => ({ k:x.k, t:'🎲 ' + x.t, b:x.b })), ...WERTUNGEN];
+  };
+  const w0 = startWertung(spielName);
+  let arten = artenFuer(spielName, w0);
   const anwesend = new Set(R.anwesend || []);
   const gruppen = gewinnerGruppen();
-  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Punkteblock: ${esc(sp.name)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <div class="feld"><span class="feld-titel">Wie wird gewertet?</span>${chipsHtml('pb-art', arten.map(w => ({ w:w.k, t:w.t })), [w0.art], { mehrfach:false, pflicht:true })}
-      <p class="block-hinweis" data-art-text style="margin-top:6px">${esc((arten.find(w => w.k === w0.art) || arten[0]).b)}</p></div>
+  const artFeld = (w) => `<span class="feld-titel">Wie wird gewertet?</span>${chipsHtml('pb-art', arten.map(x => ({ w:x.k, t:x.t })), [w.art], { mehrfach:false, pflicht:true })}
+      <p class="block-hinweis" data-art-text style="margin-top:6px">${esc((arten.find(x => x.k === w.art) || arten[0]).b)}</p>`;
+  const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Punkteblock: <span data-pb-titel>${esc(spielName)}</span></h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${namen.length > 1 ? `<div class="feld"><span class="feld-titel">Was wird gespielt?</span>${chipsHtml('pb-variante', namen.map(n => ({ w:n, t:n })), [spielName], { mehrfach:false, pflicht:true })}</div>` : ''}
+    <div class="feld" data-art-feld>${artFeld(w0)}</div>
     <div data-grenze${w0.art === 'grenze' ? '' : ' hidden'}>
       <label class="feld"><span class="feld-titel">Grenze (Punkte)</span><input class="eingabe" type="number" name="grenze" value="${w0.grenze}" min="1"></label>
       <div class="feld"><span class="feld-titel">Wer gewinnt, wenn jemand die Grenze erreicht?</span>${chipsHtml('pb-sieger', [{ w:'tief', t:'Wenigste Punkte' }, { w:'hoch', t:'Meiste Punkte' }], [w0.sieger], { mehrfach:false, pflicht:true })}</div></div>
-    <div data-gsc-opt${w0.art === 'gsc' ? '' : ' hidden'}>
+    <div data-gsc-opt${w0.art === 'gsc' || w0.art === 'c4' ? '' : ' hidden'}>
       <div class="feld"><span class="feld-titel">Wo wird gespielt?</span>${chipsHtml('gsc-modus', [{ w:'jeder', t:'Jeder auf seinem Handy' }, { w:'eins', t:'Alle auf diesem Gerät' }], ['jeder'], { mehrfach:false, pflicht:true })}
         <p class="block-hinweis" style="margin-top:6px" data-gsc-modus-text>Die anderen tippen in ihrer App auf „Mitspielen“ – die Blätter werden laufend abgeglichen, jeder sieht die Punkte der anderen.</p></div>
       <div class="feld" data-gsc-ich-feld><span class="feld-titel">Wer bist du?</span><div class="chips" data-gruppe="gsc-ich" data-mehrfach="0" data-pflicht="1" data-gsc-ich></div></div>
     </div>
-    ${darfBearbeiten(sp.ausgeliehenVon || sp.hid) ? `<label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="merken" ${sp.wertung ? '' : 'checked'} style="width:22px;height:22px">Diese Wertung für „${esc(sp.name)}“ merken</label>` : ''}
+    ${darfBearbeiten(sp.ausgeliehenVon || sp.hid) ? `<div data-merken-feld${spielName === sp.name ? '' : ' hidden'}><label class="feld" style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="merken" ${sp.wertung ? '' : 'checked'} style="width:22px;height:22px">Diese Wertung für „${esc(sp.name)}“ merken</label></div>` : ''}
     <div class="feld"><span class="feld-titel">Wer spielt mit?</span>
       ${gruppen.map(g => `<div class="spieler-gruppe"><p class="spieler-hh">${figur(g.h.farbe, 14)}${esc(g.h.name)}</p>
         <div class="chips" data-gruppe="pb-mit" data-mehrfach="1">${g.leute.map(p => `<button type="button" class="chip anw-chip" style="--hf:${esc(g.h.farbe)}" data-wert="${esc(p.pid)}" data-name="${esc(p.name)}" data-farbe="${esc(g.h.farbe)}" aria-pressed="${anwesend.has(p.pid)}">${esc(p.name)}</button>`).join('')}</div></div>`).join('')}
@@ -3678,11 +3813,20 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     ${nurEintragenAnbieten ? `<button class="knopf rahmen breit" type="button" data-nur style="margin-top:10px">Ohne Punkte – nur als gespielt eintragen</button>` : ''}
   </form>`, { klasse:'gross' });
   const f = $('form', s);
-  s.addEventListener('wahl', e => {
-    if (e.target.dataset.gruppe !== 'pb-art') return;
-    const art = e.detail[0]; $('[data-art-text]', s).textContent = (arten.find(w => w.k === art) || {}).b || '';
+  const artGewaehlt = art => {
+    $('[data-art-text]', s).textContent = (arten.find(w => w.k === art) || {}).b || '';
     $('[data-grenze]', s).hidden = art !== 'grenze';
-    $('[data-gsc-opt]', s).hidden = art !== 'gsc';
+    $('[data-gsc-opt]', s).hidden = art !== 'gsc' && art !== 'c4';
+  };
+  s.addEventListener('wahl', e => {
+    if (e.target.dataset.gruppe === 'pb-art') artGewaehlt(e.detail[0]);
+    if (e.target.dataset.gruppe === 'pb-variante'){
+      spielName = e.detail[0] || sp.name;
+      const w = startWertung(spielName); arten = artenFuer(spielName, w);
+      $('[data-art-feld]', s).innerHTML = artFeld(w); artGewaehlt(w.art);
+      $('[data-pb-titel]', s).textContent = spielName;
+      const mk = $('[data-merken-feld]', s); if (mk) mk.hidden = spielName !== sp.name;
+    }
   });
   // Ganz schön clever: „Wer bist du?“ aus den angetippten Spielern des eigenen Haushalts
   const ichZeigen = () => {
@@ -3728,7 +3872,7 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
   });
   $('[data-gaeste]', s).addEventListener('click', () => setTimeout(() => { sichtbarZeigen(); ichZeigen(); }, 0));
   const nur = $('[data-nur]', s);
-  if (nur) nur.addEventListener('click', () => { const mit = gewaehlteMit(); s.schliessen(); if (heuteGespielt(sp, mit, kreisWahl || '')) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.'); });
+  if (nur) nur.addEventListener('click', () => { const mit = gewaehlteMit(); s.schliessen(); if (heuteGespielt({ ...sp, name:spielName }, mit, kreisWahl || '')) toast('Als gespielt eingetragen – den Gewinner kannst du beim Spiel nachtragen.'); });
   f.addEventListener('submit', e => {
     e.preventDefault();
     const art = gewaehlteChips($('[data-gruppe="pb-art"]', s))[0] || 'gewinner';
@@ -3738,13 +3882,13 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false } = {}){
     if (mit.length < min){ toast(min === 1 ? 'Bitte antippen, wer mitspielt.' : `Bitte mindestens ${min === 2 ? 'zwei' : min === 3 ? 'drei' : min} Mitspieler antippen.`, 'fehler'); return; }
     if (mit.length > max){ toast(`${sx.t}: höchstens ${max} Mitspieler.`, 'fehler'); return; }
     const merken = feldVon(f, 'merken');
-    if (merken && merken.checked) spielAendern({ ...sp, hid:sp.ausgeliehenVon || sp.hid }, x => { x.wertung = w; }, `${sp.name}: Wertung`);
-    if (art === 'gsc'){
+    if (merken && merken.checked && spielName === sp.name) spielAendern({ ...sp, hid:sp.ausgeliehenVon || sp.hid }, x => { x.wertung = w; }, `${sp.name}: Wertung`);
+    if (art === 'gsc' || art === 'c4'){
       const modus = gewaehlteChips($('[data-gruppe="gsc-modus"]', s))[0] || 'jeder';
       const ich = modus === 'eins' ? '' : (gewaehlteChips($('[data-gsc-ich]', s))[0] || '');
-      s.schliessen(); setTimeout(() => gscStarten({ sp, mit, modus, ich, kreis:kreisWahl || '' }), 240); return;
+      s.schliessen(); setTimeout(() => gscStarten({ sp:{ ...sp, name:spielName }, mit, modus, ich, kreis:kreisWahl || '', art }), 240); return;
     }
-    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:sp.name, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{} };
+    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:spielName, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{} };
     blockSpeichern(); s.schliessen(); setTimeout(punkteblockZeigen, 240);
   });
 }
@@ -3925,6 +4069,167 @@ function gscFehler(s, a){
   return '';
 }
 
+/* ---------- Clever 4ever: der Original-Block zum Antippen ----------
+   Wie bei „Ganz schön clever“: jedes Blatt ist eine Liste von Einträgen (log), daraus ergibt sich alles andere.
+   Gelb: 3 Zeilen (oben steigend, Mitte zählt minus, unten plus, fertige Spalten zählen extra) · Blau: Zeile = blauer, Spalte = weißer Würfel
+   Grau: ganze Teilbereiche ankreuzen · Grün: obere und untere Dreiecke, beide gefüllt = Punkte (ab Feld 4 doppelt) · Rosa: Leiste mit Effekten je Zahl */
+const C4 = {
+  runden:['NW', 'P1', 'SP', '?:schwarz', '', ''],
+  leisten:{ nw:7, p1:7, sp:9 },
+  gelb:{ oben:['', 'SP', '?:grau', '?:gruen', 'F'], mitte:['NW', '?:rosa', '?:blau', 'P1', '?:gelb'], spalten:[10, 10, 15, 15, 20] },
+  blau:{ reihen:['?:gruen', '?:rosa', '?:gelb', 'P1', '?:grau', 'F'], diag:'NW', spalten:[7, 8, 9, 10, 11, 12], gegen:6 },
+  grau:{ feld:['DWWLLLLWWLLDLLDD', 'LWWDDDLWWWLDLWDD', 'LLWLLDWDDLLWLWWD', 'LDDLDDWDDLWWLWLD'],     // W weiß, L hellgrau, D dunkelgrau
+    boni:{ '0-0':'SP', '0-5':'?:gruen', '1-7':'NW', '2-3':'?:rosa', '2-5':'SP', '3-0':'NW', '3-7':'P1', '0-12':'SP', '1-15':'?:gruen', '2-9':'SP', '2-13':'?:blau', '3-11':'?:gelb', '3-14':'SP' },
+    spalten:[1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11], start:['0-0', '1-0'] },
+  gruen:{ boni:['NW', '?:blau', 'SP', '?:gelb', '?:grau', 'P1', '?:rosa', '?:blau', '?:gelb', 'F', 'P1'] },
+  rosa:{ punkte:[2, 4, 6, 9, 12, 15, 19, 23, 27, 32, 37, 42], boni:['SP', '', '?:gruen', 'P1', 'NW', '', '?:grau', 'F', '', '?:blau', '', '?:gelb'], kreis:{ 2:2, 4:4, 6:3 } }
+};
+const C4_FARBEN = { gelb:{ t:'Gelb', c:'#e2b100' }, blau:{ t:'Blau', c:'#4a8ff0' }, grau:{ t:'Grau', c:'#8f97a3' }, gruen:{ t:'Grün', c:'#3fb44f' }, rosa:{ t:'Rosa', c:'#e0609f' } };
+const C4_TOENE = { W:'weiß', L:'hellgrau', D:'dunkelgrau' };
+const C4_AKTION = { nw:'Nachwürfeln', p1:'Zusatzwürfel', sp:'Silber polieren' };
+/* Teilbereiche im grauen Bereich: zusammenhängende Felder gleicher Farbe */
+const C4_TEILE = (() => {
+  const f = C4.grau.feld, teil = {}, liste = [];
+  for (let c = 0; c < 16; c++) for (let r = 0; r < 4; r++){
+    if (teil[r + '-' + c] != null) continue;
+    const ton = f[r][c], id = liste.length, felder = [], stapel = [[r, c]];
+    teil[r + '-' + c] = id;
+    while (stapel.length){
+      const [y, x] = stapel.pop(); felder.push(y + '-' + x);
+      for (const [dy, dx] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+        const yy = y + dy, xx = x + dx, k = yy + '-' + xx;
+        if (yy < 0 || yy > 3 || xx < 0 || xx > 15 || teil[k] != null || f[yy][xx] !== ton) continue;
+        teil[k] = id; stapel.push([yy, xx]);
+      }
+    }
+    liste.push({ id, ton, felder });
+  }
+  return { teil, liste };
+})();
+function c4Bonus(b){ const [art, farbe] = String(b || '').split(':'); return { art, farbe:farbe || '' }; }
+function c4BonusText(b){
+  const x = c4Bonus(b);
+  if (x.art === '?') return x.farbe === 'schwarz' ? 'Wunschzahl, Farbe frei' : `Wunschzahl in ${C4_FARBEN[x.farbe].t}`;
+  return { NW:'Nachwürfeln', P1:'Zusatzwürfel', SP:'Silber polieren', F:'Fuchs' }[x.art] || '';
+}
+function c4Badge(b, an, klein){
+  if (!b) return `<span class="gsc-b leer${klein ? ' mini' : ''}"></span>`;
+  const x = c4Bonus(b), kl = x.art === '?' ? 'c4b-' + x.farbe : { NW:'gsc-schwarz', P1:'gsc-schwarz', SP:'c4b-silber', F:'gsc-fuchs' }[x.art];
+  const inhalt = x.art === '?' ? '?' : { NW:'↻', P1:'+1', SP:'', F:'🦊' }[x.art];
+  return `<span class="gsc-b ${kl}${an ? ' an' : ''}${klein ? ' mini' : ''}" title="${esc(c4BonusText(b))}">${inhalt}</span>`;
+}
+function c4Stand(log){
+  const s = { runde:0, gelb:[[], [], []], blau:new Set(), grau:new Set(), gruen:{ o:[], u:[] }, rosa:[], nw:[0, 0], p1:[0, 0], sp:[0, 0], fuechse:0, bonus:[], benutzt:new Set() };
+  const geben = (id, b) => {
+    if (!b || s.bonus.some(x => x.id === id)) return;
+    s.bonus.push({ id, b });
+    if (b === 'F') s.fuechse++;
+    const k = { NW:'nw', P1:'p1', SP:'sp' }[b];
+    if (k && s[k][0] < C4.leisten[k]){
+      s[k][0]++;
+      if (k === 'nw' && s.nw[0] === C4.leisten.nw) geben('nw-voll', '?:rosa');   // Leiste Nachwürfeln voll: ? in Rosa
+    }
+  };
+  const blauZahl = zellen => zellen.filter(i => s.blau.has(i)).length;
+  for (const a of log || []){
+    if (!a || typeof a.t !== 'string') continue;
+    if (a.q) s.benutzt.add(a.q);
+    if (a.t === 'runde'){ s.runde++; geben('ru-' + s.runde, C4.runden[s.runde - 1]); }
+    else if (a.t === 'gelb'){
+      const z = s.gelb[a.z]; if (!z || z.length >= 5) continue;
+      z.push(a.v); const i = z.length - 1;
+      if (a.z === 0) geben('go-' + i, C4.gelb.oben[i]);
+      if (a.z === 1) geben('gm-' + i, C4.gelb.mitte[i]);
+    }
+    else if (a.t === 'blau'){
+      if (!(a.i >= 0 && a.i < 36)) continue;
+      s.blau.add(a.i); const r = Math.floor(a.i / 6);
+      if (blauZahl([0, 1, 2, 3, 4, 5].map(c => r * 6 + c)) >= 2) geben('br-' + r, C4.blau.reihen[r]);
+      if (blauZahl([0, 7, 14, 21, 28, 35]) >= 2) geben('bd', C4.blau.diag);
+    }
+    else if (a.t === 'grau'){
+      const t = C4_TEILE.liste[C4_TEILE.teil[a.f]]; if (!t) continue;
+      s.grau.add(t.id);
+      for (const k of t.felder) geben('gz-' + k, C4.grau.boni[k]);
+      for (const ton of ['W', 'L', 'D']) if (C4_TEILE.liste.filter(x => x.ton === ton).every(x => s.grau.has(x.id))) geben('gf-' + ton, 'F');
+    }
+    else if (a.t === 'gruen'){
+      const z = s.gruen[a.z === 'u' ? 'u' : 'o']; if (z.length >= 11) continue;
+      z.push(a.v);
+      if (a.z === 'u') geben('gu-' + (z.length - 1), C4.gruen.boni[z.length - 1]);
+    }
+    else if (a.t === 'rosa'){
+      if (s.rosa.length >= 12) continue;
+      s.rosa.push({ v:a.v }); const i = s.rosa.length - 1;
+      if (a.v >= 5) geben('ro-' + i, C4.rosa.boni[i]);
+      if (a.v === 3 && s.rosa.length < 12) s.rosa.push({ v:3, auto:true });          // eine 3 bringt gleich noch eine 3
+    }
+    else if (a.t === 'nw' || a.t === 'p1' || a.t === 'sp') s[a.t][1]++;
+  }
+  s.offen = s.bonus.filter(x => x.b.startsWith('?:') && !s.benutzt.has(x.id));
+  const summe = l => l.reduce((x, y) => x + y, 0), g = s.gelb;
+  const grauVoll = c => [0, 1, 2, 3].every(r => s.grau.has(C4_TEILE.teil[r + '-' + c]));
+  const p = { gelbPlus:summe(g[2]), gelbMinus:summe(g[1]), gelbSpalten:C4.gelb.spalten.reduce((a, w, c) => a + (g.every(z => z.length > c) ? w : 0), 0) };
+  p.gelb = p.gelbPlus + p.gelbSpalten - p.gelbMinus;
+  p.blau = C4.blau.spalten.reduce((a, w, c) => a + (blauZahl([0, 1, 2, 3, 4, 5].map(r => r * 6 + c)) >= 2 ? w : 0), 0) + (blauZahl([5, 10, 15, 20, 25, 30]) >= 2 ? C4.blau.gegen : 0);
+  p.grau = C4.grau.spalten.reduce((a, w, c) => a + (grauVoll(c) ? w : 0), 0);
+  p.gruen = s.gruen.o.reduce((a, v, i) => a + (s.gruen.u[i] != null ? (v + s.gruen.u[i]) * (i >= 3 ? 2 : 1) : 0), 0);
+  p.rosaLeiste = s.rosa.length ? C4.rosa.punkte[s.rosa.length - 1] : 0;
+  p.rosaKreise = s.rosa.reduce((a, x) => a + (x.auto ? 0 : C4.rosa.kreis[x.v] || 0), 0);
+  p.rosa = p.rosaLeiste + p.rosaKreise;
+  p.kleinste = Math.min(p.gelb, p.blau, p.grau, p.gruen, p.rosa); p.fuchs = s.fuechse * Math.max(0, p.kleinste);
+  p.gesamt = p.gelb + p.blau + p.grau + p.gruen + p.rosa + p.fuchs;
+  s.punkte = p;
+  return s;
+}
+function c4GrauNachbar(s, t){
+  return t.felder.some(k => { const [r, c] = k.split('-').map(Number);
+    return [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dy, dx]) => { const n = C4_TEILE.teil[(r + dy) + '-' + (c + dx)]; return n != null && n !== t.id && s.grau.has(n); }); });
+}
+/* Welche Teilbereiche dürfen als Nächstes angekreuzt werden? */
+function c4GrauMoeglich(s){
+  return C4_TEILE.liste.filter(t => !s.grau.has(t.id) && (s.grau.size ? c4GrauNachbar(s, t) : C4.grau.start.some(k => C4_TEILE.teil[k] === t.id)));
+}
+function c4GrauFehler(s, f, v){
+  const t = C4_TEILE.liste[C4_TEILE.teil[f]]; if (!t) return 'Dieses Feld gibt es nicht.';
+  if (s.grau.has(t.id)) return 'Dieser Teilbereich ist schon angekreuzt.';
+  if (!s.grau.size && !C4.grau.start.some(k => C4_TEILE.teil[k] === t.id)) return 'Fang mit einem der beiden rot umrandeten Teilbereiche ganz links an.';
+  if (s.grau.size && !c4GrauNachbar(s, t)) return 'Der Teilbereich muss waagerecht oder senkrecht an ein Kreuz angrenzen.';
+  if (v != null && v < t.felder.length) return `Der Teilbereich hat ${t.felder.length} Felder – dafür brauchst du mindestens eine ${t.felder.length}.`;
+  return '';
+}
+function c4Frei(s, farbe){
+  if (farbe === 'gelb') return s.gelb.some((z, i) => z.length < 5 && !(i === 0 && z[z.length - 1] === 6));
+  if (farbe === 'blau') return s.blau.size < 36;
+  if (farbe === 'grau') return c4GrauMoeglich(s).length > 0;
+  if (farbe === 'gruen') return s.gruen.o.length < 11 || s.gruen.u.length < 11;
+  if (farbe === 'rosa') return s.rosa.length < 12;
+  return false;
+}
+/* Ist ein Eintrag erlaubt? Sonst ein Hinweis, was nicht passt. (v darf fehlen – dann wird nur geprüft, ob das Feld überhaupt geht) */
+function c4Fehler(s, a){
+  if (a.q){
+    const o = s.offen.find(x => x.id === a.q); if (!o) return 'Dieser Bonus ist schon verbraucht.';
+    const fb = c4Bonus(o.b).farbe; if (fb !== 'schwarz' && a.t !== 'verfall' && fb !== a.t) return `Dieser Bonus gilt für ${C4_FARBEN[fb].t}.`;
+  }
+  if (a.t === 'gelb'){
+    const z = s.gelb[a.z]; if (!z) return 'Diese Zeile gibt es nicht.';
+    if (z.length >= 5) return 'Diese Zeile ist schon voll.';
+    if (a.z === 0 && z.length){
+      const vor = z[z.length - 1];
+      if (vor === 6) return 'Nach einer 6 ist die obere Zeile beendet.';
+      if (a.v != null && a.v <= vor) return `Die Zahl muss höher sein als die ${vor} davor.`;
+    }
+    return '';
+  }
+  if (a.t === 'blau') return s.blau.has(a.i) ? 'Dieses Feld ist schon angekreuzt.' : '';
+  if (a.t === 'grau') return c4GrauFehler(s, a.f, a.v);
+  if (a.t === 'gruen') return s.gruen[a.z === 'u' ? 'u' : 'o'].length >= 11 ? `Die ${a.z === 'u' ? 'untere' : 'obere'} Reihe ist schon voll.` : '';
+  if (a.t === 'rosa') return s.rosa.length >= 12 ? 'Rosa ist schon voll.' : '';
+  if (a.t === 'nw' || a.t === 'p1' || a.t === 'sp') return s[a.t][0] > s[a.t][1] ? '' : `Kein „${C4_AKTION[a.t]}“ mehr frei.`;
+  return '';
+}
+
 /* ---------- Laufende Partien (Ganz schön clever): eine Datei je Partie (daten/runde-<id>.json) ----------
    Jedes Gerät schreibt nur die Blätter, die es selbst spielt; beim Zusammenführen gewinnt je Blatt der neuere Stand.
    Solange das Blatt offen ist, schaut die App alle paar Sekunden nach, was die anderen eingetragen haben. */
@@ -3936,7 +4241,8 @@ function rundeNorm(r){
   const bl = {};
   if (r.blaetter && typeof r.blaetter === 'object') for (const [pid, b] of Object.entries(r.blaetter)) if (b && Array.isArray(b.log))
     bl[pid] = { log:b.log.filter(a => a && typeof a.t === 'string').slice(0, 500), stand:zahl(b.stand) || 0, geraet:String(b.geraet || '') };
-  return { ...unbekannte(r, RUNDE_FELDER), id:String(r.id), art:'gsc', name:String(r.name || 'Ganz schön clever').slice(0, 80), sid:String(r.sid || ''), shid:String(r.shid || ''),
+  const art = r.art === 'c4' ? 'c4' : 'gsc';
+  return { ...unbekannte(r, RUNDE_FELDER), id:String(r.id), art, name:String(r.name || (art === 'c4' ? 'Clever 4ever' : 'Ganz schön clever')).slice(0, 80), sid:String(r.sid || ''), shid:String(r.shid || ''),
     hid:String(r.hid || ''), geraet:String(r.geraet || ''), datum:/^\d{4}-\d{2}-\d{2}$/.test(r.datum || '') ? r.datum : heute(), start:zahl(r.start) || 0, kreis:String(r.kreis || ''),
     mit:(Array.isArray(r.mit) ? r.mit : []).filter(p => p && p.pid).map(p => ({ pid:String(p.pid), name:String(p.name || '?').slice(0, 30), farbe:String(p.farbe || '#8A93A0') })).slice(0, 4),
     modus:r.modus === 'eins' ? 'eins' : 'jeder', blaetter:bl, ende:!!r.ende, endeStand:zahl(r.endeStand) || 0, gespeichert:!!r.gespeichert, stand:zahl(r.stand) || 0 };
@@ -3945,7 +4251,7 @@ function rundeMischen(a, b){
   const A = rundeNorm(a), Z = rundeNorm(b), kopf = A.stand >= Z.stand ? A : Z, e = A.endeStand >= Z.endeStand ? A : Z;
   const bl = { ...Z.blaetter };
   for (const [pid, x] of Object.entries(A.blaetter)) if (!bl[pid] || x.stand > bl[pid].stand) bl[pid] = x;
-  return rundeNorm({ ...unbekannte(Z, RUNDE_FELDER), ...unbekannte(A, RUNDE_FELDER), ...kopf, blaetter:bl, ende:e.ende, endeStand:e.endeStand,
+  return rundeNorm({ ...unbekannte(Z, RUNDE_FELDER), ...unbekannte(A, RUNDE_FELDER), ...kopf, art:A.art === 'c4' || Z.art === 'c4' ? 'c4' : 'gsc', blaetter:bl, ende:e.ende, endeStand:e.endeStand,
     gespeichert:A.gespeichert || Z.gespeichert, stand:Math.max(A.stand, Z.stand) });
 }
 function rundenWarten(){ return Object.entries(D.metaR || {}).some(([id, m]) => m.dirty && D.runden[id] && !D.runden[id].lokal); }
@@ -4043,6 +4349,9 @@ async function rundenAufraeumen(){
   }
 }
 function gscDarf(r, pid){ const b = r.blaetter[pid]; return r.modus === 'eins' || (!!b && b.geraet === E.geraetId); }
+/* Stand eines Blatts – je nach Spiel (Ganz schön clever oder Clever 4ever) */
+function liveStand(r, pid){ const log = ((r.blaetter || {})[pid] || { log:[] }).log; return r.art === 'c4' ? c4Stand(log) : gscStand(log); }
+function liveBlockName(r){ return r && r.art === 'c4' ? 'Clever-4ever-Block' : 'Ganz-schön-clever-Block'; }
 function gscIstGastgeber(r){ return r.geraet === E.geraetId || r.modus === 'eins'; }
 /* Kann ich bei einer Partie mitspielen? (ein Spieler meines Haushalts, dessen Blatt noch kein Gerät hat) */
 function gscMitspielbar(r){
@@ -4055,7 +4364,7 @@ function liveHinweisZeigen(){
   const r = LIVE && D.runden[LIVE.id];
   if (LIVE && !r){ LIVE = null; liveSpeichern(); }
   if (r){
-    const s = gscStand((r.blaetter[LIVE.pid] || { log:[] }).log);
+    const s = liveStand(r, LIVE.pid);
     el.innerHTML = `<div class="hinweis pb-hinweis"><span>🎲 <b>${esc(r.name)}</b>${r.ende ? ' · Spielende' : ` · Runde ${s.runde} · ${s.punkte.gesamt} Punkte`}</span>
       <button class="knopf" type="button" data-live-weiter style="min-height:38px;padding:0 14px;flex:none">${r.ende ? 'Ergebnis' : 'Weiter'}</button></div>`;
     $('[data-live-weiter]', el).addEventListener('click', () => gscZeigen());
@@ -4091,13 +4400,13 @@ async function gscMitspielen(id){
     <div class="chips">${kandidaten.map(p => `<button type="button" class="chip anw-chip" data-wer="${esc(p.pid)}"${frei.includes(p) ? '' : ' style="opacity:.6"'}>${esc(p.name)}${frei.includes(p) ? '' : ' (spielt schon)'}</button>`).join('')}</div>`);
   s.addEventListener('click', e => { const b = e.target.closest('[data-wer]'); if (!b) return; s.schliessen(); setTimeout(() => nehmen(kandidaten.find(p => p.pid === b.dataset.wer)), 240); });
 }
-function gscStarten({ sp, mit, modus, ich, kreis }){
+function gscStarten({ sp, mit, modus, ich, kreis, art = 'gsc' }){
   const id = neueId('r'), jetzt = Date.now(), blaetter = {};
   for (const p of mit){
     const hier = modus === 'eins' || p.pid === ich || p.pid.startsWith('gast:');
     blaetter[p.pid] = { log:[{ t:'runde' }], stand:jetzt, geraet:hier ? E.geraetId : '' };
   }
-  D.runden[id] = { ...rundeNorm({ id, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, hid:E.meinHaushalt, geraet:E.geraetId, datum:heute(), start:jetzt, kreis, mit, modus, blaetter, stand:jetzt }),
+  D.runden[id] = { ...rundeNorm({ id, art, name:sp.name, sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, hid:E.meinHaushalt, geraet:E.geraetId, datum:heute(), start:jetzt, kreis, mit, modus, blaetter, stand:jetzt }),
     ...(modus === 'eins' ? { lokal:true } : {}) };
   // Zuerst das Blatt des Geräte-Besitzers zeigen (zuletzt gewählter Name), sonst das erste
   const zuerst = ich || (mit.find(p => p.name === E.ichName) || mit[0]).pid;
@@ -4132,6 +4441,7 @@ function gscZeigen(){
 function gscHtml(){
   const r = D.runden[LIVE.id]; if (!r) return '';
   if (!r.mit.some(p => p.pid === GSCUI.pid)) GSCUI.pid = r.mit[0].pid;
+  if (r.art === 'c4') return c4Html(r);
   const pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = gscStand(bl.log), p = s.punkte;
   const darf = gscDarf(r, pid) && !r.ende, R = gscRundenZahl(r.mit.length), erreicht = id => s.bonus.some(x => x.id === id);
   if (GSCUI.modus && !s.offen.some(x => x.id === GSCUI.modus.q)) GSCUI.modus = null;
@@ -4199,11 +4509,13 @@ function gscHtml(){
   return kopf + runden + gelb + blau + gruen + orange + lila + summe + fuss;
 }
 function gscErgebnisHtml(r){
-  const zeilen = r.mit.map(x => ({ x, s:gscStand((r.blaetter[x.pid] || { log:[] }).log) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt);
+  const zeilen = r.mit.map(x => ({ x, s:liveStand(r, x.pid) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt);
   const best = zeilen.length ? zeilen[0].s.punkte.gesamt : 0;
+  const farben = r.art === 'c4' ? [['gelb', 'Ge', 'ge'], ['blau', 'Bl', 'bl'], ['grau', 'Gra', 'gra'], ['gruen', 'Grü', 'gr'], ['rosa', 'Ro', 'ro']]
+    : [['gelb', 'Ge', 'ge'], ['blau', 'Bl', 'bl'], ['gruen', 'Gr', 'gr'], ['orange', 'Or', 'or'], ['lila', 'Li', 'li']];
   return `<section class="gsc-bereich" style="--c:#4cc35a"><h3>Spielende</h3>
-    <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th><th style="color:var(--ge)">Ge</th><th style="color:var(--bl)">Bl</th><th style="color:var(--gr)">Gr</th><th style="color:var(--or)">Or</th><th style="color:var(--li)">Li</th><th>🦊</th><th>Σ</th></tr></thead>
-    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td><td>${p.gelb}</td><td>${p.blau}</td><td>${p.gruen}</td><td>${p.orange}</td><td>${p.lila}</td><td>${p.fuchs}</td><td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
+    <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th>${farben.map(([, t, c]) => `<th style="color:var(--${c})">${t}</th>`).join('')}<th>🦊</th><th>Σ</th></tr></thead>
+    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td>${farben.map(([k]) => `<td>${p[k]}</td>`).join('')}<td>${p.fuchs}</td><td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
     <p style="text-align:center;font-size:18px;margin:12px 0">🏆 ${esc(zeilen.filter(z => z.s.punkte.gesamt === best).map(z => z.x.name).join(', '))} mit ${best} Punkten</p>
     ${r.gespeichert ? '<p class="gsc-klein" style="text-align:center">✓ Das Ergebnis ist gespeichert.</p>'
       : '<button type="button" class="knopf breit" data-gsc="speichern">Ergebnis speichern</button><button type="button" class="knopf rahmen breit" data-gsc="weiterspielen" style="margin-top:8px">Doch weiterspielen</button>'}
@@ -4214,12 +4526,14 @@ function gscEintragen(a){
   const r = LIVE && D.runden[LIVE.id]; if (!r) return false;
   const pid = GSCUI.pid; if (!gscDarf(r, pid) || r.ende) return false;
   const bl = r.blaetter[pid] || (r.blaetter[pid] = { log:[{ t:'runde' }], stand:0, geraet:E.geraetId });
-  const vorher = gscStand(bl.log), fehler = gscFehler(vorher, a);
+  const c4 = r.art === 'c4', stand = c4 ? c4Stand : gscStand;
+  const vorher = stand(bl.log), fehler = (c4 ? c4Fehler : gscFehler)(vorher, a);
   if (fehler){ toast(fehler, 'fehler'); return false; }
   bl.log = [...bl.log, Object.fromEntries(Object.entries(a).filter(([, v]) => v !== undefined && v !== null && v !== ''))];
   bl.stand = Date.now();
-  const nachher = gscStand(bl.log), neu = nachher.bonus.filter(x => !vorher.bonus.some(y => y.id === x.id) && !x.id.startsWith('ru-'));
-  if (neu.length) toast('Bonus: ' + neu.map(x => gscBonusText(x.b)).join(', ') + '!');
+  if (a.q && GSCUI.modus && GSCUI.modus.q === a.q) GSCUI.modus = null;
+  const nachher = stand(bl.log), neu = nachher.bonus.filter(x => !vorher.bonus.some(y => y.id === x.id) && !x.id.startsWith('ru-'));
+  if (neu.length) toast('Bonus: ' + neu.map(x => (c4 ? c4BonusText : gscBonusText)(x.b)).join(', ') + '!');
   gscGeaendert(r, 'Eintrag');
   return true;
 }
@@ -4275,7 +4589,8 @@ async function gscKlick(e){
     gscNeuZeichnen(); return;
   }
   const pid = GSCUI.pid, darf = gscDarf(r, pid) && !r.ende, name = (r.mit.find(p => p.pid === pid) || {}).name || '';
-  const s = gscStand((r.blaetter[pid] || { log:[] }).log);
+  const s = liveStand(r, pid);
+  if (r.art === 'c4' && c4Klick(e, r, s, darf, name)) return;
   const zelle = e.target.closest('[data-gsc-zelle]'), feld = e.target.closest('[data-gsc-feld]'), bonus = e.target.closest('[data-gsc-bonus]'), knopf = e.target.closest('[data-gsc]');
   if ((zelle || feld || bonus) && !darf){ if (!r.ende) toast(`Das ist das Blatt von ${name} – nur zum Ansehen.`); return; }
   if (zelle){
@@ -4296,7 +4611,12 @@ async function gscKlick(e){
   const was = knopf.dataset.gsc;
   if (was === 'zu'){ GSCUI.s.schliessen(); return; }
   if (was === 'modus-weg'){ GSCUI.modus = null; gscNeuZeichnen(); return; }
-  if (was === 'nw' || was === 'p1'){ gscEintragen({ t:was }); return; }
+  if (was === 'nw' || was === 'p1' || was === 'sp'){ gscEintragen({ t:was }); return; }
+  if (was === 'verfall'){
+    const m = GSCUI.modus; if (!m) return;
+    if (await frage('Bonus verfallen lassen?', 'Wenn du ihn nicht nutzen kannst, wird er gestrichen.', 'Verfällt', false)) gscEintragen({ t:'verfall', q:m.q });
+    return;
+  }
   if (was === 'runde'){ gscEintragen({ t:'runde' }); return; }
   if (was === 'rueck'){
     const bl = r.blaetter[pid]; if (!bl || bl.log.length < 2) return;
@@ -4326,16 +4646,210 @@ async function gscKlick(e){
 }
 function gscErgebnisSpeichern(r){
   const mein = D.haushalte[E.meinHaushalt]; if (!mein){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
-  const punkte = Object.fromEntries(r.mit.map(x => [x.pid, gscStand((r.blaetter[x.pid] || { log:[] }).log).punkte.gesamt]));
+  const punkte = Object.fromEntries(r.mit.map(x => [x.pid, liveStand(r, x.pid).punkte.gesamt]));
   const best = Math.max(...Object.values(punkte));
   const p = partieNorm({ id:neueId('g'), datum:r.datum, name:r.name, sid:r.sid, shid:r.shid, gewinner:r.mit.filter(x => punkte[x.pid] === best).map(x => x.pid),
-    mit:r.mit.map(x => x.pid), punkte, wertung:{ art:'gsc' }, kreis:r.kreis, stand:Date.now() });
+    mit:r.mit.map(x => x.pid), punkte, wertung:{ art:r.art }, kreis:r.kreis, stand:Date.now() });
   const k = nameSchluessel(r.name);
   mein.partien = [...(mein.partien || []).filter(x => !(x.datum === p.datum && nameSchluessel(x.name) === k && !x.gewinner.length && !(x.mit || []).length)), p];
   markiere(mein.id, `${r.name} gespielt`);
   r.gespeichert = true; r.stand = Date.now();
   toast(`Gespeichert – 🏆 ${p.gewinner.map(spielerName).join(', ')}`);
   gscGeaendert(r, 'Ergebnis gespeichert'); syncBald();
+}
+
+/* ---------- Clever 4ever: das Blatt auf dem Bildschirm ---------- */
+const C4_MODUS = {
+  gelb:'Tippe in Gelb das nächste Feld einer Zeile – die Zahl wählst du frei.',
+  blau:'Tippe ein beliebiges freies Feld in Blau.',
+  grau:'Tippe in Grau einen Teilbereich, der angrenzt – die Zahl wählst du frei.',
+  gruen:'Tippe in Grün das nächste obere oder untere Dreieck – die Zahl wählst du frei.',
+  rosa:'Tippe in Rosa das nächste Feld – die Zahl wählst du frei.'
+};
+const C4_ROSA_INFO = { 1:'–', 2:'⭘ +2', 3:'+ noch eine 3', 4:'⭘ +4' };
+function c4Html(r){
+  const pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = c4Stand(bl.log), p = s.punkte;
+  const darf = gscDarf(r, pid) && !r.ende, R = gscRundenZahl(r.mit.length), hat = id => s.bonus.some(x => x.id === id);
+  if (GSCUI.modus && !s.offen.some(x => x.id === GSCUI.modus.q)) GSCUI.modus = null;
+  const modus = darf ? GSCUI.modus : null, ziel = f => !!modus && modus.farbe === f;
+  const sechs = [0, 1, 2, 3, 4, 5];
+  const kopf = `<div class="gsc-kopf">
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2><button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${liveStand(r, x.pid).punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`).join('')}</div>` : ''}
+    ${r.ende ? '' : `<div class="gsc-status"><span>Runde <b>${s.runde}</b> von ${R}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
+    ${!darf && !r.ende ? `<p class="gsc-nur-sehen">👁 Das Blatt von ${esc(ich ? ich.name : '')} – nur zum Ansehen${(r.blaetter[pid] || {}).geraet ? '' : ' (noch nicht mitgespielt)'}.</p>` : ''}
+    ${darf && s.offen.length ? `<div class="gsc-offen"><span>Bonus einlösen:</span>${s.offen.map(x => `<button type="button" class="gsc-chip${modus && modus.q === x.id ? ' an' : ''}" data-c4-bonus="${x.id}">${c4Badge(x.b, true)}${esc(c4BonusText(x.b))}</button>`).join('')}</div>` : ''}
+    ${modus ? `<div class="gsc-modus c4-modus"><span><b>${esc(c4BonusText((s.offen.find(x => x.id === modus.q) || {}).b))}</b>${modus.frei ? ` → ${C4_FARBEN[modus.farbe].t}` : ''}: ${C4_MODUS[modus.farbe]}</span>
+      <span class="c4-modus-knoepfe"><button type="button" class="knopf rahmen" data-gsc="verfall">Verfällt</button><button type="button" class="knopf rahmen" data-gsc="modus-weg">Abbrechen</button></span></div>` : ''}
+  </div>`;
+  if (r.ende) return kopf + gscErgebnisHtml(r);
+  // Runden und Aktionen
+  const kreise = k => Array.from({ length:C4.leisten[k] }, (_, i) => `<i class="${i < s[k][1] ? 'weg' : i < s[k][0] ? 'an' : ''}"></i>`).join('');
+  const akt = (k, badge) => `<div class="c4-akt">${badge}<div><small>${C4_AKTION[k]}</small><span class="gsc-kreise">${kreise(k)}${k === 'nw' ? c4Badge('?:rosa', hat('nw-voll'), true) : ''}</span></div>
+    ${darf ? `<button type="button" class="knopf zweit" data-gsc="${k}"${s[k][0] > s[k][1] ? '' : ' disabled'}>Nutzen (${s[k][0] - s[k][1]})</button>` : `<b>${s[k][0] - s[k][1]}</b>`}</div>`;
+  const runden = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-runden">${sechs.map(i => {
+      const nr = i + 1; return `<span class="gsc-rd${nr < s.runde ? ' vorbei' : nr === s.runde ? ' jetzt' : ''}${nr > R ? ' aus' : ''}"><b>${nr}</b>${C4.runden[i] ? c4Badge(C4.runden[i], nr <= s.runde) : '<span class="gsc-b leer"></span>'}</span>`; }).join('')}</div>
+    ${darf ? (s.runde < R ? `<button type="button" class="knopf zweit breit" data-gsc="runde" style="margin-top:8px">Runde ${s.runde + 1} beginnen</button>` : '<p class="gsc-klein" style="text-align:center;margin:8px 0 0">Letzte Runde</p>') : ''}
+    <div class="gsc-aktionen">${akt('nw', c4Badge('NW', true))}${akt('p1', c4Badge('P1', true))}${akt('sp', c4Badge('SP', true))}</div></section>`;
+  // Gelb: drei Zeilen
+  const gelbZeile = (z, zeichen) => {
+    const liste = s.gelb[z], zu = z === 0 && liste[liste.length - 1] === 6;
+    return `<span class="c4-zeichen">${zeichen}</span>${[0, 1, 2, 3, 4].map(i => {
+      const v = liste[i], naechst = darf && i === liste.length && !zu;
+      return `<button type="button" class="gsc-z${z === 0 && i ? ' c4-steigend' : ''}${naechst ? (ziel('gelb') ? ' ziel' : ' naechst') : ''}${zu && i >= liste.length ? ' gesperrt' : ''}" data-c4-gelb="${z}|${i}">${v != null ? v : ''}</button>`; }).join('')}
+      <span class="c4-rsum">${z === 1 ? '−' + p.gelbMinus : z === 2 ? '+' + p.gelbPlus : ''}</span>`;
+  };
+  const gelbBoni = (liste, z) => `<span></span>${liste.map((b, i) => `<span class="c4-bz">${c4Badge(b, hat((z ? 'gm-' : 'go-') + i), true)}</span>`).join('')}<span></span>`;
+  const gelb = `<section class="gsc-bereich" style="--c:var(--ge)"><h3>Gelb<b>${p.gelb}</b></h3>
+    <div class="c4-gelb">${gelbZeile(0, '&lt;')}${gelbBoni(C4.gelb.oben, 0)}${gelbZeile(1, '−')}${gelbBoni(C4.gelb.mitte, 1)}${gelbZeile(2, '+')}
+      <span></span>${C4.gelb.spalten.map((w, c) => `<span class="gsc-stern${s.gelb.every(z => z.length > c) ? ' an' : ''}">${w}</span>`).join('')}<span class="c4-rsum">+${p.gelbSpalten}</span></div>
+    <p class="gsc-klein">Zeile frei wählen, von links nach rechts. Oben: jede Zahl höher als die davor, nach einer 6 ist Schluss (zählt nicht). Mitte: zählt minus. Unten: zählt plus. Volle Spalte: Punkte darunter.</p></section>`;
+  // Blau: Zeile = blauer Würfel, Spalte = weißer Würfel
+  const anzahl = zellen => zellen.filter(i => s.blau.has(i)).length;
+  const blau = `<section class="gsc-bereich" style="--c:var(--bl)"><h3>Blau <small>Zeile: blau · Spalte: weiß</small><b>${p.blau}</b></h3>
+    <div class="c4-blau">${sechs.map(rr => `<span class="c4-bl-z">${rr + 1}</span>${sechs.map(c => {
+        const i = rr * 6 + c, x = s.blau.has(i);
+        return `<button type="button" class="gsc-z${x ? ' x' : ''}${rr === c ? ' dg' : rr + c === 5 ? ' ag' : ''}${ziel('blau') && !x ? ' ziel' : ''}" data-c4-blau="${i}">${c + 1}</button>`; }).join('')}
+      <span class="gsc-rb">${c4Badge(C4.blau.reihen[rr], hat('br-' + rr))}</span>`).join('')}
+      <span class="gsc-stern klein${anzahl([5, 10, 15, 20, 25, 30]) >= 2 ? ' an' : ''}" title="Diagonale ↙">↙6</span>${C4.blau.spalten.map((w, c) => `<span class="gsc-stern klein${anzahl(sechs.map(rr => rr * 6 + c)) >= 2 ? ' an' : ''}">${w}</span>`).join('')}
+      <span class="gsc-rb">${c4Badge(C4.blau.diag, hat('bd'))}</span></div>
+    <p class="gsc-klein">2 Kreuze in einer Zeile: Bonus rechts · 2 auf der Diagonale ↘: Nachwürfeln · Spalte mit 2 Kreuzen: Punkte darunter · 2 auf der Diagonale ↙: 6 Punkte</p></section>`;
+  // Grau: ganze Teilbereiche
+  const moeglich = new Set(darf ? c4GrauMoeglich(s).map(t => t.id) : []), startIds = new Set(C4.grau.start.map(k => C4_TEILE.teil[k]));
+  const spalteVoll = c => [0, 1, 2, 3].every(rr => s.grau.has(C4_TEILE.teil[rr + '-' + c]));
+  const grau = `<section class="gsc-bereich" style="--c:var(--gra)"><h3>Grau<b>${p.grau}</b></h3>
+    <div class="c4-grau">${C4.grau.spalten.map((w, c) => `<span class="c4-gs${spalteVoll(c) ? ' an' : ''}">${w}</span>`).join('')}
+      ${[0, 1, 2, 3].map(rr => Array.from({ length:16 }, (_, c) => {
+        const k = rr + '-' + c, id = C4_TEILE.teil[k], x = s.grau.has(id), b = C4.grau.boni[k];
+        let rand = '';
+        if (startIds.has(id)) for (const [dy, dx, kl] of [[-1, 0, 'rt'], [0, 1, 'rr'], [1, 0, 'ru'], [0, -1, 'rl']]) if (C4_TEILE.teil[(rr + dy) + '-' + (c + dx)] !== id) rand += ' ' + kl;
+        return `<button type="button" class="c4-g c4-g${C4.grau.feld[rr][c]}${x ? ' x' : ''}${moeglich.has(id) ? (ziel('grau') ? ' ziel' : ' kann') : ''}${rand ? ' start' + rand : ''}" data-c4-grau="${k}" aria-label="${C4_TOENE[C4.grau.feld[rr][c]]}">${b ? c4Badge(b, x, true) : ''}</button>`; }).join('')).join('')}</div>
+    <div class="c4-fuechse">${['W', 'L', 'D'].map(t => {
+        const alle = C4_TEILE.liste.filter(x => x.ton === t), m = alle.reduce((a, x) => a + x.felder.length, 0), n = alle.filter(x => s.grau.has(x.id)).reduce((a, x) => a + x.felder.length, 0);
+        return `<span class="c4-fuchs c4-f${t}${hat('gf-' + t) ? ' an' : ''}">🦊 ${C4_TOENE[t]} <b>${n}/${m}</b></span>`; }).join('')}</div>
+    <p class="gsc-klein">Den ganzen Teilbereich ankreuzen – die Zahl muss mindestens so groß sein wie die Zahl der Felder. Anfangen mit einem rot umrandeten, danach immer angrenzend (gelb umrandet). Volle Spalte: Punkte darüber. Alle Felder einer Farbe: Fuchs.</p></section>`;
+  // Grün: obere und untere Dreiecke
+  const gruen = `<section class="gsc-bereich" style="--c:var(--gr)"><h3>Grün<b>${p.gruen}</b></h3><div class="gsc-reihe c4-gruen">${Array.from({ length:11 }, (_, i) => {
+      const o = s.gruen.o[i], u = s.gruen.u[i], beide = o != null && u != null, mal = i >= 3 ? 2 : 1;
+      const nO = darf && i === s.gruen.o.length, nU = darf && i === s.gruen.u.length;
+      return `<div class="gsc-f"><span class="gsc-ueber"><span class="gsc-stern klein${beide ? ' an' : ''}">${beide ? (o + u) * mal : mal > 1 ? '×2' : '&nbsp;'}</span></span>
+        <div class="c4-dreieck"><button type="button" class="c4-do${nO ? (ziel('gruen') ? ' ziel' : ' naechst') : ''}" data-c4-gruen="o|${i}" aria-label="oben ${i + 1}"><span>${o != null ? o : ''}</span></button>
+          <button type="button" class="c4-du${nU ? (ziel('gruen') ? ' ziel' : ' naechst') : ''}" data-c4-gruen="u|${i}" aria-label="unten ${i + 1}"><span>${u != null ? u : ''}</span></button></div>
+        ${c4Badge(C4.gruen.boni[i], u != null)}</div>`; }).join('')}</div>
+    <p class="gsc-klein">Oben und unten je von links nach rechts füllen. Eine Zahl unten bringt sofort den Bonus darunter. Sind beide Dreiecke gefüllt, zählt die Summe – ab Feld 4 doppelt.</p></section>`;
+  // Rosa: Leiste mit Effekten
+  const rosa = `<section class="gsc-bereich" style="--c:var(--ro)"><h3>Rosa<b>${p.rosa}</b></h3><div class="gsc-reihe c4-rosa">${Array.from({ length:12 }, (_, i) => {
+      const e = s.rosa[i], naechst = darf && i === s.rosa.length;
+      return `<div class="gsc-f"><span class="gsc-ueber"><span class="gsc-stern klein${i === s.rosa.length - 1 ? ' an' : ''}">${C4.rosa.punkte[i]}</span></span>
+        <button type="button" class="gsc-z${e && !e.auto && C4.rosa.kreis[e.v] ? ' kreis' : ''}${naechst ? (ziel('rosa') ? ' ziel' : ' naechst') : ''}" data-c4-rosa="${i}">${e ? e.v : ''}${e && e.auto ? '<small class="c4-auto">dazu</small>' : ''}</button>
+        ${c4Badge(C4.rosa.boni[i], hat('ro-' + i))}</div>`; }).join('')}</div>
+    <p class="gsc-klein">1: – · 2: ⭘ +2 · 3: gleich noch eine 3 · 4: ⭘ +4 · 5: Bonus · 6: Bonus und ⭘ +3. Punkte: der Stern über dem letzten Feld plus die Kreise (${p.rosaLeiste} + ${p.rosaKreise}).</p></section>`;
+  const summe = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-summe">
+    <span style="--c:var(--ge)">${p.gelb}</span>+<span style="--c:var(--bl)">${p.blau}</span>+<span style="--c:var(--gra)">${p.grau}</span>+<span style="--c:var(--gr)">${p.gruen}</span>+<span style="--c:var(--ro)">${p.rosa}</span>
+    +<span class="fuchs">🦊${s.fuechse}×${Math.max(0, p.kleinste)}</span>=<b>${p.gesamt}</b></div>
+    <p class="gsc-klein" style="text-align:center">Jeder Fuchs zählt so viel wie die schwächste Farbe.</p></section>`;
+  const fuss = `<div class="gsc-fuss">
+    ${darf ? `<button type="button" class="knopf rahmen" data-gsc="rueck"${bl.log.length > 1 ? '' : ' disabled'}>↶ Rückgängig</button>` : ''}
+    <button type="button" class="knopf" data-gsc="auswerten">Spielende</button></div>
+    <div class="gsc-unten">${gscIstGastgeber(r) ? '<button type="button" class="link-knopf" data-gsc="abbrechen">Partie abbrechen</button>'
+      : '<button type="button" class="link-knopf" data-gsc="verlassen">Auf diesem Gerät nicht mehr mitspielen</button>'}
+      ${r.modus === 'jeder' ? `<span class="gsc-klein">${(D.metaR[r.id] || {}).dirty ? 'wird abgeglichen …' : 'abgeglichen'}</span>` : ''}</div>`;
+  return kopf + runden + gelb + blau + grau + gruen + rosa + summe + fuss;
+}
+/* Zahl wählen – ungültige Zahlen sind durchgestrichen, beim Antippen kommt der Hinweis */
+function c4ZahlSheet({ titel, text, pruefen, info, fertig }){
+  const hs = sheet(`<div class="sheet-kopf"><h2>${esc(titel)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${text ? `<p class="text-leise" style="margin-top:-4px">${text}</p>` : ''}
+    <div class="zahl-wahl gsc-wahl">${[1, 2, 3, 4, 5, 6].map(v => { const f = pruefen(v), x = info ? info(v) : '';
+      return `<button type="button" class="kn-knopf${f ? ' nein' : ''}" data-wert="${v}"><b>${v}</b>${x ? `<small>${esc(x)}</small>` : ''}</button>`; }).join('')}</div>
+    <p class="gsc-wahl-hinweis" data-hinweis></p>`);
+  hs.addEventListener('click', e => {
+    const b = e.target.closest('[data-wert]'); if (!b) return;
+    const v = Number(b.dataset.wert), f = pruefen(v);
+    if (f){ const h = $('[data-hinweis]', hs); h.textContent = '⚠️ ' + f; h.classList.remove('wackeln'); void h.offsetWidth; h.classList.add('wackeln'); return; }
+    hs.schliessen(); fertig(v);
+  });
+}
+async function c4Verfall(id, text){
+  if (await frage('Bonus verfällt', text, 'Verstanden', false)) gscEintragen({ t:'verfall', q:id });
+}
+function c4BonusEinloesen(id, s){
+  const x = s.offen.find(y => y.id === id); if (!x) return;
+  const farbe = c4Bonus(x.b).farbe;
+  const setzen = (f, frei) => {
+    if (!c4Frei(s, f)) return c4Verfall(id, `In ${C4_FARBEN[f].t} geht nichts mehr – der Bonus „${c4BonusText(x.b)}“ verfällt.`);
+    GSCUI.modus = GSCUI.modus && GSCUI.modus.q === id ? null : { q:id, farbe:f, frei };
+    gscNeuZeichnen();
+  };
+  if (farbe !== 'schwarz') return setzen(farbe, false);
+  const ziele = Object.keys(C4_FARBEN).filter(f => c4Frei(s, f));
+  if (!ziele.length) return c4Verfall(id, `Es ist nirgends mehr etwas frei – der Bonus „${c4BonusText(x.b)}“ verfällt.`);
+  const ws = sheet(`<div class="sheet-kopf"><h2>Wunschzahl, Farbe frei</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Wähle die Farbe – danach trägst du dort ganz normal ein, die Zahl wählst du frei.</p>
+    <div class="gsc-ziele">${ziele.map(f => `<button type="button" class="gsc-ziel" style="--c:${C4_FARBEN[f].c}" data-ziel="${f}">${C4_FARBEN[f].t}</button>`).join('')}</div>`);
+  ws.addEventListener('click', e => { const b = e.target.closest('[data-ziel]'); if (!b) return; ws.schliessen(); setTimeout(() => setzen(b.dataset.ziel, true), 230); });
+}
+/* Antippen auf dem Clever-4ever-Blatt (true = erledigt) */
+function c4Klick(e, r, s, darf, name){
+  const el = e.target.closest('[data-c4-gelb],[data-c4-blau],[data-c4-grau],[data-c4-gruen],[data-c4-rosa],[data-c4-bonus]');
+  if (!el) return false;
+  if (!darf){ if (!r.ende) toast(`Das ist das Blatt von ${name} – nur zum Ansehen.`); return true; }
+  const d = el.dataset, m = GSCUI.modus, q = f => (m && m.farbe === f ? m.q : undefined);
+  const schonDa = () => toast('Schon eingetragen – „Rückgängig“ nimmt den letzten Eintrag zurück.');
+  if (d.c4Bonus){ c4BonusEinloesen(d.c4Bonus, s); return true; }
+  if (d.c4Gelb != null){
+    const [z, i] = d.c4Gelb.split('|').map(Number), liste = s.gelb[z];
+    if (i < liste.length){ schonDa(); return true; }
+    const f0 = c4Fehler(s, { t:'gelb', z }); if (f0){ toast(f0, 'fehler'); return true; }
+    if (i > liste.length){ toast(`Bitte von links nach rechts – in dieser Zeile ist Feld ${liste.length + 1} dran.`, 'fehler'); return true; }
+    const b = z === 0 ? C4.gelb.oben[i] : z === 1 ? C4.gelb.mitte[i] : '';
+    c4ZahlSheet({ titel:`Gelb · ${['obere', 'mittlere', 'untere'][z]} Zeile, Feld ${i + 1}`,
+      text:(z === 0 ? (liste.length ? `Höher als ${liste[liste.length - 1]}. ` : 'Jede Zahl. ') + 'Zählt nicht.' : z === 1 ? 'Jede Zahl – zählt minus.' : 'Jede Zahl – zählt plus.') + (b ? ` Bonus: ${esc(c4BonusText(b))}.` : ''),
+      pruefen:v => c4Fehler(s, { t:'gelb', z, v }), info:v => z === 1 ? '−' + v : z === 2 ? '+' + v : '',
+      fertig:v => gscEintragen({ t:'gelb', z, v, q:q('gelb') }) });
+    return true;
+  }
+  if (d.c4Blau != null){
+    const i = Number(d.c4Blau);
+    if (s.blau.has(i)){ schonDa(); return true; }
+    gscEintragen({ t:'blau', i, q:q('blau') });
+    return true;
+  }
+  if (d.c4Grau != null){
+    const f = d.c4Grau, t = C4_TEILE.liste[C4_TEILE.teil[f]];
+    if (s.grau.has(t.id)){ schonDa(); return true; }
+    const f0 = c4Fehler(s, { t:'grau', f }); if (f0){ toast(f0, 'fehler'); return true; }
+    const n = t.felder.length;
+    c4ZahlSheet({ titel:`Grau · ${C4_TOENE[t.ton]}, ${n} ${n === 1 ? 'Feld' : 'Felder'}`,
+      text:`Mit welcher Zahl kreuzt du diesen Teilbereich an? Mindestens ${n}${n === 1 ? '' : ' – überzählige Kreuze verfallen'}.`,
+      pruefen:v => c4Fehler(s, { t:'grau', f, v }),
+      fertig:v => gscEintragen({ t:'grau', f, v, q:q('grau') }) });
+    return true;
+  }
+  if (d.c4Gruen != null){
+    const [z, ii] = d.c4Gruen.split('|'), i = Number(ii), liste = s.gruen[z], anders = (z === 'o' ? s.gruen.u : s.gruen.o)[i];
+    if (i < liste.length){ schonDa(); return true; }
+    const f0 = c4Fehler(s, { t:'gruen', z }); if (f0){ toast(f0, 'fehler'); return true; }
+    if (i > liste.length){ toast(`Bitte von links nach rechts – ${z === 'o' ? 'oben' : 'unten'} ist Feld ${liste.length + 1} dran.`, 'fehler'); return true; }
+    const mal = i >= 3 ? 2 : 1;
+    c4ZahlSheet({ titel:`Grün · ${z === 'o' ? 'oben' : 'unten'}, Feld ${i + 1}`,
+      text:(z === 'u' ? `Bonus: ${esc(c4BonusText(C4.gruen.boni[i]))}.` : 'Oben gibt es keinen Bonus.') + (anders != null ? ` Mit der ${anders} ${z === 'o' ? 'unten' : 'oben'} zählt das Feld${mal > 1 ? ' doppelt' : ''}.` : ''),
+      pruefen:v => c4Fehler(s, { t:'gruen', z, v }), info:v => anders != null ? `= ${(v + anders) * mal}` : '',
+      fertig:v => gscEintragen({ t:'gruen', z, v, q:q('gruen') }) });
+    return true;
+  }
+  if (d.c4Rosa != null){
+    const i = Number(d.c4Rosa);
+    if (i < s.rosa.length){ schonDa(); return true; }
+    const f0 = c4Fehler(s, { t:'rosa' }); if (f0){ toast(f0, 'fehler'); return true; }
+    if (i > s.rosa.length){ toast(`Bitte von links nach rechts – als Nächstes ist Feld ${s.rosa.length + 1} dran.`, 'fehler'); return true; }
+    const b = C4.rosa.boni[i];
+    c4ZahlSheet({ titel:`Rosa · Feld ${i + 1}`, text:b ? `Mit 5 oder 6 gibt es den Bonus: ${esc(c4BonusText(b))}.` : 'Unter diesem Feld gibt es keinen Bonus.',
+      pruefen:v => c4Fehler(s, { t:'rosa', v }), info:v => v >= 5 ? (b ? 'Bonus' : '') + (v === 6 ? (b ? ' · ' : '') + '⭘ +3' : '') || '–' : C4_ROSA_INFO[v],
+      fertig:v => gscEintragen({ t:'rosa', v, q:q('rosa') }) });
+    return true;
+  }
+  return false;
 }
 
 /* ---------- Spezielle Spielblöcke ----------
@@ -5176,7 +5690,8 @@ const HILFE = [
     <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler kleiner oder größer machen – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li>
     <li><b>Gibt es das Spiel schon</b> bei einem anderen Haushalt? Beim Eintippen des Namens erscheint es unter „Schon in der App“ – antippen übernimmt Angaben und Foto.</li>
-    <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li></ul>` },
+    <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li>
+    <li><b>Varianten</b>: Unter <b>Bearbeiten</b> weitere Ausgaben zum selben Spiel eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ (bekannte Varianten schlägt die App vor). Sie stehen auf der Kachel, die Suche findet sie, und hat eine Variante einen eigenen Spielblock, startet er direkt beim Spiel. Ergebnisse stehen beim Spiel unter „Gespielt“ mit dem Namen der Variante.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
     <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
@@ -5184,8 +5699,9 @@ const HILFE = [
   { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
     <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
-    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten) und <b>Ganz schön clever</b> (Farben und Füchse auswerten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
+    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten), <b>Ganz schön clever</b> und <b>Clever 4ever</b> (Original-Blöcke, siehe unten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
     <li><b>Ganz schön clever</b> gibt es als <b>Original-Block zum Antippen</b>: Kreuze in Gelb und Blau antippen, in Grün, Orange und Lila die Zahl wählen. Die App prüft die Regeln (z. B. Lila: „Die Zahl muss höher sein“, Grün: Mindestwert) und sagt, was nicht passt. Erreichte Boni stehen oben unter <b>Bonus einlösen</b>, bis sie eingetragen sind. Neuwürfe und +1 zählt die App mit, Runden-Boni gibt es mit <b>Runde … beginnen</b>, <b>↶ Rückgängig</b> nimmt den letzten Eintrag zurück.</li>
+    <li><b>Clever 4ever</b> gibt es ebenso als <b>Original-Block</b>: In Gelb die Zeile frei wählen (oben steigend, Mitte zählt minus, unten plus), in Blau das Feld aus blauem Würfel (Zeile) und weißem (Spalte) antippen, in Grau einen ganzen Teilbereich (rot umrandet anfangen, danach angrenzend – die Zahl muss mindestens so groß sein wie die Felder), in Grün das obere oder untere Dreieck, in Rosa das nächste Feld (eine 3 bringt gleich noch eine 3). <b>?-Boni</b> (Wunschzahl) stehen oben, bis sie eingetragen sind – antippen, dann in der Farbe mit einer beliebigen Zahl eintragen; das schwarze ? fragt erst nach der Farbe. Nachwürfeln, Zusatzwürfel und Silber polieren mit <b>Nutzen</b> einsetzen.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
@@ -5314,6 +5830,19 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.75', datum:'28.10.2026', neu:[
+    'Varianten: Beim Bearbeiten eines Spiels weitere Ausgaben eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ – kein eigenes Spiel nötig',
+    'Die Kachel zeigt die Varianten („＋ Clever 4ever“), die Suche findet das Spiel auch über die Variante',
+    'Hat eine Variante einen eigenen Spielblock, gibt es beim Spiel einen eigenen Knopf dafür (z. B. „Clever-4ever-Block starten“)',
+    'Im Punkteblock und beim Nachtragen: „Was wird gespielt?“ – das Ergebnis steht unter dem Namen der Variante beim Spiel unter „Gespielt“'
+  ]},
+  { v:'v1.74', datum:'28.10.2026', neu:[
+    'Clever 4ever als Original-Block zum Antippen: Gelb mit drei Zeilen, Blau (Zeile blau, Spalte weiß), Grau mit Teilbereichen, Grün mit Dreiecken, Rosa mit Effekten – wie auf dem Papier',
+    'Die App prüft die Regeln und sagt, was nicht passt – z. B. „Die Zahl muss höher sein“ in Gelb oben, „mindestens eine 4“ für einen Teilbereich in Grau, Grau nur angrenzend',
+    'Erreichte ?-Boni (Wunschzahl) stehen oben, bis sie eingetragen sind – beim schwarzen ? erst die Farbe wählen; geht nichts mehr: „Verfällt“',
+    'Nachwürfeln, Zusatzwürfel und Silber polieren werden gesammelt und eingesetzt, Füchse und Rundenboni zählen mit',
+    'Wie bei Ganz schön clever: jeder auf seinem Handy (laufend abgeglichen) oder alle auf einem Gerät'
+  ]},
   { v:'v1.73', datum:'28.10.2026', neu:[
     'Ganz schön clever als Original-Block zum Antippen: Gelb, Blau, Grün, Orange, Lila, Runden, Neuwürfe, +1 und Füchse wie auf dem Papier',
     'Die App prüft die Regeln und sagt, was nicht passt – z. B. „Die Zahl muss höher sein als die 4 davor“ in Lila oder „mindestens eine 3“ in Grün',
