@@ -180,6 +180,13 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .karte-haushalte{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:2px}
 .karte-haushalte .karte-haushalt{margin-top:0;padding-top:0}
 .karte-bei{color:var(--filz);font-weight:600;align-items:flex-start}
+.anleitung-unter{margin:14px 0 4px;font-size:13px;font-weight:700;color:var(--leise);text-transform:uppercase;letter-spacing:.04em}
+.anleitung-variante{padding:8px 0 2px;border-top:1px solid var(--linie)}
+.anleitung-variante p{margin:0 0 6px;display:flex;flex-direction:column;gap:1px}
+.anleitung-variante small{color:var(--leise);font-size:12.5px}
+.anleitung-variante .anleitung-knoepfe{margin-top:0}
+.gsc-titel h2{flex:1;min-width:0}
+.gsc-regeln{text-decoration:none}
 .karte-varianten{font-size:13px;font-weight:650;color:var(--filz);line-height:1.25;overflow-wrap:anywhere}
 .detail-varianten{margin:-4px 0 8px;font-size:15px;color:var(--filz)}
 .partie-variante{display:inline-block;padding:1px 7px;border-radius:999px;background:color-mix(in srgb, var(--filz) 16%, var(--karte));color:var(--tinte);font-size:12.5px;font-weight:650}
@@ -924,7 +931,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.75';
+const VERSION = 'v1.76';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1086,7 +1093,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','varianten','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1163,6 +1170,7 @@ function spielNorm(s){
     ...(wertungNorm(s.wertung) && wertungNorm(s.wertung).art !== 'gewinner' ? { wertung:wertungNorm(s.wertung) } : {}),
     ...(bildPosNorm(s.bildPos) ? { bildPos:bildPosNorm(s.bildPos) } : {}),
     ...(variantenNorm(s.varianten).length ? { varianten:variantenNorm(s.varianten) } : {}),
+    ...(Object.keys(anleitungenNorm(s.anleitungen)).length ? { anleitungen:anleitungenNorm(s.anleitungen) } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -1181,6 +1189,31 @@ function variantenNorm(v){
 function variantenVon(sp){
   const k = nameSchluessel(sp.name);
   return variantenNorm([...(sp.varianten || []), ...alleSpiele().filter(x => nameSchluessel(x.name) === k).flatMap(x => x.varianten || [])]).filter(v => nameSchluessel(v) !== k);
+}
+/* Spielanleitungen der Varianten: { namensschlüssel: link } */
+function anleitungenNorm(o){
+  const r = {};
+  if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)){ const kk = nameSchluessel(k), u = linkAus(v); if (kk && u) r[kk] = u; }
+  return r;
+}
+/* Bekannte Anleitungen vom Verlag – gelten, solange beim Spiel kein eigener Link gespeichert ist */
+const BEKANNTE_ANLEITUNGEN = [
+  { passt:n => n.startsWith('clever4ever') || n.startsWith('cleverforever'), url:'https://www.Schmidtspiele.de/files/Produkte/4/49203%20-%20Kniffel%C2%AE/49424_Clever_4ever_DE.pdf' }
+];
+function bekannteAnleitung(name){
+  const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
+  const b = BEKANNTE_ANLEITUNGEN.find(x => x.passt(n) || x.passt(n2)); return b ? b.url : '';
+}
+/* Welche Anleitung gilt für ein Spiel oder eine seiner Varianten? → { url, hid, bekannt } */
+function anleitungFuer(sp, name){
+  const k = nameSchluessel(name || sp.name), kopien = alleSpiele().filter(x => x.id !== sp.id && nameSchluessel(x.name) === nameSchluessel(sp.name));
+  if (k === nameSchluessel(sp.name)){ const a = anleitungVon(sp, kopien); if (a) return a; }
+  else {
+    if ((sp.anleitungen || {})[k]) return { url:sp.anleitungen[k], hid:sp.hid };
+    const x = kopien.find(y => (y.anleitungen || {})[k]); if (x) return { url:x.anleitungen[k], hid:x.hid };
+  }
+  const b = bekannteAnleitung(name || sp.name);
+  return b ? { url:b, hid:'', bekannt:true } : null;
 }
 const VARIANTEN_FAMILIEN = [
   { passt:n => /^(ganzschonclever|doppeltsoclever|cleverhochdrei|clever4ever|cleverforever|thatsprettyclever|twiceasclever|clevercubed)/.test(n),
@@ -2064,8 +2097,8 @@ function spielDetail(id){
   s.addEventListener('click', e => {
     const kp = e.target.closest('[data-kopie]'); if (kp){ s.schliessen(); setTimeout(() => spielDetail(kp.dataset.kopie), 240); return; }
     const b = e.target.closest('[data-anl]');
-    if (b && b.dataset.anl === 'suchen') anleitungSheet(sp, neuOeffnen);
-    if (b && b.dataset.anl === 'weg') anleitungEntfernen(sp, neuOeffnen);
+    if (b && b.dataset.anl === 'suchen') anleitungSheet(sp, neuOeffnen, b.dataset.variante || '');
+    if (b && b.dataset.anl === 'weg') anleitungEntfernen(sp, neuOeffnen, b.dataset.variante || '');
     const v = e.target.closest('[data-verl]');
     if (v && v.dataset.verl === 'neu') verleihSheet(sp, neuOeffnen);
     if (v && v.dataset.verl === 'zurueck'){ spielAendern(sp, x => { delete x.verliehen; }, `${sp.name} zurück`); toast('Wieder zu Hause'); neuOeffnen(); }
@@ -2092,16 +2125,25 @@ function linkAnzeige(url){
 }
 function anleitungHtml(sp, kopien){
   if (!funktionAn('anleitung')) return '';
-  const a = anleitungVon(sp, kopien), darf = darfBearbeiten(sp.hid);
-  const fremd = a && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
+  const a = anleitungFuer(sp, sp.name), darf = darfBearbeiten(sp.hid);
+  const fremd = a && !a.bekannt && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
+  // Varianten: je eine Zeile mit eigener Anleitung (gespeichert oder bekannt vom Verlag)
+  const varianten = variantenVon(sp).map(v => {
+    const x = anleitungFuer(sp, v), eigen = x && !x.bekannt && x.hid === sp.hid;
+    return `<div class="anleitung-variante"><p><b>${esc(v)}</b><small>${x ? esc(linkAnzeige(x.url)) + (x.bekannt ? ' · vom Verlag' : '') : 'noch keine Anleitung'}</small></p>
+      <div class="anleitung-knoepfe">${x ? `<a class="knopf zweit" href="${esc(x.url)}" target="_blank" rel="noopener" data-anl-link>${ic('buch')}Öffnen</a>` : ''}
+        ${darf || !x ? `<button class="knopf rahmen" type="button" data-anl="suchen" data-variante="${esc(v)}">${x ? 'Ändern' : `${ic('suche')}Suchen`}</button>` : ''}
+        ${darf && eigen ? `<button class="knopf rahmen" type="button" data-anl="weg" data-variante="${esc(v)}" aria-label="Link entfernen">${ic('x')}</button>` : ''}</div></div>`;
+  }).join('');
   return `<div class="anleitung">
     <p class="anleitung-kopf">${ic('buch')}Spielanleitung</p>
     ${a ? `<a class="knopf breit" href="${esc(a.url)}" target="_blank" rel="noopener" data-anl-link>${ic('buch')}Spielanleitung öffnen</a>
-      <p class="anleitung-quelle">${esc(linkAnzeige(a.url))}${fremd ? ` – gespeichert von ${esc(fremd)}` : ''}</p>
-      ${darf ? `<div class="anleitung-knoepfe"><button class="knopf rahmen" type="button" data-anl="suchen">${fremd ? 'Eigenen Link speichern' : 'Link ändern'}</button>
-        ${fremd ? '' : `<button class="knopf rahmen" type="button" data-anl="weg">Entfernen</button>`}</div>` : ''}`
+      <p class="anleitung-quelle">${esc(linkAnzeige(a.url))}${a.bekannt ? ' · vom Verlag' : fremd ? ` – gespeichert von ${esc(fremd)}` : ''}</p>
+      ${darf ? `<div class="anleitung-knoepfe"><button class="knopf rahmen" type="button" data-anl="suchen">${fremd || a.bekannt ? 'Eigenen Link speichern' : 'Link ändern'}</button>
+        ${fremd || a.bekannt ? '' : `<button class="knopf rahmen" type="button" data-anl="weg">Entfernen</button>`}</div>` : ''}`
     : `<button class="knopf zweit breit" type="button" data-anl="suchen">${ic('suche')}Spielanleitung suchen</button>
       ${darf ? '' : `<p class="anleitung-quelle" style="white-space:normal">Den Link speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`}
+    ${varianten ? `<p class="anleitung-unter">Varianten</p>${varianten}` : ''}
   </div>`;
 }
 function anleitungSuchLinks(name){
@@ -2118,10 +2160,11 @@ async function anleitungVorschlaege(sp){
   const urls = (p.extlinks || []).map(x => typeof x === 'string' ? x : (x.url || x['*'] || '')).map(u => u.replace(/^\/\//, 'https://'));
   return [...new Set(urls.filter(u => /^https?:\/\//.test(u) && /anleitung|spielregel|regeln|rules|instruction|\.pdf(?:$|[?#])/i.test(u) && !/web\.archive\.org/i.test(u)))].slice(0, 4);
 }
-function anleitungSheet(sp, fertig){
-  const darf = darfBearbeiten(sp.hid), such = anleitungSuchLinks(sp.name);
+function anleitungSheet(sp, fertig, variante = ''){
+  const darf = darfBearbeiten(sp.hid), name = variante || sp.name, such = anleitungSuchLinks(name);
+  const jetzt = variante ? ((sp.anleitungen || {})[nameSchluessel(variante)] || '') : (sp.anleitung || ''), bekannt = bekannteAnleitung(name);
   const s = sheet(`<div class="sheet-kopf"><h2>Spielanleitung</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <p class="text-leise" style="margin-top:-4px">für „${esc(sp.name)}“</p>
+    <p class="text-leise" style="margin-top:-4px">für „${esc(name)}“${variante ? ` (Variante von „${esc(sp.name)}“)` : ''}</p>
     <p class="schritt"><b>1</b>Anleitung suchen</p>
     <div class="such-knoepfe">
       <a class="knopf zweit" href="${esc(such.pdf)}" target="_blank" rel="noopener">${ic('suche')}Als PDF suchen</a>
@@ -2130,14 +2173,15 @@ function anleitungSheet(sp, fertig){
     <div data-vorschlaege></div>
     ${darf ? `<p class="schritt"><b>2</b>Link kopieren und hier einfügen</p>
     <p class="text-leise text-klein" style="margin:-2px 0 8px">iPhone/iPad: den Link lange drücken → <b>Link kopieren</b>. Ist das PDF schon offen: Teilen → <b>Kopieren</b>. Dann hierher zurück.</p>
-    <div class="eingabe-reihe"><input class="eingabe" type="url" data-url placeholder="https://…" value="${esc(sp.anleitung || '')}" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
+    <div class="eingabe-reihe"><input class="eingabe" type="url" data-url placeholder="https://…" value="${esc(jetzt)}" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
       <button class="knopf zweit" type="button" data-einfuegen>Einfügen</button></div>
     <button class="knopf breit" type="button" data-speichern style="margin-top:14px">Link speichern</button>`
     : `<p class="block-hinweis" style="margin-top:14px">Den Link beim Spiel speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`);
-  // Vorschläge aus Wikipedia (still, wenn nichts kommt)
-  anleitungVorschlaege(sp).then(liste => {
+  // Vorschläge: bekannte Anleitung vom Verlag und aus Wikipedia (still, wenn nichts kommt)
+  (variante ? Promise.resolve([]) : anleitungVorschlaege(sp).catch(() => [])).then(gefunden => {
+    const liste = [...new Set([bekannt, ...gefunden].filter(Boolean))];
     if (!liste.length || !s.isConnected) return;
-    $('[data-vorschlaege]', s).innerHTML = `<p class="text-leise text-klein" style="margin:12px 0 6px">Gefunden im Wikipedia-Artikel:</p>
+    $('[data-vorschlaege]', s).innerHTML = `<p class="text-leise text-klein" style="margin:12px 0 6px">${bekannt ? 'Vorschlag:' : 'Gefunden im Wikipedia-Artikel:'}</p>
       ${liste.map(u => darf ? `<button class="vorschlag" type="button" data-vorschlag="${esc(u)}">${ic('link')}<span>${esc(linkAnzeige(u))} – ${esc(decodeURI(u).replace(/^https?:\/\/[^/]+/, ''))}</span></button>`
         : `<a class="vorschlag" href="${esc(u)}" target="_blank" rel="noopener">${ic('link')}<span>${esc(linkAnzeige(u))}</span></a>`).join('')}`;
   }).catch(() => {});
@@ -2155,20 +2199,25 @@ function anleitungSheet(sp, fertig){
   $('[data-speichern]', s).addEventListener('click', () => {
     const url = linkAus(feld.value);
     if (!url){ toast('Das sieht nicht nach einem Link aus (https://…).', 'fehler'); feld.focus(); return; }
-    anleitungSetzen(sp, url); s.schliessen(); toast('Spielanleitung gespeichert'); if (fertig) fertig();
+    anleitungSetzen(sp, url, variante); s.schliessen(); toast('Spielanleitung gespeichert'); if (fertig) fertig();
   });
 }
-function anleitungSetzen(sp, url){
+function anleitungSetzen(sp, url, variante = ''){
   const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
   const x = h.spiele.find(y => y.id === sp.id); if (!x) return;
-  x.anleitung = url; x.geaendert = Date.now();
-  markiere(h.id, `${x.name}: Spielanleitung ${url ? 'gespeichert' : 'entfernt'}`);
+  if (variante){
+    const a = { ...(x.anleitungen || {}) }, k = nameSchluessel(variante);
+    if (url) a[k] = url; else delete a[k];
+    if (Object.keys(a).length) x.anleitungen = a; else delete x.anleitungen;
+  } else x.anleitung = url;
+  x.geaendert = Date.now();
+  markiere(h.id, `${variante || x.name}: Spielanleitung ${url ? 'gespeichert' : 'entfernt'}`);
   speichern(); renderAlles(); syncBald();
 }
-async function anleitungEntfernen(sp, fertig){
+async function anleitungEntfernen(sp, fertig, variante = ''){
   if (!darfBearbeiten(sp.hid)) return;
-  if (!await frage('Link entfernen?', `Die gespeicherte Spielanleitung zu „${sp.name}“ wird entfernt.`, 'Entfernen')) return;
-  anleitungSetzen(sp, ''); if (fertig) fertig();
+  if (!await frage('Link entfernen?', `Die gespeicherte Spielanleitung zu „${variante || sp.name}“ wird entfernt.`, 'Entfernen')) return;
+  anleitungSetzen(sp, '', variante); if (fertig) fertig();
 }
 function spielLoeschen(sp){
   const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
@@ -4351,6 +4400,15 @@ async function rundenAufraeumen(){
 function gscDarf(r, pid){ const b = r.blaetter[pid]; return r.modus === 'eins' || (!!b && b.geraet === E.geraetId); }
 /* Stand eines Blatts – je nach Spiel (Ganz schön clever oder Clever 4ever) */
 function liveStand(r, pid){ const log = ((r.blaetter || {})[pid] || { log:[] }).log; return r.art === 'c4' ? c4Stand(log) : gscStand(log); }
+function liveAnleitung(r){
+  if (!r || !funktionAn('anleitung')) return '';
+  const sp = spielFinden(r.sid), a = sp ? anleitungFuer(sp, r.name) : null;
+  return a ? a.url : bekannteAnleitung(r.name);
+}
+function liveAnleitungKnopf(r){
+  const url = liveAnleitung(r);
+  return url ? `<a class="knopf-rund gsc-regeln" href="${esc(url)}" target="_blank" rel="noopener" aria-label="Spielanleitung" title="Spielanleitung">${ic('buch')}</a>` : '';
+}
 function liveBlockName(r){ return r && r.art === 'c4' ? 'Clever-4ever-Block' : 'Ganz-schön-clever-Block'; }
 function gscIstGastgeber(r){ return r.geraet === E.geraetId || r.modus === 'eins'; }
 /* Kann ich bei einer Partie mitspielen? (ein Spieler meines Haushalts, dessen Blatt noch kein Gerät hat) */
@@ -4447,7 +4505,7 @@ function gscHtml(){
   if (GSCUI.modus && !s.offen.some(x => x.id === GSCUI.modus.q)) GSCUI.modus = null;
   const modus = darf ? GSCUI.modus : null;
   const kopf = `<div class="gsc-kopf">
-    <div class="gsc-titel"><h2>${esc(r.name)}</h2><button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2>${liveAnleitungKnopf(r)}<button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
     ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => { const st = gscStand((r.blaetter[x.pid] || { log:[] }).log);
       return `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${st.punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`; }).join('')}</div>` : ''}
     ${r.ende ? '' : `<div class="gsc-status"><span>Runde <b>${s.runde}</b> von ${R}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
@@ -4674,7 +4732,7 @@ function c4Html(r){
   const modus = darf ? GSCUI.modus : null, ziel = f => !!modus && modus.farbe === f;
   const sechs = [0, 1, 2, 3, 4, 5];
   const kopf = `<div class="gsc-kopf">
-    <div class="gsc-titel"><h2>${esc(r.name)}</h2><button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2>${liveAnleitungKnopf(r)}<button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
     ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${liveStand(r, x.pid).punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`).join('')}</div>` : ''}
     ${r.ende ? '' : `<div class="gsc-status"><span>Runde <b>${s.runde}</b> von ${R}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
     ${!darf && !r.ende ? `<p class="gsc-nur-sehen">👁 Das Blatt von ${esc(ich ? ich.name : '')} – nur zum Ansehen${(r.blaetter[pid] || {}).geraet ? '' : ' (noch nicht mitgespielt)'}.</p>` : ''}
@@ -5717,7 +5775,9 @@ const HILFE = [
     <li><b>Als PDF suchen</b> sucht die Anleitung im Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
     <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
     <li>Danach öffnet <b>Spielanleitung öffnen</b> sie mit einem Tipp – auf allen Geräten. Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen.</li>
-    <li>Gespeichert wird nur der Link, keine Datei. Den Link speichern oder ändern kann der Haushalt, dem das Spiel gehört, oder der Admin.</li></ul>` },
+    <li>Gespeichert wird nur der Link, keine Datei. Den Link speichern oder ändern kann der Haushalt, dem das Spiel gehört, oder der Admin.</li>
+    <li><b>Varianten</b> (z. B. Clever 4ever bei Ganz schön clever) haben darunter je einen eigenen Link. Für manche Spiele kennt die App die Anleitung vom Verlag schon („vom Verlag“) – sie gilt, bis ihr einen eigenen Link speichert.</li>
+    <li>Im Spielblock von <b>Ganz schön clever</b> und <b>Clever 4ever</b> öffnet das Buch oben die passende Anleitung.</li></ul>` },
   { id:'finden', titel:'Spiele finden und filtern', seite:'spiele', text:`
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
     <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>` },
@@ -5830,6 +5890,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.76', datum:'29.10.2026', neu:[
+    'Spielanleitung für Varianten: Beim Spiel stehen unter „Spielanleitung“ auch die Varianten – jede mit eigenem Link',
+    'Clever 4ever bringt die Anleitung vom Verlag gleich mit (Schmidt Spiele, PDF) – ein eigener Link geht trotzdem',
+    'Im Spielblock von Ganz schön clever und Clever 4ever öffnet das 📖 oben die passende Spielanleitung'
+  ]},
   { v:'v1.75', datum:'28.10.2026', neu:[
     'Varianten: Beim Bearbeiten eines Spiels weitere Ausgaben eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ – kein eigenes Spiel nötig',
     'Die Kachel zeigt die Varianten („＋ Clever 4ever“), die Suche findet das Spiel auch über die Variante',
