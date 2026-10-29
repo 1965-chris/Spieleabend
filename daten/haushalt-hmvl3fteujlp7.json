@@ -202,8 +202,11 @@
     "Doppelt so clever",
     "Clever hoch drei"
    ],
+   "anleitungen": {
+    "doppeltsoclever": "https://www.schmidtspiele.de/files/Produkte/4/49357%20-%20Doppelt%20so%20clever/49357_Doppelt_so_clever_DE.pdf"
+   },
    "erstellt": 1792857905885,
-   "geaendert": 1793260289746
+   "geaendert": 1793260370381
   },
   {
    "id": "smvmooj15f76j",
@@ -790,7 +793,7 @@
    "app": true,
    "version": "v1.77",
    "erst": 1792875164293,
-   "zuletzt": 1793260269778,
+   "zuletzt": 1793260372311,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   }
