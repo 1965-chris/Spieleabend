@@ -504,8 +504,13 @@
    "bildQuelle": "",
    "link": "",
    "anleitung": "http://ftp.informatik.rwth-aachen.de/keirat/txt/Q/Quibble.html",
+   "wertung": {
+    "art": "hoch",
+    "grenze": 100,
+    "sieger": "tief"
+   },
    "erstellt": 1792917591908,
-   "geaendert": 1792920716508
+   "geaendert": 1793266416087
   },
   {
    "id": "smvmlf0wcuu22",
@@ -759,7 +764,7 @@
    "app": true,
    "version": "v1.78",
    "erst": 1792864131177,
-   "zuletzt": 1793266274161,
+   "zuletzt": 1793266418136,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
