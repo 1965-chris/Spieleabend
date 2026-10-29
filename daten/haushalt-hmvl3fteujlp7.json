@@ -342,6 +342,28 @@
    "geaendert": 1792877730040
   },
   {
+   "id": "smvt7ww1cpkud",
+   "name": "Kniffel",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 60,
+   "kategorien": [
+    "Würfelspiel"
+   ],
+   "beschreibung": "Kniffel oder Yahtzee ist ein Würfelspiel mit fünf Würfeln, einem Würfelbecher und einem speziellen Spielblock. Jeder Spieler erhält einen Spielblock, auf dem er seine Ergebnisse eintragen muss. Gewinner ist, wer am Ende die höchste Gesamtsumme auf seinem Zettel erzielen kann.\nErschienen 1956 bei E.S. Lowe (Yahtzee),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Kniffel",
+   "anleitung": "",
+   "wertung": {
+    "art": "kniffel"
+   },
+   "erstellt": 1793258673457,
+   "geaendert": 1793258673457
+  },
+  {
    "id": "smvl4jqa6tocg",
    "name": "Lanzeloth",
    "bild": "bilder/smvl4jqa6tocg-mvl4jqa7.jpg",
@@ -726,7 +748,7 @@
    "app": true,
    "version": "v1.76",
    "erst": 1792864131177,
-   "zuletzt": 1793258615290,
+   "zuletzt": 1793258675390,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
