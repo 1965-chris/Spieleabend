@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "app": "v1.78",
+ "id": "rmvtbd5phl4uv",
+ "art": "qx",
+ "name": "Qwixx",
+ "sid": "smvmlf0wcuu22",
+ "shid": "hmvl3fteujlp7",
+ "hid": "hmvl3fteujlp7",
+ "geraet": "gmvlch98lgubm",
+ "datum": "2026-10-29",
+ "start": 1793264471333,
+ "kreis": "kmvl9j0zyt6wq",
+ "mit": [
+  {
+   "pid": "pmvl9layukjpl",
+   "name": "Birgit",
+   "farbe": "#2F6FDE"
+  },
+  {
+   "pid": "pmvl9l3p8z309",
+   "name": "Christian",
+   "farbe": "#2F6FDE"
+  }
+ ],
+ "modus": "jeder",
+ "blaetter": {
+  "pmvl9layukjpl": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1793264471333,
+   "geraet": "gmvlch98lgubm"
+  },
+  "pmvl9l3p8z309": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1793264471333,
+   "geraet": ""
+  }
+ },
+ "ende": false,
+ "endeStand": 0,
+ "gespeichert": false,
+ "stand": 1793264471333
+}
