@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.75",
+ "app": "v1.76",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -764,9 +764,9 @@
    "id": "gmvlcjlfyw1x1",
    "art": "iPad",
    "app": true,
-   "version": "v1.75",
+   "version": "v1.76",
    "erst": 1792875164293,
-   "zuletzt": 1793256996982,
+   "zuletzt": 1793257476599,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   }
