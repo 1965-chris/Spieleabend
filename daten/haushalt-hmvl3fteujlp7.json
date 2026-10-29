@@ -526,8 +526,14 @@
    "wertung": {
     "art": "qwixx"
    },
+   "varianten": [
+    "Qwixx Big Points",
+    "Qwixx Bonus",
+    "Qwixx gemixxt",
+    "Qwixx Connected"
+   ],
    "erstellt": 1792858091341,
-   "geaendert": 1792939681282
+   "geaendert": 1793264219478
   },
   {
    "id": "smvmpdkc4czoa",
