@@ -38,9 +38,12 @@
    "log": [
     {
      "t": "runde"
+    },
+    {
+     "t": "nw"
     }
    ],
-   "stand": 1793257545586,
+   "stand": 1793257595548,
    "geraet": "gmvlcjlfyw1x1"
   }
  },
