@@ -724,6 +724,23 @@
    "geaendert": 1793267963088
   },
   {
+   "id": "smvtdhh6a7fay",
+   "name": "UNO Extreme",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793268032050,
+   "geaendert": 1793268032050
+  },
+  {
    "id": "smvmzditrmwil",
    "name": "Wissens & Würfeln",
    "bild": "bilder/smvmzditrmwil-mvmziy5s.jpg",
@@ -791,7 +808,7 @@
    "app": true,
    "version": "v1.79",
    "erst": 1792864131177,
-   "zuletzt": 1793267963772,
+   "zuletzt": 1793268034036,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
