@@ -702,7 +702,7 @@
   {
    "id": "smvtdfzyotcmc",
    "name": "Uno",
-   "bild": "",
+   "bild": "bilder/smvtdfzyotcmc-mvtdl1f8.jpg",
    "spielerMin": 2,
    "spielerMax": 10,
    "alterAb": 6,
@@ -721,7 +721,7 @@
     "sieger": "hoch"
    },
    "erstellt": 1793267963088,
-   "geaendert": 1793267963088
+   "geaendert": 1793268198260
   },
   {
    "id": "smvmzditrmwil",
@@ -791,7 +791,7 @@
    "app": true,
    "version": "v1.79",
    "erst": 1792864131177,
-   "zuletzt": 1793268034036,
+   "zuletzt": 1793268200212,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
