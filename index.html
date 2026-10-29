@@ -929,6 +929,34 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .qx-ende{justify-content:space-between}
 .qx-ende > span{width:auto;font-size:13.5px}
 .qx-ende .knopf{min-height:34px;padding:0 12px;font-size:13.5px}
+.az-f0{background:#2d6cb5}
+.az-f1{background:#eaa628 url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g fill='%23c62f2f'><path d='M20 7l3 10 10 3-10 3-3 10-3-10-10-3 10-3z'/><circle cx='7' cy='7' r='2.4'/><circle cx='33' cy='7' r='2.4'/><circle cx='7' cy='33' r='2.4'/><circle cx='33' cy='33' r='2.4'/></g><circle cx='20' cy='20' r='11.5' fill='none' stroke='%23c62f2f' stroke-width='1.6'/></svg>") center/82% no-repeat}
+.az-f2{background:#cf3440}
+.az-f3{background:#1c2129 url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g fill='none' stroke='%2373c2d6' stroke-width='2'><circle cx='10' cy='10' r='6'/><circle cx='30' cy='10' r='6'/><circle cx='10' cy='30' r='6'/><circle cx='30' cy='30' r='6'/></g><g fill='%2373c2d6'><circle cx='10' cy='10' r='2'/><circle cx='30' cy='10' r='2'/><circle cx='10' cy='30' r='2'/><circle cx='30' cy='30' r='2'/><circle cx='20' cy='20' r='2.6'/></g></svg>") center/88% no-repeat}
+.az-f4{background:#f2f6f7 url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g fill='%2338b2c4'><rect x='11' y='11' width='18' height='18'/><rect x='11' y='11' width='18' height='18' transform='rotate(45 20 20)'/></g><circle cx='20' cy='20' r='4' fill='%23f2f6f7'/></svg>") center/84% no-repeat}
+.az-wand{display:grid;grid-template-columns:repeat(5,1fr) 30px;gap:6px;align-items:center}
+.az-z{position:relative;aspect-ratio:1;min-width:0;border:0;padding:0;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),0 2px 4px rgba(0,0,0,.35);cursor:pointer}
+.az-z.az-leer{opacity:.25;box-shadow:none;filter:saturate(.7)}
+.az-z.az-grau{background:#6b7179;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.az-z.neu{outline:2.5px dashed #f2c230;outline-offset:2px}
+.az-p{position:absolute;right:-6px;top:-8px;z-index:2;background:#f2c230;color:#1b1d22;font-style:normal;font-weight:800;font-size:12px;line-height:1;border-radius:9px;padding:3px 6px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.az-rb,.az-sb{font-size:12px;font-weight:800;color:#8a919c;text-align:center;border-radius:6px;padding:4px 0;background:rgba(255,255,255,.06)}
+.az-rb.an,.az-sb.an{background:#f2c230;color:#1b1d22}
+.az-farben{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.az-fb{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:#cfd3da;background:rgba(255,255,255,.06);border-radius:8px;padding:4px 7px 4px 4px}
+.az-fb.an{background:#f2c230;color:#1b1d22}
+.az-fb-text{font-size:12px;color:#8a919c}
+.az-t{display:inline-block;width:18px;height:18px;border-radius:4px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.az-boden{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.az-bf{height:42px;min-width:0;border:0;border-radius:7px;background:rgba(255,255,255,.08);color:#cfd3da;font-family:var(--rund);font-weight:800;font-size:15px;cursor:pointer}
+.az-bf.x{background:#e05050;color:#fff}
+.az-runde{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:#cfd3da}
+.az-runde .knopf{min-height:40px;padding:0 14px;flex:none}
+.az-verlauf{margin-top:8px}
+.az-wahl{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.az-wk{padding:10px 2px;gap:6px}
+.az-wk .az-t{width:40px;height:40px;border-radius:8px}
+.az-wk small{font-size:12.5px;letter-spacing:0;color:var(--tinte)}
 </style>
 </head>
 <body>
@@ -1016,7 +1044,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.79';
+const VERSION = 'v1.80';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1042,6 +1070,7 @@ const WERTUNGEN = [
   { k:'platz', t:'Platzierung', b:'Die Spieler in der Reihenfolge antippen, in der sie fertig werden (1., 2., 3. …).' }
 ];
 /* Spezielle Spielblöcke für bestimmte Spiele – die App erkennt sie am Namen */
+function azPasst(n){ return n.startsWith('azul') && !/sintra|buntglas|stainedglass|sommer|summer|pavil|queen|garten|garden|duel/.test(n.slice(4)); }
 const SPEZIAL = [
   { k:'kniffel', t:'Kniffel-Block', min:1, b:'Der Kniffel-Zettel: Einser bis Sechser mit Bonus, Dreier- und Viererpasch, Full House, Straßen, Kniffel und Chance – Feld antippen, die App rechnet alles zusammen.',
     passt:n => (n.includes('kniffel') && !n.includes('extreme')) || n.includes('yahtzee') || n.includes('yatzy') },
@@ -1063,6 +1092,10 @@ const SPEZIAL = [
     passt:n => n.startsWith('qwixxgemixxt') || n.startsWith('qwixxmixx') },
   { k:'qxck', t:'Qwixx-Connected-Block (Kette)', min:1, max:6, b:'Verbundene Felder: wer eins ankreuzt, kreuzt das andere gleich mit – auch links von den Kreuzen und in geschlossenen Reihen.',
     passt:n => n.startsWith('qwixxconnected') },
+  { k:'az', t:'Azul-Block (Seite A)', min:1, max:4, b:'Die farbige Wand zum Antippen: am Rundenende die neuen Fliesen und die Bodenreihe eintragen – die App wertet von oben nach unten, zieht die Minuspunkte ab und rechnet am Ende Reihen, Spalten und Farben.',
+    passt:n => azPasst(n) },
+  { k:'azb', t:'Azul-Block (Seite B, graue Wand)', min:1, max:4, b:'Die graue Rückseite: jede Fliese frei in ihre Reihe legen – jede Farbe nur einmal pro Reihe und Spalte. Gewertet wird wie auf Seite A.',
+    passt:n => azPasst(n) },
   { k:'qwixx', t:'Qwixx-Auswertung', min:1, b:'Am Ende je Farbe die Kreuze und die Fehlwürfe eintragen – die App rechnet die Punkte aus.',
     passt:n => n.includes('qwixx') },
   { k:'gsc', t:'Ganz-schön-clever-Block', min:1, max:4, b:'Der Original-Block zum Antippen: Kreuze und Zahlen eintragen, die App prüft die Regeln, zeigt offene Boni, zählt Neuwürfe, +1 und Füchse – und rechnet alles aus.',
@@ -4884,15 +4917,24 @@ function gscHtml(){
       ${r.modus === 'jeder' ? `<span class="gsc-klein">${(D.metaR[r.id] || {}).dirty ? 'wird abgeglichen …' : 'abgeglichen'}</span>` : ''}</div>`;
   return kopf + runden + gelb + blau + gruen + orange + lila + summe + fuss;
 }
+/* Wer gewinnt? Meiste Punkte – bei Gleichstand entscheidet, wo es eine Regel gibt, die Stichwahl (z. B. Azul: mehr volle Reihen) */
+function liveSieger(r){
+  const def = CF[r.art], tb = def && def.gleichstand, z = r.mit.map(x => ({ x, s:liveStand(r, x.pid) }));
+  const best = z.length ? Math.max(...z.map(a => a.s.punkte.gesamt)) : 0;
+  let sieger = z.filter(a => a.s.punkte.gesamt === best), grund = '';
+  if (tb && sieger.length > 1){ const m = Math.max(...sieger.map(a => tb(a.s))), neu = sieger.filter(a => tb(a.s) === m); if (neu.length < sieger.length){ sieger = neu; grund = def.gleichstandText || ''; } }
+  return { best, sieger:sieger.map(a => a.x.pid), grund };
+}
 function gscErgebnisHtml(r){
-  const zeilen = r.mit.map(x => ({ x, s:liveStand(r, x.pid) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt);
-  const best = zeilen.length ? zeilen[0].s.punkte.gesamt : 0;
+  const def0 = CF[r.art], tb = def0 && def0.gleichstand;
+  const zeilen = r.mit.map(x => ({ x, s:liveStand(r, x.pid) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt || (tb ? tb(b.s) - tb(a.s) : 0));
+  const { best, sieger, grund } = liveSieger(r);
   const def = CF[r.art], farben = def && def.spalten ? def.spalten : def ? [...def.farben.map(f => [f, def.kurz[f], CF_FARBEN[f].v.slice(2)]), ['fuchs', '🦊', '']]
     : [['gelb', 'Ge', 'ge'], ['blau', 'Bl', 'bl'], ['gruen', 'Gr', 'gr'], ['orange', 'Or', 'or'], ['lila', 'Li', 'li'], ['fuchs', '🦊', '']];
   return `<section class="gsc-bereich" style="--c:#4cc35a"><h3>Spielende</h3>
     <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th>${farben.map(([, t, c]) => `<th${c ? ` style="color:var(--${c})"` : ''}>${t}</th>`).join('')}<th>Σ</th></tr></thead>
-    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td>${farben.map(([k]) => `<td>${p[k]}</td>`).join('')}<td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
-    <p style="text-align:center;font-size:18px;margin:12px 0">🏆 ${esc(zeilen.filter(z => z.s.punkte.gesamt === best).map(z => z.x.name).join(', '))} mit ${best} Punkten</p>
+    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${sieger.includes(x.pid) ? '👑 ' : ''}${esc(x.name)}</td>${farben.map(([k]) => `<td>${p[k]}</td>`).join('')}<td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
+    <p style="text-align:center;font-size:18px;margin:12px 0">🏆 ${esc(zeilen.filter(z => sieger.includes(z.x.pid)).map(z => z.x.name).join(', '))} mit ${best} Punkten${grund ? ` <small style="display:block;font-size:13px;opacity:.8">Gleichstand – entschieden durch ${esc(grund)}</small>` : ''}</p>
     ${r.gespeichert ? '<p class="gsc-klein" style="text-align:center">✓ Das Ergebnis ist gespeichert.</p>'
       : '<button type="button" class="knopf breit" data-gsc="speichern">Ergebnis speichern</button><button type="button" class="knopf rahmen breit" data-gsc="weiterspielen" style="margin-top:8px">Doch weiterspielen</button>'}
     <button type="button" class="knopf ${r.gespeichert ? '' : 'rahmen '}breit" data-gsc="fertig" style="margin-top:8px">Schließen</button></section>`;
@@ -5023,8 +5065,8 @@ async function gscKlick(e){
 function gscErgebnisSpeichern(r){
   const mein = D.haushalte[E.meinHaushalt]; if (!mein){ toast('Wähle zuerst deinen Haushalt.', 'fehler'); return; }
   const punkte = Object.fromEntries(r.mit.map(x => [x.pid, liveStand(r, x.pid).punkte.gesamt]));
-  const best = Math.max(...Object.values(punkte));
-  const p = partieNorm({ id:neueId('g'), datum:r.datum, name:r.name, sid:r.sid, shid:r.shid, gewinner:r.mit.filter(x => punkte[x.pid] === best).map(x => x.pid),
+  const { sieger } = liveSieger(r);
+  const p = partieNorm({ id:neueId('g'), datum:r.datum, name:r.name, sid:r.sid, shid:r.shid, gewinner:sieger,
     mit:r.mit.map(x => x.pid), punkte, wertung:{ art:r.art }, kreis:r.kreis, stand:Date.now() });
   const k = nameSchluessel(r.name);
   mein.partien = [...(mein.partien || []).filter(x => !(x.datum === p.datum && nameSchluessel(x.name) === k && !x.gewinner.length && !(x.mit || []).length)), p];
@@ -5670,6 +5712,166 @@ async function qxTippen(r, s, wo){
   const text = [...w.hinweise, ...(sprung > 0 ? [`${sprung} ${sprung === 1 ? 'Feld' : 'Felder'} übersprungen`] : [])];
   if (text.length) setTimeout(() => toast(text.join(' · ')), 250);
 }
+/* ---------- Azul: das Spielertableau – Seite A (farbige Wand) und Seite B (graue Wand) ----------
+   Ein Blatt ist eine Liste von Einträgen: {t:'w', z, s, f} (Fliese an die Wand: Reihe, Spalte, Farbe), {t:'boden', n} (Bodenreihe dieser Runde), {t:'rf'} (Runde fertig).
+   Die Fliesen einer Runde werden wie im Spiel von oben nach unten gewertet – egal, in welcher Reihenfolge man sie antippt. */
+const AZ_FARBEN = [{ k:'blau', t:'Blau' }, { k:'gelb', t:'Gelb' }, { k:'rot', t:'Rot' }, { k:'schwarz', t:'Schwarz' }, { k:'tuerkis', t:'Türkis' }];
+const AZ_BODEN = [-1, -1, -2, -2, -2, -3, -3];
+const AZ_FUENF = [0, 1, 2, 3, 4];
+function azFarbeA(z, s){ return (s - z + 5) % 5; }
+function azBoden(n){ return AZ_BODEN.slice(0, n).reduce((a, b) => a + b, 0); }
+/* Punkte für eine neue Fliese auf (z, s): allein 1 – sonst die zusammenhängenden Fliesen waagrecht plus senkrecht */
+function azWert(w, z, s){
+  const belegt = (a, b) => a >= 0 && a < 5 && b >= 0 && b < 5 && w[a][b] >= 0;
+  let h = 1, v = 1;
+  for (let b = s - 1; belegt(z, b); b--) h++;
+  for (let b = s + 1; belegt(z, b); b++) h++;
+  for (let a = z - 1; belegt(a, s); a--) v++;
+  for (let a = z + 1; belegt(a, s); a++) v++;
+  return h === 1 && v === 1 ? 1 : (h > 1 ? h : 0) + (v > 1 ? v : 0);
+}
+/* Darf diese Fliese hierhin? (Text = Hinweis) – w: Wand inkl. der Fliesen dieser Runde, neu: die Fliesen dieser Runde */
+function azFehler(art, st, a){
+  if (!a || a.t !== 'w') return a && a.t === 'boden' && !(a.n >= 0 && a.n <= 7) ? 'Die Bodenreihe hat 7 Felder.' : '';
+  const { z, s } = a, w = st.wand;
+  if (!(z >= 0 && z < 5 && s >= 0 && s < 5)) return 'Dieses Feld gibt es nicht.';
+  if (w[z][s] >= 0) return 'Da liegt schon eine Fliese.';
+  if (st.neu.some(x => x.z === z)) return `In Reihe ${z + 1} kam diese Runde schon eine Fliese an die Wand – aus jeder Musterreihe wandert nur eine.`;
+  if (art !== 'azb') return '';
+  const f = a.f;
+  if (!(f >= 0 && f < 5)) return 'Bitte eine Farbe wählen.';
+  if (w[z].includes(f)) return `${AZ_FARBEN[f].t} liegt in dieser Reihe schon.`;
+  if (AZ_FUENF.some(y => w[y][s] === f)) return `${AZ_FARBEN[f].t} liegt in dieser Spalte schon.`;
+  return '';
+}
+function azStand(art, log){
+  const w = AZ_FUENF.map(() => [-1, -1, -1, -1, -1]);
+  const s = { wand:w, runde:1, boden:0, neu:[], runden:[], bonus:[], offen:[] };
+  let leiste = 0, offen = [], boden = 0;
+  const werten = () => {        // die Fliesen der Runde von oben nach unten an die Wand
+    let plus = 0; const neu = [];
+    for (const x of [...offen].sort((a, b) => a.z - b.z)){ const p = azWert(w, x.z, x.s); w[x.z][x.s] = x.f; plus += p; neu.push({ ...x, p }); }
+    return { plus, neu };
+  };
+  for (const a of log || []){
+    if (!a || typeof a.t !== 'string') continue;
+    if (a.t === 'w'){
+      const x = { z:Number(a.z), s:Number(a.s), f:art === 'azb' ? Number(a.f) : azFarbeA(Number(a.z), Number(a.s)) };
+      // prüfen gegen die Wand samt den schon angetippten Fliesen dieser Runde
+      const sicht = { wand:w.map(r => [...r]), neu:offen };
+      for (const o of offen) sicht.wand[o.z][o.s] = o.f;
+      if (azFehler(art, sicht, { t:'w', ...x })) continue;
+      offen.push(x);
+    }
+    else if (a.t === 'boden'){ const n = Number(a.n); if (n >= 0 && n <= 7) boden = n; }
+    else if (a.t === 'rf'){
+      const r = werten(), vorher = leiste;
+      leiste = Math.max(0, leiste + r.plus + azBoden(boden));
+      s.runden.push({ plus:r.plus, boden:azBoden(boden), stand:leiste, vorher });
+      offen = []; boden = 0; s.runde++;
+    }
+  }
+  const r = werten();
+  s.neu = r.neu; s.rundePlus = r.plus; s.boden = boden; s.leisteVorher = leiste;
+  s.unterNull = leiste + r.plus + azBoden(boden) < 0;
+  const p = { leiste:Math.max(0, leiste + r.plus + azBoden(boden)) };
+  s.volleReihen = AZ_FUENF.filter(z => w[z].every(f => f >= 0)).length;
+  s.volleSpalten = AZ_FUENF.filter(sp => AZ_FUENF.every(z => w[z][sp] >= 0)).length;
+  s.anzahl = AZ_FUENF.map(f => w.reduce((n, zeile) => n + zeile.filter(x => x === f).length, 0));
+  p.reihen = 2 * s.volleReihen; p.spalten = 7 * s.volleSpalten; p.farben = 10 * s.anzahl.filter(n => n === 5).length;
+  p.gesamt = p.leiste + p.reihen + p.spalten + p.farben;
+  s.punkte = p;
+  return s;
+}
+/* Wer hat eine waagrechte Reihe voll? → nach dieser Runde ist Schluss */
+function azEnde(r){
+  const wer = r.mit.filter(x => azStand(r.art, ((r.blaetter || {})[x.pid] || { log:[] }).log).volleReihen > 0).map(x => x.name);
+  return wer.length ? `${wer.join(', ')} ${wer.length > 1 ? 'haben' : 'hat'} eine waagrechte Reihe voll` : '';
+}
+
+/* ---------- Azul: das Blatt auf dem Bildschirm ---------- */
+function azHtml(r){
+  const B = r.art === 'azb', pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = azStand(r.art, bl.log), p = s.punkte;
+  const darf = gscDarf(r, pid) && !r.ende, ende = azEnde(r);
+  const kopf = `<div class="gsc-kopf">
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2>${liveAnleitungKnopf(r)}<button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${liveStand(r, x.pid).punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`).join('')}</div>` : ''}
+    ${r.ende ? '' : `<div class="gsc-status"><span>Runde <b>${s.runde}</b>${B ? ' · graue Wand' : ''}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
+    ${!darf && !r.ende ? `<p class="gsc-nur-sehen">👁 Das Blatt von ${esc(ich ? ich.name : '')} – nur zum Ansehen${(r.blaetter[pid] || {}).geraet ? '' : ' (noch nicht mitgespielt)'}.</p>` : ''}
+    ${ende && !r.ende ? `<div class="gsc-offen qx-ende"><span>Spielende: ${esc(ende)} – die Runde noch fertig spielen, dann auswerten.</span><button type="button" class="knopf" data-gsc="auswerten">Auswerten</button></div>` : ''}
+  </div>`;
+  if (r.ende) return kopf + gscErgebnisHtml(r);
+  const neu = new Map(s.neu.map(x => [x.z + '|' + x.s, x.p]));
+  let wand = '';
+  for (const z of AZ_FUENF){
+    for (const sp of AZ_FUENF){
+      const f = s.wand[z][sp], n = neu.get(z + '|' + sp), leer = f < 0;
+      const klasse = leer ? (B ? 'az-grau' : `az-f${azFarbeA(z, sp)} az-leer`) : `az-f${f}`;
+      wand += `<button type="button" class="az-z ${klasse}${n != null ? ' neu' : ''}" data-az="${z}|${sp}" aria-label="Reihe ${z + 1}, Spalte ${sp + 1}${leer ? '' : ': ' + AZ_FARBEN[f].t}">${n != null ? `<i class="az-p">+${n}</i>` : ''}</button>`;
+    }
+    wand += `<span class="az-rb${s.wand[z].every(f => f >= 0) ? ' an' : ''}" title="volle Reihe">+2</span>`;
+  }
+  wand += AZ_FUENF.map(sp => `<span class="az-sb${AZ_FUENF.every(z => s.wand[z][sp] >= 0) ? ' an' : ''}" title="volle Spalte">+7</span>`).join('') + '<span></span>';
+  const farben = `<div class="az-farben">${AZ_FARBEN.map((f, i) => `<span class="az-fb${s.anzahl[i] === 5 ? ' an' : ''}" title="${f.t}: alle 5 an der Wand = +10"><i class="az-t az-f${i}"></i>${s.anzahl[i]}/5</span>`).join('')}<span class="az-fb-text">je Farbe 5 = +10</span></div>`;
+  const blatt = `<section class="gsc-bereich az-blatt" style="--c:#5b8fc9"><h3>Wand<b>+${s.rundePlus}</b></h3>
+    <div class="az-wand">${wand}</div>${farben}
+    <p class="gsc-klein">${B ? 'Feld antippen, dann die Farbe wählen – jede Farbe nur einmal pro Reihe und Spalte.' : 'Am Rundenende die Fliesen antippen, die von den vollen Musterreihen an die Wand kommen.'}
+      Gewertet wird von oben nach unten (die Reihenfolge beim Antippen ist egal): allein 1 Punkt, sonst die zusammenhängenden Fliesen waagrecht plus senkrecht.</p></section>`;
+  const boden = `<section class="gsc-bereich" style="--c:#e05050"><h3>Bodenreihe<b>${azBoden(s.boden)}</b></h3>
+    <div class="az-boden">${AZ_BODEN.map((m, i) => `<button type="button" class="az-bf${i < s.boden ? ' x' : ''}" data-az-boden="${i + 1}">${m}</button>`).join('')}</div>
+    <p class="gsc-klein">Überzählige Fliesen und der Startspieler-Stein: das letzte belegte Feld antippen (nochmal antippen nimmt es zurück).</p></section>`;
+  const runde = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="az-runde">
+      <span>Runde ${s.runde}: Wand <b>+${s.rundePlus}</b>${s.boden ? `, Boden <b>${azBoden(s.boden)}</b>` : ''} → Leiste <b>${p.leiste}</b>${s.unterNull ? ' (nicht unter 0)' : ''}</span>
+      ${darf ? `<button type="button" class="knopf" data-az-rf>Runde ${s.runde} fertig</button>` : ''}</div>
+    ${s.runden.length ? `<p class="gsc-klein az-verlauf">${s.runden.map((x, i) => `R${i + 1}: +${x.plus}${x.boden ? ' ' + x.boden : ''} → ${x.stand}`).join(' · ')}</p>` : ''}</section>`;
+  const summe = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-summe">
+    <span style="--c:#5b8fc9" title="Leiste">${p.leiste}</span>+<span style="--c:#f2c230" title="volle Reihen">${p.reihen}</span>+<span style="--c:#f2c230" title="volle Spalten">${p.spalten}</span>+<span style="--c:#f2c230" title="volle Farben">${p.farben}</span>=<b>${p.gesamt}</b></div>
+    <p class="gsc-klein" style="text-align:center;margin-top:6px">Leiste + Reihen (je 2) + Spalten (je 7) + Farben (je 10)</p></section>`;
+  const fuss = `<div class="gsc-fuss">
+    ${darf ? `<button type="button" class="knopf rahmen" data-gsc="rueck"${bl.log.length > 1 ? '' : ' disabled'}>↶ Rückgängig</button>` : ''}
+    <button type="button" class="knopf" data-gsc="auswerten">Spielende</button></div>
+    <div class="gsc-unten">${gscIstGastgeber(r) ? '<button type="button" class="link-knopf" data-gsc="abbrechen">Partie abbrechen</button>'
+      : '<button type="button" class="link-knopf" data-gsc="verlassen">Auf diesem Gerät nicht mehr mitspielen</button>'}
+      ${r.modus === 'jeder' ? `<span class="gsc-klein">${(D.metaR[r.id] || {}).dirty ? 'wird abgeglichen …' : 'abgeglichen'}</span>` : ''}</div>`;
+  return kopf + blatt + boden + runde + summe + fuss;
+}
+function azKlick(e, r, s, darf, name){
+  const el = e.target.closest('[data-az],[data-az-boden],[data-az-rf]'); if (!el) return false;
+  if (!darf){ cfNurSehen(r, name); return true; }
+  if (el.dataset.azRf != null){
+    const runde = s.runde, plus = s.rundePlus, boden = azBoden(s.boden);
+    if (gscEintragen({ t:'rf' })) setTimeout(() => toast(`Runde ${runde}: Wand +${plus}${boden ? `, Boden ${boden}` : ''} – weiter mit Runde ${runde + 1}`), 250);
+    return true;
+  }
+  if (el.dataset.azBoden != null){
+    const n = Number(el.dataset.azBoden);
+    gscEintragen({ t:'boden', n:n === s.boden ? n - 1 : n });
+    return true;
+  }
+  const [z, sp] = el.dataset.az.split('|').map(Number);
+  if (s.wand[z][sp] >= 0){
+    toast(s.neu.some(x => x.z === z && x.s === sp) ? 'Kam diese Runde dazu – „Rückgängig“ nimmt den letzten Eintrag zurück.' : 'Da liegt schon eine Fliese.');
+    return true;
+  }
+  if (r.art !== 'azb'){ gscEintragen({ t:'w', z, s:sp }); return true; }
+  const ort = azFehler('az', s, { t:'w', z, s:sp });      // Reihe diese Runde schon dran? – dann gar keine Farbe möglich
+  if (ort){ toast(ort, 'fehler'); return true; }
+  azFarbeWaehlen(s, z, sp, f => gscEintragen({ t:'w', z, s:sp, f }));
+  return true;
+}
+function azFarbeWaehlen(s, z, sp, fertig){
+  const hs = sheet(`<div class="sheet-kopf"><h2>Reihe ${z + 1} · Spalte ${sp + 1}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Welche Farbe kommt hierhin? (jede Farbe nur einmal pro Reihe und Spalte)</p>
+    <div class="az-wahl gsc-wahl">${AZ_FARBEN.map((f, i) => `<button type="button" class="kn-knopf az-wk${azFehler('azb', s, { t:'w', z, s:sp, f:i }) ? ' nein' : ''}" data-wert="${i}"><i class="az-t az-f${i}"></i><small>${f.t}</small></button>`).join('')}</div>
+    <p class="gsc-wahl-hinweis" data-hinweis></p>`);
+  hs.addEventListener('click', e => {
+    const b = e.target.closest('[data-wert]'); if (!b) return;
+    const f = Number(b.dataset.wert), x = azFehler('azb', s, { t:'w', z, s:sp, f });
+    if (x){ const h = $('[data-hinweis]', hs); h.textContent = '⚠️ ' + x; h.classList.remove('wackeln'); void h.offsetWidth; h.classList.add('wackeln'); return; }
+    hs.schliessen(); fertig(f);
+  });
+}
+
 /* Die Varianten der Clever-Familie */
 const CF = {
   c4:{ name:'Clever 4ever', block:'Clever-4ever-Block', stand:c4Stand, fehler:c4Fehler, frei:c4Frei, runden:C4.runden,
@@ -5689,6 +5891,10 @@ const QX_ARTEN = { qx:['Qwixx', 'Qwixx-Block'], qxbp:['Qwixx Big Points', 'Qwixx
   qxck:['Qwixx Connected', 'Qwixx-Connected-Block (Kette)'] };
 for (const [art, [name, block]] of Object.entries(QX_ARTEN)) CF[art] = { name, block, stand:log => qxStand(art, log), fehler:() => '', html:qxHtml, klickGanz:qxKlick,
   farben:['rot', 'gelb', 'gruen', 'blau'], spalten:[['rot', 'Ro', 'rt'], ['gelb', 'Ge', 'ge'], ['gruen', 'Gr', 'gr'], ['blau', 'Bl', 'bl'], ['fehl', '✗', ''], ...(art === 'qxbb' ? [['bonus', '+', '']] : [])] };
+for (const [art, block] of [['az', 'Azul-Block (Seite A)'], ['azb', 'Azul-Block (Seite B, graue Wand)']]) CF[art] = { name:'Azul', block, stand:log => azStand(art, log),
+  fehler:(st, a) => azFehler(art, st, a), html:azHtml, klickGanz:azKlick, farben:[],
+  spalten:[['leiste', 'Leiste', ''], ['reihen', 'Reihen', ''], ['spalten', 'Spalten', ''], ['farben', 'Farben', '']],
+  gleichstand:st => st.volleReihen, gleichstandText:'mehr volle Reihen' };
 
 /* ---------- Spezielle Spielblöcke ----------
    Jeder Block bringt eigene Ansicht (html), eigene Bedienung (klick, data-pb="x-…") und eigene Auswertung (ergebnis). */
@@ -6542,6 +6748,7 @@ const HILFE = [
     <li><b>Clever 4ever</b> gibt es ebenso als <b>Original-Block</b>: In Gelb die Zeile frei wählen (oben steigend, Mitte zählt minus, unten plus), in Blau das Feld aus blauem Würfel (Zeile) und weißem (Spalte) antippen, in Grau einen ganzen Teilbereich (rot umrandet anfangen, danach angrenzend – die Zahl muss mindestens so groß sein wie die Felder), in Grün das obere oder untere Dreieck, in Rosa das nächste Feld (eine 3 bringt gleich noch eine 3). <b>?-Boni</b> (Wunschzahl) stehen oben, bis sie eingetragen sind – antippen, dann in der Farbe mit einer beliebigen Zahl eintragen; das schwarze ? fragt erst nach der Farbe. Nachwürfeln, Zusatzwürfel und Silber polieren mit <b>Nutzen</b> einsetzen.</li>
     <li><b>Clever hoch drei</b> und <b>Doppelt so clever</b> funktionieren genauso: Felder antippen, bei Zahlen die Zahl wählen – die App prüft die Regeln (z. B. Blau ab der 7: links je 1 weniger, rechts je 1 mehr; bei Doppelt so clever Blau absteigend). Bei Clever hoch drei steht in Rosa „halb mit Bonus“ oder „mal Stern“ zur Wahl, die <b>Zahlen-Joker</b> tippst du einzeln an. Bei Doppelt so clever wird Gelb beim ersten Antippen eingekreist, beim zweiten angekreuzt.</li>
     <li><b>Qwixx</b> gibt es auch als <b>Original-Block</b>: Felder antippen – von links nach rechts, das letzte Feld erst ab 5 Kreuzen (das Schloss kommt von selbst). <b>Fehlwurf</b> unten antippen. Hat jemand eine Reihe geschlossen, steht das oben bei allen; ankreuzen geht dann nur noch im selben Wurf (die App fragt nach). Bei 2 geschlossenen Reihen oder 4 Fehlwürfen heißt es <b>Spielende</b>. Die Varianten <b>Big Points</b>, <b>Bonus</b> (Blatt A oder B), <b>gemixxt</b> (Farben oder Zahlen) und <b>Connected</b> (Kette) haben eigene Blöcke – Bonusfelder, Ketten und Symbole trägt die App selbst nach.</li>
+    <li><b>Azul</b> hat zwei Blöcke wie das Tableau: <b>Seite A</b> (farbige Wand) und <b>Seite B</b> (graue Wand). Am Rundenende die Fliesen antippen, die an die Wand kommen – die Reihenfolge ist egal, die App wertet von oben nach unten. Auf Seite B wählst du nach dem Antippen die Farbe (jede nur einmal pro Reihe und Spalte). Darunter die <b>Bodenreihe</b> (letztes belegtes Feld antippen), dann <b>Runde fertig</b>. Ist eine waagrechte Reihe voll, heißt es <b>Spielende</b>; die Endwertung und bei Gleichstand „mehr volle Reihen“ rechnet die App.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
@@ -6672,6 +6879,13 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.80', datum:'29.10.2026', neu:[
+    'Azul als eigener Spielblock – zwei Seiten wie beim Tableau: Seite A mit der farbigen Wand, Seite B mit der grauen Wand (Farbe frei wählen, jede nur einmal pro Reihe und Spalte)',
+    'Am Rundenende die neuen Fliesen antippen: Die App wertet von oben nach unten (allein 1 Punkt, sonst waagrecht plus senkrecht) und zeigt an jeder neuen Fliese ihre Punkte',
+    'Bodenreihe mit −1 −1 −2 −2 −2 −3 −3, die Leiste fällt nie unter 0; „Runde fertig“ schließt die Runde ab',
+    'Ist eine waagrechte Reihe voll, kommt „Spielende“ – die Endwertung (Reihe +2, Spalte +7, Farbe +10) rechnet die App mit',
+    'Gleichstand: Bei Azul gewinnt, wer mehr volle Reihen hat – das steht dann auch in der Auswertung'
+  ]},
   { v:'v1.79', datum:'29.10.2026', neu:[
     'Spielanleitung in jedem Spielblock: Ist beim Spiel eine Anleitung hinterlegt (oder kennt die App sie vom Verlag), öffnet das Buch oben rechts sie – auch im normalen Punkteblock, bei Kniffel, Wizard, Phase 10 und der Qwixx-Auswertung',
     'Bei Varianten öffnet das Buch die Anleitung der Variante',
