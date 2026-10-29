@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.77",
+ "app": "v1.80",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#2E9E5B",
@@ -126,9 +126,9 @@
    "von": "Rolf",
    "betrifft": [],
    "erstellt": 1792923981381,
-   "stand": 1793130435974,
-   "status": "offen",
-   "statusStand": 1793130435974,
+   "stand": 1793300925591,
+   "status": "erledigt",
+   "statusStand": 1793300925591,
    "verlauf": [
     {
      "id": "amvnq9o9n63es",
