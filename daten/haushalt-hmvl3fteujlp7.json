@@ -700,6 +700,30 @@
    "geaendert": 1792880134569
   },
   {
+   "id": "smvtdfzyotcmc",
+   "name": "Uno",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 10,
+   "alterAb": 6,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "Uno (italienisch und spanisch für eins) ist ein US-amerikanisches Kartenspiel, dessen primäres Ziel es ist, seine Karten möglichst schnell abzulegen. In mehreren Runden gilt es 500 Punkte zu erreichen. Dabei ist das Rundenziel, als Erster alle Karten abzulegen.\nVon Merle Robbins, erschienen 1971 bei Eigenverlag (1971),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Uno_(Kartenspiel)",
+   "anleitung": "",
+   "wertung": {
+    "art": "grenze",
+    "grenze": 500,
+    "sieger": "hoch"
+   },
+   "erstellt": 1793267963088,
+   "geaendert": 1793267963088
+  },
+  {
    "id": "smvmzditrmwil",
    "name": "Wissens & Würfeln",
    "bild": "bilder/smvmzditrmwil-mvmziy5s.jpg",
@@ -767,7 +791,7 @@
    "app": true,
    "version": "v1.79",
    "erst": 1792864131177,
-   "zuletzt": 1793267008994,
+   "zuletzt": 1793267963772,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
