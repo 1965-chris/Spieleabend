@@ -714,14 +714,14 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Uno_(Kartenspiel)",
-   "anleitung": "",
+   "anleitung": "https://www.spielanleitung.org/uno.html",
    "wertung": {
     "art": "grenze",
     "grenze": 500,
     "sieger": "hoch"
    },
    "erstellt": 1793267963088,
-   "geaendert": 1793268198260
+   "geaendert": 1793268219673
   },
   {
    "id": "smvmzditrmwil",
