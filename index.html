@@ -695,7 +695,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 
 /* ---------- Ganz schön clever: Blatt wie das Original ---------- */
 .sheet.gsc-sheet{background:#15171c;color:#eef0f4;padding:0}
-.gsc{--ge:#f2c230;--bl:#4a8ff0;--gr:#4cc35a;--or:#f39a2e;--li:#a66ee3;--gra:#b9c0cb;--ro:#ec6fae;--tu:#3fc4d4;--br:#b07f5a;--si:#b9c0cb;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.gsc{--ge:#f2c230;--bl:#4a8ff0;--gr:#4cc35a;--or:#f39a2e;--li:#a66ee3;--gra:#b9c0cb;--ro:#ec6fae;--tu:#3fc4d4;--br:#b07f5a;--si:#b9c0cb;--rt:#e05050;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 .gsc .knopf.rahmen{background:transparent;color:#eef0f4;border-color:#4a4f5a}
 .gsc .knopf.zweit{background:#2a2e36;color:#eef0f4}
 .gsc .knopf-rund{background:#2a2e36;color:#eef0f4}
@@ -889,6 +889,45 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .dsc-paar-z{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%;justify-items:center}
 .dsc-paar .gsc-z{width:100%;height:42px;font-size:18px}
 .dsc-paar .gsc-stern.klein{min-width:32px}
+/* ---------- Qwixx ---------- */
+.qx-blatt{padding:8px 6px}
+.qxo-reihe{display:grid;grid-template-columns:repeat(11,1fr) 24px;gap:2px;align-items:center;padding:4px 3px;border-radius:9px;background:var(--f);margin-bottom:5px}
+.qx-z{position:relative;height:40px;min-width:0;border:0;padding:0;border-radius:6px;background:color-mix(in srgb, var(--fz) 14%, #fff);color:var(--fz);font-family:var(--rund);font-weight:800;font-size:15px;line-height:1;cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.qx-z span{position:relative;z-index:1}
+.qx-z.x::after{content:"✕";position:absolute;inset:0;z-index:2;display:grid;place-items:center;font-size:26px;font-weight:900;color:#15171c}
+.qx-z.weg{opacity:.32}
+.qx-z.letzt{box-shadow:inset 0 0 0 2px var(--fz)}
+.qx-z.um{outline:2.5px solid #15171c;outline-offset:-4px}
+.qx-z.kette::before{content:"";position:absolute;inset:3px;border:2px dashed #15171c;border-radius:50%}
+.qx-kp{position:absolute;right:1px;bottom:1px;z-index:1;min-width:13px;height:13px;padding:0 2px;border-radius:7px;background:var(--k);color:#fff;font-size:8.5px;font-style:normal;font-weight:800;line-height:13px}
+.qx-sym{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);fill:none;stroke:#15171c;stroke-width:6}
+.qx-schloss{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:12px;opacity:.5;position:relative}
+.qx-schloss.x,.qx-schloss.fremd{opacity:1}
+.qx-schloss.x::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:18px;font-weight:900;color:#15171c}
+.qxo-reihe.zu{filter:saturate(.45)}
+.qxo-reihe.zu .qx-z:not(.x){opacity:.35}
+.qx-bonusreihe{display:grid;grid-template-columns:repeat(11,1fr) 24px;gap:2px;padding:0 3px;margin:-1px 0 5px}
+.qx-bk{position:relative;justify-self:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #fff;padding:0;background:linear-gradient(var(--a) 50%, var(--b) 50%);color:#fff;font-family:var(--rund);font-weight:800;font-size:10px;cursor:pointer;text-shadow:0 0 2px rgba(0,0,0,.6)}
+.qx-bk.kann{box-shadow:0 0 0 2px #f2c230}
+.qx-bk.weg{opacity:.3}
+.qx-bk.x::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:18px;font-weight:900;color:#fff;text-shadow:0 0 3px #000}
+.qx-leiste{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;margin:6px 0 2px}
+.qx-leiste i{color:#9aa1ad;font-style:normal;font-size:11px}
+.qx-lb{position:relative;width:20px;height:20px;border-radius:5px;background:var(--f);border:2px solid #fff}
+.qx-lb.x::after,.qx-lb.weg::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:15px;font-weight:900;color:#15171c}
+.qx-lb.weg{opacity:.35}
+.qx-symbole{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px;margin:8px 0 4px}
+.qx-symb{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:9px;background:rgba(255,255,255,.06);color:#9aa1ad;font-size:11.5px;line-height:1.25}
+.qx-symb svg{width:22px;height:22px;flex:none;fill:none;stroke:#cfd3da;stroke-width:7}
+.qx-symb.an{background:#f2c230;color:#15171c}.qx-symb.an svg{stroke:#15171c}
+.qx-fehl{display:flex;align-items:center;gap:8px;margin:8px 2px;font-size:13px;color:#cfd3da}
+.qx-fk{display:flex;gap:4px}
+.qx-fk i{position:relative;width:20px;height:20px;border-radius:5px;background:#fff}
+.qx-fk i.x::after{content:"✕";position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:900;color:#c8372d;font-style:normal}
+.qx-fehl .knopf{margin-left:auto;min-height:36px;padding:0 12px;font-size:13.5px}
+.qx-ende{justify-content:space-between}
+.qx-ende > span{width:auto;font-size:13.5px}
+.qx-ende .knopf{min-height:34px;padding:0 12px;font-size:13.5px}
 </style>
 </head>
 <body>
@@ -976,7 +1015,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.77';
+const VERSION = 'v1.78';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1009,6 +1048,20 @@ const SPEZIAL = [
     passt:n => n.includes('wizard') && !n.includes('extreme') },
   { k:'phase10', t:'Phase-10-Block', min:2, max:6, b:'Jede Runde abhaken, wer seine Phase geschafft hat, und die Minuspunkte eintragen. Wer zuerst Phase 10 schafft, gewinnt – bei Gleichstand die wenigsten Punkte.',
     passt:n => n.startsWith('phase10') && !n.includes('wurfel') },
+  { k:'qx', t:'Qwixx-Block', min:1, max:6, b:'Der Original-Block zum Antippen: Kreuze von links nach rechts, das letzte Feld erst ab 5 Kreuzen, Schloss und Fehlwürfe – geschlossene Reihen sehen alle, die App rechnet alles aus.',
+    passt:n => n.startsWith('qwixx') && !/bigpoints|bonus|gemixxt|mixx|connected|longo|double|charact|kartenspiel|duell|onboard/.test(n.slice(5)) },
+  { k:'qxbp', t:'Qwixx-Big-Points-Block', min:1, max:6, b:'Mit den zwei Bonusreihen: Bonuskreis, wenn die Zahl darüber oder darunter schon angekreuzt ist – zählt für beide Farben, bis 15 Kreuze je Farbe.',
+    passt:n => n.startsWith('qwixxbigpoints') },
+  { k:'qxba', t:'Qwixx-Bonus-Block A (Bonusleiste)', min:1, max:6, b:'Umrandete Felder füllen die Bonusleiste – jedes Bonuskästchen bringt gleich ein Kreuz in seiner Farbe (die App macht die Kettenreaktion).',
+    passt:n => n.startsWith('qwixxbonus') },
+  { k:'qxbb', t:'Qwixx-Bonus-Block B (Symbole)', min:1, max:6, b:'Fünf Symbole, je zweimal: Kreis, Raute, Quadrat, Achteck und Stern – sind beide angekreuzt, wirkt der Bonus.',
+    passt:n => n.startsWith('qwixxbonus') },
+  { k:'qxmf', t:'Qwixx-gemixxt-Block (Farben)', min:1, max:6, b:'Jede Reihe hat vier Farbbereiche – die App zeigt die Farben wie auf dem Block.',
+    passt:n => n.startsWith('qwixxgemixxt') || n.startsWith('qwixxmixx') },
+  { k:'qxmz', t:'Qwixx-gemixxt-Block (Zahlen)', min:1, max:6, b:'Die Zahlen jeder Reihe sind gemischt – geschlossen wird mit der Zahl ganz rechts.',
+    passt:n => n.startsWith('qwixxgemixxt') || n.startsWith('qwixxmixx') },
+  { k:'qxck', t:'Qwixx-Connected-Block (Kette)', min:1, max:6, b:'Verbundene Felder: wer eins ankreuzt, kreuzt das andere gleich mit – auch links von den Kreuzen und in geschlossenen Reihen.',
+    passt:n => n.startsWith('qwixxconnected') },
   { k:'qwixx', t:'Qwixx-Auswertung', min:1, b:'Am Ende je Farbe die Kreuze und die Fehlwürfe eintragen – die App rechnet die Punkte aus.',
     passt:n => n.includes('qwixx') },
   { k:'gsc', t:'Ganz-schön-clever-Block', min:1, max:4, b:'Der Original-Block zum Antippen: Kreuze und Zahlen eintragen, die App prüft die Regeln, zeigt offene Boni, zählt Neuwürfe, +1 und Füchse – und rechnet alles aus.',
@@ -1248,7 +1301,10 @@ function anleitungenNorm(o){
 /* Bekannte Anleitungen vom Verlag – gelten, solange beim Spiel kein eigener Link gespeichert ist */
 const BEKANNTE_ANLEITUNGEN = [
   { passt:n => n.startsWith('clever4ever') || n.startsWith('cleverforever'), url:'https://www.Schmidtspiele.de/files/Produkte/4/49203%20-%20Kniffel%C2%AE/49424_Clever_4ever_DE.pdf' },
-  { passt:n => n.startsWith('cleverhochdrei'), url:'https://www.Schmidtspiele.de/files/Retail/300dpi_JPG/49384_Clever_Hoch_Drei_DE.pdf' }
+  { passt:n => n.startsWith('cleverhochdrei'), url:'https://www.Schmidtspiele.de/files/Retail/300dpi_JPG/49384_Clever_Hoch_Drei_DE.pdf' },
+  { passt:n => n.startsWith('qwixxbigpoints'), url:'https://www.nsv.de/wp-content/uploads/2024/04/QwixxBP_D.pdf' },
+  { passt:n => n.startsWith('qwixxbonus'), url:'https://www.nsv.de/wp-content/uploads/2024/04/Qwixx_Bonus_D.pdf' },
+  { passt:n => n.startsWith('qwixxconnected'), url:'https://www.nsv.de/wp-content/uploads/2024/04/Qwixx_connect_D.pdf' }
 ];
 function bekannteAnleitung(name){
   const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
@@ -1266,6 +1322,7 @@ function anleitungFuer(sp, name){
   return b ? { url:b, hid:'', bekannt:true } : null;
 }
 const VARIANTEN_FAMILIEN = [
+  { passt:n => n.startsWith('qwixx'), namen:['Qwixx', 'Qwixx Big Points', 'Qwixx Bonus', 'Qwixx gemixxt', 'Qwixx Connected'] },
   { passt:n => /^(ganzschonclever|doppeltsoclever|cleverhochdrei|clever4ever|cleverforever|thatsprettyclever|twiceasclever|clevercubed)/.test(n),
     namen:['Ganz schön clever', 'Doppelt so clever', 'Clever hoch drei', 'Clever 4ever'] }
 ];
@@ -4553,7 +4610,7 @@ function rundeNorm(r){
   const art = CF[r.art] ? r.art : 'gsc';
   return { ...unbekannte(r, RUNDE_FELDER), id:String(r.id), art, name:String(r.name || (CF[art] ? CF[art].name : 'Ganz schön clever')).slice(0, 80), sid:String(r.sid || ''), shid:String(r.shid || ''),
     hid:String(r.hid || ''), geraet:String(r.geraet || ''), datum:/^\d{4}-\d{2}-\d{2}$/.test(r.datum || '') ? r.datum : heute(), start:zahl(r.start) || 0, kreis:String(r.kreis || ''),
-    mit:(Array.isArray(r.mit) ? r.mit : []).filter(p => p && p.pid).map(p => ({ pid:String(p.pid), name:String(p.name || '?').slice(0, 30), farbe:String(p.farbe || '#8A93A0') })).slice(0, 4),
+    mit:(Array.isArray(r.mit) ? r.mit : []).filter(p => p && p.pid).map(p => ({ pid:String(p.pid), name:String(p.name || '?').slice(0, 30), farbe:String(p.farbe || '#8A93A0') })).slice(0, 6),
     modus:r.modus === 'eins' ? 'eins' : 'jeder', blaetter:bl, ende:!!r.ende, endeStand:zahl(r.endeStand) || 0, gespeichert:!!r.gespeichert, stand:zahl(r.stand) || 0 };
 }
 function rundeMischen(a, b){
@@ -4683,7 +4740,7 @@ function liveHinweisZeigen(){
   if (LIVE && !r){ LIVE = null; liveSpeichern(); }
   if (r){
     const s = liveStand(r, LIVE.pid);
-    el.innerHTML = `<div class="hinweis pb-hinweis"><span>🎲 <b>${esc(r.name)}</b>${r.ende ? ' · Spielende' : ` · Runde ${s.runde} · ${s.punkte.gesamt} Punkte`}</span>
+    el.innerHTML = `<div class="hinweis pb-hinweis"><span>🎲 <b>${esc(r.name)}</b>${r.ende ? ' · Spielende' : `${s.runde ? ` · Runde ${s.runde}` : ''} · ${s.punkte.gesamt} Punkte`}</span>
       <button class="knopf" type="button" data-live-weiter style="min-height:38px;padding:0 14px;flex:none">${r.ende ? 'Ergebnis' : 'Weiter'}</button></div>`;
     $('[data-live-weiter]', el).addEventListener('click', () => gscZeigen());
     return;
@@ -4759,7 +4816,7 @@ function gscZeigen(){
 function gscHtml(){
   const r = D.runden[LIVE.id]; if (!r) return '';
   if (!r.mit.some(p => p.pid === GSCUI.pid)) GSCUI.pid = r.mit[0].pid;
-  if (CF[r.art]) return cfHtml(r);
+  if (CF[r.art]) return (CF[r.art].html || cfHtml)(r);
   const pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = gscStand(bl.log), p = s.punkte;
   const darf = gscDarf(r, pid) && !r.ende, R = gscRundenZahl(r.mit.length), erreicht = id => s.bonus.some(x => x.id === id);
   if (GSCUI.modus && !s.offen.some(x => x.id === GSCUI.modus.q)) GSCUI.modus = null;
@@ -4829,11 +4886,11 @@ function gscHtml(){
 function gscErgebnisHtml(r){
   const zeilen = r.mit.map(x => ({ x, s:liveStand(r, x.pid) })).sort((a, b) => b.s.punkte.gesamt - a.s.punkte.gesamt);
   const best = zeilen.length ? zeilen[0].s.punkte.gesamt : 0;
-  const farben = CF[r.art] ? CF[r.art].farben.map(f => [f, CF[r.art].kurz[f], CF_FARBEN[f].v.slice(2)])
-    : [['gelb', 'Ge', 'ge'], ['blau', 'Bl', 'bl'], ['gruen', 'Gr', 'gr'], ['orange', 'Or', 'or'], ['lila', 'Li', 'li']];
+  const def = CF[r.art], farben = def && def.spalten ? def.spalten : def ? [...def.farben.map(f => [f, def.kurz[f], CF_FARBEN[f].v.slice(2)]), ['fuchs', '🦊', '']]
+    : [['gelb', 'Ge', 'ge'], ['blau', 'Bl', 'bl'], ['gruen', 'Gr', 'gr'], ['orange', 'Or', 'or'], ['lila', 'Li', 'li'], ['fuchs', '🦊', '']];
   return `<section class="gsc-bereich" style="--c:#4cc35a"><h3>Spielende</h3>
-    <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th>${farben.map(([, t, c]) => `<th style="color:var(--${c})">${t}</th>`).join('')}<th>🦊</th><th>Σ</th></tr></thead>
-    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td>${farben.map(([k]) => `<td>${p[k]}</td>`).join('')}<td>${p.fuchs}</td><td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
+    <div class="pb-tabelle-rahmen"><table class="gsc-tabelle"><thead><tr><th></th>${farben.map(([, t, c]) => `<th${c ? ` style="color:var(--${c})"` : ''}>${t}</th>`).join('')}<th>Σ</th></tr></thead>
+    <tbody>${zeilen.map(({ x, s }) => { const p = s.punkte; return `<tr><td>${p.gesamt === best ? '👑 ' : ''}${esc(x.name)}</td>${farben.map(([k]) => `<td>${p[k]}</td>`).join('')}<td><b>${p.gesamt}</b></td></tr>`; }).join('')}</tbody></table></div>
     <p style="text-align:center;font-size:18px;margin:12px 0">🏆 ${esc(zeilen.filter(z => z.s.punkte.gesamt === best).map(z => z.x.name).join(', '))} mit ${best} Punkten</p>
     ${r.gespeichert ? '<p class="gsc-klein" style="text-align:center">✓ Das Ergebnis ist gespeichert.</p>'
       : '<button type="button" class="knopf breit" data-gsc="speichern">Ergebnis speichern</button><button type="button" class="knopf rahmen breit" data-gsc="weiterspielen" style="margin-top:8px">Doch weiterspielen</button>'}
@@ -4908,7 +4965,7 @@ async function gscKlick(e){
   }
   const pid = GSCUI.pid, darf = gscDarf(r, pid) && !r.ende, name = (r.mit.find(p => p.pid === pid) || {}).name || '';
   const s = liveStand(r, pid);
-  if (CF[r.art] && cfKlick(e, r, s, darf, name)) return;
+  if (CF[r.art] && (CF[r.art].klickGanz || cfKlick)(e, r, s, darf, name)) return;
   const zelle = e.target.closest('[data-gsc-zelle]'), feld = e.target.closest('[data-gsc-feld]'), bonus = e.target.closest('[data-gsc-bonus]'), knopf = e.target.closest('[data-gsc]');
   if ((zelle || feld || bonus) && !darf){ if (!r.ende) toast(`Das ist das Blatt von ${name} – nur zum Ansehen.`); return; }
   if (zelle){
@@ -5380,6 +5437,238 @@ function dscKlick(e, r, s, darf, name){
   return true;
 }
 
+/* ---------- Qwixx: der Original-Block zum Antippen – Original und Varianten ----------
+   Jedes Blatt ist eine Liste von Einträgen: {t:'x', k:[[zeile, feld], …], l:[Bonusleiste]} oder {t:'fehl'}.
+   Folgen eines Kreuzes (Kette, Bonusleiste, Symbole, Schloss) rechnet die App beim Antippen aus und schreibt sie mit in den Eintrag –
+   so nimmt „Rückgängig“ alles auf einmal zurück. Geschlossene Reihen gelten für alle Mitspieler. */
+const QX_AUF = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], QX_AB = [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+const QX_PUNKTE = [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120];
+const QX_NAMEN = { rot:'Rot', gelb:'Gelb', gruen:'Grün', blau:'Blau' };
+const QX_VAR = { rot:'--rt', gelb:'--ge', gruen:'--gr', blau:'--bl' };
+const QX_STANDARD = [{ f:'rot', z:QX_AUF }, { f:'gelb', z:QX_AUF }, { f:'gruen', z:QX_AB }, { f:'blau', z:QX_AB }];
+const QX_FARBFOLGE = (...teile) => teile.flatMap(([f, n]) => Array(n).fill(f));
+const QX = {
+  qx:{ zeilen:QX_STANDARD },
+  qxbp:{ zeilen:QX_STANDARD, max:15, bonusReihen:[{ zw:[0, 1], z:QX_AUF }, { zw:[2, 3], z:QX_AB }] },
+  qxba:{ zeilen:QX_STANDARD, umrandet:{ 0:[3, 6, 9], 1:[5, 8, 11], 2:[11, 7, 4], 3:[10, 8, 5] },
+    leiste:['rot', 'gelb', 'gruen', 'blau', 'gruen', 'rot', 'blau', 'gelb', 'rot', 'gelb', 'blau', 'gruen'] },
+  qxbb:{ zeilen:QX_STANDARD, symbole:{ kreis:[[1, 11], [2, 9]], raute:[[1, 7], [3, 7]], quadrat:[[0, 8], [3, 10]], achteck:[[0, 6], [3, 4]], stern:[[1, 3], [2, 5]] } },
+  qxmf:{ zeilen:[
+    { f:'rot', z:QX_AUF, farben:QX_FARBFOLGE(['gelb', 3], ['blau', 3], ['gruen', 3], ['rot', 2]) },
+    { f:'gelb', z:QX_AUF, farben:QX_FARBFOLGE(['rot', 2], ['gruen', 4], ['blau', 2], ['gelb', 3]) },
+    { f:'gruen', z:QX_AB, farben:QX_FARBFOLGE(['blau', 3], ['gelb', 3], ['rot', 3], ['gruen', 2]) },
+    { f:'blau', z:QX_AB, farben:QX_FARBFOLGE(['gruen', 2], ['rot', 4], ['gelb', 2], ['blau', 3]) }] },
+  qxmz:{ zeilen:[
+    { f:'rot', z:[10, 6, 2, 8, 3, 4, 12, 5, 9, 7, 11] }, { f:'gelb', z:[9, 12, 4, 6, 7, 2, 5, 8, 11, 3, 10] },
+    { f:'gruen', z:[8, 2, 10, 12, 6, 9, 7, 4, 5, 11, 3] }, { f:'blau', z:[5, 7, 11, 9, 12, 3, 8, 10, 2, 6, 4] }] },
+  qxck:{ zeilen:QX_STANDARD, ketten:[[[0, 6], [1, 6]], [[0, 11], [1, 11]], [[1, 3], [2, 11]], [[1, 8], [2, 6]], [[2, 9], [3, 9]], [[2, 4], [3, 4]]] }
+};
+const QX_SYMBOL = {
+  kreis:{ t:'Kreis', w:'2 Kreuze in der Reihe mit den wenigsten Kreuzen' }, raute:{ t:'Raute', w:'1 Kreuz in jeder Reihe' },
+  quadrat:{ t:'Quadrat', w:'Reihe mit den wenigsten Kreuzen zählt doppelt' }, achteck:{ t:'Achteck', w:'13 Punkte' },
+  stern:{ t:'Stern', w:'Fehlwürfe kosten nichts' }
+};
+const QX_FORM = {
+  kreis:'<circle cx="50" cy="50" r="44"/>', raute:'<polygon points="50,4 96,50 50,96 4,50"/>', quadrat:'<rect x="8" y="8" width="84" height="84" rx="6"/>',
+  achteck:'<polygon points="31,5 69,5 95,31 95,69 69,95 31,95 5,69 5,31"/>',
+  stern:'<polygon points="50,3 59,22 79,13 76,35 97,40 80,54 92,72 70,72 65,94 50,79 35,94 30,72 8,72 20,54 3,40 24,35 21,13 41,22"/>'
+};
+function qxIndex(d, z, zahl){ return d.zeilen[z].z.indexOf(zahl); }
+function qxLetzt(zeile){ let m = -1; for (const i of zeile) if (i < 11 && i > m) m = i; return m; }
+function qxZahlKreuze(zeile){ let n = 0; for (const i of zeile) if (i < 11) n++; return n; }
+function qxSymboleAktiv(d, zeilen){
+  const a = {};
+  for (const [sym, felder] of Object.entries(d.symbole || {})) a[sym] = felder.every(([z, n]) => zeilen[z].has(qxIndex(d, z, n)));
+  return a;
+}
+function qxStand(art, log){
+  const d = QX[art], s = { zeilen:d.zeilen.map(() => new Set()), bonusR:(d.bonusReihen || []).map(() => new Set()), fehl:0, leiste:new Set(), bonus:[], offen:[] };
+  for (const a of log || []){
+    if (!a || typeof a.t !== 'string') continue;
+    if (a.t === 'x'){
+      for (const [z, i] of Array.isArray(a.k) ? a.k : []){
+        if (typeof z === 'string' && z[0] === 'b'){ const b = s.bonusR[Number(z.slice(1))]; if (b && i >= 0 && i < 11) b.add(i); }
+        else if (s.zeilen[z] && i >= 0 && i <= 11) s.zeilen[z].add(i);
+      }
+      for (const j of Array.isArray(a.l) ? a.l : []) s.leiste.add(j);
+    }
+    else if (a.t === 'fehl') s.fehl = Math.min(4, s.fehl + 1);
+  }
+  s.symbole = qxSymboleAktiv(d, s.zeilen);
+  const max = d.max || 12, p = {}, kreuze = {};
+  d.zeilen.forEach((zl, z) => {
+    let n = s.zeilen[z].size;
+    (d.bonusReihen || []).forEach((b, k) => { if (b.zw.includes(z)) n += s.bonusR[k].size; });
+    kreuze[zl.f] = n; p[zl.f] = QX_PUNKTE[Math.min(max, n)];
+  });
+  p.fehl = s.symbole.stern ? 0 : -5 * s.fehl;
+  p.bonus = (s.symbole.achteck ? 13 : 0);
+  if (s.symbole.quadrat){ const f = d.zeilen.map(x => x.f).reduce((a, b) => kreuze[b] < kreuze[a] ? b : a); p.bonus += p[f]; }
+  p.gesamt = d.zeilen.reduce((a, zl) => a + p[zl.f], 0) + p.fehl + p.bonus;
+  s.kreuze = kreuze; s.punkte = p;
+  return s;
+}
+/* Welche Reihen sind geschlossen – und von wem? (über alle Blätter der Partie) */
+function qxZu(r){
+  const zu = new Map();
+  for (const x of r.mit){
+    const s = qxStand(r.art, ((r.blaetter || {})[x.pid] || { log:[] }).log);
+    s.zeilen.forEach((zl, z) => { if (zl.has(11)) zu.set(z, [...(zu.get(z) || []), x.name]); });
+  }
+  return zu;
+}
+function qxEnde(r){
+  const zu = qxZu(r), raus = r.mit.filter(x => qxStand(r.art, ((r.blaetter || {})[x.pid] || { log:[] }).log).fehl >= 4);
+  if (zu.size >= 2) return 'Zwei Reihen sind geschlossen';
+  if (raus.length) return `${raus.map(x => x.name).join(', ')} hat 4 Fehlwürfe`;
+  return '';
+}
+/* Darf hier normal angekreuzt werden? (Text = Hinweis) */
+function qxFehler(d, zeilen, z, i){
+  const zl = zeilen[z], zahl = d.zeilen[z].z[i];
+  if (zl.has(11)) return 'Diese Reihe hast du schon geschlossen.';
+  if (zl.has(i)) return 'Dieses Feld ist schon angekreuzt.';
+  if (i <= qxLetzt(zl)) return 'Nur rechts vom letzten Kreuz – dieses Feld ist übersprungen.';
+  if (i === 10 && qxZahlKreuze(zl) < 5) return `Die ${zahl} am Ende darfst du erst ankreuzen, wenn in der Reihe schon 5 Kreuze sind (jetzt ${qxZahlKreuze(zl)}).`;
+  return '';
+}
+function qxNaechst(d, zeilen, zu, z){
+  if (zu.has(z) || zeilen[z].has(11)) return null;
+  const ni = qxLetzt(zeilen[z]) + 1;
+  if (ni > 10 || (ni === 10 && qxZahlKreuze(zeilen[z]) < 5)) return null;
+  return ni;
+}
+/* Ein Kreuz mit allen Folgen: Schloss, Kette, Bonusleiste, Symbole */
+function qxWirkung(r, s, z0, i0){
+  const d = QX[r.art], sim = s.zeilen.map(x => new Set(x)), zu = new Set(qxZu(r).keys()), leiste = new Set(s.leiste), k = [], l = [], hinweise = [];
+  const zahl = (z, i) => d.zeilen[z].z[i], name = z => QX_NAMEN[d.zeilen[z].f];
+  const aktiv = qxSymboleAktiv(d, sim);
+  const kreuz = (z, i, frei) => {
+    if (i == null || i < 0 || sim[z].has(i)) return false;
+    if (!frei && (zu.has(z) || qxFehler(d, sim, z, i))) return false;
+    sim[z].add(i); k.push([z, i]);
+    if (i === 10 && !sim[z].has(11)){ sim[z].add(11); k.push([z, 11]); zu.add(z); hinweise.push(`🔒 ${name(z)} geschlossen`); }
+    for (const [a, b] of d.ketten || []) for (const [p, q] of [[a, b], [b, a]])
+      if (p[0] === z && p[1] === zahl(z, i) && kreuz(q[0], qxIndex(d, q[0], q[1]), true)) hinweise.push(`⛓ ${name(q[0])} ${q[1]} mit angekreuzt`);
+    if (d.umrandet && (d.umrandet[z] || []).includes(zahl(z, i))){
+      const j = d.leiste.findIndex((f, jj) => !leiste.has(jj) && !zu.has(d.zeilen.findIndex(x => x.f === f)));
+      if (j >= 0){
+        leiste.add(j); l.push(j);
+        const zz = d.zeilen.findIndex(x => x.f === d.leiste[j]), ni = qxNaechst(d, sim, zu, zz);
+        if (ni != null && kreuz(zz, ni, false)) hinweise.push(`Bonus: ${name(zz)} ${zahl(zz, ni)}`);
+        else hinweise.push(`Bonus ${QX_NAMEN[d.leiste[j]]} verfällt (kein Feld möglich)`);
+      }
+    }
+    return true;
+  };
+  kreuz(z0, i0, true);
+  // Symbole (Bonus B): sobald beide Felder angekreuzt sind
+  for (let neu = true; neu && d.symbole;){
+    neu = false;
+    const jetzt = qxSymboleAktiv(d, sim);
+    for (const sym of Object.keys(d.symbole)){
+      if (aktiv[sym] || !jetzt[sym]) continue;
+      aktiv[sym] = true; neu = true; hinweise.push(`${QX_SYMBOL[sym].t}: ${QX_SYMBOL[sym].w}`);
+      if (sym === 'kreis'){
+        const n = z => qxZahlKreuze(sim[z]), min = Math.min(...d.zeilen.map((_, z) => n(z)));
+        // bei Gleichstand darf man wählen – die App nimmt die Reihe, in der die meisten der zwei Kreuze möglich sind
+        const moeglich = z => { const t = sim.map(x => new Set(x)); let m = 0; for (let j = 0; j < 2; j++){ const ni = qxNaechst(d, t, zu, z); if (ni == null) break; t[z].add(ni); m++; } return m; };
+        const kand = d.zeilen.map((_, z) => z).filter(z => n(z) === min), zz = kand.reduce((a, b) => moeglich(b) > moeglich(a) ? b : a);
+        let gemacht = 0;
+        for (let m = 0; m < 2; m++) if (kreuz(zz, qxNaechst(d, sim, zu, zz), false)) gemacht++;
+        if (gemacht < 2) hinweise.push(`${gemacht ? '1 Kreuz' : '2 Kreuze'} in ${name(zz)} ${gemacht ? 'verfällt' : 'verfallen'}`);
+      }
+      if (sym === 'raute') d.zeilen.forEach((_, zz) => kreuz(zz, qxNaechst(d, sim, zu, zz), false));
+    }
+  }
+  return { k, l, hinweise };
+}
+/* ---------- Qwixx: das Blatt auf dem Bildschirm ---------- */
+function qxHtml(r){
+  const d = QX[r.art], pid = GSCUI.pid, ich = r.mit.find(p => p.pid === pid), bl = r.blaetter[pid] || { log:[] }, s = qxStand(r.art, bl.log), p = s.punkte;
+  const darf = gscDarf(r, pid) && !r.ende, zu = qxZu(r), ende = qxEnde(r);
+  const kopf = `<div class="gsc-kopf">
+    <div class="gsc-titel"><h2>${esc(r.name)}</h2>${liveAnleitungKnopf(r)}<button class="knopf-rund" type="button" data-gsc="zu" aria-label="Schließen">${ic('x')}</button></div>
+    ${r.mit.length > 1 ? `<div class="gsc-tabs">${r.mit.map(x => `<button type="button" class="gsc-tab${x.pid === pid ? ' an' : ''}" data-gsc-tab="${esc(x.pid)}">${esc(x.name)} <b>${liveStand(r, x.pid).punkte.gesamt}</b>${gscDarf(r, x.pid) ? '' : ' 👁'}</button>`).join('')}</div>` : ''}
+    ${r.ende ? '' : `<div class="gsc-status"><span>${zu.size ? [...zu].map(([z, wer]) => `🔒 <b>${QX_NAMEN[d.zeilen[z].f]}</b> (${esc(wer.join(', '))})`).join(' · ') : 'Alle Reihen offen'}</span><span>${esc(ich ? ich.name : '')}: <b class="gsc-gesamt">${p.gesamt}</b> Punkte</span></div>`}
+    ${!darf && !r.ende ? `<p class="gsc-nur-sehen">👁 Das Blatt von ${esc(ich ? ich.name : '')} – nur zum Ansehen${(r.blaetter[pid] || {}).geraet ? '' : ' (noch nicht mitgespielt)'}.</p>` : ''}
+    ${ende && !r.ende ? `<div class="gsc-offen qx-ende"><span>Spielende: ${esc(ende)}.</span><button type="button" class="knopf" data-gsc="auswerten">Auswerten</button></div>` : ''}
+  </div>`;
+  if (r.ende) return kopf + gscErgebnisHtml(r);
+  const name = z => QX_NAMEN[d.zeilen[z].f];
+  const kette = (z, zahl) => { for (const [a, b] of d.ketten || []) for (const [x, y] of [[a, b], [b, a]]) if (x[0] === z && x[1] === zahl) return y; return null; };
+  const symbol = (z, zahl) => Object.entries(d.symbole || {}).find(([, f]) => f.some(([zz, n]) => zz === z && n === zahl));
+  const zeile = z => {
+    const zl = d.zeilen[z], kr = s.zeilen[z], letzt = qxLetzt(kr), geschlossen = zu.has(z) || kr.has(11);
+    const zellen = zl.z.map((zahl, i) => {
+      const x = kr.has(i), weg = !x && i < letzt, fz = zl.farben ? zl.farben[i] : zl.f, k = kette(z, zahl), sym = symbol(z, zahl);
+      const um = d.umrandet && (d.umrandet[z] || []).includes(zahl);
+      return `<button type="button" class="qx-z${x ? ' x' : ''}${weg ? ' weg' : ''}${i === 10 ? ' letzt' : ''}${um ? ' um' : ''}${k ? ' kette' : ''}" style="--fz:var(${QX_VAR[fz]})" data-qx="${z}|${i}"${k ? ` title="verbunden mit ${QX_NAMEN[d.zeilen[k[0]].f]} ${k[1]}"` : ''}>${sym ? `<svg class="qx-sym" viewBox="0 0 100 100" aria-hidden="true">${QX_FORM[sym[0]]}</svg>` : ''}<span>${zahl}</span>${k ? `<i class="qx-kp" style="--k:var(${QX_VAR[d.zeilen[k[0]].f]})">${k[1]}</i>` : ''}</button>`;
+    }).join('');
+    return `<div class="qxo-reihe${geschlossen ? ' zu' : ''}" style="--f:var(${QX_VAR[zl.f]})">${zellen}<span class="qx-schloss${kr.has(11) ? ' x' : geschlossen ? ' fremd' : ''}" title="${geschlossen ? 'geschlossen' : 'Schloss'}">🔒</span></div>`;
+  };
+  const bonusReihe = k => {
+    const br = d.bonusReihen[k], b = s.bonusR[k], letzt = Math.max(-1, ...b), [o, u] = br.zw.map(z => `var(${QX_VAR[d.zeilen[z].f]})`);
+    return `<div class="qx-bonusreihe">${br.z.map((zahl, i) => { const x = b.has(i), geht = !x && i > letzt && br.zw.some(z => s.zeilen[z].has(i));
+      return `<button type="button" class="qx-bk${x ? ' x' : ''}${!x && i < letzt ? ' weg' : ''}${geht && darf ? ' kann' : ''}" style="--a:${o};--b:${u}" data-qx="b${k}|${i}">${zahl}</button>`; }).join('')}<span></span></div>`;
+  };
+  let reihen = '';
+  d.zeilen.forEach((_, z) => {
+    reihen += zeile(z);
+    (d.bonusReihen || []).forEach((br, k) => { if (br.zw[0] === z) reihen += bonusReihe(k); });
+  });
+  const leiste = d.leiste ? `<div class="qx-leiste">${d.leiste.map((f, j) => { const genutzt = s.leiste.has(j), weg = !genutzt && zu.has(d.zeilen.findIndex(x => x.f === f));
+      return `<span class="qx-lb${genutzt ? ' x' : weg ? ' weg' : ''}" style="--f:var(${QX_VAR[f]})" title="${QX_NAMEN[f]}"></span>`; }).join('<i>›</i>')}</div>
+    <p class="gsc-klein">Umrandetes Feld angekreuzt: das nächste Kästchen der Leiste – und in dieser Farbe gleich das nächstmögliche Feld (die App macht das).</p>` : '';
+  const symbole = d.symbole ? `<div class="qx-symbole">${Object.entries(QX_SYMBOL).map(([k, x]) => {
+      const n = d.symbole[k].filter(([z, zahl]) => s.zeilen[z].has(qxIndex(d, z, zahl))).length;
+      return `<span class="qx-symb${s.symbole[k] ? ' an' : ''}"><svg viewBox="0 0 100 100" aria-hidden="true">${QX_FORM[k]}</svg><small>${s.symbole[k] ? '✓ ' : n + '/2 · '}${esc(x.w)}</small></span>`; }).join('')}</div>` : '';
+  const fehl = `<div class="qx-fehl"><span>Fehlwürfe${s.symbole && s.symbole.stern ? ' (kosten nichts)' : ' je −5'}</span><span class="qx-fk">${[0, 1, 2, 3].map(i => `<i class="${i < s.fehl ? 'x' : ''}"></i>`).join('')}</span>
+    ${darf ? `<button type="button" class="knopf zweit" data-qx-fehl${s.fehl >= 4 ? ' disabled' : ''}>Fehlwurf</button>` : ''}</div>`;
+  const blatt = `<section class="gsc-bereich qx-blatt" style="--c:#9aa3b2">${reihen}${leiste}${symbole}${fehl}
+    ${cfTabelle(QX_PUNKTE.slice(0, (d.max || 12) + 1), 0, 'Kreuze je Farbe → Punkte')}
+    <p class="gsc-klein">Von links nach rechts – Übersprungenes ist weg. Das letzte Feld erst ab 5 Kreuzen, dann ist die Reihe zu (das Schloss zählt als Kreuz).${d.bonusReihen ? ' Bonuskreis: die Zahl noch einmal, wenn sie darüber oder darunter schon angekreuzt ist – zählt für beide Farben.' : ''}${d.ketten ? ' Verbundene Felder (gestrichelt): das andere wird automatisch mit angekreuzt.' : ''}${d.zeilen[0].farben ? ' Farbige Felder: mit Weiß jede Farbe, mit einem Farbwürfel nur seine Farbe.' : ''}</p></section>`;
+  const summe = `<section class="gsc-bereich" style="--c:#9aa3b2"><div class="gsc-summe">
+    ${d.zeilen.map(zl => `<span style="--c:var(${QX_VAR[zl.f]})">${p[zl.f]}</span>`).join('+')}${p.fehl ? `−<span class="fuchs">${-p.fehl}</span>` : ''}${p.bonus ? `+<span style="--c:#f2c230">${p.bonus}</span>` : ''}=<b>${p.gesamt}</b></div></section>`;
+  const fuss = `<div class="gsc-fuss">
+    ${darf ? `<button type="button" class="knopf rahmen" data-gsc="rueck"${bl.log.length > 1 ? '' : ' disabled'}>↶ Rückgängig</button>` : ''}
+    <button type="button" class="knopf" data-gsc="auswerten">Spielende</button></div>
+    <div class="gsc-unten">${gscIstGastgeber(r) ? '<button type="button" class="link-knopf" data-gsc="abbrechen">Partie abbrechen</button>'
+      : '<button type="button" class="link-knopf" data-gsc="verlassen">Auf diesem Gerät nicht mehr mitspielen</button>'}
+      ${r.modus === 'jeder' ? `<span class="gsc-klein">${(D.metaR[r.id] || {}).dirty ? 'wird abgeglichen …' : 'abgeglichen'}</span>` : ''}</div>`;
+  return kopf + blatt + summe + fuss;
+}
+function qxKlick(e, r, s, darf, name){
+  const el = e.target.closest('[data-qx],[data-qx-fehl]'); if (!el) return false;
+  if (!darf){ cfNurSehen(r, name); return true; }
+  if (el.dataset.qxFehl != null){
+    if (s.fehl >= 4){ toast('Schon 4 Fehlwürfe – das Spiel ist vorbei.', 'fehler'); return true; }
+    if (gscEintragen({ t:'fehl' }) && s.fehl + 1 >= 4) setTimeout(() => toast('4 Fehlwürfe – das Spiel ist zu Ende.'), 300);
+    return true;
+  }
+  qxTippen(r, s, el.dataset.qx);
+  return true;
+}
+async function qxTippen(r, s, wo){
+  const d = QX[r.art], [zs, is] = wo.split('|'), i = Number(is);
+  if (zs[0] === 'b'){            // Big Points: Bonuskreis
+    const k = Number(zs.slice(1)), br = d.bonusReihen[k], b = s.bonusR[k];
+    if (b.has(i)){ cfSchonDa(); return; }
+    if (i <= Math.max(-1, ...b)){ toast('Nur rechts vom letzten Kreuz in dieser Bonusreihe – dieses Feld ist übersprungen.', 'fehler'); return; }
+    if (!br.zw.some(z => s.zeilen[z].has(i))){ toast(`Erst wenn die ${br.z[i]} in ${br.zw.map(z => QX_NAMEN[d.zeilen[z].f]).join(' oder ')} angekreuzt ist.`, 'fehler'); return; }
+    gscEintragen({ t:'x', k:[[zs, i]] }); return;
+  }
+  const z = Number(zs), zl = s.zeilen[z];
+  if (i === 11){ toast('Das Schloss kommt mit dem letzten Feld der Reihe von selbst.'); return; }
+  if (zl.has(i)){ cfSchonDa(); return; }
+  const f = qxFehler(d, s.zeilen, z, i); if (f){ toast(f, 'fehler'); return; }
+  const zu = qxZu(r);
+  if (zu.has(z) && !await frage('Reihe ist zu', `${zu.get(z).join(', ')} hat ${QX_NAMEN[d.zeilen[z].f]} geschlossen. Ankreuzen geht nur noch im selben Wurf. Trotzdem ankreuzen?`, 'Ankreuzen', false)) return;
+  const sprung = i - qxLetzt(zl) - 1, w = qxWirkung(r, s, z, i);
+  if (!gscEintragen({ t:'x', k:w.k, ...(w.l.length ? { l:w.l } : {}) })) return;
+  const text = [...w.hinweise, ...(sprung > 0 ? [`${sprung} ${sprung === 1 ? 'Feld' : 'Felder'} übersprungen`] : [])];
+  if (text.length) setTimeout(() => toast(text.join(' · ')), 250);
+}
 /* Die Varianten der Clever-Familie */
 const CF = {
   c4:{ name:'Clever 4ever', block:'Clever-4ever-Block', stand:c4Stand, fehler:c4Fehler, frei:c4Frei, runden:C4.runden,
@@ -5392,6 +5681,13 @@ const CF = {
     leisten:[{ k:'nw', b:'NW', n:6, ende:'F' }, { k:'zl', b:'ZL', n:6, ende:'?:rosa' }, { k:'p1', b:'P1', n:6, ende:'?:silber' }],
     farben:['silber', 'gelb', 'blau', 'gruen', 'rosa'], kurz:{ silber:'Si', gelb:'Ge', blau:'Bl', gruen:'Gr', rosa:'Ro' }, modus:DSC_MODUS, bereiche:dscBereiche, klick:dscKlick }
 };
+
+/* Qwixx und seine Varianten nutzen denselben Rahmen (Partie-Datei, Abgleich, Reiter, Spielende, Ergebnis) */
+const QX_ARTEN = { qx:['Qwixx', 'Qwixx-Block'], qxbp:['Qwixx Big Points', 'Qwixx-Big-Points-Block'], qxba:['Qwixx Bonus', 'Qwixx-Bonus-Block A (Bonusleiste)'],
+  qxbb:['Qwixx Bonus', 'Qwixx-Bonus-Block B (Symbole)'], qxmf:['Qwixx gemixxt', 'Qwixx-gemixxt-Block (Farben)'], qxmz:['Qwixx gemixxt', 'Qwixx-gemixxt-Block (Zahlen)'],
+  qxck:['Qwixx Connected', 'Qwixx-Connected-Block (Kette)'] };
+for (const [art, [name, block]] of Object.entries(QX_ARTEN)) CF[art] = { name, block, stand:log => qxStand(art, log), fehler:() => '', html:qxHtml, klickGanz:qxKlick,
+  farben:['rot', 'gelb', 'gruen', 'blau'], spalten:[['rot', 'Ro', 'rt'], ['gelb', 'Ge', 'ge'], ['gruen', 'Gr', 'gr'], ['blau', 'Bl', 'bl'], ['fehl', '✗', ''], ...(art === 'qxbb' ? [['bonus', '+', '']] : [])] };
 
 /* ---------- Spezielle Spielblöcke ----------
    Jeder Block bringt eigene Ansicht (html), eigene Bedienung (klick, data-pb="x-…") und eigene Auswertung (ergebnis). */
@@ -6244,6 +6540,7 @@ const HILFE = [
     <li><b>Ganz schön clever</b> gibt es als <b>Original-Block zum Antippen</b>: Kreuze in Gelb und Blau antippen, in Grün, Orange und Lila die Zahl wählen. Die App prüft die Regeln (z. B. Lila: „Die Zahl muss höher sein“, Grün: Mindestwert) und sagt, was nicht passt. Erreichte Boni stehen oben unter <b>Bonus einlösen</b>, bis sie eingetragen sind. Neuwürfe und +1 zählt die App mit, Runden-Boni gibt es mit <b>Runde … beginnen</b>, <b>↶ Rückgängig</b> nimmt den letzten Eintrag zurück.</li>
     <li><b>Clever 4ever</b> gibt es ebenso als <b>Original-Block</b>: In Gelb die Zeile frei wählen (oben steigend, Mitte zählt minus, unten plus), in Blau das Feld aus blauem Würfel (Zeile) und weißem (Spalte) antippen, in Grau einen ganzen Teilbereich (rot umrandet anfangen, danach angrenzend – die Zahl muss mindestens so groß sein wie die Felder), in Grün das obere oder untere Dreieck, in Rosa das nächste Feld (eine 3 bringt gleich noch eine 3). <b>?-Boni</b> (Wunschzahl) stehen oben, bis sie eingetragen sind – antippen, dann in der Farbe mit einer beliebigen Zahl eintragen; das schwarze ? fragt erst nach der Farbe. Nachwürfeln, Zusatzwürfel und Silber polieren mit <b>Nutzen</b> einsetzen.</li>
     <li><b>Clever hoch drei</b> und <b>Doppelt so clever</b> funktionieren genauso: Felder antippen, bei Zahlen die Zahl wählen – die App prüft die Regeln (z. B. Blau ab der 7: links je 1 weniger, rechts je 1 mehr; bei Doppelt so clever Blau absteigend). Bei Clever hoch drei steht in Rosa „halb mit Bonus“ oder „mal Stern“ zur Wahl, die <b>Zahlen-Joker</b> tippst du einzeln an. Bei Doppelt so clever wird Gelb beim ersten Antippen eingekreist, beim zweiten angekreuzt.</li>
+    <li><b>Qwixx</b> gibt es auch als <b>Original-Block</b>: Felder antippen – von links nach rechts, das letzte Feld erst ab 5 Kreuzen (das Schloss kommt von selbst). <b>Fehlwurf</b> unten antippen. Hat jemand eine Reihe geschlossen, steht das oben bei allen; ankreuzen geht dann nur noch im selben Wurf (die App fragt nach). Bei 2 geschlossenen Reihen oder 4 Fehlwürfen heißt es <b>Spielende</b>. Die Varianten <b>Big Points</b>, <b>Bonus</b> (Blatt A oder B), <b>gemixxt</b> (Farben oder Zahlen) und <b>Connected</b> (Kette) haben eigene Blöcke – Bonusfelder, Ketten und Symbole trägt die App selbst nach.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
@@ -6374,6 +6671,13 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.78', datum:'29.10.2026', neu:[
+    'Qwixx als Original-Block zum Antippen: Kreuze von links nach rechts, Übersprungenes wird ausgegraut, das letzte Feld erst ab 5 Kreuzen – dann ist die Reihe mit dem Schloss zu',
+    'Fehlwürfe zählen je −5, die Punkte je Farbe rechnet die App; schließt jemand eine Reihe, sehen es alle („🔒 Rot (Christian)“) und bei 2 Reihen oder 4 Fehlwürfen kommt „Spielende“',
+    'Varianten mit eigenem Block: Big Points (Bonuskreise zwischen den Reihen, bis 15 Kreuze), Bonus A (Bonusleiste) und B (Symbole), gemixxt (Farben oder Zahlen) und Connected (Kette)',
+    'Die Folgen trägt die App selbst ein: Bonusleiste, Kettenfelder, Raute und Kreis bei den Symbolen – und sagt per Hinweis, was dazukam',
+    'Als Varianten bei „Qwixx“ eintragen, dann gibt es eigene Startknöpfe; die Anleitungen von Big Points, Bonus und Connected kennt die App vom Verlag'
+  ]},
   { v:'v1.77', datum:'29.10.2026', neu:[
     'Clever hoch drei als Original-Block: Gelb mit Zeilen I–III, Türkis, Blau ab der 7 (links −1, rechts +1, 7 startet neu), Braun nach rechts, Rosa halb mit Bonus oder mal Stern',
     'Doppelt so clever als Original-Block: Silber mit vier Farbzeilen, Gelb erst einkreisen, dann ankreuzen, Blau absteigend, Grün in Paaren (erste minus zweite), Rosa mit Mindestzahl',
