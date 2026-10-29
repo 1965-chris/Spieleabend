@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.67",
+ "app": "v1.79",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -231,6 +231,23 @@
    "anleitung": "",
    "erstellt": 1792863236228,
    "geaendert": 1792881314105
+  },
+  {
+   "id": "smvtdhh6a7fay",
+   "name": "UNO Extreme",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793268032050,
+   "geaendert": 1793268047635
   }
  ],
  "spieler": [
