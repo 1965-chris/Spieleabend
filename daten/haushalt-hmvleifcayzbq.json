@@ -106,6 +106,25 @@
    "geaendert": 1793375668677
   },
   {
+   "id": "smvv5ob84wpki",
+   "name": "El Grande",
+   "bild": "bilder/smvv5ob84wpki-mvv5ob85.jpg",
+   "spielerMin": 2,
+   "spielerMax": 5,
+   "alterAb": 12,
+   "dauer": 120,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "El Grande ist ein Brettspiel für zwei bis fünf Spieler von Wolfgang Kramer und Richard Ulrich und erschien im Hans im Glück Verlag. Die Landkarte Spaniens ist das Spielbrett von El Grande. Die Spieler sind die Granden und versuchen mit ihren Caballeros – kleine bunte Holzwürfel – in möglichst vielen Regionen die Mehrheit zu erringen, um ihren Einfluss weit auszudehnen.\nVon Wolfgang Kramer,, Richard Ulrich, erschienen 1995 bei Hans im Glück Verlag,.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: El Pantera, CC BY-SA 4.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/El_Grande",
+   "anleitung": "",
+   "erstellt": 1793375846356,
+   "geaendert": 1793375846357
+  },
+  {
    "id": "smvv5l3d1o152",
    "name": "Greenville 1989",
    "bild": "",
