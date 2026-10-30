@@ -7,6 +7,26 @@
  "stand": 1792873734510,
  "spiele": [
   {
+   "id": "smvv5d31lghzl",
+   "name": "A Place for all my books",
+   "bild": "",
+   "spielerMin": 1,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375322537,
+   "geaendert": 1793375322537
+  },
+  {
    "id": "smvv592h9pril",
    "name": "Ausverkauft",
    "bild": "",
