@@ -351,6 +351,26 @@
    "geaendert": 1793375527516
   },
   {
+   "id": "smvv5oz1e8sch",
+   "name": "Stratego 4",
+   "bild": "bilder/smvv5oz1e8sch-mvv5oz1f.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 60,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "Das Spiel Stratego ist ein Brettspiel für zwei Spieler, bei dem die Spieler versuchen müssen, mit ihren verschiedenen Spielsteinen die Fahne des Gegners zu erobern. Jeder der beiden Spieler erhält 40 Spielfiguren. Sie sind der hierarchischen Struktur eines Heeres angelehnt (Ränge) und dementsprechend verschieden spielstark: in der Regel kann eine Figur nur rangniedrigere schlagen.\nVon Jacques Johan Mogendorff, erschienen 1946 bei Smeets & Schippers (1946),.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Andreas Kaufmann, CC BY-SA 3.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Stratego",
+   "anleitung": "",
+   "erstellt": 1793375877219,
+   "geaendert": 1793375877219
+  },
+  {
    "id": "smvv5jaqhomdp",
    "name": "Trivial Pursuit - Familienedition",
    "bild": "",
@@ -385,7 +405,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375791046,
+   "zuletzt": 1793375879605,
    "name": "",
    "nameStand": 0
   }
