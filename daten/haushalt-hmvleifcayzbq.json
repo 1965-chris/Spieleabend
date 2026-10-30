@@ -66,6 +66,25 @@
    "geaendert": 1793375292835
   },
   {
+   "id": "smvv5eaz7815f",
+   "name": "Look at the stars",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375379475,
+   "geaendert": 1793375379475
+  },
+  {
    "id": "smvv57kzmdbzb",
    "name": "Love Letters Big Box",
    "bild": "",
@@ -119,7 +138,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375295104,
+   "zuletzt": 1793375382121,
    "name": "",
    "nameStand": 0
   }
