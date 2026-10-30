@@ -202,6 +202,26 @@
    "anleitung": "",
    "erstellt": 1793375527516,
    "geaendert": 1793375527516
+  },
+  {
+   "id": "smvv5jaqhomdp",
+   "name": "Trivial Pursuit - Familienedition",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 12,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel",
+    "Allgemeinwissen"
+   ],
+   "beschreibung": "Trivial Pursuit (engl. trivial alltäglich, belanglos (vgl. Allgemeinwissen), pursuit (Verfolgungs-)Jagd (als leisure-time pursuit auch im Sinne von Zeitvertreib, Beschäftigung), entsprechend etwa Belanglose Jagd oder Die Jagd ums Allgemeinwissen, Aussprache [ˌtrɪviəl pɜːˈsjuːt]) ist ein bekanntes Brettspiel. Ziel des Spiels ist es, durch korrektes Beantworten von Fragen aus verschiedenen Kategorien seinen Spielstein als Erster mit allen sechs Wissensecken oder „Tortenstücken“ zu füllen.\nVon Scott Abbott,, Chris Haney (1950–2010), erschienen 1981 bei Horn Abbot (1981),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Trivial_Pursuit",
+   "anleitung": "",
+   "erstellt": 1793375612441,
+   "geaendert": 1793375612441
   }
  ],
  "spieler": [
@@ -218,7 +238,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375529921,
+   "zuletzt": 1793375614764,
    "name": "",
    "nameStand": 0
   }
