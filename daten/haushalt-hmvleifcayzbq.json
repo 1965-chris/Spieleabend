@@ -5,7 +5,27 @@
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
  "stand": 1792873734510,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smvv57kzmdbzb",
+   "name": "Love Letters Big Box",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375065859,
+   "geaendert": 1793375065859
+  }
+ ],
  "spieler": [
   {
    "id": "pmvleifcab9b1",
@@ -20,7 +40,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793374140214,
+   "zuletzt": 1793375068220,
    "name": "",
    "nameStand": 0
   }
