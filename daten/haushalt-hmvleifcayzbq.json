@@ -27,6 +27,25 @@
    "geaendert": 1793375135181
   },
   {
+   "id": "smvv5cg4jxoxc",
+   "name": "Kathedralenbauer von Orléans",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375292835,
+   "geaendert": 1793375292835
+  },
+  {
    "id": "smvv57kzmdbzb",
    "name": "Love Letters Big Box",
    "bild": "",
@@ -80,7 +99,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375203425,
+   "zuletzt": 1793375295104,
    "name": "",
    "nameStand": 0
   }
