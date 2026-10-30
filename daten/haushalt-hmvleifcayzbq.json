@@ -182,6 +182,26 @@
    "anleitung": "",
    "erstellt": 1793375201049,
    "geaendert": 1793375201049
+  },
+  {
+   "id": "smvv5hh7d9voa",
+   "name": "Sagrada",
+   "bild": "bilder/smvv5hh7d9voa-mvv5hh7h.jpg",
+   "spielerMin": 1,
+   "spielerMax": 4,
+   "alterAb": 14,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Würfelspiel"
+   ],
+   "beschreibung": "Zur Spielvorbereitung bekommt jeder Spieler ein Spielertableau sowie eine Musterkarte (ausgewählt aus zwei Karten), die in das Tableau eingeschoben wird. Zusätzlich bekommt jeder Mitspieler eine geheime Auftragskarte, einen Wertungsmarker entsprechend der Farbe des Tableaus sowie so viele Gunststeine, wie auf seiner Musterkarte angegeben ist.\nVon Adrian Adamescu, Daryl Andrews, erschienen 2017 bei Floodgate Games,.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Damon Gardenhire, CC0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Sagrada",
+   "anleitung": "",
+   "erstellt": 1793375527516,
+   "geaendert": 1793375527516
   }
  ],
  "spieler": [
@@ -198,7 +218,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375445137,
+   "zuletzt": 1793375529921,
    "name": "",
    "nameStand": 0
   }
