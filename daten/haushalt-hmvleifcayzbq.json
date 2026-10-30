@@ -104,6 +104,26 @@
    "geaendert": 1793375065859
   },
   {
+   "id": "smvv5f9uz9evk",
+   "name": "Pandemic Legacy: Season 1",
+   "bild": "bilder/smvv5f9uz9evk-mvv5f9v0.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 13,
+   "dauer": 60,
+   "kategorien": [
+    "Brettspiel",
+    "Kooperativ"
+   ],
+   "beschreibung": "Brettspiel",
+   "bemerkung": "",
+   "bildQuelle": "Foto: El Pantera, CC BY-SA 4.0, Wikimedia Commons",
+   "link": "https://www.wikidata.org/wiki/Q36816018",
+   "anleitung": "",
+   "erstellt": 1793375424684,
+   "geaendert": 1793375424684
+  },
+  {
    "id": "smvv5ahaxlpmh",
    "name": "Paris - Die Stadt des Lichts",
    "bild": "",
