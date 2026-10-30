@@ -7,6 +7,26 @@
  "stand": 1792873734510,
  "spiele": [
   {
+   "id": "smvv592h9pril",
+   "name": "Ausverkauft",
+   "bild": "",
+   "spielerMin": 1,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375135181,
+   "geaendert": 1793375135181
+  },
+  {
    "id": "smvv57kzmdbzb",
    "name": "Love Letters Big Box",
    "bild": "",
@@ -40,7 +60,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375068220,
+   "zuletzt": 1793375137929,
    "name": "",
    "nameStand": 0
   }
