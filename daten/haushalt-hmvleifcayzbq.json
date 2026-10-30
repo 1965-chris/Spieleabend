@@ -104,6 +104,25 @@
    "geaendert": 1793375065859
   },
   {
+   "id": "smvv5g2tpmyue",
+   "name": "Mississippi",
+   "bild": "",
+   "spielerMin": 3,
+   "spielerMax": 6,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Mississippi ist ein Brettspiel des deutschen Spieleautors Roland Siegers für drei bis sechs Personen aus dem Jahr 1987, bei dem ein Wettlauf zwischen mehreren Schaufelraddampfern auf dem Mississippi nachgestellt wird. Zu Beginn des Spiels wird das Spielbrett in der Tischmitte platziert. Die Spieler bekommen abhängig von der Spielerzahl 10 bis 20 Holzscheite als Brennstoff für ihren Raddampfer und wählen jeweils eine Farbe für ihren Spielstein.\nVon Roland Siegers, erschienen 1987 bei Mattel.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Mississippi_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1793375462222,
+   "geaendert": 1793375462222
+  },
+  {
    "id": "smvv5fnfo2xe0",
    "name": "Outburst!",
    "bild": "",
