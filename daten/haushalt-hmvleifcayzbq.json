@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.67",
+ "app": "v1.80",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -11,6 +11,18 @@
    "id": "pmvleifcab9b1",
    "name": "Alina",
    "stand": 1792786026538
+  }
+ ],
+ "geraete": [
+  {
+   "id": "gmvv4nname5am",
+   "art": "Android",
+   "app": false,
+   "version": "v1.80",
+   "erst": 1793374140214,
+   "zuletzt": 1793374140214,
+   "name": "",
+   "nameStand": 0
   }
  ],
  "geloescht": {}
