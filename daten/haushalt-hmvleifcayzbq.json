@@ -248,6 +248,25 @@
    "geaendert": 1793375462222
   },
   {
+   "id": "smvv5szf9dip1",
+   "name": "Monopoly - Mogeln und Mauscheln",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Monopoly (englisch für „Monopol“) ist ein US-amerikanisches Brettspiel. Ziel des Spiels ist es, ein Grundstücksimperium aufzubauen und alle anderen Mitspieler in die Insolvenz zu treiben. Dazu erwirbt man möglichst viele Besitzrechte, um von den Mitspielern Mieten zu erhalten, wenn diese durch Würfeln auf gewissen Feldern landen.\nVon Elizabeth Magie,, Charles Darrow, erschienen 1933 bei Eigenverlag (ca. 1933),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Monopoly",
+   "anleitung": "",
+   "erstellt": 1793376064341,
+   "geaendert": 1793376064341
+  },
+  {
    "id": "smvv5scxa4u1q",
    "name": "Monopoly - Trauminsel",
    "bild": "",
