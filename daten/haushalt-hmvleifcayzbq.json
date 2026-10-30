@@ -286,6 +286,25 @@
    "geaendert": 1793376035182
   },
   {
+   "id": "smvv5tea5wy0l",
+   "name": "Mrs. Monopoly",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 8,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Monopoly (englisch für „Monopol“) ist ein US-amerikanisches Brettspiel. Ziel des Spiels ist es, ein Grundstücksimperium aufzubauen und alle anderen Mitspieler in die Insolvenz zu treiben. Dazu erwirbt man möglichst viele Besitzrechte, um von den Mitspielern Mieten zu erhalten, wenn diese durch Würfeln auf gewissen Feldern landen.\nVon Elizabeth Magie,, Charles Darrow, erschienen 1933 bei Eigenverlag (ca. 1933),.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Monopoly",
+   "anleitung": "",
+   "erstellt": 1793376083598,
+   "geaendert": 1793376083598
+  },
+  {
    "id": "smvv5m4q5zpam",
    "name": "Mysterium",
    "bild": "bilder/smvv5m4q5zpam-mvv5m4q5.jpg",
