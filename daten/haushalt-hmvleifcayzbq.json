@@ -67,6 +67,26 @@
    "geaendert": 1793375668677
   },
   {
+   "id": "smvv5l3d1o152",
+   "name": "Greenville 1989",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 10,
+   "dauer": 30,
+   "kategorien": [
+    "Kartenspiel",
+    "Kooperativ"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375696197,
+   "geaendert": 1793375696197
+  },
+  {
    "id": "smvv5cg4jxoxc",
    "name": "Kathedralenbauer von Orléans",
    "bild": "",
@@ -258,7 +278,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375614764,
+   "zuletzt": 1793375698489,
    "name": "",
    "nameStand": 0
   }
