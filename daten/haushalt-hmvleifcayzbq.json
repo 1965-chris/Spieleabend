@@ -67,6 +67,25 @@
    "geaendert": 1793375723700
   },
   {
+   "id": "smvv5n2p4b9uq",
+   "name": "Chamäleon",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 15,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Chamäleon ist der Titel eine Gesellschaftsspiels des Verlages VSK aus dem Jahr 1990. Das Spiel wurde beim Deutschen Spielepreis 1990 auf Platz 7 gewählt.\nVon Wolfgang Großkopf, erschienen 1990 bei : VSK.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Cham%C3%A4leon_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1793375788648,
+   "geaendert": 1793375788648
+  },
+  {
    "id": "smvv5ki4k5b3q",
    "name": "Dixit",
    "bild": "bilder/smvv5ki4k5b3q-mvv5ki4l.jpg",
@@ -320,7 +339,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375698489,
+   "zuletzt": 1793375791046,
    "name": "",
    "nameStand": 0
   }
