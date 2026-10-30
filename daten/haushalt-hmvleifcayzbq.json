@@ -183,6 +183,28 @@
    "geaendert": 1793375462222
   },
   {
+   "id": "smvv5m4q5zpam",
+   "name": "Mysterium",
+   "bild": "bilder/smvv5m4q5zpam-mvv5m4q5.jpg",
+   "spielerMin": 2,
+   "spielerMax": 7,
+   "alterAb": 10,
+   "dauer": 45,
+   "kategorien": [
+    "Brettspiel",
+    "Kartenspiel",
+    "Kooperativ",
+    "Rätsel & Krimi"
+   ],
+   "beschreibung": "Mysterium (von altgriechisch μυστήριον mystērion „geheimer Kult“) ist ein kooperatives Deduktionsspiel der ukrainischen Autoren Oleksandr Nevskiy und Oleg Sidorenko. Die Spieler nehmen in Form von Spiritisten an einer nächtlichen Séance teil, um Kontakt mit dem Geist des Hauses, verkörpert von einem der Spieler, aufzunehmen. Dieser wurde vor vielen Jahren auf noch ungeklärte Weise in dem Haus, in dem das Spiel stattfindet, ermordet.\nVon Oleksandr Nevskiy, Oleg Sidorenko, erschienen 2015 bei Libellud.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: El Pantera, CC BY-SA 4.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Mysterium_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1793375744621,
+   "geaendert": 1793375744621
+  },
+  {
    "id": "smvv5fnfo2xe0",
    "name": "Outburst!",
    "bild": "",
