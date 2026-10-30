@@ -47,6 +47,26 @@
    "geaendert": 1793375135181
   },
   {
+   "id": "smvv5ki4k5b3q",
+   "name": "Dixit",
+   "bild": "bilder/smvv5ki4k5b3q-mvv5ki4l.jpg",
+   "spielerMin": 3,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Kartenspiel",
+    "Kommunikation"
+   ],
+   "beschreibung": "Dixit (lateinisch für „er/sie/es hat [es] gesagt“) ist ein einfaches Ratespiel mit hohem Kommunikationspotenzial. Zum Spiel gehörten in der Originalausgabe die in die Schachtel integrierte Spielstandsanzeige in Form einer Kramerleiste, 6 hölzerne Hasenfiguren als Fortschrittsanzeiger, 84 verschiedene handgroße illustrierte Bildkarten mit neutraler Rückseite, 36 Abstimmungsplättchen im Wert von je 1–6 sowie die Spielregeln. In späteren Ausgaben wurden die Abstimmungsplättchen durch 8 drehbare Ziffernblätter (eines pro Spieler) ersetzt und ein separater, aus der Schachtel herausnehmbarer Spielpl",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Peng (talk) 18:04, 20 July 2011 (UTC), CC BY-SA 3.0, Wikimedia Commons",
+   "link": "https://de.wikipedia.org/wiki/Dixit_(Spiel)",
+   "anleitung": "",
+   "erstellt": 1793375668677,
+   "geaendert": 1793375668677
+  },
+  {
    "id": "smvv5cg4jxoxc",
    "name": "Kathedralenbauer von Orléans",
    "bild": "",
