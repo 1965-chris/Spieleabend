@@ -44,6 +44,26 @@
    "anleitung": "",
    "erstellt": 1793375065859,
    "geaendert": 1793375065859
+  },
+  {
+   "id": "smvv5ahaxlpmh",
+   "name": "Paris - Die Stadt des Lichts",
+   "bild": "",
+   "spielerMin": 1,
+   "spielerMax": 2,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel",
+    "Strategie"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793375201049,
+   "geaendert": 1793375201049
   }
  ],
  "spieler": [
@@ -60,7 +80,7 @@
    "app": false,
    "version": "v1.80",
    "erst": 1793374140214,
-   "zuletzt": 1793375137929,
+   "zuletzt": 1793375203425,
    "name": "",
    "nameStand": 0
   }
