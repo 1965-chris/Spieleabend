@@ -8,11 +8,11 @@
  "spiele": [
   {
    "id": "smvv5d31lghzl",
-   "name": "A Place for all my books",
+   "name": "A Place For All My Books (en)",
    "bild": "bilder/smvv5d31lghzl-mvwkkj7a.jpg",
    "spielerMin": 1,
    "spielerMax": 4,
-   "alterAb": 8,
+   "alterAb": 10,
    "dauer": 30,
    "kategorien": [
     "Brettspiel",
@@ -21,10 +21,10 @@
    "beschreibung": "Bringt in diesem entspannenden Spiel Ordnung in eure Büchersammlung!\nIn jedem eurer Räume stapeln sich Bücher, die von vergangenen Abenteuern erzählen, von stillen Nächten am Fenster in deinem Lieblingshoodie oder von Geschichten, die geblieben sind, lange nachdem ihr das letzte Kapitel gelesen habt.\nZusätzlich werden die Stapel mit jedem Buch, das ihr euch aus dem Buchladen oder der Bücherkiste holt, immer höher. Deswegen ist es an der Zeit, ein wenig Ordnung reinzubringen.\nDenn hier hat jedes Buch seinen Platz.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://www.spiele-offensive.de/Spiel/A-Place-For-All-My-Books-en-1033508.html",
    "anleitung": "",
    "erstellt": 1793375322537,
-   "geaendert": 1793461462294
+   "geaendert": 1793490609818
   },
   {
    "id": "smvv592h9pril",
