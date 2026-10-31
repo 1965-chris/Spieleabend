@@ -255,7 +255,7 @@
   {
    "id": "smvv5szf9dip1",
    "name": "Monopoly - Mogeln und Mauscheln",
-   "bild": "",
+   "bild": "bilder/smvv5szf9dip1-mvwy2m5p.jpg",
    "spielerMin": 2,
    "spielerMax": 8,
    "alterAb": 8,
@@ -268,8 +268,13 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Monopoly",
    "anleitung": "https://www.hasbro.com/common/documents/DAD288661C4311DDBD0B0800200C9A66/178FE773037742668766181BE61F1059.pdf",
+   "bildPos": {
+    "x": 43.9,
+    "y": 55.9,
+    "z": 1
+   },
    "erstellt": 1793376064341,
-   "geaendert": 1793483859044
+   "geaendert": 1793484009132
   },
   {
    "id": "smvv5scxa4u1q",
