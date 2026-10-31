@@ -1,0 +1,70 @@
+# Einmaliger Test: Lässt Spiele-Offensive den GitHub-Abholdienst herein?
+# Läuft automatisch, sobald diese Datei gespeichert ist. Ergebnis: Reiter „Actions“ → „Abholtest“.
+name: Abholtest
+on:
+  push:
+    paths: ['.github/workflows/abholtest.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Spiele-Offensive testen
+        run: |
+          python3 - <<'PY'
+          import os, re, urllib.request, urllib.error, urllib.parse, html
+          UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
+          def holen(url, roh=False):
+              req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9', 'Accept': 'text/html,image/*,*/*'})
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      b = r.read()
+                      return r.status, (b if roh else b.decode(r.headers.get_content_charset() or 'utf-8', 'replace'))
+              except urllib.error.HTTPError as e:
+                  return e.code, b'' if roh else ''
+              except Exception as e:
+                  return 0, b'' if roh else type(e).__name__
+          def meta(t, name):
+              m = re.search(r'<meta[^>]+(?:property|name)="' + name + r'"[^>]*content="([^"]*)"', t, re.I) or re.search(r'<meta[^>]+content="([^"]*)"[^>]*(?:property|name)="' + name + '"', t, re.I)
+              return html.unescape(m.group(1)) if m else '–'
+          text = lambda t: re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', re.sub(r'(?is)<(script|style)[^>]*>.*?</\1>', ' ', t))))
+          z = ['## Abholtest Spiele-Offensive', '']
+          st, t = holen('https://www.spiele-offensive.de/Spiel/Azul-1021048.html')
+          ok = st == 200 and 'Azul' in t
+          z.append(f'- **Spielseite:** {"✅ geht" if ok else "❌ gesperrt"} (Code {st})')
+          if ok:
+              tx = text(t)
+              for muster in [r'[^.]{0,40}\d+\s*bis\s*\d+\s*Spieler[^.]{0,60}', r'[^.]{0,30}Spieldauer[^.]{0,40}', r'[^.]{0,20}\d+\s*Minuten[^.]{0,20}']:
+                  m = re.search(muster, tx); z.append(f'- Text: {m.group(0).strip()[:140] if m else "– (" + muster[:20] + ")"}')
+              z.append(f'- og:title: {meta(t, "og:title")[:90]}')
+              z.append(f'- og:image: {meta(t, "og:image")[:140]}')
+              z.append(f'- description: {meta(t, "description")[:160]}')
+              z.append(f'- keywords: {meta(t, "keywords")[:160]}')
+              ids = sorted(set(re.findall(r'(?:id|class)="([^"]*(?:[Bb]eschreib|[Dd]escr|[Ii]nfo|[Dd]etail)[^"]*)"', t)))[:12]
+              z.append(f'- Bereiche: {", ".join(ids) or "–"}')
+          st, b = holen('https://mediaservice.happyshops.com/ANY/Article/000001021048/1021048.jpg', roh=True)
+          z.append(f'- **Foto:** {"✅" if st == 200 and len(b) > 1000 else "❌"} (Code {st}, {len(b) // 1024} KB)')
+          st, t = holen('https://www.spiele-offensive.de/')
+          z.append(f'- **Startseite:** {"✅" if st == 200 else "❌"} (Code {st})')
+          suche = None
+          for f in re.findall(r'(?is)<form[^>]*>.*?</form>', t)[:10]:
+              if re.search(r'such|search', f, re.I):
+                  a = re.search(r'action="([^"]*)"', f); me = re.search(r'method="([^"]*)"', f, re.I)
+                  felder = re.findall(r'<input[^>]*name="([^"]*)"', f)
+                  z.append(f'- Suchformular: action={a.group(1) if a else "?"} · {me.group(1) if me else "get"} · Felder: {", ".join(felder)}')
+                  if a and felder and not suche: suche = (urllib.parse.urljoin('https://www.spiele-offensive.de/', html.unescape(a.group(1))), felder)
+          if suche:
+              url, felder = suche
+              feld = next((f for f in felder if re.search(r'such|q|term|keyword|text', f, re.I)), felder[0])
+              st, t = holen(url + ('&' if '?' in url else '?') + urllib.parse.urlencode({feld: 'Azul'}))
+              links = list(dict.fromkeys(re.findall(r'href="([^"]*/Spiel/[^"]*-\d+\.html)"', t)))
+              z.append(f'- **Suche:** {"✅" if st == 200 and links else "❌"} (Code {st}, {len(links)} Spiele) {" · ".join(links[:3])}')
+          st, t = holen('https://www.spiele-offensive.de/robots.txt')
+          z.append(f'- robots.txt: ' + ' · '.join([l.strip() for l in t.splitlines() if l.lower().startswith('disallow')][:12]) if st == 200 else f'- robots.txt: Code {st}')
+          print('\n'.join(z))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as s: s.write('\n'.join(z) + '\n')
+          if not ok: raise SystemExit(1)
+          PY
