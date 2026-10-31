@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.80",
+ "app": "v1.81",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -286,9 +286,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Monopoly",
-   "anleitung": "",
+   "anleitung": "https://share.google/Amwb55hJYA8VxE5RC",
    "erstellt": 1793376035182,
-   "geaendert": 1793376035182
+   "geaendert": 1793483451281
   },
   {
    "id": "smvv5tea5wy0l",
