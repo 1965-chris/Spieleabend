@@ -29,7 +29,7 @@
   {
    "id": "smvv592h9pril",
    "name": "Ausverkauft",
-   "bild": "",
+   "bild": "bilder/smvv592h9pril-mvwlz5wh.jpg",
    "spielerMin": 1,
    "spielerMax": 6,
    "alterAb": 8,
@@ -43,8 +43,13 @@
    "bildQuelle": "",
    "link": "",
    "anleitung": "",
+   "bildPos": {
+    "x": 50,
+    "y": 20.4,
+    "z": 1
+   },
    "erstellt": 1793375135181,
-   "geaendert": 1793463614949
+   "geaendert": 1793463692704
   },
   {
    "id": "smvv5lokz9gor",
