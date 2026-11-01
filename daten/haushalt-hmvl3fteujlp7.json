@@ -694,13 +694,13 @@
    "alterAb": 8,
    "dauer": null,
    "kategorien": [],
-   "beschreibung": "",
+   "beschreibung": "Das Ziel des Spiels ist es, abwechselnd Holzklötze aus dem Turm zu ziehen und oben aufzulegen, ohne dass der gesamte Turm einstürzt. Die gewürfelte Farbe bestimmt dabei, welchen Stein du bewegen musst.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://drive.google.com/file/d/1MtBFVHWbEX9XIrg8zCJLRFxheINp3vzG/view?usp=drivesdk",
    "erstellt": 1792879825330,
-   "geaendert": 1793542479135
+   "geaendert": 1793542689366
   },
   {
    "id": "smvtdfzyotcmc",
@@ -813,7 +813,7 @@
    "app": true,
    "version": "v1.88",
    "erst": 1792864131177,
-   "zuletzt": 1793542481035,
+   "zuletzt": 1793542691364,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
