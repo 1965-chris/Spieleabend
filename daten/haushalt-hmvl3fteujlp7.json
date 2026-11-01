@@ -391,13 +391,13 @@
    "kategorien": [
     "Kartenspiel"
    ],
-   "beschreibung": "",
+   "beschreibung": "Was trägt der Ritter von heute darunter? Das Kartenspiel Lanzeloth beantwortet die Frage ziemlich direkt. Um für ein Ritterturnier perfekt ausgerüstet zu sein, sollte man allerdings nicht auf Schutzkleidung verzichten. Schliesslich erstrahlt man mit Pokalen in noch grösserem Glanz.\nLanzeloth ist ein flottes Kartentausch-Spiel. Jeder Spieler startet mit seinem eigenen Ritter, bestehend aus Kopf, Körper, Lanze, Schild und Beinen, ins Turnier. Leider weiss man nie so genau, welche Grundausstattung der Ritter mitbringt, denn die Karten liegen verdeckt. Runde für Runde lässt sich der eigene Horizont allerdings erweitern. In einem Spielzug zieht man eine Karte vom Nachziehstapel. Auf der Rückseite erkennt man zwar, um welches Teil es sich handelt, den exakten Wert erkennt man erst beim Betrachten der Karte. Von 0 (keine Ausrüstung) bis 5 (Goldpolitur) lassen die Karten einen breiten Spielraum.\nMit einer Karte vom Nachziehstapel kann man dieselbe Karte seines Ritters ersetzen. Ein kleines Risiko besteht, wenn man die verdeckte Ritterkarte noch nicht kennt. Ersetzte Karten kommen offen auf den Ablagestapel. Der nachfolgende Spieler könnte so von einer hohen, abgelegten Karte profitieren. Er darf sie zu sich nehmen und sie seinem eigenen Ritter einfügen.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://share.google/sghXh9QADnRG9PcLJ",
    "erstellt": 1792769291215,
-   "geaendert": 1792790212002
+   "geaendert": 1793549947498
   },
   {
    "id": "smvmx60xy7hhz",
@@ -873,7 +873,7 @@
    "app": true,
    "version": "v1.89",
    "erst": 1792875164293,
-   "zuletzt": 1793549777078,
+   "zuletzt": 1793549949387,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   },
