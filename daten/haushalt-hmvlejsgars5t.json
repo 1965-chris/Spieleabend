@@ -28,20 +28,25 @@
   },
   {
    "id": "smvmorrm1vzqo",
-   "name": "Die Siedler Von Catan",
+   "name": "Die Siedler von Catan",
    "bild": "bilder/smvmorrm1vzqo-mvmorrm1.jpg",
    "spielerMin": 3,
    "spielerMax": 4,
    "alterAb": 10,
    "dauer": 90,
-   "kategorien": [],
-   "beschreibung": "",
+   "kategorien": [
+    "Brettspiel",
+    "Kartenspiel",
+    "Strategie"
+   ],
+   "beschreibung": "Die Siedler von Catan ist ein im Kosmos-Verlag veröffentlichtes Brettspiel von Klaus Teuber. Es erschien 1995 unter dem Namen Die Siedler von Catan, 2015 erfolgte zum 20. Aus den 19 gut gemischten sechseckigen Landfeldern wird zu Spielbeginn eine nahezu kreisförmige Insel ausgelegt. Die neun Hafenfelder werden ebenfalls gemischt und mit jeweils einem Feld Abstand rund um die Insel platziert. Mit den übrigen neun Wasserfeldern werden die entstandenen Lücken aufgefüllt (seit 2002 werden 6 Randfelder statt der Meeres- und Hafenfelder verteilt). Die Zahlenchips werden auf die Rückseite gedreht und nach Buchstaben sortiert. Beginnend bei einem beliebigen Eckfeld werden die Zahlenchips nun dem Alphabet nach gegen den Uhrzeigersinn auf der Insel verteilt, die Wüste wird dabei ausgelassen und erhält keinen Zahlenchip. Anschließend werden die Zahlenchips aufgedeckt.\nVon Klaus Teuber, erschienen 1995 bei Kosmos.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://de.wikipedia.org/wiki/Die_Siedler_von_Catan",
    "anleitung": "",
+   "verlag": "Kosmos",
    "erstellt": 1792863724681,
-   "geaendert": 1792863724681
+   "geaendert": 1793542889125
   },
   {
    "id": "smvmojdk65op3",
