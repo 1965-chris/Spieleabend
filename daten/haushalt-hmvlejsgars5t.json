@@ -50,23 +50,24 @@
   },
   {
    "id": "smvmojdk65op3",
-   "name": "Flip7",
+   "name": "Flip 7",
    "bild": "bilder/smvmojdk65op3-mvmojdk7.jpg",
    "spielerMin": 3,
    "spielerMax": 18,
    "alterAb": 8,
-   "dauer": 30,
+   "dauer": 15,
    "kategorien": [
     "Kartenspiel",
     "Glück"
    ],
-   "beschreibung": "",
+   "beschreibung": "Flip 7 ist ein einfaches Kartenspiel des Spieleautors Eric Olsen, das 2024 bei dem amerikanischen Spieleverlag The Op Games erschienen ist. In der Folge erschien es in mehreren Übersetzungen, eine deutschsprachige Version wurde 2025 bei Kosmos Spiele veröffentlicht. Zu Beginn des Spiels werden alle Karten gemischt und ein Kartengeber bestimmt. Dieser deckt nun nacheinander vor allen Mitspielern jeweils eine Karte auf, wobei es sich um eine Zahl-, eine Bonus- oder eine Spezialkarte handeln kann. Im letzteren Fall wird der Effekt der Spezialkarte durchgeführt, andernfalls geht es weiter reihum. Nachdem jeder Spieler eine Karte vor sich liegen hat, folgen weitere Runden, in denen der jeweilige Spieler jeweils entscheiden kann, ob er eine weitere Karte nimmt oder passt und aus der Runde ausscheidet. Sollte vor einem Spieler eine Zahlenkarte zum zweiten Mal aufgedeckt werden, scheidet dieser ohne Punkte aus der Runde aus. Neben den Zahlenkarten gibt es im Spiel Bonuskarten, die den Spielern jeweils einen Bonus bei der Punktevergabe geben, sowie drei Arten von Spezialkarten: Eine Runde endet, wenn alle Spieler entweder gepasst haben oder ausgeschieden sind.\nVon Eric Olsen, erschienen 2024 bei The Op Games, Kosmos Spiele.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "",
+   "link": "https://de.wikipedia.org/wiki/Flip_7",
    "anleitung": "",
+   "verlag": "The Op Games, Kosmos Spiele",
    "erstellt": 1792863333223,
-   "geaendert": 1792863333223
+   "geaendert": 1793544160711
   },
   {
    "id": "smvmot2pjae6z",
