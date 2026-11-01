@@ -291,10 +291,10 @@
   {
    "id": "gmvxkreolqt28",
    "art": "Windows-PC",
-   "app": false,
+   "app": true,
    "version": "v1.81",
    "erst": 1793522253372,
-   "zuletzt": 1793522253372,
+   "zuletzt": 1793522418275,
    "name": "",
    "nameStand": 0
   }
