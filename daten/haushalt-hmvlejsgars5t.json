@@ -17,14 +17,19 @@
    "kategorien": [
     "Brettspiel"
    ],
-   "beschreibung": "",
+   "beschreibung": "Ihr seid wieder zurück im Portugal des 16. Jahrhunderts, wo König Manuel I. nach der Fertigstellung der Königspaläste von Evora und Sintra einen Sommerpavillon errichten lassen wollte. Hier sollten die Statuen der berühmtesten Mitglieder der königlichen Familie angemessen und würdevoll repräsentiert werden. Das Bauwerk war nur den besten Handwerkern vorbehalten, deren Fähigkeiten dem Glanz der königlichen Familie entsprachen. Leider starb König Manuel I., noch bevor mit dem Bau begonnen wurde. Nun ist es an euch, diese Aufgabe zu vollenden.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://drive.google.com/file/d/1NONsAPTeYjtWKgfeL-HhXAxjoSehd19H/view?usp=drivesdk",
    "verlag": "Asmodee",
+   "wertung": {
+    "art": "hoch",
+    "grenze": 100,
+    "sieger": "tief"
+   },
    "erstellt": 1792863517012,
-   "geaendert": 1793539928976
+   "geaendert": 1793549315871
   },
   {
    "id": "smvmorrm1vzqo",
