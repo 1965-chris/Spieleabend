@@ -30,30 +30,6 @@
    "geaendert": 1793268770253
   },
   {
-   "id": "smvy7sg354mb9",
-   "name": "Codenames",
-   "bild": "bilder/smvy7sg354mb9-mvy7sg37.jpg",
-   "spielerMin": 2,
-   "spielerMax": 2,
-   "alterAb": 10,
-   "dauer": 15,
-   "kategorien": [
-    "Brettspiel",
-    "Party",
-    "Kommunikation",
-    "Rätsel & Krimi",
-    "Familie"
-   ],
-   "beschreibung": "Codenames ist ein Familienspiel von Vlaada Chvátil, erschienen 2015 im Verlag Czech Games Edition und im Heidelberger Spieleverlag. Es wurde 2016 mit dem Kritikerpreis Spiel des Jahres ausgezeichnet. Das Spiel ist in ein Agenten-Thema eingefügt, die beiden Teams (blau und rot) müssen ihre eigenen Agenten identifizieren und nutzen dazu die Hinweise, die ihnen ihr Teamleiter, der Geheimdienstchef, gibt. Vor einer Runde werden 25 Karten mit je einem Codenamen in einem 5×5-Raster ausgelegt. Eine Codekarte markiert die 25 Felder mittels Farben als Agenten des roten oder blauen Teams (mit neun und acht Karten), Unbeteiligte (sieben) und Attentäter (eine). Diese Codekarte können nur die beiden Teamleiter (Geheimdienstchefs) sehen. Die Leiter geben jetzt abwechselnd ihren Mitspielern Hinweise, mit denen diese erkennen sollen, welche der Codenamen für eigene Agenten stehen. Der Chef gibt seinem Team einen Hinweis in Form eines einzigen Wortes, das sich assoziativ auf die von seinem Team gesuchten Codenamen, welche auf den offen zu sehenden Spielkarten stehen, bezieht.\nVon Vlaada Chvátil, erschienen 2015 bei Czech Games Edition, Heidelberger Spieleverlag.",
-   "bemerkung": "",
-   "bildQuelle": "Foto: JIP, CC BY-SA 3.0, Wikimedia Commons",
-   "link": "https://de.wikipedia.org/wiki/Codenames",
-   "anleitung": "https://filemanager.czechgames.com/storage/files/codenames/rules/codenames-rules-de.pdf",
-   "verlag": "Czech Games Edition, Heidelberger Spieleverlag",
-   "erstellt": 1793560797042,
-   "geaendert": 1793560797042
-  },
-  {
    "id": "smvmysq1arcxg",
    "name": "Concept",
    "bild": "bilder/smvmysq1arcxg-mvmyunv1.jpg",
@@ -862,7 +838,7 @@
    "app": true,
    "version": "v1.90",
    "erst": 1792864131177,
-   "zuletzt": 1793560798942,
+   "zuletzt": 1793560905540,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
@@ -924,6 +900,7 @@
   "nmvmw7bvietto": 1792958729325,
   "smvtdhh6a7fay": 1793268047634,
   "smvxr4o7dzsgf": 1793532846513,
-  "smvmlr7xcr5o0": 1793541394018
+  "smvmlr7xcr5o0": 1793541394018,
+  "smvy7sg354mb9": 1793560903666
  }
 }
