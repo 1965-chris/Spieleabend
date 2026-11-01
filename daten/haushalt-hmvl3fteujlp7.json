@@ -511,7 +511,7 @@
    "spielerMin": 3,
    "spielerMax": 8,
    "alterAb": 12,
-   "dauer": null,
+   "dauer": 60,
    "kategorien": [
     "Brettspiel",
     "Party",
@@ -528,7 +528,7 @@
     "sieger": "tief"
    },
    "erstellt": 1792917591908,
-   "geaendert": 1793266416087
+   "geaendert": 1793549111072
   },
   {
    "id": "smvmlf0wcuu22",
