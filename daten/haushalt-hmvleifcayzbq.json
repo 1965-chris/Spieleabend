@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.81",
+ "app": "v1.82",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -91,6 +91,25 @@
    "geaendert": 1793375788648
   },
   {
+   "id": "smvv5cg4jxoxc",
+   "name": "Die Kathedralenbauer von Orléans",
+   "bild": "bilder/smvv5cg4jxoxc-mvxpdwid.jpg",
+   "spielerMin": 2,
+   "spielerMax": 4,
+   "alterAb": 8,
+   "dauer": 30,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Die Kathedralenbauer von Orléans das Spiel hier versandkostenfrei und günstig bestellen. Zuletzt aktualisiert am 01.11.2026.",
+   "bemerkung": "",
+   "bildQuelle": "Foto: Spiele-Offensive.de",
+   "link": "https://www.spiele-offensive.de/Spiel/Die-Kathedralenbauer-von-Orleans-1030428.html",
+   "anleitung": "",
+   "erstellt": 1793375292835,
+   "geaendert": 1793529885395
+  },
+  {
    "id": "smvv5ki4k5b3q",
    "name": "Dixit",
    "bild": "bilder/smvv5ki4k5b3q-mvv5ki4l.jpg",
@@ -175,25 +194,6 @@
    },
    "erstellt": 1793375811159,
    "geaendert": 1793375811159
-  },
-  {
-   "id": "smvv5cg4jxoxc",
-   "name": "Kathedralenbauer von Orléans",
-   "bild": "",
-   "spielerMin": 2,
-   "spielerMax": 4,
-   "alterAb": 8,
-   "dauer": 30,
-   "kategorien": [
-    "Brettspiel"
-   ],
-   "beschreibung": "",
-   "bemerkung": "",
-   "bildQuelle": "",
-   "link": "",
-   "anleitung": "",
-   "erstellt": 1793375292835,
-   "geaendert": 1793375292835
   },
   {
    "id": "smvv5eaz7815f",
