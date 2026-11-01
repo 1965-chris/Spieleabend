@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.88",
+ "app": "v1.89",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -83,14 +83,14 @@
     "Brettspiel",
     "Party"
    ],
-   "beschreibung": "",
+   "beschreibung": "Ein bluffiges Deduktionsspiel für alle. Jede Runde umfasst zwei Missionen, je nachdem, ob Sie das Chamäleon sind oder nicht.\nMission 1: Sie sind das Chamäleon. Niemand außer Ihnen kennt Ihre Identität. Ihre Mission ist es, sich einzufügen, sich nicht erwischen zu lassen und das geheime Wort herauszuarbeiten.\nMission 2: Sie sind nicht das Chamäleon. Versuchen Sie herauszufinden, wer das Chamäleon ist, ohne das Geheime Wort zu verraten.\nZu Beginn der Runde erhält jeder Spieler eine Karte, die ihm sagt, ob er das Chamäleon ist oder das Chamäleon jagt. Es wird zweimal gewürfelt, und so erhält jeder (außer dem Chamäleon) die Koordinaten zu einem bestimmten Wort auf einer Themenkarte - das ist das Geheimwort für die Runde. Jede Themenkarte enthält 16 verwandte Wörter (z.B. Länder, Bücher, Nahrung, etc.).\nJeder Spieler muss nun ein Wort sagen, das sich auf das Geheimwort bezieht. Das Chamäleon kann nur auf der Grundlage der 16 Wörter, die vor ihm stehen, eine fundierte Vermutung anstellen.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://www.spiele-offensive.de/Spiel/Das-Chamaeleon-1034571.html",
    "anleitung": "https://drive.google.com/file/d/1WZqsL7m_J-MzbBp6BFtmb2gA6091Tk1r/view?usp=drivesdk",
    "verlag": "Invento Products & Services",
    "erstellt": 1793375788648,
-   "geaendert": 1793544120533
+   "geaendert": 1793550217204
   },
   {
    "id": "smvv5cg4jxoxc",
