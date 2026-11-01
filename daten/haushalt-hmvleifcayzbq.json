@@ -307,7 +307,7 @@
   {
    "id": "smvv5tea5wy0l",
    "name": "Ms. Monopoly",
-   "bild": "",
+   "bild": "bilder/smvv5tea5wy0l-mvxzu7zd.jpg",
    "spielerMin": 2,
    "spielerMax": 8,
    "alterAb": 8,
@@ -321,7 +321,7 @@
    "link": "https://de.wikipedia.org/wiki/Monopoly",
    "anleitung": "https://instructions.hasbro.com/api/download/E8424_de-de_ms-monopoly.pdf",
    "erstellt": 1793376083598,
-   "geaendert": 1793547239786
+   "geaendert": 1793547442919
   },
   {
    "id": "smvv5m4q5zpam",
