@@ -194,6 +194,9 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .so-angebot{margin:14px 2px 0;font-size:13.5px;color:var(--leise)}
 .verlag-wahl{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;color:var(--leise)}
 .verlag-wahl select{flex:1;min-width:0;min-height:42px;padding:6px 10px}
+.anleitung-cloud{display:flex;gap:8px;align-items:flex-start;margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb, var(--gelb) 22%, var(--karte));color:var(--tinte);font-size:13.5px;line-height:1.4;text-align:left}
+.anleitung-cloud[hidden]{display:none}
+.anleitung-cloud svg{flex:none;width:18px;height:18px;margin-top:1px}
 .so-angebot .link-knopf{font-size:13.5px}
 .sheet-kopf .gsc-regeln{margin-left:auto;flex:none}
 .karte-varianten{font-size:13px;font-weight:650;color:var(--filz);line-height:1.25;overflow-wrap:anywhere}
@@ -625,6 +628,14 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .fakten-gross b{display:block;font-family:var(--rund);font-size:21px;font-weight:800}
 .fakten-gross span{font-size:13px;color:var(--leise)}
 .detail-text{white-space:pre-wrap;margin:12px 0}
+.detail-text.zu{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden;margin-bottom:4px}
+.mehr-lesen{margin:0 0 10px;font-size:14.5px}
+.karte-anl{display:flex;align-items:flex-start;gap:4px;margin-top:3px;font-size:12px;font-weight:600;color:var(--leise);min-width:0;line-height:1.3}
+.karte-anl > span{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
+.karte-anl svg{margin-top:1px}
+.karte-anl svg{flex:none;width:13px;height:13px}
+.karte-anl-cloud{color:color-mix(in srgb, var(--gelb) 70%, var(--tinte))}
+.karte-anl-keine{color:var(--rot)}
 .detail-bemerkung{background:color-mix(in srgb, var(--gelb) 18%, var(--karte));border-radius:12px;padding:10px 12px;font-size:15px;margin:12px 0}
 
 /* Würfel-Overlay */
@@ -1052,7 +1063,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.85';
+const VERSION = 'v1.87';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1161,7 +1172,7 @@ if (!D.haushalte) D.haushalte = {};
 if (!D.meta) D.meta = {};
 datenVorbereiten();
 let E = Object.assign({ ...standardOrt(), branch:'main', token:'', meinHaushalt:'', einladungen:[], admin:false }, lesen(LS.einst, {}));
-let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], sort:'name' }, lesen(LS.filter, {}));
+let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], sort:'name' }, lesen(LS.filter, {}));
 F.suche = '';
 let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[], anwesend:[] }, lesen(LS.runde, {}));
 let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
@@ -2082,6 +2093,7 @@ function passt(s, f){
   if (f.kategorien && f.kategorien.length && !s.kategorien.some(k => f.kategorien.includes(k))) return false;
   if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid) && !(verliehenAn(s) && f.haushalte.includes(verliehenAn(s).hid))) return false;
   if (f.ohne && f.ohne.includes(s.hid)) return false;
+  if (f.anleitungen && f.anleitungen.length && anleitungFilterAn() && !f.anleitungen.includes(anleitungArt(s))) return false;
   if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, ...(s.varianten || []), s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
   return true;
 }
@@ -2116,6 +2128,7 @@ function filterAktiv(){
   if (F.dauerMax != null) a.push({ k:'dauerMax', t:`bis ${dauerText(F.dauerMax)}` });
   for (const k of F.kategorien) a.push({ k:'kat:' + k, t:k });
   for (const id of F.haushalte){ const h = D.haushalte[id]; if (h) a.push({ k:'hh:' + id, t:h.name }); }
+  if (anleitungFilterAn()) for (const k of F.anleitungen || []){ const x = ANL_ARTEN.find(y => y.k === k); if (x) a.push({ k:'anl:' + k, t:'Anleitung: ' + x.kurz }); }
   return a;
 }
 /* Gleiche Spiele mehrerer Haushalte → eine Kachel. Vorne steht die eigene Ausgabe, sonst eine mit Foto. */
@@ -2138,6 +2151,7 @@ function karteHtml(s, kopien){
   return `<button class="karte" type="button" data-spiel="${esc(s.id)}" style="--hf:${esc(farbe)}">
     <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${v ? `<span class="karte-verliehen">${ic('tausch')}${v.hid === E.meinHaushalt ? 'ausgeliehen' : 'verliehen'}</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${varianten.length ? `<span class="karte-varianten">＋ ${esc(varianten.join(' · '))}</span>` : ''}${faktenHtml(s)}
+      ${anleitungFilterAn() && (F.anleitungen || []).length ? `<span class="karte-anl karte-anl-${anleitungArt(s)}">${ic('buch')}<span>${esc(anleitungKachelText(s))}</span></span>` : ''}
       ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
         : `<span class="karte-haushalte"><span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>${beiZeile(s)}</span>`}</span></button>`;
 }
@@ -2191,6 +2205,12 @@ function filterSheet(){
     <div class="feld"><span class="feld-titel">Spieldauer höchstens</span>${chipsHtml('dauer', [30,45,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), F.dauerMax ? [String(F.dauerMax)] : [], { mehrfach:false })}</div>
     ${klapp('filter-kat', 'Art des Spiels', chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), F.kategorien), { klasse:'leicht feld', standard:F.kategorien.length > 0, kleinId:'f-kat-zahl' })}
     ${klapp('filter-hh', 'Haushalt', figurChipsHtml('hh', F.haushalte), { klasse:'leicht feld', standard:F.haushalte.length > 0, kleinId:'f-hh-zahl' })}
+    ${anleitungFilterAn() ? (() => {
+      const zahl = {}; for (const x of alleSpiele()){ const k = anleitungArt(x); zahl[k] = (zahl[k] || 0) + 1; }
+      return klapp('filter-anl', 'Spielanleitung', `${chipsHtml('anl', ANL_ARTEN.map(x => ({ w:x.k, t:`${x.t} · ${zahl[x.k] || 0}` })), F.anleitungen || [])}
+        <p class="text-leise text-klein" style="margin:8px 0 0">Nur für den Admin: Wo liegt die Anleitung der Spiele? Bei privaten Links sehen die anderen sie nur, wenn sie freigegeben ist. Die Kacheln zeigen dann, wo sie liegt und wer sie gespeichert hat.</p>`,
+        { klasse:'leicht feld', standard:(F.anleitungen || []).length > 0, kleinId:'f-anl-zahl' });
+    })() : ''}
     ${klapp('filter-sort', 'Sortieren', chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true }), { klasse:'leicht feld', kleinId:'f-sort' })}
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zuruecksetzen>Zurücksetzen</button><button class="knopf" type="button" data-zu data-anzeigen></button></div>`);
   function aktualisieren(){
@@ -2199,6 +2219,7 @@ function filterSheet(){
     $('[data-anzeigen]', s).textContent = `${n} ${n === 1 ? 'Spiel' : 'Spiele'} zeigen`;
     $('#f-kat-zahl', s).textContent = F.kategorien.length ? `${F.kategorien.length} gewählt` : '';
     $('#f-hh-zahl', s).textContent = F.haushalte.length ? `${F.haushalte.length} gewählt` : '';
+    const anlZahl = $('#f-anl-zahl', s); if (anlZahl) anlZahl.textContent = (F.anleitungen || []).length ? `${F.anleitungen.length} gewählt` : '';
     $('#f-sort', s).textContent = F.sort === 'neu' ? 'zuletzt eingetragen' : 'nach Name';
   }
   s.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') F.personen = e.detail; if (n === 'alter') F.alter = e.detail; aktualisieren(); });
@@ -2207,13 +2228,14 @@ function filterSheet(){
     if (g === 'dauer') F.dauerMax = w.length ? +w[0] : null;
     if (g === 'kat') F.kategorien = w;
     if (g === 'hh') F.haushalte = w;
+    if (g === 'anl') F.anleitungen = w;
     if (g === 'sort') F.sort = w[0] || 'name';
     aktualisieren();
   });
   $('[data-zuruecksetzen]', s).addEventListener('click', () => { filterZuruecksetzen(); s.schliessen(); });
   aktualisieren();
 }
-function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[] }); schreiben(LS.filter, F); renderSpiele(); }
+function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[] }); schreiben(LS.filter, F); renderSpiele(); }
 
 /* ---------- Spiel: Ansicht ---------- */
 function spielDetail(id){
@@ -2231,9 +2253,10 @@ function spielDetail(id){
       <div><b>${sp.dauer ? esc(dauerText(sp.dauer)) : '–'}</b><span>Spieldauer</span></div>
     </div>
     ${sp.kategorien.length ? `<div class="chips">${sp.kategorien.map(k => `<span class="chip" style="cursor:default">${esc(k)}</span>`).join('')}</div>` : ''}
-    ${sp.beschreibung ? `<p class="detail-text">${esc(sp.beschreibung)}</p>` : ''}
+    ${shopTextWeg(sp.beschreibung) ? `<p class="detail-text${shopTextWeg(sp.beschreibung).length > 360 ? ' zu' : ''}" data-text>${esc(shopTextWeg(sp.beschreibung))}</p>
+      ${shopTextWeg(sp.beschreibung).length > 360 ? '<button type="button" class="link-knopf mehr-lesen" data-mehr>Mehr lesen</button>' : ''}` : ''}
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
-    ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${sp.link.includes('wikidata') ? 'Wikidata' : 'Wikipedia'}</a>` : ''}
+    ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${esc(linkQuelle(sp.link))}</a>` : ''}
     ${verleihHtml(sp)}
     ${anleitungHtml(sp, kopien)}
     ${gespieltHtml(sp)}
@@ -2259,6 +2282,8 @@ function spielDetail(id){
   });
   if (!darfBearbeiten(sp.hid)) return;
   $('[data-bearbeiten]', s).addEventListener('click', () => { s.schliessen(); setTimeout(() => spielFormular(sp), 120); });
+  const mehr = $('[data-mehr]', s);
+  if (mehr) mehr.addEventListener('click', () => { const t = $('[data-text]', s), zu = t.classList.toggle('zu'); mehr.textContent = zu ? 'Mehr lesen' : 'Weniger'; });
   $('[data-loeschen]', s).addEventListener('click', async () => {
     if (!await frage(`„${sp.name}“ löschen?`, 'Das Spiel verschwindet aus der Liste – auf allen Geräten.', 'Löschen')) return;
     spielLoeschen(sp); s.schliessen();
@@ -2270,8 +2295,54 @@ function anleitungVon(sp, kopien){
   const k = (kopien || []).find(x => x.anleitung);
   return k ? { url:k.anleitung, hid:k.hid } : null;
 }
+/* Werbetext aus Shops entfernen („… hier versandkostenfrei und günstig bestellen. Zuletzt aktualisiert am …“) */
+const BESCHR_MAX = 2000;      // „Kurz erklärt“: so viel Text passt in die Beschreibung eines Spiels
+function shopTextWeg(t){
+  return String(t || '')
+    .replace(/[^.!?\n]*(?:versandkostenfrei|g(?:ü|ue)nstig (?:bestellen|kaufen)|\bhier\b[^.!?\n]{0,50}\bbestellen|jetzt (?:online )?(?:bestellen|kaufen))[^.!?\n]*[.!?]?/gi, '')
+    .replace(/zuletzt aktualisiert am [\d.]+\s*/gi, '').replace(/\s*\d+,\d{2}\s*(?:€|EUR\b)/g, '')
+    .split('\n').map(z => z.replace(/\s{2,}/g, ' ').trim()).filter(Boolean).join('\n');
+}
+/* Wer steht hinter einem Link? (für „Mehr bei …“) */
+function linkQuelle(url){
+  const h = linkAnzeige(url).replace(/ · PDF$/, '');
+  return /wikidata/.test(h) ? 'Wikidata' : /wikipedia/.test(h) ? 'Wikipedia' : /spiele-offensive/.test(h) ? 'Spiele-Offensive' : h;
+}
+/* Links in die eigene Cloud: öffnen sich für andere nur, wenn die Datei dort freigegeben ist */
+const CLOUD_DIENSTE = [
+  [/(^|\.)(drive|docs)\.google\.com$/, 'Google Drive', 'bei der Datei auf „Teilen“ tippen und unter „Allgemeiner Zugriff“ „Jeder mit dem Link“ wählen'],
+  [/(^|\.)onedrive\.live\.com$|^1drv\.ms$|sharepoint\.com$/, 'OneDrive', 'bei der Datei „Teilen“ → „Jeder mit dem Link kann anzeigen“ wählen'],
+  [/(^|\.)dropbox\.com$/, 'Dropbox', 'bei der Datei „Teilen“ → Link für „Jeder mit dem Link“ erstellen'],
+  [/(^|\.)icloud\.com$/, 'iCloud Drive', 'bei der Datei „Teilen“ → Freigabeoptionen „Jeder mit dem Link“ wählen']
+];
+function cloudLink(url){
+  try{ const h = new URL(url).hostname.toLowerCase(), c = CLOUD_DIENSTE.find(([re]) => re.test(h)); return c ? { t:c[1], wie:c[2] } : null; }catch(e){ return null; }
+}
 function linkAnzeige(url){
   try{ const u = new URL(url); return u.hostname.replace(/^www\./, '') + (/\.pdf$/i.test(u.pathname) ? ' · PDF' : ''); }catch(e){ return url; }
+}
+/* Wo liegt die Spielanleitung? (Admin-Filter) */
+const ANL_ARTEN = [
+  { k:'internet', t:'Internet-Link', kurz:'Internet-Link' }, { k:'cloud', t:'Privater Link (Google Drive & Co.)', kurz:'Privater Link' },
+  { k:'verlag', t:'Vom Verlag (kennt die App)', kurz:'Vom Verlag' }, { k:'keine', t:'Keine Anleitung', kurz:'Keine Anleitung' }
+];
+function anleitungArt(sp){
+  const a = anleitungFuer(sp, sp.name);
+  return !a ? 'keine' : a.bekannt ? 'verlag' : cloudLink(a.url) ? 'cloud' : 'internet';
+}
+function anleitungFilterAn(){ return E.admin && funktionAn('anleitung'); }
+/* Auf der Kachel (nur solange der Filter läuft): wo liegt sie, und wer hat sie gespeichert? */
+function anleitungKachelText(sp){
+  const a = anleitungFuer(sp, sp.name); if (!a) return 'keine Anleitung';
+  if (a.bekannt) return 'vom Verlag';
+  const c = cloudLink(a.url), wer = a.hid && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
+  return `${c ? c.t : linkAnzeige(a.url)}${wer ? ' · gespeichert von ' + wer : ''}`;
+}
+function cloudHinweisHtml(a){
+  const c = a && !a.bekannt && cloudLink(a.url); if (!c) return '';
+  const wer = (D.haushalte[a.hid] || {}).name || 'der Haushalt';
+  return `<p class="anleitung-cloud">${ic('wolke')}<span>Liegt in ${esc(c.t)}: Andere öffnen sie nur, wenn sie dort für „Jeder mit dem Link“ freigegeben ist.
+    ${a.hid === E.meinHaushalt || E.admin ? `So geht's: in ${esc(c.t)} ${esc(c.wie)}.` : `Falls sie sich nicht öffnet: ${esc(wer)} bitten, sie freizugeben.`}</span></p>`;
 }
 function anleitungHtml(sp, kopien){
   if (!funktionAn('anleitung')) return '';
@@ -2289,6 +2360,7 @@ function anleitungHtml(sp, kopien){
     <p class="anleitung-kopf">${ic('buch')}Spielanleitung</p>
     ${a ? `<a class="knopf breit" href="${esc(a.url)}" target="_blank" rel="noopener" data-anl-link>${ic('buch')}Spielanleitung öffnen</a>
       <p class="anleitung-quelle">${esc(linkAnzeige(a.url))}${a.bekannt ? ' · vom Verlag' : fremd ? ` – gespeichert von ${esc(fremd)}` : ''}</p>
+      ${cloudHinweisHtml(a)}
       ${darf ? `<div class="anleitung-knoepfe"><button class="knopf rahmen" type="button" data-anl="suchen">${fremd || a.bekannt ? 'Eigenen Link speichern' : 'Link ändern'}</button>
         ${fremd || a.bekannt ? '' : `<button class="knopf rahmen" type="button" data-anl="weg">Entfernen</button>`}</div>` : ''}`
     : `<button class="knopf zweit breit" type="button" data-anl="suchen">${ic('suche')}Spielanleitung suchen</button>
@@ -2382,6 +2454,7 @@ function anleitungSheet(sp, fertig, variante = ''){
     <p class="text-leise text-klein" style="margin:-2px 0 8px">iPhone/iPad: den Link lange drücken → <b>Link kopieren</b>. Ist das PDF schon offen: Teilen → <b>Kopieren</b>. Dann hierher zurück.</p>
     <div class="eingabe-reihe"><input class="eingabe" type="url" data-url placeholder="https://…" value="${esc(jetzt)}" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url">
       <button class="knopf zweit" type="button" data-einfuegen>Einfügen</button></div>
+    <p class="anleitung-cloud" data-cloud-hinweis hidden></p>
     <button class="knopf breit" type="button" data-speichern style="margin-top:14px">Link speichern</button>`
     : `<p class="block-hinweis" style="margin-top:14px">Den Link beim Spiel speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`);
   const verlagWahl = $('[data-verlag]', s), verlagHinweis = $('[data-verlag-hinweis]', s);
@@ -2424,13 +2497,19 @@ function anleitungSheet(sp, fertig, variante = ''){
         : `<a class="vorschlag" href="${esc(u)}" target="_blank" rel="noopener">${ic('link')}<span>${esc(linkAnzeige(u))}</span></a>`).join('')}`;
   }).catch(() => {});
   if (!darf) return;
-  const feld = $('[data-url]', s);
-  s.addEventListener('click', e => { const v = e.target.closest('[data-vorschlag]'); if (v){ feld.value = v.dataset.vorschlag; toast('Vorschlag übernommen – zum Prüfen kurz öffnen, dann speichern'); } });
+  const feld = $('[data-url]', s), cloudEl = $('[data-cloud-hinweis]', s);
+  const cloudPruefen = () => {
+    const c = cloudLink(linkAus(feld.value) || feld.value.trim());
+    cloudEl.hidden = !c;
+    if (c) cloudEl.innerHTML = `${ic('wolke')}<span><b>${esc(c.t)}-Link:</b> Die anderen können die Anleitung nur öffnen, wenn sie dort freigegeben ist – ${esc(c.wie)}. Besser ist meist der offizielle Link vom Verlag.</span>`;
+  };
+  feld.addEventListener('input', cloudPruefen); cloudPruefen();
+  s.addEventListener('click', e => { const v = e.target.closest('[data-vorschlag]'); if (v){ feld.value = v.dataset.vorschlag; cloudPruefen(); toast('Vorschlag übernommen – zum Prüfen kurz öffnen, dann speichern'); } });
   $('[data-einfuegen]', s).addEventListener('click', async () => {
     try{
       const t = await navigator.clipboard.readText();
       const url = linkAus(t);
-      if (url){ feld.value = url; return; }
+      if (url){ feld.value = url; cloudPruefen(); return; }
       toast('In der Zwischenablage ist kein Link.', 'fehler');
     }catch(e){ feld.focus(); toast('Bitte ins Feld tippen, lange drücken und „Einfügen“ wählen.'); }
   });
@@ -2617,8 +2696,8 @@ function kurzBeschreibung(extract){
   const t = String(extract || '');
   const intro = t.split(/\n==(?!=)/)[0].trim();
   const m = /\n==\s*(Spielablauf|Spielprinzip|Spielweise|Spielidee|Spielverlauf|Ablauf|Spielregeln|Regeln|Spielziel|Spielmechanik|Spielbeschreibung|Spielmaterial und Spielablauf)\s*==\s*\n([\s\S]*?)(?=\n==(?!=)|$)/i.exec(t);
-  const satz1 = saetze(intro, 1);
-  let rest = m ? saetze(m[2].replace(/^=+.*=+\s*$/gm, ' '), 2) : saetze(intro, 3).slice(satz1.length).trim();
+  const satz1 = saetze(intro, 2);
+  let rest = m ? saetze(m[2].replace(/^=+.*=+\s*$/gm, ' '), 6) : saetze(intro, 6).slice(satz1.length).trim();
   return `${satz1}${rest ? ' ' + rest : ''}`.trim();
 }
 function herkunftSatz(ib){
@@ -2666,7 +2745,7 @@ async function spielDetailsHolen(k){
       artTexte.push(wikiText(ib.Art));
       const kurz = kurzBeschreibung(p.extract || '');
       artTexte.push(saetze((p.extract || '').split(/\n==/)[0], 1));
-      d.beschreibung = [kurz, herkunftSatz(ib)].filter(Boolean).join('\n').slice(0, 600);
+      d.beschreibung = [kurz, herkunftSatz(ib)].filter(Boolean).join('\n').slice(0, BESCHR_MAX);
       d.verlag = wikiText(ib.Verlag).split('\n')[0].replace(/\s*\(.*?\)/g, '').trim().slice(0, 60);
       bildDatei = wikiText(ib.Bild).replace(/^(Datei|File|Bild|Image):/i, '').split('\n')[0].trim() || p.pageimage || '';
     }
@@ -2722,9 +2801,9 @@ async function fotoAusNetz(url){
    Die App legt einen Auftrag nach abholdienst/auftraege/ (Name oder Link), der Dienst legt das Ergebnis nach abholdienst/ergebnisse/.
    Gefunden werden Spiele über die Sitemap, die der Shop Programmen anbietet – Suchseiten sind laut seiner robots.txt tabu.
    Das Programm des Dienstes (abholdienst/abholdienst.py) legt die App selbst ab und hält es aktuell; auf GitHub liegt nur ein kleiner Starter. */
-const ABHOL_WORKFLOW = '.github/workflows/abholdienst.yml', ABHOL_SKRIPT_PFAD = 'abholdienst/abholdienst.py', ABHOL_SKRIPT_VERSION = 3;
+const ABHOL_WORKFLOW = '.github/workflows/abholdienst.yml', ABHOL_SKRIPT_PFAD = 'abholdienst/abholdienst.py', ABHOL_SKRIPT_VERSION = 5;
 const ABHOLDIENST_YML = "# Abholdienst der Spieleabend-App \u2013 holt auf Wunsch Spielangaben bei Spiele-Offensive ab.\n# Das eigentliche Programm (abholdienst/abholdienst.py) legt die App selbst ins Repo und h\u00e4lt es aktuell.\nname: Abholdienst\non:\n  push:\n    paths: ['abholdienst/auftraege/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: abholdienst\n  cancel-in-progress: false\njobs:\n  abholen:\n    runs-on: ubuntu-latest\n    timeout-minutes: 6\n    steps:\n      - name: Spielangaben abholen\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          curl -fsSL -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github.raw\" -o abholdienst.py \\\n            \"https://api.github.com/repos/$GITHUB_REPOSITORY/contents/abholdienst/abholdienst.py?ref=$GITHUB_SHA\"\n          python3 abholdienst.py\n";
-const ABHOLDIENST_PY = "# Abholdienst der Spieleabend-App \u2013 holt auf Wunsch Spielangaben bei Spiele-Offensive ab.\n# Diese Datei legt die App selbst ins Repo und h\u00e4lt sie aktuell; gestartet wird sie von .github/workflows/abholdienst.yml.\n# Regeln: nur Seiten, die die robots.txt des Shops erlaubt; Spiele werden \u00fcber die Sitemap gefunden, die der Shop daf\u00fcr anbietet\n# (keine Suchseiten); der Dienst stellt sich als \u201eSpieleabend-Abholdienst\u201c vor und l\u00e4sst zwischen zwei Abrufen eine Pause.\nABHOLDIENST_VERSION = 3\nimport base64, datetime, gzip, html, json, os, re, time, urllib.error, urllib.request, urllib.robotparser\n\nREPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']\nBASIS, NAME = 'https://www.spiele-offensive.de', 'Spieleabend-Abholdienst'\nUA = ('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 '\n      'Mobile/15E148 Safari/604.1 ' + NAME + '/' + str(ABHOLDIENST_VERSION))\nAUFTRAEGE, ERGEBNISSE = 'abholdienst/auftraege', 'abholdienst/ergebnisse'\nLINK = re.compile(r'^https?://(?:www\\.)?spiele-offensive\\.de(/Spiel/[^?#\\s\"<>]+-(\\d+)\\.html)$', re.I)\nPAUSE, MAX_TREFFER, MAX_BILD = 0.8, 4, 160_000\n\n\ndef gh(methode, pfad, daten=None):\n    req = urllib.request.Request(f'https://api.github.com/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': NAME})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                return json.loads(r.read() or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\n_letzter = 0.0\ndef holen(url, roh=False, grenze=3_000_000, zeit=25):\n    global _letzter\n    warten = PAUSE - (time.time() - _letzter)\n    if warten > 0: time.sleep(warten)\n    req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9', 'Accept': 'text/html,application/xml,image/*,*/*'})\n    try:\n        with urllib.request.urlopen(req, timeout=zeit) as r:\n            b = r.read(grenze)\n            if b[:2] == b'\\x1f\\x8b': b = gzip.decompress(b)\n            return (b, r.headers.get_content_type()) if roh else b.decode(r.headers.get_content_charset() or 'utf-8', 'replace')\n    finally:\n        _letzter = time.time()\n\n\n_robots = None\ndef robots():\n    global _robots\n    if _robots is None:\n        _robots = urllib.robotparser.RobotFileParser()\n        try: _robots.parse(holen(BASIS + '/robots.txt').splitlines())\n        except urllib.error.HTTPError as e: _robots.parse([] if e.code < 500 else ['User-agent: *', 'Disallow: /'])\n    return _robots\ndef erlaubt(url): return robots().can_fetch(NAME, url)\n\n\n# ---------- Verzeichnis aller Spielseiten aus der Sitemap ----------\n_katalog, _katalog_info = None, {}\ndef katalog():\n    global _katalog\n    if _katalog is not None: return _katalog\n    _katalog, warte, gesehen = {}, [u.replace('http://', 'https://', 1) for u in (robots().site_maps() or [])], set()\n    while warte and len(gesehen) < 30:\n        u = warte.pop(0)\n        if u in gesehen or not erlaubt(u): continue\n        gesehen.add(u)\n        try: x = holen(u, grenze=60_000_000, zeit=90)\n        except Exception as e: _katalog_info.setdefault('fehler', []).append(f'{u.rsplit(\"/\", 1)[-1]}: {type(e).__name__}'); continue\n        for loc in re.findall(r'<loc>\\s*([^<\\s]+)\\s*</loc>', x):\n            loc = html.unescape(loc).replace('http://', 'https://', 1)\n            m = LINK.match(loc)\n            if m: _katalog[BASIS + m.group(1)] = m.group(2)\n            elif re.search(r'sitemap', loc, re.I) and loc not in gesehen: warte.append(loc)\n    _katalog_info.update({'dateien': len(gesehen), 'spiele': len(_katalog)})\n    return _katalog\n\n\ndef woerter(s):\n    s = s.lower()\n    for a, b in (('\u00e4', 'ae'), ('\u00f6', 'oe'), ('\u00fc', 'ue'), ('\u00df', 'ss'), ('\u00e9', 'e'), ('\u00e8', 'e'), ('\u00e1', 'a'), ('&', ' und ')): s = s.replace(a, b)\n    return re.findall(r'[a-z0-9]+', s)\n\n\ndef suchen(name):\n    \"\"\"Die besten Spielseiten zu einem Namen \u2013 alle W\u00f6rter des Namens m\u00fcssen in der Adresse vorkommen.\"\"\"\n    q = woerter(name)\n    if not q: return []\n    bewertet = []\n    for url, artikel in katalog().items():\n        slug = woerter(url.rsplit('/', 1)[1][:-len(artikel) - 6])\n        fehlt = sum(1 for w in q if not any(s == w or (len(w) >= 4 and s.startswith(w)) for s in slug))\n        if fehlt: continue\n        extra = sum(1 for s in slug if s not in q)\n        bewertet.append(((extra, slug[:len(q)] != q, len(slug), url), url, artikel))\n    bewertet.sort()\n    return [(u, a) for _, u, a in bewertet[:MAX_TREFFER]]\n\n\n# ---------- Eine Spielseite lesen ----------\ndef meta(t, *namen):\n    for n in namen:\n        for m in re.finditer(r'<meta\\b[^>]*>', t, re.I):\n            tag = m.group(0)\n            if re.search(r'(?:property|name|itemprop)\\s*=\\s*[\"\\']' + re.escape(n) + r'[\"\\']', tag, re.I):\n                c = re.search(r'content\\s*=\\s*\"([^\"]*)\"', tag, re.I) or re.search(r\"content\\s*=\\s*'([^']*)'\", tag, re.I)\n                if c and c.group(1).strip(): return html.unescape(c.group(1)).strip()\n    return ''\n\n\ndef zeilen(t):\n    t = re.sub(r'(?is)<(script|style|noscript|svg|head)\\b.*?</\\1>', ' ', t)\n    t = re.sub(r'(?i)<br\\s*/?>|</(p|div|li|h[1-6]|tr|section|article|ul|table)>', '\\n', t)\n    t = html.unescape(re.sub(r'<[^>]+>', ' ', t))\n    return [z for z in (re.sub(r'\\s+', ' ', x).strip() for x in t.split('\\n')) if z]\n\n\ndef kuerzen(text, n=600):\n    text = re.sub(r'\\s+', ' ', text).strip()\n    if len(text) <= n: return text\n    s = text[:n]; p = max(s.rfind('. '), s.rfind('! '), s.rfind('? '))\n    return s[:p + 1] if p > n // 3 else s.rsplit(' ', 1)[0] + ' \u2026'\n\n\ndef spielseite(url, artikel):\n    t = holen(url)\n    z = zeilen(t); T = ' '.join(z)\n    name = meta(t, 'og:title')\n    if not name:\n        h = re.search(r'(?is)<h1\\b[^>]*>(.*?)</h1>', t) or re.search(r'(?is)<title\\b[^>]*>(.*?)</title>', t)\n        name = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', h.group(1)))).strip() if h else ''\n    name = name.split('|')[0].strip()\n    name = re.sub(r'\\s*[-\u2013]\\s*(?:Spiel|Kennerspiel|Kinderspiel) des Jahres \\d{4}.*$', '', name, flags=re.I)\n    name = re.sub(r'\\s+Spiel$', '', name).strip()\n    d = {'link': url, 'name': name, 'spielerMin': None, 'spielerMax': None, 'alterAb': None, 'dauer': None}\n    m = re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*(?:bis|-|\u2013)\\s*(\\d{1,3})\\s*Spieler', T) or re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*Spieler', T)\n    if m: d['spielerMin'] = int(m.group(1)); d['spielerMax'] = int(m.group(m.lastindex))\n    m = re.search(r'im Alter (?:von|ab)\\s*(\\d{1,2})', T) or re.search(r'\\bab\\s*(\\d{1,2})\\s*Jahren', T)\n    if m: d['alterAb'] = int(m.group(1))\n    m = re.search(r'Spieldauer\\s*:?\\s*(?:von\\s*)?(?:ca\\.?|circa|etwa|rund)?\\s*(\\d{1,3})(?:\\s*(?:-|\u2013|bis)\\s*(\\d{1,3}))?\\s*Min', T, re.I)\n    if m: d['dauer'] = max(int(x) for x in m.groups() if x)\n    beschr = meta(t, 'og:description', 'description', 'twitter:description')\n    if not beschr or len(beschr) < 60:\n        sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|\u20ac|\\bEUR\\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto', re.I)\n        gut = [i for i, x in enumerate(z) if len(x) >= 80 and not sperre.search(x)]\n        satz = next((i for i, x in enumerate(z) if re.search(r'Spiel f(?:\u00fc|ue)r\\s+\\d', x)), None)\n        nah = [i for i in gut if satz is not None and abs(i - satz) <= 8]\n        beschr = z[max(nah or gut[:1], key=lambda i: len(z[i]))] if (nah or gut) else ''\n    beschr = re.sub(r'\\s*\\d+,\\d{2}\\s*(?:\u20ac|EUR).*$', '', beschr or '')\n    d['beschreibung'] = kuerzen(beschr)\n    d['verlag'] = ''\n    for i, x in enumerate(z):                      # \u201eHerstellerinformationen\u201c \u2192 Verlag (ohne GmbH & Co.)\n        if not re.search(r'Herstellerinformation|^Hersteller\\b|^Verlag\\b', x, re.I): continue\n        rest = re.sub(r'^.*?(?:Herstellerinformationen?|Hersteller|Verlag)\\s*:?\\s*', '', x, flags=re.I).strip()\n        for k in [rest] + z[i + 1:i + 3]:\n            k = re.sub(r'\\s*(?:GmbH|AG|KG|OHG|e\\.\\s?K\\.|Ltd\\.?|Inc\\.?|S\\.A\\.S?\\.?)\\b.*$', '', k).strip(' ,-')\n            k = re.sub(r'[\\s-]*Verlags?$', '', k).strip(' ,-')\n            if 2 <= len(k) <= 50 and not re.search(r'\\d|@|www\\.|stra(?:\u00df|ss)e|str\\.|http', k, re.I): d['verlag'] = k; break\n        if d['verlag']: break\n    d['kategorien'] = list(dict.fromkeys(re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', x))).strip()\n        for x in re.findall(r'(?is)<a\\b[^>]*href=\"[^\"]*/Kategorie/[^\"]*\"[^>]*>(.*?)</a>', t)))[:30]\n    bild = meta(t, 'og:image')\n    bild = bild[bild.rfind('http'):] if 'http' in bild else ''\n    if not re.match(r'^https://(?:mediaservice\\.happyshops\\.com|www\\.spiele-offensive\\.de)/', bild):\n        bild = f'https://mediaservice.happyshops.com/ANY/Article/{int(artikel):012d}/{artikel}.jpg'\n    d['bild'] = None\n    try:\n        b, typ = holen(bild, roh=True)\n        if 1000 < len(b) <= MAX_BILD and typ in ('image/jpeg', 'image/png', 'image/webp'):\n            d['bild'] = {'typ': typ, 'daten': base64.b64encode(b).decode()}\n    except Exception:\n        pass\n    return d\n\n\ndef fehlertext(e):\n    if isinstance(e, urllib.error.HTTPError):\n        return 'Diese Spielseite gibt es bei Spiele-Offensive nicht (mehr).' if e.code == 404 else f'Spiele-Offensive hat die Anfrage abgelehnt (Code {e.code}).'\n    return f'Die Seite lie\u00df sich nicht abholen ({type(e).__name__}).'\n\n\ndef abholen(auftrag):\n    link, name = str(auftrag.get('link') or '').strip(), str(auftrag.get('name') or '').strip()[:80]\n    if link:\n        m = LINK.match(link)\n        if not m: return {'ok': False, 'fehler': 'Das ist kein Link zu einer Spielseite bei Spiele-Offensive (\u2026/Spiel/\u2026).'}\n        seiten = [(BASIS + m.group(1), m.group(2))]\n    elif name:\n        try: seiten = suchen(name)\n        except Exception as e: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen.', 'info': {**_katalog_info, 'grund': type(e).__name__}}\n        if not seiten:\n            if not _katalog: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen \u2013 bitte den Weg \u00fcber den Link nehmen.', 'info': _katalog_info}\n            return {'ok': False, 'fehler': f'Bei Spiele-Offensive nichts zu \u201e{name}\u201c gefunden.', 'info': _katalog_info}\n    else:\n        return {'ok': False, 'fehler': 'Kein Spiel angegeben.'}\n    treffer, letzter_fehler = [], None\n    for url, artikel in seiten:\n        if not erlaubt(url): letzter_fehler = 'Spiele-Offensive erlaubt das Abholen dieser Seite nicht.'; continue\n        try: treffer.append(spielseite(url, artikel))\n        except Exception as e: letzter_fehler = fehlertext(e)\n    if not treffer: return {'ok': False, 'fehler': letzter_fehler or 'Nichts gefunden.', 'info': _katalog_info}\n    return {'ok': True, 'quelle': 'Spiele-Offensive', 'treffer': treffer, 'info': _katalog_info}\n\n\ndef main():\n    jetzt = datetime.datetime.now(datetime.timezone.utc)\n    for f in gh('GET', f'/contents/{AUFTRAEGE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file' or not f['name'].endswith('.json'): continue\n        id_ = f['name'][:-5]\n        try: auftrag = json.loads(base64.b64decode((gh('GET', f\"/contents/{AUFTRAEGE}/{f['name']}?ref={ZWEIG}\") or {}).get('content', '')))\n        except Exception: auftrag = {}\n        if re.fullmatch(r'[a-z0-9]{4,40}', id_):\n            ergebnis = {'id': id_, 'zeit': jetzt.isoformat(), 'version': ABHOLDIENST_VERSION, **abholen(auftrag)}\n            print(id_, 'ok' if ergebnis['ok'] else ergebnis['fehler'], [t['name'] for t in ergebnis.get('treffer', [])], ergebnis.get('info', ''))\n            pfad = f'{ERGEBNISSE}/{id_}.json'\n            alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n            gh('PUT', f'/contents/{pfad}', {'message': 'Abholdienst: ' + (', '.join(t['name'] for t in ergebnis.get('treffer', [])) or 'Ergebnis')[:70],\n                'branch': ZWEIG, 'content': base64.b64encode(json.dumps(ergebnis, ensure_ascii=False).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n        gh('DELETE', f\"/contents/{AUFTRAEGE}/{f['name']}\", {'message': 'Abholdienst: Auftrag erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n    # Liegengebliebene Ergebnisse (\u00e4lter als ein Tag) aufr\u00e4umen\n    for f in gh('GET', f'/contents/{ERGEBNISSE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        try:\n            e = json.loads(base64.b64decode(gh('GET', f\"/contents/{ERGEBNISSE}/{f['name']}?ref={ZWEIG}\")['content']))\n            alt = jetzt - datetime.datetime.fromisoformat(e['zeit']) > datetime.timedelta(days=1)\n        except Exception:\n            alt = True\n        if alt: gh('DELETE', f\"/contents/{ERGEBNISSE}/{f['name']}\", {'message': 'Abholdienst: aufger\u00e4umt', 'sha': f['sha'], 'branch': ZWEIG})\n\n\nif __name__ == '__main__':\n    main()\n";
+const ABHOLDIENST_PY = "# Abholdienst der Spieleabend-App \u2013 holt auf Wunsch Spielangaben bei Spiele-Offensive ab.\n# Diese Datei legt die App selbst ins Repo und h\u00e4lt sie aktuell; gestartet wird sie von .github/workflows/abholdienst.yml.\n# Regeln: nur Seiten, die die robots.txt des Shops erlaubt; Spiele werden \u00fcber die Sitemap gefunden, die der Shop daf\u00fcr anbietet\n# (keine Suchseiten); der Dienst stellt sich als \u201eSpieleabend-Abholdienst\u201c vor und l\u00e4sst zwischen zwei Abrufen eine Pause.\nABHOLDIENST_VERSION = 5\nimport base64, datetime, gzip, html, json, os, re, time, urllib.error, urllib.request, urllib.robotparser\n\nREPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']\nBASIS, NAME = 'https://www.spiele-offensive.de', 'Spieleabend-Abholdienst'\nUA = ('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 '\n      'Mobile/15E148 Safari/604.1 ' + NAME + '/' + str(ABHOLDIENST_VERSION))\nAUFTRAEGE, ERGEBNISSE = 'abholdienst/auftraege', 'abholdienst/ergebnisse'\nLINK = re.compile(r'^https?://(?:www\\.)?spiele-offensive\\.de(/Spiel/[^?#\\s\"<>]+-(\\d+)\\.html)$', re.I)\nPAUSE, MAX_TREFFER, MAX_BILD = 0.8, 4, 160_000\nWERBUNG = re.compile(r'versandkostenfrei|g(?:\u00fc|ue)nstig (?:bestellen|kaufen)|\\bhier\\b[^.!?\\n]{0,50}\\bbestellen|jetzt (?:online )?(?:bestellen|kaufen)|zuletzt aktualisiert', re.I)\n\n\ndef gh(methode, pfad, daten=None):\n    req = urllib.request.Request(f'https://api.github.com/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': NAME})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                return json.loads(r.read() or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\n_letzter = 0.0\ndef holen(url, roh=False, grenze=3_000_000, zeit=25):\n    global _letzter\n    warten = PAUSE - (time.time() - _letzter)\n    if warten > 0: time.sleep(warten)\n    req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9', 'Accept': 'text/html,application/xml,image/*,*/*'})\n    try:\n        with urllib.request.urlopen(req, timeout=zeit) as r:\n            b = r.read(grenze)\n            if b[:2] == b'\\x1f\\x8b': b = gzip.decompress(b)\n            return (b, r.headers.get_content_type()) if roh else b.decode(r.headers.get_content_charset() or 'utf-8', 'replace')\n    finally:\n        _letzter = time.time()\n\n\n_robots = None\ndef robots():\n    global _robots\n    if _robots is None:\n        _robots = urllib.robotparser.RobotFileParser()\n        try: _robots.parse(holen(BASIS + '/robots.txt').splitlines())\n        except urllib.error.HTTPError as e: _robots.parse([] if e.code < 500 else ['User-agent: *', 'Disallow: /'])\n    return _robots\ndef erlaubt(url): return robots().can_fetch(NAME, url)\n\n\n# ---------- Verzeichnis aller Spielseiten aus der Sitemap ----------\n_katalog, _katalog_info = None, {}\ndef katalog():\n    global _katalog\n    if _katalog is not None: return _katalog\n    _katalog, warte, gesehen = {}, [u.replace('http://', 'https://', 1) for u in (robots().site_maps() or [])], set()\n    while warte and len(gesehen) < 30:\n        u = warte.pop(0)\n        if u in gesehen or not erlaubt(u): continue\n        gesehen.add(u)\n        try: x = holen(u, grenze=60_000_000, zeit=90)\n        except Exception as e: _katalog_info.setdefault('fehler', []).append(f'{u.rsplit(\"/\", 1)[-1]}: {type(e).__name__}'); continue\n        for loc in re.findall(r'<loc>\\s*([^<\\s]+)\\s*</loc>', x):\n            loc = html.unescape(loc).replace('http://', 'https://', 1)\n            m = LINK.match(loc)\n            if m: _katalog[BASIS + m.group(1)] = m.group(2)\n            elif re.search(r'sitemap', loc, re.I) and loc not in gesehen: warte.append(loc)\n    _katalog_info.update({'dateien': len(gesehen), 'spiele': len(_katalog)})\n    return _katalog\n\n\ndef woerter(s):\n    s = s.lower()\n    for a, b in (('\u00e4', 'ae'), ('\u00f6', 'oe'), ('\u00fc', 'ue'), ('\u00df', 'ss'), ('\u00e9', 'e'), ('\u00e8', 'e'), ('\u00e1', 'a'), ('&', ' und ')): s = s.replace(a, b)\n    return re.findall(r'[a-z0-9]+', s)\n\n\ndef suchen(name):\n    \"\"\"Die besten Spielseiten zu einem Namen \u2013 alle W\u00f6rter des Namens m\u00fcssen in der Adresse vorkommen.\"\"\"\n    q = woerter(name)\n    if not q: return []\n    bewertet = []\n    for url, artikel in katalog().items():\n        slug = woerter(url.rsplit('/', 1)[1][:-len(artikel) - 6])\n        fehlt = sum(1 for w in q if not any(s == w or (len(w) >= 4 and s.startswith(w)) for s in slug))\n        if fehlt: continue\n        extra = sum(1 for s in slug if s not in q)\n        bewertet.append(((extra, slug[:len(q)] != q, len(slug), url), url, artikel))\n    bewertet.sort()\n    return [(u, a) for _, u, a in bewertet[:MAX_TREFFER]]\n\n\n# ---------- Eine Spielseite lesen ----------\ndef meta(t, *namen):\n    for n in namen:\n        for m in re.finditer(r'<meta\\b[^>]*>', t, re.I):\n            tag = m.group(0)\n            if re.search(r'(?:property|name|itemprop)\\s*=\\s*[\"\\']' + re.escape(n) + r'[\"\\']', tag, re.I):\n                c = re.search(r'content\\s*=\\s*\"([^\"]*)\"', tag, re.I) or re.search(r\"content\\s*=\\s*'([^']*)'\", tag, re.I)\n                if c and c.group(1).strip(): return html.unescape(c.group(1)).strip()\n    return ''\n\n\ndef zeilen(t):\n    t = re.sub(r'(?is)<(script|style|noscript|svg|head)\\b.*?</\\1>', ' ', t)\n    t = re.sub(r'(?i)<br\\s*/?>|</(p|div|li|h[1-6]|tr|section|article|ul|table)>', '\\n', t)\n    t = html.unescape(re.sub(r'<[^>]+>', ' ', t))\n    return [z for z in (re.sub(r'\\s+', ' ', x).strip() for x in t.split('\\n')) if z]\n\n\ndef kuerzen(text, n=2000):\n    text = '\\n'.join(re.sub(r'[ \\t]+', ' ', z).strip() for z in text.split('\\n')).strip()\n    if len(text) <= n: return text\n    s = text[:n]; p = max(s.rfind('. '), s.rfind('! '), s.rfind('? '))\n    return s[:p + 1] if p > n // 3 else s.rsplit(' ', 1)[0] + ' \u2026'\n\n\ndef spielseite(url, artikel):\n    t = holen(url)\n    z = zeilen(t); T = ' '.join(z)\n    name = meta(t, 'og:title')\n    if not name:\n        h = re.search(r'(?is)<h1\\b[^>]*>(.*?)</h1>', t) or re.search(r'(?is)<title\\b[^>]*>(.*?)</title>', t)\n        name = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', h.group(1)))).strip() if h else ''\n    name = name.split('|')[0].strip()\n    name = re.sub(r'\\s*[-\u2013]\\s*(?:Spiel|Kennerspiel|Kinderspiel) des Jahres \\d{4}.*$', '', name, flags=re.I)\n    name = re.sub(r'\\s+Spiel$', '', name).strip()\n    d = {'link': url, 'name': name, 'spielerMin': None, 'spielerMax': None, 'alterAb': None, 'dauer': None}\n    m = re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*(?:bis|-|\u2013)\\s*(\\d{1,3})\\s*Spieler', T) or re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*Spieler', T)\n    if m: d['spielerMin'] = int(m.group(1)); d['spielerMax'] = int(m.group(m.lastindex))\n    m = re.search(r'im Alter (?:von|ab)\\s*(\\d{1,2})', T) or re.search(r'\\bab\\s*(\\d{1,2})\\s*Jahren', T)\n    if m: d['alterAb'] = int(m.group(1))\n    m = re.search(r'Spieldauer\\s*:?\\s*(?:von\\s*)?(?:ca\\.?|circa|etwa|rund)?\\s*(\\d{1,3})(?:\\s*(?:-|\u2013|bis)\\s*(\\d{1,3}))?\\s*Min', T, re.I)\n    if m: d['dauer'] = max(int(x) for x in m.groups() if x)\n    beschr = meta(t, 'og:description', 'description', 'twitter:description')\n    if beschr and WERBUNG.search(beschr): beschr = ''          # \u201e\u2026 hier versandkostenfrei und g\u00fcnstig bestellen\u201c ist keine Beschreibung\n    if not beschr or len(beschr) < 60:\n        sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|\u20ac|\\bEUR\\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto|bestellen|aktualisiert', re.I)\n        gut = [i for i, x in enumerate(z) if len(x) >= 80 and not sperre.search(x)]\n        satz = next((i for i, x in enumerate(z) if re.search(r'Spiel f(?:\u00fc|ue)r\\s+\\d', x)), None)\n        nah = [i for i in gut if satz is not None and abs(i - satz) <= 8 and not (re.search(r'Spiel f(?:\u00fc|ue)r\\s+\\d', z[i]) and len(z[i]) < 160)]\n        beschr = '\\n'.join(z[i] for i in sorted(nah)) if nah else (z[gut[0]] if gut else '')   # alle Abs\u00e4tze der Beschreibung, nicht nur einer\n    beschr = '\\n'.join(re.sub(r'\\s*\\d+,\\d{2}\\s*(?:\u20ac|EUR).*$', '', x) for x in (beschr or '').split('\\n')).strip()\n    d['beschreibung'] = kuerzen(beschr)\n    d['verlag'] = ''\n    for i, x in enumerate(z):                      # \u201eHerstellerinformationen\u201c \u2192 Verlag (ohne GmbH & Co.)\n        if not re.search(r'Herstellerinformation|^Hersteller\\b|^Verlag\\b', x, re.I): continue\n        rest = re.sub(r'^.*?(?:Herstellerinformationen?|Hersteller|Verlag)\\s*:?\\s*', '', x, flags=re.I).strip()\n        for k in [rest] + z[i + 1:i + 3]:\n            k = re.sub(r'\\s*(?:GmbH|AG|KG|OHG|e\\.\\s?K\\.|Ltd\\.?|Inc\\.?|S\\.A\\.S?\\.?)\\b.*$', '', k).strip(' ,-')\n            k = re.sub(r'[\\s-]*Verlags?$', '', k).strip(' ,-')\n            if 2 <= len(k) <= 50 and not re.search(r'\\d|@|www\\.|stra(?:\u00df|ss)e|str\\.|http', k, re.I): d['verlag'] = k; break\n        if d['verlag']: break\n    d['kategorien'] = list(dict.fromkeys(re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', x))).strip()\n        for x in re.findall(r'(?is)<a\\b[^>]*href=\"[^\"]*/Kategorie/[^\"]*\"[^>]*>(.*?)</a>', t)))[:30]\n    bild = meta(t, 'og:image')\n    bild = bild[bild.rfind('http'):] if 'http' in bild else ''\n    if not re.match(r'^https://(?:mediaservice\\.happyshops\\.com|www\\.spiele-offensive\\.de)/', bild):\n        bild = f'https://mediaservice.happyshops.com/ANY/Article/{int(artikel):012d}/{artikel}.jpg'\n    d['bild'] = None\n    try:\n        b, typ = holen(bild, roh=True)\n        if 1000 < len(b) <= MAX_BILD and typ in ('image/jpeg', 'image/png', 'image/webp'):\n            d['bild'] = {'typ': typ, 'daten': base64.b64encode(b).decode()}\n    except Exception:\n        pass\n    return d\n\n\ndef fehlertext(e):\n    if isinstance(e, urllib.error.HTTPError):\n        return 'Diese Spielseite gibt es bei Spiele-Offensive nicht (mehr).' if e.code == 404 else f'Spiele-Offensive hat die Anfrage abgelehnt (Code {e.code}).'\n    return f'Die Seite lie\u00df sich nicht abholen ({type(e).__name__}).'\n\n\ndef abholen(auftrag):\n    link, name = str(auftrag.get('link') or '').strip(), str(auftrag.get('name') or '').strip()[:80]\n    if link:\n        m = LINK.match(link)\n        if not m: return {'ok': False, 'fehler': 'Das ist kein Link zu einer Spielseite bei Spiele-Offensive (\u2026/Spiel/\u2026).'}\n        seiten = [(BASIS + m.group(1), m.group(2))]\n    elif name:\n        try: seiten = suchen(name)\n        except Exception as e: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen.', 'info': {**_katalog_info, 'grund': type(e).__name__}}\n        if not seiten:\n            if not _katalog: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen \u2013 bitte den Weg \u00fcber den Link nehmen.', 'info': _katalog_info}\n            return {'ok': False, 'fehler': f'Bei Spiele-Offensive nichts zu \u201e{name}\u201c gefunden.', 'info': _katalog_info}\n    else:\n        return {'ok': False, 'fehler': 'Kein Spiel angegeben.'}\n    treffer, letzter_fehler = [], None\n    for url, artikel in seiten:\n        if not erlaubt(url): letzter_fehler = 'Spiele-Offensive erlaubt das Abholen dieser Seite nicht.'; continue\n        try: treffer.append(spielseite(url, artikel))\n        except Exception as e: letzter_fehler = fehlertext(e)\n    if not treffer: return {'ok': False, 'fehler': letzter_fehler or 'Nichts gefunden.', 'info': _katalog_info}\n    return {'ok': True, 'quelle': 'Spiele-Offensive', 'treffer': treffer, 'info': _katalog_info}\n\n\ndef main():\n    jetzt = datetime.datetime.now(datetime.timezone.utc)\n    for f in gh('GET', f'/contents/{AUFTRAEGE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file' or not f['name'].endswith('.json'): continue\n        id_ = f['name'][:-5]\n        try: auftrag = json.loads(base64.b64decode((gh('GET', f\"/contents/{AUFTRAEGE}/{f['name']}?ref={ZWEIG}\") or {}).get('content', '')))\n        except Exception: auftrag = {}\n        if re.fullmatch(r'[a-z0-9]{4,40}', id_):\n            ergebnis = {'id': id_, 'zeit': jetzt.isoformat(), 'version': ABHOLDIENST_VERSION, **abholen(auftrag)}\n            print(id_, 'ok' if ergebnis['ok'] else ergebnis['fehler'], [t['name'] for t in ergebnis.get('treffer', [])], ergebnis.get('info', ''))\n            pfad = f'{ERGEBNISSE}/{id_}.json'\n            alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n            gh('PUT', f'/contents/{pfad}', {'message': 'Abholdienst: ' + (', '.join(t['name'] for t in ergebnis.get('treffer', [])) or 'Ergebnis')[:70],\n                'branch': ZWEIG, 'content': base64.b64encode(json.dumps(ergebnis, ensure_ascii=False).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n        gh('DELETE', f\"/contents/{AUFTRAEGE}/{f['name']}\", {'message': 'Abholdienst: Auftrag erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n    # Liegengebliebene Ergebnisse (\u00e4lter als ein Tag) aufr\u00e4umen\n    for f in gh('GET', f'/contents/{ERGEBNISSE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        try:\n            e = json.loads(base64.b64decode(gh('GET', f\"/contents/{ERGEBNISSE}/{f['name']}?ref={ZWEIG}\")['content']))\n            alt = jetzt - datetime.datetime.fromisoformat(e['zeit']) > datetime.timedelta(days=1)\n        except Exception:\n            alt = True\n        if alt: gh('DELETE', f\"/contents/{ERGEBNISSE}/{f['name']}\", {'message': 'Abholdienst: aufger\u00e4umt', 'sha': f['sha'], 'branch': ZWEIG})\n\n\nif __name__ == '__main__':\n    main()\n";
 let abholStand = null, abholSkriptOk = false;
 function soLink(text){
   const m = String(text || '').match(/https?:\/\/(?:www\.)?spiele-offensive\.de\/Spiel\/[^\s?#"'<>]+-\d+\.html/i);
@@ -2800,10 +2879,10 @@ function soDetails(e){
   const n = v => Number.isFinite(Number(v)) && v !== null && v !== '' ? Number(v) : null;
   // Den Verlag als Satz anhängen (wie bei Wikipedia) – daran erkennt die Anleitungssuche später den Verlag
   const verlag = String(e.verlag || '').trim().slice(0, 60), satz = verlag ? `Erschienen bei ${verlag}.` : '';
-  let text = String(e.beschreibung || '').trim();
-  if (satz && !normText(text).includes(normText(verlag))) text = [text.slice(0, 598 - satz.length), satz].filter(Boolean).join('\n');
+  let text = shopTextWeg(e.beschreibung).trim();
+  if (satz && !normText(text).includes(normText(verlag))) text = [text.slice(0, BESCHR_MAX - 2 - satz.length), satz].filter(Boolean).join('\n');
   return { name:String(e.name || '').slice(0, 80), spielerMin:n(e.spielerMin), spielerMax:n(e.spielerMax), alterAb:n(e.alterAb), dauer:n(e.dauer), verlag,
-    kategorien:artenAus([...(Array.isArray(e.kategorien) ? e.kategorien : []), e.beschreibung]), beschreibung:text.slice(0, 600),
+    kategorien:artenAus([...(Array.isArray(e.kategorien) ? e.kategorien : []), e.beschreibung]), beschreibung:text.slice(0, BESCHR_MAX),
     link:soLink(e.link) || '', quellen:['Spiele-Offensive'],
     bild:e.bild && e.bild.daten && /^image\/(jpeg|png|webp)$/.test(e.bild.typ || '') ? { url:`data:${e.bild.typ};base64,${e.bild.daten}`, quelle:'Foto: Spiele-Offensive.de' } : null };
 }
@@ -2853,7 +2932,7 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
       <div data-so-status></div>`, { klein:'falls nötig' })}</div>
     <p class="quelle-text" style="margin-top:14px">Die Angaben kommen aus der deutschen Wikipedia und aus Wikidata – und von Spiele-Offensive. Bitte vor dem Speichern kurz prüfen.</p>`, { klasse:'gross' });
   const bereich = $('[data-bereich]', s), suchform = $('[data-suchform]', s);
-  let liste = [], lauf = 0, so = null;
+  let liste = [], lauf = 0, so = null, listeQ = '';
   const lade = text => `<div class="lade">${wuerfelHtml('mini-wuerfel dreht', 5)}<span>${esc(text)}</span></div>`;
   async function suchen(){
     const q = feldVon(suchform, 'q').value.trim();
@@ -2863,9 +2942,10 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
     try{
       const ergebnis = await kandidatenSuchen(q); if (nr !== lauf) return;
       liste = ergebnis; zeigeListe(q);
-    }catch(e){ if (nr !== lauf) return; liste = []; bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p><div data-so-liste>${soListeHtml()}</div>`; }
+    }catch(e){ if (nr !== lauf) return; liste = []; listeQ = ''; bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p><div data-so-liste>${soListeHtml()}</div>`; }
   }
   function zeigeListe(q){
+    listeQ = q;
     const wiki = liste.length ? `<div class="treffer-liste">${liste.map((k, i) => `<button class="treffer" type="button" data-i="${i}">
         <span class="treffer-bild">${k.vorschau ? `<img src="${esc(k.vorschau)}" alt="" loading="lazy">` : wuerfelHtml('mini-wuerfel', 1 + (i % 6))}</span>
         <span class="treffer-text"><b>${esc(k.name)}</b>${k.beschreibung ? `<span>${esc(k.beschreibung)}</span>` : ''}</span>
@@ -2889,7 +2969,11 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
     return `<p class="so-angebot"><button class="link-knopf" type="button" data-so-einrichten>${so.alt ? 'Abholdienst erneuern' : 'Spiele-Offensive einrichten'}</button>
       – einmalig, danach kommen bei jeder Suche auch Treffer aus dem Shop dazu.</p>`;
   }
-  function soZeichnen(){ const el = $('[data-so-liste]', bereich); if (el) el.innerHTML = soListeHtml(); }
+  function soZeichnen(){
+    const el = $('[data-so-liste]', bereich); if (!el) return;
+    if (!liste.length && listeQ) zeigeListe(listeQ);      // Wikipedia leer: „Nichts gefunden“ hängt davon ab, ob Spiele-Offensive noch sucht
+    else el.innerHTML = soListeHtml();
+  }
   async function soSuchen(q){
     if (!E.token || !E.owner || !E.repo) return;
     if (so && so.q === q && ['laeuft', 'fertig'].includes(so.status)) return;
@@ -3036,7 +3120,7 @@ function spielFormular(sp){
     <div class="feld"><span class="feld-titel">Spieldauer etwa</span>${chipsHtml('dauer', DAUERN.map(d => ({ w:String(d), t:dauerText(d) })), w.dauer ? [String(w.dauer)] : [], { mehrfach:false })}</div>
     ${klapp('form-kat', 'Art des Spiels', chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), w.kategorien),
         { klasse:'leicht feld', standard:true, klein:esc(w.kategorien.join(', ')), kleinId:'form-kat-wahl' })}
-    <label class="feld"><span class="feld-titel">Kurz erklärt</span><textarea class="eingabe" name="beschreibung" maxlength="600" placeholder="Worum geht es? z. B. Begriffe erklären, zeichnen und pantomimisch darstellen.">${esc(w.beschreibung)}</textarea></label>
+    <label class="feld"><span class="feld-titel">Kurz erklärt</span><textarea class="eingabe" name="beschreibung" maxlength="2000" placeholder="Worum geht es? z. B. Begriffe erklären, zeichnen und pantomimisch darstellen.">${esc(w.beschreibung)}</textarea></label>
     <label class="feld"><span class="feld-titel">Bemerkung</span><input class="eingabe" name="bemerkung" value="${esc(w.bemerkung)}" maxlength="120" placeholder="z. B. mit Erweiterung, verliehen an …"></label>
     <div class="feld"><span class="feld-titel">Varianten</span>
       <div data-varianten></div>
@@ -3119,7 +3203,7 @@ function spielFormular(sp){
       $('#form-kat-wahl', s).textContent = gewaehlteChips($('[data-gruppe="kat"]', s)).join(', ');
     }
     const text = feldVon(form, 'beschreibung');
-    if (d.beschreibung && !text.value.trim()) text.value = d.beschreibung.slice(0, 600);
+    if (d.beschreibung && !text.value.trim()) text.value = d.beschreibung.slice(0, BESCHR_MAX);
     if (d.link) link = d.link;
     if (d.verlag) verlag = d.verlag;
     if (foto){
@@ -7080,6 +7164,7 @@ const HILFE = [
   { id:'anleitung', titel:'Spielanleitung', seite:'spiele', fkt:'anleitung', text:`
     <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
     <li><b>Beim Verlag suchen</b> sucht auf den Seiten des Verlags – dort steht die Spielseite mit der offiziellen Anleitung zum Herunterladen. Den Verlag merkt sich die App beim Spiel: Er kommt beim Übernehmen aus Wikipedia oder von Spiele-Offensive mit, steht in der Beschreibung („… erschienen bei Kosmos“), oder du wählst ihn darunter. Ist er unbekannt, schlägt die App ihn bei Spiele-Offensive nach (dauert etwa eine Minute); bis dahin wird bei den großen Verlagen gesucht.</li>
+    <li><b>Links in die eigene Cloud</b> (Google Drive, OneDrive, Dropbox, iCloud) öffnen sich für die anderen nur, wenn die Datei dort für „Jeder mit dem Link“ freigegeben ist. Die App weist beim Speichern und beim Spiel darauf hin – besser ist meist der offizielle Link vom Verlag.</li>
     <li><b>In Regel-Sammlungen suchen</b> sucht auf Seiten, die Spielregeln sammeln: spielregeln.de, spielregeln-spielanleitungen.de, Dized und Tabletopia (offizielle Regeln), 1jour-1jeu, Pagat (Kartenspiele), Libble, Manuall und Luudoo.</li>
     <li><b>Überall als PDF</b> sucht im ganzen Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
     <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
@@ -7199,6 +7284,17 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.87', datum:'01.11.2026', neu:[
+    '„Kurz erklärt“ fasst jetzt 2000 statt 600 Zeichen – aus Wikipedia kommen Einleitung und Spielablauf mit, von Spiele-Offensive alle Absätze der Beschreibung',
+    'Lange Beschreibungen sind beim Spiel zugeklappt – „Mehr lesen“ zeigt alles',
+    { t:'Filter „Spielanleitung“: Internet-Link, privater Link (Google Drive & Co.), vom Verlag oder keine – mit Anzahl; die Kacheln zeigen dann, wo die Anleitung liegt', admin:true },
+    'Behoben: Im Suchfenster fehlte manchmal „Nichts gefunden“'
+  ]},
+  { v:'v1.86', datum:'01.11.2026', neu:[
+    'Spielanleitung in Google Drive, OneDrive, Dropbox oder iCloud: Die App erklärt beim Speichern und beim Spiel, dass die anderen sie nur öffnen können, wenn sie für „Jeder mit dem Link“ freigegeben ist – mit kurzer Anleitung bzw. wen man fragen kann',
+    'Werbetext aus dem Shop („… hier versandkostenfrei und günstig bestellen“) landet nicht mehr in der Beschreibung – schon gespeicherte Texte zeigt die App ohne ihn an',
+    'Der Link beim Spiel heißt jetzt richtig, z. B. „Mehr bei Spiele-Offensive“ statt „Mehr bei Wikipedia“'
+  ]},
   { v:'v1.85', datum:'01.11.2026', neu:[
     'Spielanleitung: neuer Knopf „In Regel-Sammlungen suchen“ – sucht gezielt auf spielregeln.de, spielregeln-spielanleitungen.de, Dized und Tabletopia (offizielle Regeln), 1jour-1jeu, Pagat (Kartenspiele), Libble, Manuall und Luudoo'
   ]},
@@ -8288,6 +8384,7 @@ function verdrahten(){
     else if (k === 'dauerMax') F.dauerMax = null;
     else if (k.startsWith('kat:')) F.kategorien = F.kategorien.filter(x => x !== k.slice(4));
     else if (k.startsWith('hh:')) F.haushalte = F.haushalte.filter(x => x !== k.slice(3));
+    else if (k.startsWith('anl:')) F.anleitungen = (F.anleitungen || []).filter(x => x !== k.slice(4));
     schreiben(LS.filter, F); renderSpiele();
   });
   document.addEventListener('click', e => {
