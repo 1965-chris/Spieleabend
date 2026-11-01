@@ -800,7 +800,7 @@
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 8,
-   "dauer": null,
+   "dauer": 45,
    "kategorien": [
     "Brettspiel"
    ],
@@ -810,7 +810,7 @@
    "link": "",
    "anleitung": "https://www.spiele-anleitungen.de/zahltag/",
    "erstellt": 1793526408791,
-   "geaendert": 1793526795029
+   "geaendert": 1793549156277
   }
  ],
  "spieler": [
