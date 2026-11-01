@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.88",
+ "app": "v1.89",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -250,7 +250,9 @@
    "spielerMax": 4,
    "alterAb": 8,
    "dauer": null,
-   "kategorien": [],
+   "kategorien": [
+    "Kartenspiel"
+   ],
    "beschreibung": "",
    "bemerkung": "",
    "bildQuelle": "",
@@ -262,7 +264,7 @@
     "seit": 1793268405726
    },
    "erstellt": 1793268032050,
-   "geaendert": 1793268405726
+   "geaendert": 1793548963187
   }
  ],
  "spieler": [
