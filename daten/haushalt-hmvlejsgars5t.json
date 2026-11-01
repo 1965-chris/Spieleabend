@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.79",
+ "app": "v1.81",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -277,6 +277,16 @@
    "zuletzt": 1792870366996,
    "name": "Verena",
    "nameStand": 1792870463038
+  },
+  {
+   "id": "gmvxktgu6zgul",
+   "art": "Windows-PC",
+   "app": false,
+   "version": "v1.81",
+   "erst": 1793522219046,
+   "zuletzt": 1793522219046,
+   "name": "",
+   "nameStand": 0
   }
  ],
  "geloescht": {}
