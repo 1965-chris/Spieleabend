@@ -2,7 +2,7 @@
 # Diese Datei legt die App selbst ins Repo und hält sie aktuell; gestartet wird sie von .github/workflows/abholdienst.yml.
 # Regeln: nur Seiten, die die robots.txt des Shops erlaubt; Spiele werden über die Sitemap gefunden, die der Shop dafür anbietet
 # (keine Suchseiten); der Dienst stellt sich als „Spieleabend-Abholdienst“ vor und lässt zwischen zwei Abrufen eine Pause.
-ABHOLDIENST_VERSION = 2
+ABHOLDIENST_VERSION = 3
 import base64, datetime, gzip, html, json, os, re, time, urllib.error, urllib.request, urllib.robotparser
 
 REPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']
@@ -147,6 +147,15 @@ def spielseite(url, artikel):
         beschr = z[max(nah or gut[:1], key=lambda i: len(z[i]))] if (nah or gut) else ''
     beschr = re.sub(r'\s*\d+,\d{2}\s*(?:€|EUR).*$', '', beschr or '')
     d['beschreibung'] = kuerzen(beschr)
+    d['verlag'] = ''
+    for i, x in enumerate(z):                      # „Herstellerinformationen“ → Verlag (ohne GmbH & Co.)
+        if not re.search(r'Herstellerinformation|^Hersteller\b|^Verlag\b', x, re.I): continue
+        rest = re.sub(r'^.*?(?:Herstellerinformationen?|Hersteller|Verlag)\s*:?\s*', '', x, flags=re.I).strip()
+        for k in [rest] + z[i + 1:i + 3]:
+            k = re.sub(r'\s*(?:GmbH|AG|KG|OHG|e\.\s?K\.|Ltd\.?|Inc\.?|S\.A\.S?\.?)\b.*$', '', k).strip(' ,-')
+            k = re.sub(r'[\s-]*Verlags?$', '', k).strip(' ,-')
+            if 2 <= len(k) <= 50 and not re.search(r'\d|@|www\.|stra(?:ß|ss)e|str\.|http', k, re.I): d['verlag'] = k; break
+        if d['verlag']: break
     d['kategorien'] = list(dict.fromkeys(re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', x))).strip()
         for x in re.findall(r'(?is)<a\b[^>]*href="[^"]*/Kategorie/[^"]*"[^>]*>(.*?)</a>', t)))[:30]
     bild = meta(t, 'og:image')
