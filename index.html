@@ -141,6 +141,28 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .filter-leiste:empty{display:none}
 .filter-leiste::-webkit-scrollbar{display:none}
 .zaehler{color:var(--leise);font-size:14px;margin:4px 0 12px}
+.zaehler-reihe{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px}
+.zaehler-reihe .zaehler{margin:0}
+.empf-auf{appearance:none;border:1.5px solid var(--linie);background:var(--karte);color:var(--text);border-radius:999px;padding:6px 12px 6px 9px;font:inherit;font-size:13.5px;font-weight:650;display:inline-flex;align-items:center;gap:6px;flex:none;white-space:nowrap}
+.empf-auf[hidden]{display:none}
+.empf-auf .ic{width:17px;height:17px;color:#C8102E}
+.empf-auf:active{background:var(--filz-hell)}
+.empf .empf-jahr{width:56px;height:56px;border-radius:10px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--pf);color:#fff;line-height:1.1}
+.empf .empf-jahr b{font-size:17px;letter-spacing:.01em}
+.empf .empf-jahr span{font-size:10.5px;font-weight:650;opacity:.85;text-transform:uppercase;letter-spacing:.04em}
+.empf .treffer-text .empf-aehnlich{color:var(--rot);-webkit-line-clamp:1}
+.empf-regel{flex:none;color:var(--filz);display:grid;place-items:center;width:28px}
+.empf-regel .ic{width:20px;height:20px}
+.empf-punkt{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pf);margin-right:8px;vertical-align:1px}
+.empf-preis{display:inline-flex;align-items:center;gap:6px;margin:0;padding:5px 11px 5px 8px;border-radius:999px;background:var(--pf);color:#fff;font-size:13.5px;font-weight:700}
+.empf-preis .ic{width:17px;height:17px}
+.empf-preis.klein{font-size:12.5px;padding:3px 10px 3px 7px;margin:4px 0 2px}
+.empf-info{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.empf-info li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.empf-info li .ic{flex:none;width:20px;height:20px;color:var(--filz);margin-top:1px}
+.empf-hinweis{display:flex;gap:8px;align-items:flex-start}
+.empf-knoepfe{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.empf-hinweis .ic{flex:none;width:18px;height:18px;color:#C8102E;margin-top:1px}
 
 /* ---------- Chips ---------- */
 .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -1017,7 +1039,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
     </div>
     <div class="filter-leiste" id="filter-leiste"></div>
     <div id="sicht-hinweis"></div>
-    <p class="zaehler" id="spiele-zahl"></p>
+    <div class="zaehler-reihe"><p class="zaehler" id="spiele-zahl"></p><button class="empf-auf" id="empf-auf" type="button" hidden></button></div>
     <div class="raster" id="spiele-raster"></div>
     <div id="spiele-leer"></div>
   </section>
@@ -1071,7 +1093,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.89';
+const VERSION = 'v1.90';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1084,6 +1106,7 @@ const FUNKTIONEN = [
   { k:'wuerfeln', t:'Würfeln', b:'In der Spielrunde ein Spiel auslosen' },
   { k:'gespielt', t:'Gespielt & Rückblick', b:'Partien mit Gewinner, Ranglisten' },
   { k:'anleitung', t:'Spielanleitung', b:'Link zur Anleitung oder zum Erklärvideo' },
+  { k:'empfehlungen', t:'Spiel des Jahres & Co.', b:'Ausgezeichnete Spiele, die noch fehlen – mit einem Tipp eintragen' },
   { k:'verleihen', t:'Verleihen', b:'Vermerk, wenn ein Spiel ausgeliehen ist' },
   { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' },
   { k:'nachrichten', t:'Nachricht an den Admin', b:'Auffälligkeiten und Wünsche in der App melden' }
@@ -1360,6 +1383,124 @@ function anleitungenNorm(o){
   if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)){ const kk = nameSchluessel(k), u = linkAus(v); if (kk && u) r[kk] = u; }
   return r;
 }
+/* ---------- Empfehlungen: Spiel des Jahres, Kennerspiel und Kinderspiel des Jahres ----------
+   Preisträger mit Autor und (deutschem) Verlag; r = offizielle Spielanleitung beim Verlag (geprüft 11/2026),
+   al = andere Namen, fam = auch Ausgaben, deren Name so beginnt („Zug um Zug Europa“), s = Verlag für die Suche */
+const PREISE = [
+  { k:'sdj', t:'Spiel des Jahres', farbe:'#C8102E' },
+  { k:'kenner', t:'Kennerspiel des Jahres', farbe:'#33373D' },
+  { k:'kinder', t:'Kinderspiel des Jahres', farbe:'#1F6FB2' }
+];
+const EMPFEHLUNGEN = [
+  ['sdj', 2026, 'Dito!', 'Martin Ang', 'Game Factory', { al:['JinxO'] }],
+  ['sdj', 2025, 'Bomb Busters', 'Hisashi Hayashi', 'Pegasus', { r:'https://cdn.pegasus.de/public/media/24/95/ea/1752666637/bomb-busters-spiel-des-jahres-2025-anleitung.pdf?ts=1752672105' }],
+  ['sdj', 2024, 'Sky Team', 'Luc Rémond', 'Kosmos', { r:'https://cms.kosmos.de/Downloads/4002051684044%20_Sky%20Team_Manual_01_DE_web.pdf' }],
+  ['sdj', 2023, 'Dorfromantik – Das Brettspiel', 'Michael Palm, Lukas Zach', 'Pegasus', { al:['Dorfromantik'], r:'https://cdn.pegasus.de/public/media/7b/79/ea/1717757211/4250231731877_de-min.pdf?ts=1779882312' }],
+  ['sdj', 2022, 'Cascadia', 'Randy Flynn', 'Kosmos', { al:['Cascadia – Im Herzen der Natur'] }],
+  ['sdj', 2021, 'MicroMacro: Crime City', 'Johannes Sich', 'Edition Spielwiese / Pegasus', { al:['MicroMacro', 'Micro Macro'], s:'Edition Spielwiese' }],
+  ['sdj', 2020, 'Pictures', 'Daniela und Christian Stöhr', 'PD-Verlag'],
+  ['sdj', 2019, 'Just One', 'Ludovic Roudy, Bruno Sautter', 'Repos Production / Asmodee', { s:'Asmodee', r:'https://asmodee-resources.azureedge.net/media/germanyprod/Regeln/just-one-refresh-5425016928646-regel.pdf' }],
+  ['sdj', 2018, 'Azul', 'Michael Kiesling', 'Next Move / Asmodee', { s:'Asmodee' }],
+  ['sdj', 2017, 'Kingdomino', 'Bruno Cathala', 'Pegasus', { r:'https://cdn.pegasus.de/public/media/ac/73/3a/1779283460/kingdomino-neuausgabe-anleitung.pdf?ts=1779283806' }],
+  ['sdj', 2016, 'Codenames', 'Vlaada Chvátil', 'Czech Games Edition', { r:'https://filemanager.czechgames.com/storage/files/codenames/rules/codenames-rules-de.pdf' }],
+  ['sdj', 2015, 'Colt Express', 'Christophe Raimbault', 'Ludonaute / Asmodee', { s:'Asmodee' }],
+  ['sdj', 2014, 'Camel Up', 'Steffen Bogen', 'eggertspiele / Pegasus', { s:'Pegasus', fam:true }],
+  ['sdj', 2013, 'Hanabi', 'Antoine Bauza', 'Abacusspiele', { r:'https://abacusspiele.de/wp-content/uploads/2021/01/Hanabi_Regel.pdf' }],
+  ['sdj', 2012, 'Kingdom Builder', 'Donald X. Vaccarino', 'Queen Games', { r:'https://rules.queen-games.com/kingdom-builder_bigbox_de.pdf' }],
+  ['sdj', 2011, 'Qwirkle', 'Susan McKinley Ross', 'Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Produkte/5/51410%20-%20Qwirkle/51410_Qwirkle_BMM_DE_FR_IT.pdf' }],
+  ['sdj', 2010, 'Dixit', 'Jean-Louis Roubira', 'Libellud / Asmodee', { s:'Asmodee', r:'https://cdn.svc.asmodee.net/production-unboxnowcom/uploads/sites/8/2022/04/dixit_refresh_rules_de_bd.pdf' }],
+  ['sdj', 2009, 'Dominion', 'Donald X. Vaccarino', 'Hans im Glück'],
+  ['sdj', 2008, 'Keltis', 'Reiner Knizia', 'Kosmos'],
+  ['sdj', 2007, 'Zooloretto', 'Michael Schacht', 'Abacusspiele', { r:'https://abacusspiele.de/wp-content/uploads/2021/01/Zooloretto_Regel_DE.pdf' }],
+  ['sdj', 2006, 'Thurn und Taxis', 'Andreas und Karen Seyfarth', 'Hans im Glück'],
+  ['sdj', 2005, 'Niagara', 'Thomas Liesching', 'Zoch', { r:'https://pim.simba-dickie.com/Product/Zoch/Family/601124900%20Niagara/099%20Middleware%20%28Import%20only%29/601124900_Niagara_Rules-online_DE-EN-FR-IT.pdf' }],
+  ['sdj', 2004, 'Zug um Zug', 'Alan R. Moon', 'Days of Wonder / Asmodee', { s:'Asmodee', fam:true }],
+  ['sdj', 2003, 'Alhambra', 'Dirk Henn', 'Queen Games'],
+  ['sdj', 2002, 'Villa Paletti', 'Bill Payne', 'Zoch'],
+  ['sdj', 2001, 'Carcassonne', 'Klaus-Jürgen Wrede', 'Hans im Glück', { r:'https://www.hans-im-glueck.de/wp-content/uploads/2023/06/CC-C3-SR.pdf' }],
+  ['sdj', 2000, 'Torres', 'Wolfgang Kramer, Michael Kiesling', 'F.X. Schmid / Ravensburger', { s:'Ravensburger' }],
+  ['sdj', 1999, 'Tikal', 'Wolfgang Kramer, Michael Kiesling', 'Ravensburger'],
+  ['sdj', 1998, 'Elfenland', 'Alan R. Moon', 'Amigo'],
+  ['sdj', 1997, 'Mississippi Queen', 'Werner Hodel', 'Goldsieber'],
+  ['sdj', 1996, 'El Grande', 'Wolfgang Kramer, Richard Ulrich', 'Hans im Glück'],
+  ['sdj', 1995, 'Die Siedler von Catan', 'Klaus Teuber', 'Kosmos', { al:['Catan', 'Catan – Das Spiel', 'Siedler von Catan'], r:'https://www.catan.de/sites/default/files/2021-06/CATAN_Spielanleitung_Basisspiel_1.pdf' }],
+  ['sdj', 1994, 'Manhattan', 'Andreas Seyfarth', 'Hans im Glück'],
+  ['sdj', 1993, 'Bluff', 'Richard Borg', 'F.X. Schmid'],
+  ['sdj', 1992, 'Um Reifenbreite', 'Rob Bontenbal', 'Jumbo'],
+  ['sdj', 1991, 'Drunter & Drüber', 'Klaus Teuber', 'Hans im Glück', { al:['Drunter und Drüber'] }],
+  ['sdj', 1990, 'Adel verpflichtet', 'Klaus Teuber', 'F.X. Schmid'],
+  ['sdj', 1989, 'Café International', 'Rudi Hoffmann', 'Mattel'],
+  ['sdj', 1988, 'Barbarossa', 'Klaus Teuber', 'ASS Altenburger'],
+  ['sdj', 1987, 'Auf Achse', 'Wolfgang Kramer', 'F.X. Schmid'],
+  ['sdj', 1986, 'Heimlich & Co.', 'Wolfgang Kramer', 'Ravensburger', { al:['Heimlich und Co.'] }],
+  ['sdj', 1985, 'Sherlock Holmes Criminal-Cabinet', 'Raymond Edwards, Suzanne Goldberg, Gary Grady', 'Kosmos', { al:['Sherlock Holmes Consulting Detective'] }],
+  ['sdj', 1984, 'Dampfross', 'David G. Watts', 'Schmidt Spiele'],
+  ['sdj', 1983, 'Scotland Yard', 'Manfred Burggraf, Dorothy Garrels, Wolf Hörmann, Fritz Ifland, Werner Scheerer, Werner Schlegel', 'Ravensburger'],
+  ['sdj', 1982, 'Sagaland', 'Alex Randolph, Michel Matschoss', 'Ravensburger'],
+  ['sdj', 1981, 'Focus', 'Sid Sackson', 'Parker'],
+  ['sdj', 1980, 'Rummikub', 'Ephraim Hertzano', 'Jumbo'],
+  ['sdj', 1979, 'Hase und Igel', 'David Parlett', 'Ravensburger'],
+
+  ['kenner', 2026, 'Rebirth', 'Reiner Knizia', 'Frosted Games'],
+  ['kenner', 2025, 'Endeavor: Die Tiefsee', 'Carl de Visser, Jarratt Gray', 'Board Game Circus', { al:['Endeavor Deep Sea'] }],
+  ['kenner', 2024, 'e-Mission', 'Matt Leacock, Matteo Menapace', 'Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Retail/300dpi_JPG/49444_e-Mission_D.pdf' }],
+  ['kenner', 2023, 'Challengers!', 'Johannes Krenner, Markus Slawitscheck', '1 More Time Games / Z-Man', { s:'Asmodee' }],
+  ['kenner', 2022, 'Living Forest', 'Aske Christiansen', 'Ludonaute / Pegasus', { s:'Pegasus', r:'https://cdn.pegasus.de/public/media/3c/6d/a8/1717757270/4250231731631_de.pdf?ts=1752574417' }],
+  ['kenner', 2021, 'Paleo', 'Peter Rustemeyer', 'Hans im Glück', { r:'https://www.hans-im-glueck.de/_Resources/Persistent/c008cf4fc6df2539b52369791461265c3f230ec0/paleo-V3-2021_REGEL_PROD-210827-screen.pdf' }],
+  ['kenner', 2020, 'Die Crew – Reist gemeinsam zum 9. Planeten', 'Thomas Sing', 'Kosmos', { al:['Die Crew'] }],
+  ['kenner', 2019, 'Flügelschlag', 'Elizabeth Hargrave', 'Feuerland', { r:'https://www.feuerland-spiele.de/fileadmin/game/Fluegelschlag/Fluegelschlag_DE_Regel_V2-0.pdf' }],
+  ['kenner', 2018, 'Die Quacksalber von Quedlinburg', 'Wolfgang Warsch', 'Schmidt Spiele', { al:['Quacksalber'], r:'https://www.schmidtspiele.de/files/Produkte/4/49341%20-%20Die%20Quacksalber%20von%20Quedlinburg/49341_Quacksalber_Anleitung_DE.pdf' }],
+  ['kenner', 2017, 'EXIT – Das Spiel', 'Inka und Markus Brand', 'Kosmos', { al:['EXIT'], fam:true }],
+  ['kenner', 2016, 'Isle of Skye', 'Andreas Pelikan, Alexander Pfister', 'Lookout', { al:['Isle of Skye – Vom Häuptling zum König'] }],
+  ['kenner', 2015, 'Broom Service', 'Andreas Pelikan, Alexander Pfister', 'alea / Ravensburger', { s:'Ravensburger' }],
+  ['kenner', 2014, 'Istanbul', 'Rüdiger Dorn', 'Pegasus'],
+  ['kenner', 2013, 'Die Legenden von Andor', 'Michael Menzel', 'Kosmos', { fam:true }],
+  ['kenner', 2012, 'Village', 'Inka und Markus Brand', 'eggertspiele / Pegasus', { s:'Pegasus' }],
+  ['kenner', 2011, '7 Wonders', 'Antoine Bauza', 'Repos Production / Asmodee', { s:'Asmodee', r:'https://cdn.svc.asmodee.net/production-rprod/storage/downloads/games/7wonders/de/sev-de02-rules-1598889183fjTCW.pdf' }],
+
+  ['kinder', 2026, 'Die Insel der Mookies', 'Florian Sirieix', 'Kosmos'],
+  ['kinder', 2025, 'Topp die Torte!', 'Wolfgang Warsch', 'Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Retail/72dpi_PNG/40659_Topp_die_Torte!_D.pdf' }],
+  ['kinder', 2024, 'Die magischen Schlüssel', 'Markus Slawitscheck, Arno Steinwender', 'Game Factory'],
+  ['kinder', 2023, 'Mysterium Kids – Der Schatz von Kapitän Buh', 'Antonin Boccara, Yves Hirschfeld', 'Libellud / Asmodee', { al:['Mysterium Kids'], s:'Asmodee' }],
+  ['kinder', 2022, 'Zauberberg', 'Jens-Peter Schliemann, Bernhard Weber', 'Amigo'],
+  ['kinder', 2021, 'Dragomino', 'Bruno Cathala, Marie und Wilfried Fort', 'Blue Orange / Pegasus', { s:'Pegasus', r:'https://cdn.pegasus.de/public/media/4f/85/d2/1717757140/4250231728044_de.pdf?ts=1752574414' }],
+  ['kinder', 2020, 'Speedy Roll', 'Urtis Šulinskas', 'Piatnik'],
+  ['kinder', 2019, 'Tal der Wikinger', 'Marie und Wilfried Fort', 'HABA'],
+  ['kinder', 2018, 'Funkelschatz', 'Lena und Günter Burkhardt', 'HABA'],
+  ['kinder', 2017, 'Ice Cool', 'Brian Gomez', 'Amigo', { al:['ICECOOL'] }],
+  ['kinder', 2016, 'Stone Age Junior', 'Marco Teubner', 'Hans im Glück', { al:['Mein erstes Stone Age'], r:'https://www.hans-im-glueck.de/_Resources/Persistent/4210f2bab3d0c4f89d203bd364e8533357486c06/Stone-Age_Junior_Spielregel.pdf' }],
+  ['kinder', 2015, 'Spinderella', 'Roberto Fraga', 'Zoch', { r:'https://pim.simba-dickie.com/Product/Zoch/Kids/601105077%20Spinderella/099%20Middleware%20%28Import%20only%29/601105077_Spinderella_Regel-online_DE-EN-FR-IT.pdf' }],
+  ['kinder', 2014, 'Geister, Geister, Schatzsuchmeister!', 'Brian Yu', 'Mattel'],
+  ['kinder', 2013, 'Der verzauberte Turm', 'Inka und Markus Brand', 'Drei Magier / Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Produkte/4/40867%20-%20Der%20verzauberte%20Turm/40867_Der_verzauberte_Turm_DE_GB_FR_IT_NL.pdf' }],
+  ['kinder', 2012, 'Schnappt Hubi!', 'Steffen Bogen', 'Ravensburger'],
+  ['kinder', 2011, 'Da ist der Wurm drin', 'Carmen Kleinert', 'Zoch', { r:'https://pim.simba-dickie.com/Product/Zoch/Kids/601132100%20Da%20ist%20der%20Wurm%20drin/099%20Middleware%20%28Import%20only%29/601132100_DaistderWurmdrin_Rules-online_DE-EN-FR-IT.pdf' }],
+  ['kinder', 2010, 'Diego Drachenzahn', 'Manfred Ludwig', 'HABA'],
+  ['kinder', 2009, 'Das magische Labyrinth', 'Dirk Baumann', 'Drei Magier / Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Retail/72dpi_PNG/40848_Das_magische_Labyrinth_DE_GB_FR_IT.pdf' }],
+  ['kinder', 2008, 'Wer war’s?', 'Reiner Knizia', 'Ravensburger', { al:['Wer wars'] }],
+  ['kinder', 2007, 'Beppo der Bock', 'Peter Schackert', 'Huch!'],
+  ['kinder', 2006, 'Der schwarze Pirat', 'Guido Hoffmann', 'HABA'],
+  ['kinder', 2005, 'Das kleine Gespenst', 'Kai Haferkamp', 'Kosmos'],
+  ['kinder', 2004, 'Geistertreppe', 'Michelle Schanen', 'Drei Magier / Schmidt Spiele', { r:'https://www.schmidtspiele.de/files/Retail/72dpi_PNG/40811_Geistertreppe_DE_FR_GB_IT.pdf' }],
+  ['kinder', 2003, 'Viva Topo!', 'Manfred Ludwig', 'Selecta'],
+  ['kinder', 2002, 'Maskenball der Käfer', 'Peter-Paul Joopen', 'Selecta'],
+  ['kinder', 2001, 'Klondike', 'Christian Wolf, Stefanie Rohner', 'HABA'],
+  ['kinder', 2000, 'Arbos', 'Armin Müller, Martin Arnold', 'M+A Spiel'],
+  ['kinder', 1999, 'Kayanak', 'Peter-Paul Joopen', 'HABA'],
+  ['kinder', 1998, 'Zicke Zacke Hühnerkacke', 'Klaus Zoch', 'Zoch', { al:['Chicken Cha Cha Cha'] }],
+  ['kinder', 1997, 'Leinen los!', 'Alex Randolph', 'HABA'],
+  ['kinder', 1996, 'Vier zu mir!', 'Heike Baum', 'ASS Altenburger'],
+  ['kinder', 1995, 'Karambolage', 'Heinz Meister', 'HABA'],
+  ['kinder', 1994, 'Loopin’ Louie', 'Carol Wiseley', 'MB / Hasbro', { al:['Loopin Louie'], s:'Hasbro' }],
+  ['kinder', 1993, 'Ringel Rangel', 'Geni Wyss', 'HABA'],
+  ['kinder', 1992, 'Schweinsgalopp', 'Heinz Meister', 'Ravensburger'],
+  ['kinder', 1991, 'Corsaro', 'Wolfgang Kramer', 'Herder'],
+  ['kinder', 1990, 'Das Geisterschloss', 'Virginia Charves', 'F.X. Schmid'],
+  ['kinder', 1989, 'Gute Freunde', 'Alex Randolph', 'Selecta']
+].map(([p, j, n, a, v, x], i) => {
+  const e = { i, p, j, n, a, v, ...(x || {}) };
+  e.ks = [...new Set([n, ...(e.al || [])].map(nameSchluessel))];
+  return e;
+});
 /* Bekannte Anleitungen vom Verlag – gelten, solange beim Spiel kein eigener Link gespeichert ist */
 const BEKANNTE_ANLEITUNGEN = [
   { passt:n => n.startsWith('clever4ever') || n.startsWith('cleverforever'), url:'https://www.Schmidtspiele.de/files/Produkte/4/49203%20-%20Kniffel%C2%AE/49424_Clever_4ever_DE.pdf' },
@@ -1370,7 +1511,9 @@ const BEKANNTE_ANLEITUNGEN = [
 ];
 function bekannteAnleitung(name){
   const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
-  const b = BEKANNTE_ANLEITUNGEN.find(x => x.passt(n) || x.passt(n2)); return b ? b.url : '';
+  const b = BEKANNTE_ANLEITUNGEN.find(x => x.passt(n) || x.passt(n2)); if (b) return b.url;
+  const e = EMPFEHLUNGEN.find(x => x.r && (x.ks.includes(n) || x.ks.includes(n2)));      // ausgezeichnete Spiele (Spiel des Jahres & Co.)
+  return e ? e.r : '';
 }
 /* Welche Anleitung gilt für ein Spiel oder eine seiner Varianten? → { url, hid, bekannt } */
 function anleitungFuer(sp, name){
@@ -2189,6 +2332,8 @@ function renderSpiele(){
   const alle = alleSpiele();
   const liste = alle.filter(s => passt(s, F)).sort(F.sort === 'neu' ? (a, b) => b.erstellt - a.erstellt : nachName);
   const leer = $('#spiele-leer'), raster = $('#spiele-raster'), zahlEl = $('#spiele-zahl');
+  const empfAuf = $('#empf-auf');
+  if (empfAuf){ empfAuf.hidden = !funktionAn('empfehlungen') || !Object.keys(D.haushalte).length; empfAuf.innerHTML = `${ic('pokal')}Spiel des Jahres &amp; Co.`; }
   if (!Object.keys(D.haushalte).length){
     raster.innerHTML = ''; zahlEl.textContent = '';
     leer.innerHTML = `<div class="leer"><div class="figuren">${FARBEN.slice(0,4).map(f => figur(f.c, 34)).join('')}</div>
@@ -2216,8 +2361,10 @@ function renderSpiele(){
   zahlEl.textContent = gruppen.length === gesamt ? `${gesamt} ${gesamt === 1 ? 'Spiel' : 'Spiele'}` : `${gruppen.length} von ${gesamt} Spielen`;
   if (!liste.length){
     raster.innerHTML = '';
+    const tipps = F.suche && funktionAn('empfehlungen') ? empfZurSuche(F.suche) : [];
     leer.innerHTML = `<div class="leer"><h3>Kein Spiel passt</h3><p>Mit diesen Filtern bleibt nichts übrig.</p>
-      <button class="knopf zweit" type="button" data-aktion="filter-weg">Filter zurücksetzen</button></div>`;
+      <button class="knopf zweit" type="button" data-aktion="filter-weg">Filter zurücksetzen</button></div>
+      ${tipps.length ? `<p class="so-kopf">Ausgezeichnet – noch nicht bei euch</p><div class="treffer-liste">${tipps.map(empfZeileHtml).join('')}</div>` : ''}`;
     return;
   }
   leer.innerHTML = '';
@@ -2283,6 +2430,74 @@ function filterSheet(){
 function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[], fehlt:[] }); schreiben(LS.filter, F); renderSpiele(); }
 
 /* ---------- Spiel: Ansicht ---------- */
+/* ---------- Empfehlungen: Liste, Einzelansicht, Eintragen ---------- */
+function preisVon(e){ return PREISE.find(p => p.k === e.p) || PREISE[0]; }
+function preisText(e){ return `${preisVon(e).t} ${e.j}`; }
+/* Ausgezeichnetes Spiel zu einem Namen (nur genau gleicher Name oder bekannter anderer Name) */
+function empfehlungZuName(name){ const k = nameSchluessel(name); return k ? EMPFEHLUNGEN.find(e => e.ks.includes(k)) || null : null; }
+/* Steht die Empfehlung schon in der App? da = gleicher Name (bei fam auch „Zug um Zug Europa“), aehnlich = nur ähnlich geschrieben */
+function empfVorhanden(e, spiele){
+  const da = [], aehnlich = [];
+  for (const s of spiele){
+    const k = nameSchluessel(s.name); if (!k) continue;
+    if (e.ks.includes(k) || (e.fam && e.ks.some(x => x.length >= 4 && k.startsWith(x)))) da.push(s);
+    else if (k.length >= 4 && e.ks.some(x => namenAehnlich(x, k))) aehnlich.push(s);
+  }
+  return { e, da, aehnlich:da.length ? [] : aehnlich };
+}
+function empfStand(){ const spiele = alleSpiele(); return EMPFEHLUNGEN.map(e => empfVorhanden(e, spiele)); }
+function bei(liste){ return [...new Set(liste.map(s => (D.haushalte[s.hid] || {}).name).filter(Boolean))].join(', '); }
+function empfZeileHtml(x){
+  const e = x.e, pr = preisVon(e);
+  const unten = x.da.length ? `steht bei ${bei(x.da)}` : [e.a, e.v].filter(Boolean).join(' · ');
+  return `<button class="treffer empf" type="button" data-empf="${e.i}" style="--pf:${pr.farbe}">
+    <span class="empf-jahr"><b>${e.j}</b><span>${esc(pr.k === 'sdj' ? 'Spiel' : pr.k === 'kenner' ? 'Kenner' : 'Kinder')}</span></span>
+    <span class="treffer-text"><b>${esc(e.n)}</b><span>${esc(unten)}</span>${x.aehnlich.length ? `<span class="empf-aehnlich">ähnlich: ${esc(x.aehnlich[0].name)} (${esc(bei(x.aehnlich))})</span>` : ''}</span>
+    ${e.r && !x.da.length ? `<span class="empf-regel" title="Spielanleitung vom Verlag">${ic('buch')}</span>` : ''}</button>`;
+}
+/* Für die Suche: Empfehlungen, deren Name den Suchtext enthält und die noch niemand hat */
+function empfZurSuche(q){
+  const k = nameSchluessel(q); if (k.length < 3) return [];
+  return empfStand().filter(x => !x.da.length && x.e.ks.some(y => y.includes(k))).slice(0, 4);
+}
+function empfehlungenSheet(){
+  const stand = empfStand(), offen = stand.filter(x => !x.da.length), schon = stand.filter(x => x.da.length);
+  const liste = xs => `<div class="treffer-liste">${xs.map(empfZeileHtml).join('')}</div>`;
+  const s = sheet(`<div class="sheet-kopf"><h2>Spiel des Jahres &amp; Co.</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin:0 0 14px">Ausgezeichnete Spiele, die bei euch noch niemand eingetragen hat. Antippen – mit <b>Haben wir – eintragen</b> kommt das Spiel mit allen Angaben in eure Liste${funktionAn('anleitung') ? ', bei den Spielen mit ' + ic('buch') + ' auch gleich die Spielanleitung vom Verlag' : ''}.</p>
+    ${PREISE.map(p => {
+      const xs = offen.filter(x => x.e.p === p.k), alle = stand.filter(x => x.e.p === p.k).length;
+      return klapp('empf-' + p.k, `<span class="empf-punkt" style="--pf:${p.farbe}"></span>${p.t}`,
+        xs.length ? liste(xs) : '<p class="text-leise" style="margin:6px 2px">Die habt ihr alle – Respekt!</p>',
+        { klasse:'leicht feld', standard:p.k === 'sdj', klein:`${xs.length} von ${alle} fehlen` });
+    }).join('')}
+    ${schon.length ? klapp('empf-schon', 'Habt ihr schon', liste(schon.sort((a, b) => b.e.j - a.e.j)), { klasse:'leicht feld', klein:String(schon.length) }) : ''}
+    <p class="quelle-text" style="margin-top:14px">Preisträger der Jury „Spiel des Jahres“ seit 1979 (Kennerspiel seit 2011, Kinderspiel seit 1989). Stand: 2026.</p>`, { klasse:'gross' });
+  return s;
+}
+function empfehlungDetail(e){
+  const x = empfVorhanden(e, alleSpiele()), pr = preisVon(e), verlag = verlagAusName(e.s || e.v);
+  const eigen = x.da.some(sp => sp.hid === E.meinHaushalt);
+  const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="empf-preis" style="--pf:${pr.farbe}">${ic('pokal')}${esc(preisText(e))}</p>
+    <h2 class="detail-name" style="margin-top:6px">${esc(e.n)}</h2>
+    <p class="text-leise" style="margin:4px 0 14px">von ${esc(e.a)} · ${esc(e.v)}</p>
+    ${x.da.length ? `<p class="hinweis">Steht schon bei ${esc(bei(x.da))}${x.da.some(sp => nameSchluessel(sp.name) !== nameSchluessel(e.n)) ? ` (als „${esc(x.da[0].name)}“)` : ''}.</p>`
+      : x.aehnlich.length ? `<p class="hinweis warn">Ähnlicher Name in der App: „${esc(x.aehnlich[0].name)}“ bei ${esc(bei(x.aehnlich))}. Ist das dasselbe Spiel? Dann habt ihr es schon.</p>` : ''}
+    <ul class="empf-info">
+      <li>${ic('suche')}<span>Beim Eintragen sucht die App Spieler, Alter, Spieldauer, Beschreibung und ein Foto im Internet – du wählst nur den passenden Treffer.</span></li>
+      ${funktionAn('anleitung') ? `<li>${ic('buch')}<span>${e.r ? 'Die Spielanleitung vom Verlag kommt gleich mit.' : `Die Spielanleitung findest du danach beim Spiel unter „Spielanleitung“ – die Suche geht gleich zu ${esc(verlag ? verlag.t : e.v)}.`}</span></li>` : ''}
+    </ul>
+    <div class="empf-knoepfe">
+      <button class="knopf breit" type="button" data-empf-eintragen>${ic('plus')}${eigen ? 'Noch mal eintragen' : 'Haben wir – eintragen'}</button>
+      ${e.r && funktionAn('anleitung') ? `<a class="knopf rahmen breit" href="${esc(e.r)}" target="_blank" rel="noopener" data-empf-regel>${ic('buch')}Spielanleitung ansehen</a>` : `<a class="knopf rahmen breit" href="https://de.wikipedia.org/w/index.php?search=${encodeURIComponent(e.n)}" target="_blank" rel="noopener">${ic('link')}Mehr dazu bei Wikipedia</a>`}
+    </div>`);
+  $('[data-empf-eintragen]', s).addEventListener('click', () => {
+    $$('.sheet').forEach(o => { if (o.schliessen) o.schliessen(); });
+    spielFormular(null, { name:e.n, verlag:(e.s || e.v).slice(0, 60), anleitung:e.r || '', preis:preisText(e), suchen:true });
+  });
+  return s;
+}
 function spielDetail(id){
   const sp = spielFinden(id); if (!sp) return;
   const h = D.haushalte[sp.hid], farbe = farbeVon(sp.hid);
@@ -2290,6 +2505,7 @@ function spielDetail(id){
   const s = sheet(`<div class="sheet-kopf"><span></span><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="detail-bild" style="--hf:${esc(farbe)}"${bildAttr(sp)}><span class="platzhalter">${esc(initiale(sp.name))}</span></div>
     <h2 class="detail-name">${esc(sp.name)}</h2>
+    ${empfehlungZuName(sp.name) ? `<p class="empf-preis klein" style="--pf:${preisVon(empfehlungZuName(sp.name)).farbe}">${ic('pokal')}${esc(preisText(empfehlungZuName(sp.name)))}</p>` : ''}
     ${variantenVon(sp).length ? `<p class="detail-varianten">＋ Variante${variantenVon(sp).length > 1 ? 'n' : ''}: <b>${esc(variantenVon(sp).join(' · '))}</b></p>` : ''}
     <p class="detail-haushalt">${figur(farbe, 18)}${verliehenAn(sp) ? 'gehört' : 'steht bei'} ${esc(h ? h.name : '?')}${kopien.length ? ` – auch bei ${kopien.map(k => `<button type="button" class="link-knopf" data-kopie="${esc(k.id)}">${figur(farbeVon(k.hid), 15)}${esc((D.haushalte[k.hid] || {}).name || '?')}</button>`).join(', ')}` : ''}</p>
     <div class="fakten-gross">
@@ -3205,17 +3421,18 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
 }
 
 /* ---------- Spiel: Formular ---------- */
-function spielFormular(sp){
+function spielFormular(sp, vorgabe){
   if (!Object.keys(D.haushalte).length){ haushaltFormular(null, () => spielFormular()); return; }
   const sichtbar = haushaltListe().filter(h => darfBearbeiten(h.id));
   if (!sichtbar.length){ if (!meinHaushaltGueltig()) haushaltWaehlen(); else toast('Spiele eintragen kannst du nur bei deinem eigenen Haushalt.', 'fehler'); return; }
   if (sp && !darfBearbeiten(sp.hid)){ toast('Dieses Spiel kann nur sein Haushalt oder der Admin ändern.', 'fehler'); return; }
   const neu = !sp;
   const startHh = sp ? sp.hid : (meinHaushaltGueltig() && sichtbar.some(h => h.id === E.meinHaushalt) ? E.meinHaushalt : sichtbar[0].id);
-  const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
+  if (sp) vorgabe = null;
+  const w = sp ? { ...sp } : { name:(vorgabe && vorgabe.name) || '', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
   let neuesFoto = null, fotoEntfernt = false, vorschauUrl = null;
   let pos = bildPosNorm(w.bildPos) || { x:50, y:50, z:1 };      // Bildausschnitt
-  let fotoQuelle = '', link = sp ? (sp.link || '') : '', verlag = sp ? (sp.verlag || '') : '';     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
+  let fotoQuelle = '', link = sp ? (sp.link || '') : '', verlag = sp ? (sp.verlag || '') : ((vorgabe && vorgabe.verlag) || '');     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>${neu ? 'Spiel eintragen' : 'Spiel bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="foto-feld" id="foto-feld"></div>
@@ -3224,7 +3441,8 @@ function spielFormular(sp){
       <div class="eingabe-reihe"><input class="eingabe" id="f-name" name="name" value="${esc(w.name)}" autocomplete="off" autocapitalize="words" maxlength="80" required enterkeyhint="search">
         <button class="knopf zweit" type="button" data-nachschlagen>${ic('suche')}Suchen</button></div>
       <p class="block-hinweis">Suchen holt Spieler, Alter, Dauer, Beschreibung und ein Foto aus Wikipedia.</p>
-      ${neu ? '<div data-vorhanden></div>' : ''}</div>
+      ${neu ? '<div data-vorhanden></div>' : ''}
+      ${vorgabe && vorgabe.preis ? `<p class="hinweis empf-hinweis" style="margin:10px 0 0">${ic('pokal')}<span><b>${esc(vorgabe.preis)}</b>${vorgabe.anleitung && funktionAn('anleitung') ? ' – die Spielanleitung vom Verlag wird mit gespeichert.' : ''}<span data-empf-tipp> Tippe bei der Suche auf den passenden Treffer und dann auf „Übernehmen“.</span></span></p>` : ''}</div>
     ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
@@ -3326,6 +3544,7 @@ function spielFormular(sp){
       vorschauUrl = URL.createObjectURL(foto);
       fotoZeigen();
     }
+    const tipp = $('[data-empf-tipp]', s); if (tipp) tipp.remove();
     toast('Angaben übernommen – bitte kurz prüfen');
   }
   $('[data-nachschlagen]', s).addEventListener('click', () => {
@@ -3411,6 +3630,7 @@ function spielFormular(sp){
       varianten: [...varianten, $('[data-variante]', s).value].filter(v => nameSchluessel(v) !== nameSchluessel(name)),
       link, verlag, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : (w.bildQuelle || ''))),
       ...(!sp && uebernahme ? { anleitung:uebernahme.anleitung, wertung:uebernahme.wertung } : {}),
+      ...(!sp && !uebernahme && vorgabe && vorgabe.anleitung ? { anleitung:vorgabe.anleitung } : {}),
       bildPos: (neuesFoto || (w.bild && !fotoEntfernt)) ? pos : null,
       erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
     });
@@ -3439,6 +3659,8 @@ function spielFormular(sp){
     toast(neu ? `„${name}“ eingetragen` : 'Gespeichert');
   });
   fotoZeigen();
+  // Aus den Empfehlungen: gleich im Internet nachschlagen (Spieler, Alter, Dauer, Beschreibung, Foto)
+  if (vorgabe){ vorhandeneZeigen(); if (vorgabe.suchen) setTimeout(() => { if (s.isConnected) $('[data-nachschlagen]', s).click(); }, 350); }
 }
 
 /* ---------- Seite: Spielrunde ---------- */
@@ -7290,6 +7512,13 @@ const HILFE = [
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
     <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>
     <p data-nur-admin><b>Nur für dich als Admin</b> stehen im Filter darunter drei Prüfungen: <b>Fehlende Angaben</b> (ohne Foto, Spieleranzahl, Alter, Spieldauer, Art, Beschreibung oder Spielanleitung – oder „Irgendetwas fehlt“), <b>Spielanleitung</b> (wo sie liegt) und <b>Doppelte Spiele</b>. Die Zahl hinter jedem Punkt sagt, wie viele Spiele betroffen sind; die Kacheln nennen dann, was fehlt – bei mehreren Haushalten für jeden einzeln. Spiel antippen, <b>Bearbeiten</b>, ergänzen – danach fällt es aus der Liste.</p>` },
+  { id:'empfehlungen', titel:'Spiel des Jahres & Co.', seite:'spiele', fkt:'empfehlungen', text:`
+    <p>Über den Spielen steht <b>Spiel des Jahres &amp; Co.</b> Dahinter sind alle Spiele des Jahres (seit 1979), Kennerspiele des Jahres und Kinderspiele des Jahres – aufgeteilt in drei Listen, die sich aufklappen lassen. Gezeigt werden nur die, die bei euch noch niemand eingetragen hat; ganz unten stehen die, die ihr schon habt.</p>
+    <ul><li>Ein Spiel antippen: Du siehst Jahr, Autor und Verlag. Steht in der App ein ähnlicher Name (z. B. „Catan“ statt „Die Siedler von Catan“), weist sie darauf hin.</li>
+    <li><b>Haben wir – eintragen</b> öffnet „Spiel eintragen“ mit dem Namen und sucht gleich im Internet. Tippe auf den passenden Treffer (am besten den von Spiele-Offensive – der bringt ein Foto mit) und auf <b>Übernehmen</b>, dann <b>Speichern</b>.</li>
+    <li>Bei den Spielen mit dem Buch-Zeichen kommt die <b>Spielanleitung vom Verlag</b> gleich mit. Bei den anderen geht „Spielanleitung“ → „Bei … suchen“ direkt zum richtigen Verlag.</li>
+    <li>Habt ihr eines dieser Spiele schon ohne Anleitung eingetragen, steht die Anleitung vom Verlag jetzt von selbst dabei. Beim Spiel steht außerdem die Auszeichnung, z. B. „Spiel des Jahres 2018“.</li>
+    <li>Findet die Suche oben nichts, schlägt die App passende ausgezeichnete Spiele vor.</li></ul>` },
   { id:'runde', titel:'Spielrunde und Würfeln', seite:'runde', text:`
     <ul><li>Unter <b>Wer spielt mit?</b> die Namen antippen, die heute dabei sind – die App zählt mit. Gäste ohne Namen zählst du mit + dazu.</li>
     <li>Ein Tipp auf einen <b>Spielkreis</b> wählt alle Mitspieler dieser Haushalte auf einmal aus. Wer fehlt, einfach wieder abwählen.</li>
@@ -7399,6 +7628,12 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.90', datum:'01.11.2026', neu:[
+    'Neu: „Spiel des Jahres & Co.“ über den Spielen – alle Spiele, Kennerspiele und Kinderspiele des Jahres, die bei euch noch fehlen',
+    '„Haben wir – eintragen“: Die App sucht Spieler, Alter, Dauer, Beschreibung und Foto – bei 28 Spielen kommt die Spielanleitung vom Verlag gleich mit',
+    'Ausgezeichnete Spiele, die ihr schon habt, bekommen die Anleitung vom Verlag automatisch und zeigen ihre Auszeichnung (z. B. „Spiel des Jahres 2018“)',
+    'Findet die Suche nichts, schlägt sie passende ausgezeichnete Spiele vor'
+  ]},
   { v:'v1.89', datum:'01.11.2026', neu:[
     { t:'Filter „Fehlende Angaben“: zeigt Spiele ohne Foto, Spieleranzahl, Alter, Spieldauer, Art, Beschreibung oder Spielanleitung (oder „Irgendetwas fehlt“) – mit Anzahl, die Kacheln nennen, was fehlt', admin:true },
     { t:'Im Filter stehen die Prüfungen für den Admin jetzt zusammen unter „Nur für dich als Admin“', admin:true },
@@ -8515,6 +8750,8 @@ function verdrahten(){
   });
   document.addEventListener('click', e => {
     const k = e.target.closest('[data-spiel]'); if (k && !k.closest('.sheet')){ spielDetail(k.dataset.spiel); return; }
+    const em = e.target.closest('[data-empf]'); if (em){ const x = EMPFEHLUNGEN[+em.dataset.empf]; if (x) empfehlungDetail(x); return; }
+    if (e.target.closest('#empf-auf')){ empfehlungenSheet(); return; }
     const hha = e.target.closest('[data-hha]'); if (hha){ haushaltAktion(hha.dataset.hha, hha.dataset.id); return; }
     const anf = e.target.closest('[data-anf]'); if (anf){ anfrageAktion(anf.dataset.anf, anf.dataset.id, anf.dataset.hh); return; }
     const spc = e.target.closest('.spieler-chip[data-spieler]'); if (spc){ if (darfBearbeiten(spc.dataset.hh)) spielerBearbeiten(spc.dataset.hh, spc.dataset.spieler); return; }
