@@ -2,7 +2,7 @@
 # Diese Datei legt die App selbst ins Repo und hält sie aktuell; gestartet wird sie von .github/workflows/abholdienst.yml.
 # Regeln: nur Seiten, die die robots.txt des Shops erlaubt; Spiele werden über die Sitemap gefunden, die der Shop dafür anbietet
 # (keine Suchseiten); der Dienst stellt sich als „Spieleabend-Abholdienst“ vor und lässt zwischen zwei Abrufen eine Pause.
-ABHOLDIENST_VERSION = 3
+ABHOLDIENST_VERSION = 5
 import base64, datetime, gzip, html, json, os, re, time, urllib.error, urllib.request, urllib.robotparser
 
 REPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']
@@ -12,6 +12,7 @@ UA = ('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.
 AUFTRAEGE, ERGEBNISSE = 'abholdienst/auftraege', 'abholdienst/ergebnisse'
 LINK = re.compile(r'^https?://(?:www\.)?spiele-offensive\.de(/Spiel/[^?#\s"<>]+-(\d+)\.html)$', re.I)
 PAUSE, MAX_TREFFER, MAX_BILD = 0.8, 4, 160_000
+WERBUNG = re.compile(r'versandkostenfrei|g(?:ü|ue)nstig (?:bestellen|kaufen)|\bhier\b[^.!?\n]{0,50}\bbestellen|jetzt (?:online )?(?:bestellen|kaufen)|zuletzt aktualisiert', re.I)
 
 
 def gh(methode, pfad, daten=None):
@@ -114,8 +115,8 @@ def zeilen(t):
     return [z for z in (re.sub(r'\s+', ' ', x).strip() for x in t.split('\n')) if z]
 
 
-def kuerzen(text, n=600):
-    text = re.sub(r'\s+', ' ', text).strip()
+def kuerzen(text, n=2000):
+    text = '\n'.join(re.sub(r'[ \t]+', ' ', z).strip() for z in text.split('\n')).strip()
     if len(text) <= n: return text
     s = text[:n]; p = max(s.rfind('. '), s.rfind('! '), s.rfind('? '))
     return s[:p + 1] if p > n // 3 else s.rsplit(' ', 1)[0] + ' …'
@@ -139,13 +140,14 @@ def spielseite(url, artikel):
     m = re.search(r'Spieldauer\s*:?\s*(?:von\s*)?(?:ca\.?|circa|etwa|rund)?\s*(\d{1,3})(?:\s*(?:-|–|bis)\s*(\d{1,3}))?\s*Min', T, re.I)
     if m: d['dauer'] = max(int(x) for x in m.groups() if x)
     beschr = meta(t, 'og:description', 'description', 'twitter:description')
+    if beschr and WERBUNG.search(beschr): beschr = ''          # „… hier versandkostenfrei und günstig bestellen“ ist keine Beschreibung
     if not beschr or len(beschr) < 60:
-        sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|€|\bEUR\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto', re.I)
+        sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|€|\bEUR\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto|bestellen|aktualisiert', re.I)
         gut = [i for i, x in enumerate(z) if len(x) >= 80 and not sperre.search(x)]
         satz = next((i for i, x in enumerate(z) if re.search(r'Spiel f(?:ü|ue)r\s+\d', x)), None)
-        nah = [i for i in gut if satz is not None and abs(i - satz) <= 8]
-        beschr = z[max(nah or gut[:1], key=lambda i: len(z[i]))] if (nah or gut) else ''
-    beschr = re.sub(r'\s*\d+,\d{2}\s*(?:€|EUR).*$', '', beschr or '')
+        nah = [i for i in gut if satz is not None and abs(i - satz) <= 8 and not (re.search(r'Spiel f(?:ü|ue)r\s+\d', z[i]) and len(z[i]) < 160)]
+        beschr = '\n'.join(z[i] for i in sorted(nah)) if nah else (z[gut[0]] if gut else '')   # alle Absätze der Beschreibung, nicht nur einer
+    beschr = '\n'.join(re.sub(r'\s*\d+,\d{2}\s*(?:€|EUR).*$', '', x) for x in (beschr or '').split('\n')).strip()
     d['beschreibung'] = kuerzen(beschr)
     d['verlag'] = ''
     for i, x in enumerate(z):                      # „Herstellerinformationen“ → Verlag (ohne GmbH & Co.)
