@@ -54,6 +54,12 @@
    "name": "Windows-PC – Familie Joester Schwelm",
    "seit": 1793524757641,
    "stand": 1793524757641
+  },
+  {
+   "id": "gmvlcjlfyw1x1",
+   "name": "iPad – Familie Mättig Baumberg",
+   "seit": 1793547222699,
+   "stand": 1793547222699
   }
  ],
  "freigaben": {
@@ -79,7 +85,6 @@
   }
  },
  "geloescht": {
-  "gmvlcjlfyw1x1": 1792782854050,
   "gmvlci8srx8ih": 1792782965970
  }
 }
