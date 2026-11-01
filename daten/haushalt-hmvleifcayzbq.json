@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.85",
+ "app": "v1.87",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -73,22 +73,24 @@
   },
   {
    "id": "smvv5n2p4b9uq",
-   "name": "Chamäleon",
-   "bild": "",
-   "spielerMin": 2,
-   "spielerMax": 4,
-   "alterAb": 8,
+   "name": "Das Chamäleon",
+   "bild": "bilder/smvv5n2p4b9uq-mvxvjufg.jpg",
+   "spielerMin": 3,
+   "spielerMax": 8,
+   "alterAb": 14,
    "dauer": 15,
    "kategorien": [
-    "Brettspiel"
+    "Brettspiel",
+    "Party"
    ],
    "beschreibung": "Chamäleon ist der Titel eine Gesellschaftsspiels des Verlages VSK aus dem Jahr 1990. Das Spiel wurde beim Deutschen Spielepreis 1990 auf Platz 7 gewählt.\nVon Wolfgang Großkopf, erschienen 1990 bei : VSK.",
    "bemerkung": "",
    "bildQuelle": "",
-   "link": "https://de.wikipedia.org/wiki/Cham%C3%A4leon_(Spiel)",
+   "link": "https://www.spiele-offensive.de/Spiel/Das-Chamaeleon-1034571.html",
    "anleitung": "",
+   "verlag": "Invento Products & Services",
    "erstellt": 1793375788648,
-   "geaendert": 1793375788648
+   "geaendert": 1793540240331
   },
   {
    "id": "smvv5cg4jxoxc",
