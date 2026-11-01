@@ -637,30 +637,6 @@
    "geaendert": 1793266272284
   },
   {
-   "id": "smvmlr7xcr5o0",
-   "name": "Skyjo",
-   "bild": "bilder/smvmlr7xcr5o0-mvmlr7xe.jpg",
-   "spielerMin": 2,
-   "spielerMax": 8,
-   "alterAb": 8,
-   "dauer": 45,
-   "kategorien": [
-    "Kartenspiel"
-   ],
-   "beschreibung": "Skyjo ist ein Kartenspiel des Spieleautors Alexander Bernhardt, das im Jahr 2015 bei dem von ihm gegründeten Verlag Magilano erschienen ist. Zu Beginn des Spiels werden die Spielkarten gemischt und jeder Spieler erhält zwölf Karten, die er ungesehen und verdeckt nebeneinander mit einem Raster von 3 mal 4 Karten vor sich auslegt. Die restlichen Karten bilden einen verdeckten Nachziehstapel, der in der Tischmitte platziert wird.\nVon Alexander Bernhardt, erschienen 2015 bei Magilano.",
-   "bemerkung": "",
-   "bildQuelle": "",
-   "link": "https://de.wikipedia.org/wiki/Skyjo",
-   "anleitung": "",
-   "bildPos": {
-    "x": 50,
-    "y": 0,
-    "z": 1
-   },
-   "erstellt": 1792858660321,
-   "geaendert": 1792858660321
-  },
-  {
    "id": "smvmxhvg6mkpl",
    "name": "Take it Easy  XXL",
    "bild": "bilder/smvmxhvg6mkpl-mvmxp50q.jpg",
@@ -813,7 +789,7 @@
    "app": true,
    "version": "v1.88",
    "erst": 1792864131177,
-   "zuletzt": 1793541206952,
+   "zuletzt": 1793541395995,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
@@ -874,6 +850,7 @@
   "nmvmvwkkrjamg": 1792958718087,
   "nmvmw7bvietto": 1792958729325,
   "smvtdhh6a7fay": 1793268047634,
-  "smvxr4o7dzsgf": 1793532846513
+  "smvxr4o7dzsgf": 1793532846513,
+  "smvmlr7xcr5o0": 1793541394018
  }
 }
