@@ -789,9 +789,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
-   "anleitung": "",
+   "anleitung": "https://www.spiele-anleitungen.de/zahltag/",
    "erstellt": 1793526408791,
-   "geaendert": 1793526408791
+   "geaendert": 1793526576119
   }
  ],
  "spieler": [
@@ -813,7 +813,7 @@
    "app": true,
    "version": "v1.81",
    "erst": 1792864131177,
-   "zuletzt": 1793526410739,
+   "zuletzt": 1793526577978,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
