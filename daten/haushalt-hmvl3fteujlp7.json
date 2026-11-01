@@ -407,7 +407,10 @@
    "spielerMax": 10,
    "alterAb": 4,
    "dauer": 30,
-   "kategorien": [],
+   "kategorien": [
+    "Kartenspiel",
+    "Familie"
+   ],
    "beschreibung": "Memory (nach englisch memory ‚Gedächtnis‘) ist eine von Ravensburger eingetragene Marke für ein bekanntes Gesellschaftsspiel nach dem Pairs-Prinzip: Paare gleicher, verdeckt aufliegender Kärtchen müssen durch Aufdecken im Wechsel der Spieler erkannt werden. Kinder unter etwa zehn Jahren haben einen Vorteil gegenüber Älteren, der durch eine andere Struktur des Gehirns erklärt werden kann.\nVon William Hurter, erschienen 1959 bei Ravensburger.",
    "bemerkung": "",
    "bildQuelle": "",
@@ -419,7 +422,7 @@
     "z": 1
    },
    "erstellt": 1792877826888,
-   "geaendert": 1792878298064
+   "geaendert": 1793549042961
   },
   {
    "id": "smvmyyman0ylk",
