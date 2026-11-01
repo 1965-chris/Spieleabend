@@ -249,7 +249,7 @@
    "spielerMin": 2,
    "spielerMax": 4,
    "alterAb": 8,
-   "dauer": null,
+   "dauer": 45,
    "kategorien": [
     "Kartenspiel"
    ],
@@ -264,7 +264,7 @@
     "seit": 1793268405726
    },
    "erstellt": 1793268032050,
-   "geaendert": 1793548963187
+   "geaendert": 1793549140279
   }
  ],
  "spieler": [
