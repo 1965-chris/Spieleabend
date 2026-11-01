@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.83",
+ "app": "v1.84",
  "id": "hmvlehndf8gpw",
  "name": "Familie Wodarz Baumberg",
  "farbe": "#E0A100",
@@ -21,9 +21,9 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Caf%C3%A9_International",
-   "anleitung": "",
+   "anleitung": "http://www.brettspielwelt.de/Hilfe/Anleitungen/CafeInternational/",
    "erstellt": 1793532813961,
-   "geaendert": 1793532846514
+   "geaendert": 1793533972937
   }
  ],
  "spieler": [
