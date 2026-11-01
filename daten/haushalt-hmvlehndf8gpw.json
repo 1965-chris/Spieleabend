@@ -9,7 +9,7 @@
   {
    "id": "smvxr4o7dzsgf",
    "name": "Café International",
-   "bild": "",
+   "bild": "bilder/smvxr4o7dzsgf-mvxsanak.jpg",
    "spielerMin": 2,
    "spielerMax": 4,
    "alterAb": 12,
@@ -23,7 +23,7 @@
    "link": "https://de.wikipedia.org/wiki/Caf%C3%A9_International",
    "anleitung": "http://www.brettspielwelt.de/Hilfe/Anleitungen/CafeInternational/",
    "erstellt": 1793532813961,
-   "geaendert": 1793533972937
+   "geaendert": 1793534772332
   }
  ],
  "spieler": [
