@@ -598,13 +598,18 @@
    "kategorien": [
     "Allgemeinwissen"
    ],
-   "beschreibung": "",
+   "beschreibung": "DER SPIELEKLASSIKER MAL ANDERS: Mit Strategie und Kreativität müssen bei dieser Variante Wörter aus den Spielsteinen gebildet werden\nFESSELNDER SPASS: Rummikub Wort bietet mit seinem aufregenden Spielmechanismus abwechslungsreichen Spaß für die ganze Familie\nKNIFFLIG: Hier wird echte Cleverness gefragt - Mit Rummikub Wort wird es garantiert nicht langweilig, denn das Kombinieren der Spielsteine bietet eine echte Herausforderung\nEINFACHE REGELN: Das leicht verständliche Spielprinzip ermöglicht einen schnellen Spielstart für 2-4 Personen; Aber Achtung, dieses Spiel kann süchtig machen!\nFREUDE SCHENKEN: Ideal auch als Geschenk zu Weihnachten oder zum Geburtstag, zaubert das Kombinationsspiel im Reiseformat garantiert ein Lächeln in jedes Gesicht",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://share.google/l6l29wsvwcmEGcuIL",
+   "wertung": {
+    "art": "hoch",
+    "grenze": 100,
+    "sieger": "tief"
+   },
    "erstellt": 1792856534123,
-   "geaendert": 1792871331227
+   "geaendert": 1793550054363
   },
   {
    "id": "smvmzn8k3y3ol",
@@ -873,7 +878,7 @@
    "app": true,
    "version": "v1.89",
    "erst": 1792875164293,
-   "zuletzt": 1793549949387,
+   "zuletzt": 1793550056171,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   },
