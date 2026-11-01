@@ -440,7 +440,7 @@
   {
    "id": "smvv5jaqhomdp",
    "name": "Trivial Pursuit - Familienedition",
-   "bild": "",
+   "bild": "bilder/smvv5jaqhomdp-mvxnwsu1.jpg",
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 12,
@@ -455,7 +455,7 @@
    "link": "https://de.wikipedia.org/wiki/Trivial_Pursuit",
    "anleitung": "https://instructions.hasbro.com/api/download/73013_de-de_trivial-pursuit-familien-edition.pdf",
    "erstellt": 1793375612441,
-   "geaendert": 1793527221416
+   "geaendert": 1793527407864
   }
  ],
  "spieler": [
