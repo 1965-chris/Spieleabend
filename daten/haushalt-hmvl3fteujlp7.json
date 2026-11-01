@@ -777,7 +777,7 @@
   {
    "id": "smvxnbdxz0rck",
    "name": "Zahltag",
-   "bild": "",
+   "bild": "bilder/smvxnbdxz0rck-mvxnij95.jpg",
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 8,
@@ -791,7 +791,7 @@
    "link": "",
    "anleitung": "https://www.spiele-anleitungen.de/zahltag/",
    "erstellt": 1793526408791,
-   "geaendert": 1793526576119
+   "geaendert": 1793526742263
   }
  ],
  "spieler": [
@@ -813,7 +813,7 @@
    "app": true,
    "version": "v1.81",
    "erst": 1792864131177,
-   "zuletzt": 1793526577978,
+   "zuletzt": 1793526744016,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
