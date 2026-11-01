@@ -240,7 +240,7 @@
   {
    "id": "smvv5g2tpmyue",
    "name": "Mississippi",
-   "bild": "",
+   "bild": "bilder/smvv5g2tpmyue-mvxyy22a.jpg",
    "spielerMin": 3,
    "spielerMax": 6,
    "alterAb": 10,
@@ -253,8 +253,13 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Mississippi_(Spiel)",
    "anleitung": "",
+   "bildPos": {
+    "x": 0,
+    "y": 50,
+    "z": 1
+   },
    "erstellt": 1793375462222,
-   "geaendert": 1793375462222
+   "geaendert": 1793545942257
   },
   {
    "id": "smvv5szf9dip1",
