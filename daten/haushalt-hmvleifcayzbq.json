@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.83",
+ "app": "v1.85",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -106,8 +106,9 @@
    "bildQuelle": "Foto: Spiele-Offensive.de",
    "link": "https://www.spiele-offensive.de/Spiel/Die-Kathedralenbauer-von-Orleans-1030428.html",
    "anleitung": "",
+   "verlag": "dlp games",
    "erstellt": 1793375292835,
-   "geaendert": 1793532133250
+   "geaendert": 1793535640126
   },
   {
    "id": "smvv5ki4k5b3q",
