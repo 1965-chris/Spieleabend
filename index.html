@@ -189,6 +189,10 @@ main{max-width:1000px;margin:0 auto;padding:0 16px}
 .gsc-regeln{text-decoration:none;color:inherit}
 .so-einrichten ol{margin:6px 0 10px;padding-left:20px;font-size:14px;line-height:1.45}
 .so-text{margin-top:10px;min-height:140px;font-family:ui-monospace,Menlo,monospace;font-size:11px}
+.so-kopf{margin:18px 2px 6px;font-size:13px;font-weight:750;color:var(--leise);letter-spacing:.02em}
+.so-laeuft{cursor:default}
+.so-angebot{margin:14px 2px 0;font-size:13.5px;color:var(--leise)}
+.so-angebot .link-knopf{font-size:13.5px}
 .sheet-kopf .gsc-regeln{margin-left:auto;flex:none}
 .karte-varianten{font-size:13px;font-weight:650;color:var(--filz);line-height:1.25;overflow-wrap:anywhere}
 .detail-varianten{margin:-4px 0 8px;font-size:15px;color:var(--filz)}
@@ -1046,7 +1050,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.81';
+const VERSION = 'v1.82';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2622,44 +2626,84 @@ async function fotoAusNetz(url){
 }
 
 /* ---------- Spiele-Offensive über den Abholdienst ----------
-   Der Shop erlaubt Browsern fremder Seiten keinen Zugriff – deshalb holt ein kleiner Dienst im eigenen Repo (GitHub Actions)
-   EINE Spielseite ab: Die App legt einen Auftrag nach abholdienst/auftraege/, der Dienst legt das Ergebnis nach abholdienst/ergebnisse/.
-   Gesucht wird von Hand im Shop – Suchseiten sind laut robots.txt des Shops für Programme tabu. */
-const ABHOL_WORKFLOW = '.github/workflows/abholdienst.yml';
-const ABHOLDIENST_YML = "# Abholdienst der Spieleabend-App: holt auf Wunsch die Angaben EINER Spielseite bei Spiele-Offensive ab.\n# Die App legt einen Auftrag in abholdienst/auftraege/ ab. Dieser Dienst holt nur Spielseiten (/Spiel/\u2026), die die robots.txt\n# des Shops erlaubt, stellt sich als \u201eSpieleabend-Abholdienst\u201c vor und legt das Ergebnis in abholdienst/ergebnisse/ ab.\nname: Abholdienst\non:\n  push:\n    paths: ['abholdienst/auftraege/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: abholdienst\n  cancel-in-progress: false\njobs:\n  abholen:\n    runs-on: ubuntu-latest\n    timeout-minutes: 4\n    steps:\n      - name: Spielseiten abholen\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          python3 - <<'PY'\n          import base64, datetime, html, json, os, re, time, urllib.error, urllib.parse, urllib.request, urllib.robotparser\n          REPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']\n          BASIS, NAME = 'https://www.spiele-offensive.de', 'Spieleabend-Abholdienst'\n          UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1 ' + NAME + '/1.0'\n          AUFTRAEGE, ERGEBNISSE = 'abholdienst/auftraege', 'abholdienst/ergebnisse'\n          LINK = re.compile(r'^https?://(?:www\\.)?spiele-offensive\\.de(/Spiel/[^?#\\s\"<>]+-(\\d+)\\.html)$', re.I)\n\n          def gh(methode, pfad, daten=None):\n              req = urllib.request.Request(f'https://api.github.com/repos/{REPO}{pfad}', method=methode, data=None if daten is None else json.dumps(daten).encode(),\n                  headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': NAME})\n              for versuch in range(4):\n                  try:\n                      with urllib.request.urlopen(req, timeout=30) as r: return json.loads(r.read() or b'null')\n                  except urllib.error.HTTPError as e:\n                      if e.code == 404 and methode == 'GET': return None\n                      if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n                      raise\n\n          def holen(url, roh=False):\n              req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9', 'Accept': 'text/html,image/*,*/*'})\n              with urllib.request.urlopen(req, timeout=25) as r:\n                  b = r.read(3_000_000)\n                  return (b, r.headers.get_content_type()) if roh else b.decode(r.headers.get_content_charset() or 'utf-8', 'replace')\n\n          ROBOTS = None\n          def erlaubt(url):\n              global ROBOTS\n              if ROBOTS is None:\n                  ROBOTS = urllib.robotparser.RobotFileParser()\n                  try: ROBOTS.parse(holen(BASIS + '/robots.txt').splitlines())\n                  except urllib.error.HTTPError as e: ROBOTS.parse([] if e.code < 500 else ['User-agent: *', 'Disallow: /'])\n              return ROBOTS.can_fetch(NAME, url)\n\n          def meta(t, *namen):\n              for n in namen:\n                  for m in re.finditer(r'<meta\\b[^>]*>', t, re.I):\n                      tag = m.group(0)\n                      if re.search(r'(?:property|name|itemprop)\\s*=\\s*[\"\\']' + re.escape(n) + r'[\"\\']', tag, re.I):\n                          c = re.search(r'content\\s*=\\s*\"([^\"]*)\"', tag, re.I) or re.search(r\"content\\s*=\\s*'([^']*)'\", tag, re.I)\n                          if c and c.group(1).strip(): return html.unescape(c.group(1)).strip()\n              return ''\n\n          def zeilen(t):\n              t = re.sub(r'(?is)<(script|style|noscript|svg|head)\\b.*?</\\1>', ' ', t)\n              t = re.sub(r'(?i)<br\\s*/?>|</(p|div|li|h[1-6]|tr|section|article|ul|table)>', '\\n', t)\n              t = html.unescape(re.sub(r'<[^>]+>', ' ', t))\n              return [z for z in (re.sub(r'\\s+', ' ', x).strip() for x in t.split('\\n')) if z]\n\n          def kuerzen(text, n=600):\n              text = re.sub(r'\\s+', ' ', text).strip()\n              if len(text) <= n: return text\n              s = text[:n]; p = max(s.rfind('. '), s.rfind('! '), s.rfind('? '))\n              return s[:p + 1] if p > n // 3 else s.rsplit(' ', 1)[0] + ' \u2026'\n\n          def spielseite(url, artikel):\n              t = holen(url)\n              z = zeilen(t); T = ' '.join(z)\n              name = meta(t, 'og:title')\n              if not name:\n                  h = re.search(r'(?is)<h1\\b[^>]*>(.*?)</h1>', t) or re.search(r'(?is)<title\\b[^>]*>(.*?)</title>', t)\n                  name = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', h.group(1)))).strip() if h else ''\n              name = name.split('|')[0].strip()\n              name = re.sub(r'\\s*[-\u2013]\\s*(?:Spiel|Kennerspiel|Kinderspiel) des Jahres \\d{4}.*$', '', name, flags=re.I)\n              name = re.sub(r'\\s+Spiel$', '', name).strip()\n              d = {'name': name, 'spielerMin': None, 'spielerMax': None, 'alterAb': None, 'dauer': None}\n              m = re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*(?:bis|-|\u2013)\\s*(\\d{1,3})\\s*Spieler', T) or re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*Spieler', T)\n              if m: d['spielerMin'] = int(m.group(1)); d['spielerMax'] = int(m.group(m.lastindex))\n              m = re.search(r'im Alter (?:von|ab)\\s*(\\d{1,2})', T) or re.search(r'\\bab\\s*(\\d{1,2})\\s*Jahren', T)\n              if m: d['alterAb'] = int(m.group(1))\n              m = re.search(r'Spieldauer[^0-9.]{0,20}(\\d{1,3})(?:\\s*(?:-|\u2013|bis)\\s*(\\d{1,3}))?\\s*Min', T, re.I)\n              if m: d['dauer'] = max(int(x) for x in m.groups() if x)\n              beschr = meta(t, 'og:description', 'description', 'twitter:description')\n              if not beschr or len(beschr) < 60:\n                  sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|\u20ac|\\bEUR\\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto', re.I)\n                  gut = [i for i, x in enumerate(z) if len(x) >= 80 and not sperre.search(x)]\n                  satz = next((i for i, x in enumerate(z) if re.search(r'Spiel f(?:\u00fc|ue)r\\s+\\d', x)), None)\n                  if gut:\n                      nah = [i for i in gut if satz is not None and abs(i - satz) <= 8]\n                      beschr = z[max(nah or gut[:1], key=lambda i: len(z[i]))] if (nah or gut) else ''\n              beschr = re.sub(r'\\s*\\d+,\\d{2}\\s*(?:\u20ac|EUR).*$', '', beschr or '')\n              d['beschreibung'] = kuerzen(beschr)\n              d['kategorien'] = list(dict.fromkeys(re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', x))).strip()\n                  for x in re.findall(r'(?is)<a\\b[^>]*href=\"[^\"]*/Kategorie/[^\"]*\"[^>]*>(.*?)</a>', t)))[:30]\n              bild = meta(t, 'og:image')\n              bild = bild[bild.rfind('http'):] if 'http' in bild else ''\n              if not re.match(r'^https://(?:mediaservice\\.happyshops\\.com|www\\.spiele-offensive\\.de)/', bild):\n                  bild = f'https://mediaservice.happyshops.com/ANY/Article/{int(artikel):012d}/{artikel}.jpg'\n              d['bild'] = None\n              try:\n                  b, typ = holen(bild, roh=True)\n                  if 1000 < len(b) <= 600_000 and typ in ('image/jpeg', 'image/png', 'image/webp'):\n                      d['bild'] = {'typ': typ, 'daten': base64.b64encode(b).decode()}\n              except Exception: pass\n              return d\n\n          def abholen(auftrag):\n              m = LINK.match(str(auftrag.get('link', '')).strip())\n              if not m: return {'ok': False, 'fehler': 'Das ist kein Link zu einer Spielseite bei Spiele-Offensive (\u2026/Spiel/\u2026).'}\n              url = BASIS + m.group(1)\n              if not erlaubt(url): return {'ok': False, 'fehler': 'Spiele-Offensive erlaubt das Abholen dieser Seite nicht.'}\n              try: return {'ok': True, 'link': url, 'quelle': 'Spiele-Offensive', **spielseite(url, m.group(2))}\n              except urllib.error.HTTPError as e:\n                  if e.code == 404: return {'ok': False, 'fehler': 'Diese Spielseite gibt es bei Spiele-Offensive nicht (mehr).'}\n                  return {'ok': False, 'fehler': f'Spiele-Offensive hat die Anfrage abgelehnt (Code {e.code}).'}\n              except Exception as e:\n                  return {'ok': False, 'fehler': f'Die Seite lie\u00df sich nicht abholen ({type(e).__name__}).'}\n\n          jetzt = datetime.datetime.now(datetime.timezone.utc)\n          for f in gh('GET', f'/contents/{AUFTRAEGE}?ref={ZWEIG}') or []:\n              if f.get('type') != 'file' or not f['name'].endswith('.json'): continue\n              id_ = f['name'][:-5]\n              try: auftrag = json.loads(base64.b64decode((gh('GET', f\"/contents/{AUFTRAEGE}/{f['name']}?ref={ZWEIG}\") or {}).get('content', '')))\n              except Exception: auftrag = {}\n              if re.fullmatch(r'[a-z0-9]{4,40}', id_):\n                  ergebnis = {'id': id_, 'zeit': jetzt.isoformat(), **abholen(auftrag)}\n                  print(id_, 'ok' if ergebnis['ok'] else ergebnis['fehler'], ergebnis.get('name', ''))\n                  pfad = f'{ERGEBNISSE}/{id_}.json'\n                  alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n                  gh('PUT', f'/contents/{pfad}', {'message': 'Abholdienst: ' + (ergebnis.get('name') or 'Ergebnis'), 'branch': ZWEIG,\n                      'content': base64.b64encode(json.dumps(ergebnis, ensure_ascii=False).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n              gh('DELETE', f\"/contents/{AUFTRAEGE}/{f['name']}\", {'message': 'Abholdienst: Auftrag erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n          # Liegengebliebene Ergebnisse (\u00e4lter als ein Tag) aufr\u00e4umen\n          for f in gh('GET', f'/contents/{ERGEBNISSE}?ref={ZWEIG}') or []:\n              if f.get('type') != 'file': continue\n              try:\n                  e = json.loads(base64.b64decode(gh('GET', f\"/contents/{ERGEBNISSE}/{f['name']}?ref={ZWEIG}\")['content']))\n                  alt = jetzt - datetime.datetime.fromisoformat(e['zeit']) > datetime.timedelta(days=1)\n              except Exception: alt = True\n              if alt: gh('DELETE', f\"/contents/{ERGEBNISSE}/{f['name']}\", {'message': 'Abholdienst: aufger\u00e4umt', 'sha': f['sha'], 'branch': ZWEIG})\n          PY\n";
-let abholdienstDa = false;
+   Der Shop erlaubt Browsern fremder Seiten keinen Zugriff – deshalb holt ein kleiner Dienst im eigenen Repo (GitHub Actions) die Angaben:
+   Die App legt einen Auftrag nach abholdienst/auftraege/ (Name oder Link), der Dienst legt das Ergebnis nach abholdienst/ergebnisse/.
+   Gefunden werden Spiele über die Sitemap, die der Shop Programmen anbietet – Suchseiten sind laut seiner robots.txt tabu.
+   Das Programm des Dienstes (abholdienst/abholdienst.py) legt die App selbst ab und hält es aktuell; auf GitHub liegt nur ein kleiner Starter. */
+const ABHOL_WORKFLOW = '.github/workflows/abholdienst.yml', ABHOL_SKRIPT_PFAD = 'abholdienst/abholdienst.py', ABHOL_SKRIPT_VERSION = 2;
+const ABHOLDIENST_YML = "# Abholdienst der Spieleabend-App \u2013 holt auf Wunsch Spielangaben bei Spiele-Offensive ab.\n# Das eigentliche Programm (abholdienst/abholdienst.py) legt die App selbst ins Repo und h\u00e4lt es aktuell.\nname: Abholdienst\non:\n  push:\n    paths: ['abholdienst/auftraege/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: abholdienst\n  cancel-in-progress: false\njobs:\n  abholen:\n    runs-on: ubuntu-latest\n    timeout-minutes: 6\n    steps:\n      - name: Spielangaben abholen\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          curl -fsSL -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github.raw\" -o abholdienst.py \\\n            \"https://api.github.com/repos/$GITHUB_REPOSITORY/contents/abholdienst/abholdienst.py?ref=$GITHUB_SHA\"\n          python3 abholdienst.py\n";
+const ABHOLDIENST_PY = "# Abholdienst der Spieleabend-App \u2013 holt auf Wunsch Spielangaben bei Spiele-Offensive ab.\n# Diese Datei legt die App selbst ins Repo und h\u00e4lt sie aktuell; gestartet wird sie von .github/workflows/abholdienst.yml.\n# Regeln: nur Seiten, die die robots.txt des Shops erlaubt; Spiele werden \u00fcber die Sitemap gefunden, die der Shop daf\u00fcr anbietet\n# (keine Suchseiten); der Dienst stellt sich als \u201eSpieleabend-Abholdienst\u201c vor und l\u00e4sst zwischen zwei Abrufen eine Pause.\nABHOLDIENST_VERSION = 2\nimport base64, datetime, gzip, html, json, os, re, time, urllib.error, urllib.request, urllib.robotparser\n\nREPO, ZWEIG, TOKEN = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_REF_NAME'], os.environ['GH_TOKEN']\nBASIS, NAME = 'https://www.spiele-offensive.de', 'Spieleabend-Abholdienst'\nUA = ('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 '\n      'Mobile/15E148 Safari/604.1 ' + NAME + '/' + str(ABHOLDIENST_VERSION))\nAUFTRAEGE, ERGEBNISSE = 'abholdienst/auftraege', 'abholdienst/ergebnisse'\nLINK = re.compile(r'^https?://(?:www\\.)?spiele-offensive\\.de(/Spiel/[^?#\\s\"<>]+-(\\d+)\\.html)$', re.I)\nPAUSE, MAX_TREFFER, MAX_BILD = 0.8, 4, 160_000\n\n\ndef gh(methode, pfad, daten=None):\n    req = urllib.request.Request(f'https://api.github.com/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': NAME})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                return json.loads(r.read() or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\n_letzter = 0.0\ndef holen(url, roh=False, grenze=3_000_000, zeit=25):\n    global _letzter\n    warten = PAUSE - (time.time() - _letzter)\n    if warten > 0: time.sleep(warten)\n    req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'de-DE,de;q=0.9', 'Accept': 'text/html,application/xml,image/*,*/*'})\n    try:\n        with urllib.request.urlopen(req, timeout=zeit) as r:\n            b = r.read(grenze)\n            if b[:2] == b'\\x1f\\x8b': b = gzip.decompress(b)\n            return (b, r.headers.get_content_type()) if roh else b.decode(r.headers.get_content_charset() or 'utf-8', 'replace')\n    finally:\n        _letzter = time.time()\n\n\n_robots = None\ndef robots():\n    global _robots\n    if _robots is None:\n        _robots = urllib.robotparser.RobotFileParser()\n        try: _robots.parse(holen(BASIS + '/robots.txt').splitlines())\n        except urllib.error.HTTPError as e: _robots.parse([] if e.code < 500 else ['User-agent: *', 'Disallow: /'])\n    return _robots\ndef erlaubt(url): return robots().can_fetch(NAME, url)\n\n\n# ---------- Verzeichnis aller Spielseiten aus der Sitemap ----------\n_katalog, _katalog_info = None, {}\ndef katalog():\n    global _katalog\n    if _katalog is not None: return _katalog\n    _katalog, warte, gesehen = {}, [u.replace('http://', 'https://', 1) for u in (robots().site_maps() or [])], set()\n    while warte and len(gesehen) < 30:\n        u = warte.pop(0)\n        if u in gesehen or not erlaubt(u): continue\n        gesehen.add(u)\n        try: x = holen(u, grenze=60_000_000, zeit=90)\n        except Exception as e: _katalog_info.setdefault('fehler', []).append(f'{u.rsplit(\"/\", 1)[-1]}: {type(e).__name__}'); continue\n        for loc in re.findall(r'<loc>\\s*([^<\\s]+)\\s*</loc>', x):\n            loc = html.unescape(loc).replace('http://', 'https://', 1)\n            m = LINK.match(loc)\n            if m: _katalog[BASIS + m.group(1)] = m.group(2)\n            elif re.search(r'sitemap', loc, re.I) and loc not in gesehen: warte.append(loc)\n    _katalog_info.update({'dateien': len(gesehen), 'spiele': len(_katalog)})\n    return _katalog\n\n\ndef woerter(s):\n    s = s.lower()\n    for a, b in (('\u00e4', 'ae'), ('\u00f6', 'oe'), ('\u00fc', 'ue'), ('\u00df', 'ss'), ('\u00e9', 'e'), ('\u00e8', 'e'), ('\u00e1', 'a'), ('&', ' und ')): s = s.replace(a, b)\n    return re.findall(r'[a-z0-9]+', s)\n\n\ndef suchen(name):\n    \"\"\"Die besten Spielseiten zu einem Namen \u2013 alle W\u00f6rter des Namens m\u00fcssen in der Adresse vorkommen.\"\"\"\n    q = woerter(name)\n    if not q: return []\n    bewertet = []\n    for url, artikel in katalog().items():\n        slug = woerter(url.rsplit('/', 1)[1][:-len(artikel) - 6])\n        fehlt = sum(1 for w in q if not any(s == w or (len(w) >= 4 and s.startswith(w)) for s in slug))\n        if fehlt: continue\n        extra = sum(1 for s in slug if s not in q)\n        bewertet.append(((extra, slug[:len(q)] != q, len(slug), url), url, artikel))\n    bewertet.sort()\n    return [(u, a) for _, u, a in bewertet[:MAX_TREFFER]]\n\n\n# ---------- Eine Spielseite lesen ----------\ndef meta(t, *namen):\n    for n in namen:\n        for m in re.finditer(r'<meta\\b[^>]*>', t, re.I):\n            tag = m.group(0)\n            if re.search(r'(?:property|name|itemprop)\\s*=\\s*[\"\\']' + re.escape(n) + r'[\"\\']', tag, re.I):\n                c = re.search(r'content\\s*=\\s*\"([^\"]*)\"', tag, re.I) or re.search(r\"content\\s*=\\s*'([^']*)'\", tag, re.I)\n                if c and c.group(1).strip(): return html.unescape(c.group(1)).strip()\n    return ''\n\n\ndef zeilen(t):\n    t = re.sub(r'(?is)<(script|style|noscript|svg|head)\\b.*?</\\1>', ' ', t)\n    t = re.sub(r'(?i)<br\\s*/?>|</(p|div|li|h[1-6]|tr|section|article|ul|table)>', '\\n', t)\n    t = html.unescape(re.sub(r'<[^>]+>', ' ', t))\n    return [z for z in (re.sub(r'\\s+', ' ', x).strip() for x in t.split('\\n')) if z]\n\n\ndef kuerzen(text, n=600):\n    text = re.sub(r'\\s+', ' ', text).strip()\n    if len(text) <= n: return text\n    s = text[:n]; p = max(s.rfind('. '), s.rfind('! '), s.rfind('? '))\n    return s[:p + 1] if p > n // 3 else s.rsplit(' ', 1)[0] + ' \u2026'\n\n\ndef spielseite(url, artikel):\n    t = holen(url)\n    z = zeilen(t); T = ' '.join(z)\n    name = meta(t, 'og:title')\n    if not name:\n        h = re.search(r'(?is)<h1\\b[^>]*>(.*?)</h1>', t) or re.search(r'(?is)<title\\b[^>]*>(.*?)</title>', t)\n        name = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', h.group(1)))).strip() if h else ''\n    name = name.split('|')[0].strip()\n    name = re.sub(r'\\s*[-\u2013]\\s*(?:Spiel|Kennerspiel|Kinderspiel) des Jahres \\d{4}.*$', '', name, flags=re.I)\n    name = re.sub(r'\\s+Spiel$', '', name).strip()\n    d = {'link': url, 'name': name, 'spielerMin': None, 'spielerMax': None, 'alterAb': None, 'dauer': None}\n    m = re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*(?:bis|-|\u2013)\\s*(\\d{1,3})\\s*Spieler', T) or re.search(r'f(?:\u00fc|ue)r\\s+(\\d{1,2})\\s*Spieler', T)\n    if m: d['spielerMin'] = int(m.group(1)); d['spielerMax'] = int(m.group(m.lastindex))\n    m = re.search(r'im Alter (?:von|ab)\\s*(\\d{1,2})', T) or re.search(r'\\bab\\s*(\\d{1,2})\\s*Jahren', T)\n    if m: d['alterAb'] = int(m.group(1))\n    m = re.search(r'Spieldauer\\s*:?\\s*(?:von\\s*)?(?:ca\\.?|circa|etwa|rund)?\\s*(\\d{1,3})(?:\\s*(?:-|\u2013|bis)\\s*(\\d{1,3}))?\\s*Min', T, re.I)\n    if m: d['dauer'] = max(int(x) for x in m.groups() if x)\n    beschr = meta(t, 'og:description', 'description', 'twitter:description')\n    if not beschr or len(beschr) < 60:\n        sperre = re.compile(r'cookie|datenschutz|warenkorb|versand|newsletter|\u20ac|\\bEUR\\b|bewertung|kundentest|rezension|zahlung|lieferzeit|javascript|anmelden|konto', re.I)\n        gut = [i for i, x in enumerate(z) if len(x) >= 80 and not sperre.search(x)]\n        satz = next((i for i, x in enumerate(z) if re.search(r'Spiel f(?:\u00fc|ue)r\\s+\\d', x)), None)\n        nah = [i for i in gut if satz is not None and abs(i - satz) <= 8]\n        beschr = z[max(nah or gut[:1], key=lambda i: len(z[i]))] if (nah or gut) else ''\n    beschr = re.sub(r'\\s*\\d+,\\d{2}\\s*(?:\u20ac|EUR).*$', '', beschr or '')\n    d['beschreibung'] = kuerzen(beschr)\n    d['kategorien'] = list(dict.fromkeys(re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', x))).strip()\n        for x in re.findall(r'(?is)<a\\b[^>]*href=\"[^\"]*/Kategorie/[^\"]*\"[^>]*>(.*?)</a>', t)))[:30]\n    bild = meta(t, 'og:image')\n    bild = bild[bild.rfind('http'):] if 'http' in bild else ''\n    if not re.match(r'^https://(?:mediaservice\\.happyshops\\.com|www\\.spiele-offensive\\.de)/', bild):\n        bild = f'https://mediaservice.happyshops.com/ANY/Article/{int(artikel):012d}/{artikel}.jpg'\n    d['bild'] = None\n    try:\n        b, typ = holen(bild, roh=True)\n        if 1000 < len(b) <= MAX_BILD and typ in ('image/jpeg', 'image/png', 'image/webp'):\n            d['bild'] = {'typ': typ, 'daten': base64.b64encode(b).decode()}\n    except Exception:\n        pass\n    return d\n\n\ndef fehlertext(e):\n    if isinstance(e, urllib.error.HTTPError):\n        return 'Diese Spielseite gibt es bei Spiele-Offensive nicht (mehr).' if e.code == 404 else f'Spiele-Offensive hat die Anfrage abgelehnt (Code {e.code}).'\n    return f'Die Seite lie\u00df sich nicht abholen ({type(e).__name__}).'\n\n\ndef abholen(auftrag):\n    link, name = str(auftrag.get('link') or '').strip(), str(auftrag.get('name') or '').strip()[:80]\n    if link:\n        m = LINK.match(link)\n        if not m: return {'ok': False, 'fehler': 'Das ist kein Link zu einer Spielseite bei Spiele-Offensive (\u2026/Spiel/\u2026).'}\n        seiten = [(BASIS + m.group(1), m.group(2))]\n    elif name:\n        try: seiten = suchen(name)\n        except Exception as e: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen.', 'info': {**_katalog_info, 'grund': type(e).__name__}}\n        if not seiten:\n            if not _katalog: return {'ok': False, 'fehler': 'Das Verzeichnis des Shops lie\u00df sich nicht lesen \u2013 bitte den Weg \u00fcber den Link nehmen.', 'info': _katalog_info}\n            return {'ok': False, 'fehler': f'Bei Spiele-Offensive nichts zu \u201e{name}\u201c gefunden.', 'info': _katalog_info}\n    else:\n        return {'ok': False, 'fehler': 'Kein Spiel angegeben.'}\n    treffer, letzter_fehler = [], None\n    for url, artikel in seiten:\n        if not erlaubt(url): letzter_fehler = 'Spiele-Offensive erlaubt das Abholen dieser Seite nicht.'; continue\n        try: treffer.append(spielseite(url, artikel))\n        except Exception as e: letzter_fehler = fehlertext(e)\n    if not treffer: return {'ok': False, 'fehler': letzter_fehler or 'Nichts gefunden.', 'info': _katalog_info}\n    return {'ok': True, 'quelle': 'Spiele-Offensive', 'treffer': treffer, 'info': _katalog_info}\n\n\ndef main():\n    jetzt = datetime.datetime.now(datetime.timezone.utc)\n    for f in gh('GET', f'/contents/{AUFTRAEGE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file' or not f['name'].endswith('.json'): continue\n        id_ = f['name'][:-5]\n        try: auftrag = json.loads(base64.b64decode((gh('GET', f\"/contents/{AUFTRAEGE}/{f['name']}?ref={ZWEIG}\") or {}).get('content', '')))\n        except Exception: auftrag = {}\n        if re.fullmatch(r'[a-z0-9]{4,40}', id_):\n            ergebnis = {'id': id_, 'zeit': jetzt.isoformat(), 'version': ABHOLDIENST_VERSION, **abholen(auftrag)}\n            print(id_, 'ok' if ergebnis['ok'] else ergebnis['fehler'], [t['name'] for t in ergebnis.get('treffer', [])], ergebnis.get('info', ''))\n            pfad = f'{ERGEBNISSE}/{id_}.json'\n            alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n            gh('PUT', f'/contents/{pfad}', {'message': 'Abholdienst: ' + (', '.join(t['name'] for t in ergebnis.get('treffer', [])) or 'Ergebnis')[:70],\n                'branch': ZWEIG, 'content': base64.b64encode(json.dumps(ergebnis, ensure_ascii=False).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n        gh('DELETE', f\"/contents/{AUFTRAEGE}/{f['name']}\", {'message': 'Abholdienst: Auftrag erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n    # Liegengebliebene Ergebnisse (\u00e4lter als ein Tag) aufr\u00e4umen\n    for f in gh('GET', f'/contents/{ERGEBNISSE}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        try:\n            e = json.loads(base64.b64decode(gh('GET', f\"/contents/{ERGEBNISSE}/{f['name']}?ref={ZWEIG}\")['content']))\n            alt = jetzt - datetime.datetime.fromisoformat(e['zeit']) > datetime.timedelta(days=1)\n        except Exception:\n            alt = True\n        if alt: gh('DELETE', f\"/contents/{ERGEBNISSE}/{f['name']}\", {'message': 'Abholdienst: aufger\u00e4umt', 'sha': f['sha'], 'branch': ZWEIG})\n\n\nif __name__ == '__main__':\n    main()\n";
+let abholStand = null, abholSkriptOk = false;
 function soLink(text){
   const m = String(text || '').match(/https?:\/\/(?:www\.)?spiele-offensive\.de\/Spiel\/[^\s?#"'<>]+-\d+\.html/i);
   return m ? m[0].replace(/^https?:\/\/(?:www\.)?/i, 'https://www.') : '';
 }
 function soSucheUrl(name){ return `https://www.spiele-offensive.de/index.php?cmd=suchergebnis&suchwort=${encodeURIComponent(name || '')}`; }
-async function abholdienstPruefen(){
-  if (abholdienstDa) return true;
-  const r = await gh('GET', `/contents/${pfadKod(ABHOL_WORKFLOW)}?ref=${encodeURIComponent(E.branch)}`);
-  abholdienstDa = r.ok;
-  return r.ok;
+function soNameGleich(a, b){
+  const n = x => nameSchluessel(String(x || '').replace(/\(.*?\)/g, '').replace(/\s*[-–:]\s*(?:Spiel|Kennerspiel|Kinderspiel) des Jahres.*$/i, ''));
+  return !!n(a) && n(a) === n(b);
 }
-async function soAbholen(link, fortschritt, laeuft){
+/* Ist der Dienst eingerichtet – und schon der Starter, der das Programm aus dem Repo lädt? (alt = erste Fassung, kann nur Links) */
+async function abholdienstStand(){
+  if (abholStand && abholStand.da && !abholStand.alt) return abholStand;
+  const r = await gh('GET', `/contents/${pfadKod(ABHOL_WORKFLOW)}?ref=${encodeURIComponent(E.branch)}`);
+  if (r.status === 404) return (abholStand = { da:false });
+  if (!r.ok) throw await fehlerAus(r, 'Abholdienst');
+  const j = await r.json(); let text = '';
+  try{ text = textAusB64(j.content || ''); }catch(e){}
+  return (abholStand = { da:true, alt:!text.includes(ABHOL_SKRIPT_PFAD), sha:j.sha });
+}
+/* Das Programm im Repo ablegen bzw. erneuern – nie eine ältere Fassung über eine neuere */
+async function abholSkriptAktuell(){
+  if (abholSkriptOk) return;
+  const r = await gh('GET', `/contents/${pfadKod(ABHOL_SKRIPT_PFAD)}?ref=${encodeURIComponent(E.branch)}`);
+  let sha = '';
+  if (r.ok){
+    const j = await r.json(); sha = j.sha;
+    let v = 0; try{ const m = textAusB64(j.content || '').match(/ABHOLDIENST_VERSION = (\d+)/); v = m ? Number(m[1]) : 0; }catch(e){}
+    if (v >= ABHOL_SKRIPT_VERSION){ abholSkriptOk = true; return; }
+  }else if (r.status !== 404) throw await fehlerAus(r, 'Abholdienst');
+  const w = await gh('PUT', `/contents/${pfadKod(ABHOL_SKRIPT_PFAD)}`, { message:`Abholdienst: Programm Version ${ABHOL_SKRIPT_VERSION}`, branch:E.branch,
+    content:b64AusText(ABHOLDIENST_PY), ...(sha ? { sha } : {}) });
+  if (!w.ok && w.status !== 409 && w.status !== 422) throw await fehlerAus(w, 'Abholdienst');
+  abholSkriptOk = true;
+}
+/* Einrichten direkt aus der App – klappt nur, wenn der Schlüssel Workflows ändern darf; sonst geht es über GitHub */
+async function abholdienstDirekt(){
+  try{
+    const st = abholStand || {};
+    const r = await gh('PUT', `/contents/${pfadKod(ABHOL_WORKFLOW)}`, { message:'Abholdienst eingerichtet', branch:E.branch, content:b64AusText(ABHOLDIENST_YML), ...(st.sha ? { sha:st.sha } : {}) });
+    if (r.ok){ abholStand = { da:true, alt:false }; return true; }
+  }catch(e){}
+  return false;
+}
+async function soAbholen(auftrag, fortschritt, laeuft){
+  if (!(abholStand && abholStand.alt)) await abholSkriptAktuell();
   const id = neueId('a').toLowerCase().replace(/[^a-z0-9]/g, '');
   const r = await gh('PUT', `/contents/abholdienst/auftraege/${id}.json`, { message:'Abholauftrag Spiele-Offensive', branch:E.branch,
-    content:b64AusText(JSON.stringify({ id, link, zeit:new Date().toISOString(), geraet:E.geraetId || '' })) });
+    content:b64AusText(JSON.stringify({ id, ...auftrag, zeit:new Date().toISOString(), geraet:E.geraetId || '' })) });
   if (!r.ok) throw await fehlerAus(r, 'Abholauftrag');
-  const start = Date.now();
-  while (Date.now() - start < 180000){
+  const start = Date.now(), pfad = `/contents/abholdienst/ergebnisse/${id}.json`;
+  while (Date.now() - start < 240000){
     await warte(4000);
     if (!laeuft()) return null;
     fortschritt(Math.round((Date.now() - start) / 1000));
-    let g; try{ g = await gh('GET', `/contents/abholdienst/ergebnisse/${id}.json?ref=${encodeURIComponent(E.branch)}`); }catch(e){ continue; }
+    let g; try{ g = await gh('GET', `${pfad}?ref=${encodeURIComponent(E.branch)}`); }catch(e){ continue; }
     if (!g.ok) continue;
     const j = await g.json(); let e;
-    try{ e = JSON.parse(textAusB64(j.content)); }catch(err){ continue; }
-    gh('DELETE', `/contents/abholdienst/ergebnisse/${id}.json`, { message:'Abholergebnis übernommen', sha:j.sha, branch:E.branch }).catch(() => {});
+    try{
+      let text = j.content ? textAusB64(j.content) : '';
+      if (!text){ const roh = await gh('GET', `${pfad}?ref=${encodeURIComponent(E.branch)}`, null, { Accept:'application/vnd.github.raw' }); if (roh.ok) text = await roh.text(); }
+      e = JSON.parse(text);
+    }catch(err){ continue; }
+    gh('DELETE', pfad, { message:'Abholergebnis übernommen', sha:j.sha, branch:E.branch }).catch(() => {});
     return e;
   }
-  throw new Error(technikSichtbar() ? 'Der Abholdienst hat sich nach 3 Minuten nicht gemeldet – auf GitHub unter „Actions“ → „Abholdienst“ nachsehen.'
+  throw new Error(technikSichtbar() ? 'Der Abholdienst hat sich nach 4 Minuten nicht gemeldet – auf GitHub unter „Actions“ → „Abholdienst“ nachsehen.'
     : 'Spiele-Offensive hat nicht rechtzeitig geantwortet – bitte später nochmal versuchen.');
 }
-/* Ergebnis des Abholdienstes → dieselbe Form wie die Angaben aus Wikipedia */
+function soTreffer(e){ return e ? (Array.isArray(e.treffer) ? e.treffer : (e.ok ? [e] : [])) : []; }
+/* Ein Treffer des Abholdienstes → dieselbe Form wie die Angaben aus Wikipedia */
 function soDetails(e){
   const n = v => Number.isFinite(Number(v)) && v !== null && v !== '' ? Number(v) : null;
   return { name:String(e.name || '').slice(0, 80), spielerMin:n(e.spielerMin), spielerMax:n(e.spielerMax), alterAb:n(e.alterAb), dauer:n(e.dauer),
@@ -2667,13 +2711,35 @@ function soDetails(e){
     link:soLink(e.link) || '', quellen:['Spiele-Offensive'],
     bild:e.bild && e.bild.daten && /^image\/(jpeg|png|webp)$/.test(e.bild.typ || '') ? { url:`data:${e.bild.typ};base64,${e.bild.daten}`, quelle:'Foto: Spiele-Offensive.de' } : null };
 }
-function abholdienstEinrichtenHtml(){
+/* Fehlende Angaben aus der zweiten Quelle ergänzen (z. B. die Spieldauer aus Wikipedia, das Foto von Spiele-Offensive) */
+function angabenErgaenzen(d, x, quelle){
+  const dazu = [];
+  if (d.dauer == null && x.dauer){ d.dauer = x.dauer; dazu.push('Spieldauer'); }
+  if (d.spielerMin == null && d.spielerMax == null && (x.spielerMin != null || x.spielerMax != null)){ d.spielerMin = x.spielerMin; d.spielerMax = x.spielerMax; dazu.push('Spieler'); }
+  if (d.alterAb == null && x.alterAb != null){ d.alterAb = x.alterAb; dazu.push('Alter'); }
+  if (!d.beschreibung && x.beschreibung){ d.beschreibung = x.beschreibung; dazu.push('Beschreibung'); }
+  if (!d.bild && x.bild){ d.bild = x.bild; dazu.push('Foto'); }
+  d.kategorien = [...new Set([...(d.kategorien || []), ...(x.kategorien || [])])];
+  if (dazu.length) d.ergaenzt = [d.ergaenzt, `${dazu.join(', ')} von ${quelle}`].filter(Boolean).join(' · ');
+  return d;
+}
+function abholdienstEinrichtenHtml(alt){
   if (!technikSichtbar()) return '<p class="hinweis" style="margin-top:10px">Das Abholen bei Spiele-Offensive ist noch nicht eingerichtet – das erledigt der Admin einmal.</p>';
-  const neu = `https://github.com/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}/new/${encodeURIComponent(E.branch)}?filename=${encodeURIComponent(ABHOL_WORKFLOW)}`;
-  return `<div class="hinweis so-einrichten" style="margin-top:10px"><b>Abholdienst einmal einrichten</b>
-    <ol><li>„Text kopieren“ tippen.</li><li>„GitHub öffnen“ – der Dateiname ist schon eingetragen.</li>
-      <li>Den Text ins große Feld einfügen, „Commit changes…“ und noch einmal „Commit changes“ tippen.</li><li>Zurück in die App und nochmal „Abholen“ tippen.</li></ol>
-    <div class="knopfreihe"><button class="knopf rahmen" type="button" data-so-kopieren>Text kopieren</button><a class="knopf" href="${esc(neu)}" target="_blank" rel="noopener" data-so-github>GitHub öffnen</a></div>
+  const basis = `https://github.com/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}`;
+  if (alt) return `<div class="hinweis so-einrichten" style="margin-top:10px"><b>Abholdienst erneuern (einmalig)</b>
+    <ol><li>„Text kopieren“ tippen.</li><li>„GitHub öffnen“ – die alte Datei ist zum Bearbeiten offen.</li>
+      <li>Ins Textfeld tippen, alles markieren (lange tippen → „Alles auswählen“) und den kopierten Text einsetzen.</li>
+      <li>„Commit changes…“ und noch einmal „Commit changes“ tippen. Dann zurück in die App und nochmal „Suchen“ tippen.</li></ol>
+    <div class="knopfreihe"><button class="knopf rahmen" type="button" data-so-kopieren>Text kopieren</button>
+      <a class="knopf" href="${esc(`${basis}/edit/${encodeURIComponent(E.branch)}/${pfadKod(ABHOL_WORKFLOW)}`)}" target="_blank" rel="noopener" data-so-github>GitHub öffnen</a></div>
+    <textarea class="eingabe so-text" readonly hidden data-so-text></textarea></div>`;
+  const neu = `${basis}/new/${encodeURIComponent(E.branch)}?filename=${encodeURIComponent(ABHOL_WORKFLOW)}&value=${encodeURIComponent(ABHOLDIENST_YML)}`;
+  return `<div class="hinweis so-einrichten" style="margin-top:10px"><b>Abholdienst einrichten (einmalig)</b>
+    <ol><li>„GitHub öffnen“ tippen – Dateiname und Text sind schon eingetragen.</li><li>„Commit changes…“ und noch einmal „Commit changes“ tippen.</li>
+      <li>Zurück in die App und nochmal „Suchen“ tippen.</li></ol>
+    <div class="knopfreihe"><a class="knopf" href="${esc(neu)}" target="_blank" rel="noopener" data-so-github>GitHub öffnen</a>
+      <button class="knopf rahmen" type="button" data-so-kopieren>Text kopieren</button></div>
+    <p class="text-leise text-klein" style="margin:8px 0 0">Ist das Textfeld bei GitHub leer: „Text kopieren“ tippen und dort einfügen.</p>
     <textarea class="eingabe so-text" readonly hidden data-so-text></textarea></div>`;
 }
 
@@ -2682,39 +2748,88 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
     <form class="eingabe-reihe" data-suchform novalidate><input class="eingabe" name="q" value="${esc(start)}" placeholder="Name des Spiels" enterkeyhint="search" autocomplete="off" autocapitalize="words">
       <button class="knopf" type="submit">${ic('suche')}Suchen</button></form>
     <div data-bereich></div>
-    <div style="margin-top:16px">${klapp('so-holen', 'Spiele-Offensive', `<p class="text-leise text-klein" style="margin:0 0 10px">Im Shop suchen, die Spielseite öffnen und ihren Link kopieren (Teilen → Kopieren). Dann hier einfügen und „Abholen“ tippen – das dauert etwa eine Minute. Eine Spieldauer nennt der Shop nicht.</p>
+    <div style="margin-top:16px">${klapp('so-holen', 'Spiele-Offensive per Link', `<p class="text-leise text-klein" style="margin:0 0 10px">Falls die Suche das Spiel nicht findet: im Shop suchen, die Spielseite öffnen und ihren Link kopieren (Teilen → Kopieren). Dann hier einfügen und „Abholen“ tippen.</p>
       <a class="knopf zweit breit" href="${esc(soSucheUrl(start))}" target="_blank" rel="noopener" data-so-suche>${ic('suche')}Bei Spiele-Offensive suchen</a>
       <form class="eingabe-reihe" data-so-form novalidate style="margin-top:10px"><input class="eingabe" name="link" placeholder="Link zur Spielseite" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
         <button class="knopf" type="submit">Abholen</button></form>
       ${navigator.clipboard && navigator.clipboard.readText ? '<button class="link-knopf" type="button" data-so-einfuegen style="margin-top:8px">Link aus der Zwischenablage einfügen</button>' : ''}
-      <div data-so-status></div>`, { klein:'per Link abholen' })}</div>
-    <p class="quelle-text" style="margin-top:14px">Die Angaben kommen aus der deutschen Wikipedia und aus Wikidata – oder von Spiele-Offensive. Bitte vor dem Speichern kurz prüfen.</p>`, { klasse:'gross' });
+      <div data-so-status></div>`, { klein:'falls nötig' })}</div>
+    <p class="quelle-text" style="margin-top:14px">Die Angaben kommen aus der deutschen Wikipedia und aus Wikidata – und von Spiele-Offensive. Bitte vor dem Speichern kurz prüfen.</p>`, { klasse:'gross' });
   const bereich = $('[data-bereich]', s), suchform = $('[data-suchform]', s);
-  let liste = [], lauf = 0;
+  let liste = [], lauf = 0, so = null;
   const lade = text => `<div class="lade">${wuerfelHtml('mini-wuerfel dreht', 5)}<span>${esc(text)}</span></div>`;
   async function suchen(){
     const q = feldVon(suchform, 'q').value.trim();
     if (q.length < 2){ bereich.innerHTML = '<p class="text-leise" style="margin-top:14px">Bitte mindestens zwei Buchstaben eingeben.</p>'; return; }
     const nr = ++lauf; bereich.innerHTML = lade('Suche bei Wikipedia …');
+    soSuchen(q);
     try{
       const ergebnis = await kandidatenSuchen(q); if (nr !== lauf) return;
       liste = ergebnis; zeigeListe(q);
-    }catch(e){ if (nr === lauf) bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p>`; }
+    }catch(e){ if (nr !== lauf) return; liste = []; bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p><div data-so-liste>${soListeHtml()}</div>`; }
   }
   function zeigeListe(q){
-    if (!liste.length){
-      bereich.innerHTML = `<div class="leer" style="padding-top:18px"><h3>Nichts gefunden</h3><p>Zu „${esc(q)}“ gibt es keinen passenden Eintrag. Probier eine andere Schreibweise – oder trag die Angaben selbst ein.</p></div>`;
-      return;
-    }
-    bereich.innerHTML = `<div class="treffer-liste">${liste.map((k, i) => `<button class="treffer" type="button" data-i="${i}">
+    const wiki = liste.length ? `<div class="treffer-liste">${liste.map((k, i) => `<button class="treffer" type="button" data-i="${i}">
         <span class="treffer-bild">${k.vorschau ? `<img src="${esc(k.vorschau)}" alt="" loading="lazy">` : wuerfelHtml('mini-wuerfel', 1 + (i % 6))}</span>
         <span class="treffer-text"><b>${esc(k.name)}</b>${k.beschreibung ? `<span>${esc(k.beschreibung)}</span>` : ''}</span>
-        <span class="treffer-quelle">${esc(k.quelle)}</span></button>`).join('')}</div>`;
+        <span class="treffer-quelle">${esc(k.quelle)}</span></button>`).join('')}</div>`
+      : so && ['laeuft', 'fertig'].includes(so.status) ? `<p class="text-leise" style="margin:14px 2px 0">Bei Wikipedia gibt es zu „${esc(q)}“ keinen passenden Eintrag.</p>`
+      : `<div class="leer" style="padding-top:18px"><h3>Nichts gefunden</h3><p>Zu „${esc(q)}“ gibt es keinen passenden Eintrag. Probier eine andere Schreibweise – oder trag die Angaben selbst ein.</p></div>`;
+    bereich.innerHTML = wiki + `<div data-so-liste>${soListeHtml()}</div>`;
+  }
+  // Spiele-Offensive: läuft bei jeder Suche nebenher mit (falls der Abholdienst eingerichtet ist)
+  function soListeHtml(){
+    if (!so || so.status === 'aus') return '';
+    const kopf = '<p class="so-kopf">Spiele-Offensive</p>';
+    if (so.status === 'laeuft') return kopf + `<div class="treffer so-laeuft"><span class="treffer-bild">${wuerfelHtml('mini-wuerfel dreht', 5)}</span>
+      <span class="treffer-text"><b>Wird abgeholt …${so.sek ? ` ${so.sek} s` : ''}</b><span>Das dauert etwa eine Minute – die Treffer erscheinen dann hier.</span></span></div>`;
+    if (so.status === 'fertig') return kopf + `<div class="treffer-liste">${so.treffer.map((t, i) => `<button class="treffer" type="button" data-so-i="${i}">
+        <span class="treffer-bild">${t.bild && t.bild.daten && /^image\/(jpeg|png|webp)$/.test(t.bild.typ || '') ? `<img src="data:${t.bild.typ};base64,${t.bild.daten}" alt="">` : wuerfelHtml('mini-wuerfel', 1 + (i % 6))}</span>
+        <span class="treffer-text"><b>${esc(t.name || '?')}</b><span>${esc([t.spielerMin != null ? spielerText(t) + ' Spieler' : '', t.alterAb != null ? 'ab ' + t.alterAb + ' Jahren' : ''].filter(Boolean).join(' · '))}</span></span>
+        <span class="treffer-quelle">Spiele-Offensive</span></button>`).join('')}</div>`;
+    if (so.status === 'fehler') return kopf + `<p class="text-leise text-klein" style="margin:2px 2px 0">${esc(so.fehler || 'Nichts gefunden.')}${technikSichtbar() && so.info && so.info.spiele != null ? ` (Verzeichnis des Shops: ${so.info.spiele} Spielseiten)` : ''} Unten geht es auch mit dem Link der Spielseite.</p>`;
+    if (so.status === 'anleitung') return kopf + abholdienstEinrichtenHtml(so.alt);
+    return `<p class="so-angebot"><button class="link-knopf" type="button" data-so-einrichten>${so.alt ? 'Abholdienst erneuern' : 'Spiele-Offensive einrichten'}</button>
+      – einmalig, danach kommen bei jeder Suche auch Treffer aus dem Shop dazu.</p>`;
+  }
+  function soZeichnen(){ const el = $('[data-so-liste]', bereich); if (el) el.innerHTML = soListeHtml(); }
+  async function soSuchen(q){
+    if (!E.token || !E.owner || !E.repo) return;
+    if (so && so.q === q && ['laeuft', 'fertig'].includes(so.status)) return;
+    const mein = so = { q, status:'laeuft', sek:0, treffer:[], fehler:'' };
+    soZeichnen();
+    try{
+      const st = await abholdienstStand();
+      if (so !== mein) return;
+      if (!st.da || st.alt){ mein.status = technikSichtbar() ? 'einrichten' : 'aus'; mein.alt = !!st.alt; soZeichnen(); return; }
+      const e = await soAbholen({ name:q }, sek => { if (so === mein){ mein.sek = sek; soZeichnen(); } }, () => so === mein && s.isConnected);
+      if (!e || so !== mein) return;
+      mein.treffer = soTreffer(e); mein.status = mein.treffer.length ? 'fertig' : 'fehler'; mein.fehler = e.fehler || ''; mein.info = e.info;
+    }catch(err){ if (so !== mein) return; mein.status = 'fehler'; mein.fehler = err.message; }
+    soZeichnen();
+  }
+  async function soEinrichten(){
+    const mein = so; if (!mein) return;
+    mein.status = 'laeuft'; mein.sek = 0; soZeichnen();
+    if (await abholdienstDirekt()){ toast('Abholdienst eingerichtet'); so = null; soSuchen(mein.q); return; }
+    if (so === mein){ mein.status = 'anleitung'; soZeichnen(); }
   }
   async function zeigeDetails(k){
     const nr = ++lauf; bereich.innerHTML = lade(`Lade Angaben zu „${k.name}“ …`);
     let d;
     try{ d = await spielDetailsHolen(k); }catch(e){ if (nr === lauf) bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.message)}</p><button class="knopf zweit breit" type="button" data-zurueck>Zurück zur Trefferliste</button>`; return; }
+    if (nr !== lauf) return;
+    const t = so && so.status === 'fertig' && so.treffer.find(x => soNameGleich(x.name, d.name) || soNameGleich(x.name, k.name));
+    if (t) angabenErgaenzen(d, soDetails(t), 'Spiele-Offensive');
+    detailsAnzeigen(d);
+  }
+  async function soTrefferZeigen(t){
+    const d = soDetails(t), nr = ++lauf;
+    const gleich = liste.find(k => soNameGleich(k.name, d.name));
+    if (gleich && (d.dauer == null || d.spielerMin == null || d.alterAb == null || !d.beschreibung)){
+      bereich.innerHTML = lade('Ergänze aus Wikipedia …');
+      try{ const w = await spielDetailsHolen(gleich); if (nr !== lauf) return; angabenErgaenzen(d, { ...w, bild:null }, 'Wikipedia'); }catch(e){}
+    }
     if (nr !== lauf) return;
     detailsAnzeigen(d);
   }
@@ -2735,8 +2850,9 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
       ${d.beschreibung ? `<p class="detail-text">${esc(d.beschreibung)}</p>` : ''}
       ${nichts ? '<p class="hinweis">Zu diesem Eintrag stehen kaum Angaben im Netz – die Felder bitte selbst ausfüllen.</p>' : ''}
       ${d.link ? `<a class="detail-link" href="${esc(d.link)}" target="_blank" rel="noopener">${ic('link')}Eintrag bei ${esc(d.quellen[0] || 'Wikipedia')} ansehen</a>` : ''}
+      ${d.ergaenzt ? `<p class="quelle-text" data-ergaenzt>Ergänzt: ${esc(d.ergaenzt)}</p>` : ''}
       <div class="knopfreihe" style="margin-top:16px">
-        <button class="knopf rahmen" type="button" data-zurueck>${d.quellen[0] === 'Spiele-Offensive' ? 'Zurück' : 'Andere Treffer'}</button>
+        <button class="knopf rahmen" type="button" data-zurueck>Andere Treffer</button>
         <button class="knopf" type="button" data-uebernehmen>Übernehmen</button>
       </div>`;
     $('[data-uebernehmen]', bereich).addEventListener('click', async e => {
@@ -2750,7 +2866,7 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
       s.schliessen();
     });
   }
-  // Spiele-Offensive: Link einfügen → der Abholdienst holt die Spielseite
+  // Spiele-Offensive per Link (falls die Suche das Spiel nicht findet)
   const soForm = $('[data-so-form]', s), soStatus = $('[data-so-status]', s);
   $('[data-so-suche]', s).addEventListener('click', e => { e.currentTarget.href = soSucheUrl(feldVon(suchform, 'q').value.trim() || start); });
   const soEinf = $('[data-so-einfuegen]', s);
@@ -2760,10 +2876,10 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
     feldVon(soForm, 'link').value = l; soHolen();
   });
   soForm.addEventListener('submit', e => { e.preventDefault(); feldVon(soForm, 'link').blur(); soHolen(); });
-  soStatus.addEventListener('click', async e => {
+  s.addEventListener('click', async e => {
     if (!e.target.closest('[data-so-kopieren]')) return;
-    const ta = $('[data-so-text]', soStatus);
-    try{ await navigator.clipboard.writeText(ABHOLDIENST_YML); toast('Text kopiert – jetzt „GitHub öffnen“'); }
+    const ta = $('[data-so-text]', e.target.closest('.so-einrichten'));
+    try{ await navigator.clipboard.writeText(ABHOLDIENST_YML); toast('Text kopiert'); }
     catch(err){ ta.value = ABHOLDIENST_YML; ta.hidden = false; ta.focus(); ta.select(); toast('Bitte den markierten Text kopieren.'); }
   });
   async function soHolen(){
@@ -2774,16 +2890,20 @@ function nachschlagenSheet(start, hatFoto, uebernehmen){
     const nr = ++lauf;
     bereich.innerHTML = lade('Spiele-Offensive wird gefragt …'); bereich.scrollIntoView({ block:'start', behavior:'smooth' });
     try{
-      if (!await abholdienstPruefen()){ if (nr === lauf){ bereich.innerHTML = ''; soStatus.innerHTML = abholdienstEinrichtenHtml(); } return; }
-      const e = await soAbholen(link, sek => { const t = nr === lauf && $('.lade > span:last-child', bereich); if (t) t.textContent = `Spiele-Offensive: Seite wird abgeholt … ${sek} s`; }, () => nr === lauf);
+      const st = await abholdienstStand();
+      if (!st.da){ if (nr === lauf){ bereich.innerHTML = ''; soStatus.innerHTML = abholdienstEinrichtenHtml(false); } return; }
+      const e = await soAbholen({ link }, sek => { const t = nr === lauf && $('.lade > span:last-child', bereich); if (t) t.textContent = `Spiele-Offensive: Seite wird abgeholt … ${sek} s`; }, () => nr === lauf && s.isConnected);
       if (!e || nr !== lauf) return;
-      if (!e.ok){ bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.fehler || 'Die Seite ließ sich nicht abholen.')}</p>`; return; }
-      detailsAnzeigen(soDetails(e));
+      const t = soTreffer(e)[0];
+      if (!t){ bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(e.fehler || 'Die Seite ließ sich nicht abholen.')}</p>`; return; }
+      soTrefferZeigen(t);
     }catch(err){ if (nr === lauf) bereich.innerHTML = `<p class="hinweis warn" style="margin-top:14px">${esc(err.message)}</p>`; }
   }
   suchform.addEventListener('submit', e => { e.preventDefault(); feldVon(suchform, 'q').blur(); suchen(); });
   bereich.addEventListener('click', e => {
     const t = e.target.closest('[data-i]'); if (t){ zeigeDetails(liste[+t.dataset.i]); return; }
+    const o = e.target.closest('[data-so-i]'); if (o && so){ soTrefferZeigen(so.treffer[+o.dataset.soI]); return; }
+    if (e.target.closest('[data-so-einrichten]')){ soEinrichten(); return; }
     if (e.target.closest('[data-zurueck]')){ lauf++; zeigeListe(feldVon(suchform, 'q').value.trim()); }
   });
   suchen();
@@ -6828,7 +6948,7 @@ const HILFE = [
   { id:'spiele', titel:'Spiel eintragen', seite:'spiele', text:`
     <ul><li>Unten rechts auf <b>+</b> tippen.</li>
     <li>Namen eintippen und auf <b>Suchen</b> tippen: Die App holt Spieler, Alter, Dauer, eine kurze Beschreibung und oft ein Foto aus Wikipedia. Einen Treffer antippen, prüfen, <b>Übernehmen</b>.</li>
-    <li><b>Spiele-Offensive</b>: Im Suchfenster den Bereich <b>Spiele-Offensive</b> aufklappen, <b>Bei Spiele-Offensive suchen</b> tippen und im Shop die Spielseite öffnen. Ihren Link kopieren (Teilen → Kopieren), zurück in die App, einfügen und <b>Abholen</b> tippen – nach etwa einer Minute stehen Spieler, Alter, Beschreibung und Foto zum Übernehmen bereit. Die Spieldauer bitte selbst wählen.</li>
+    <li><b>Spiele-Offensive</b>: Bei jeder Suche fragt die App nebenher auch Spiele-Offensive. Nach etwa einer Minute erscheinen die Treffer mit Foto unter <b>Spiele-Offensive</b> – antippen, prüfen, <b>Übernehmen</b>. Fehlt die Spieldauer, ergänzt die App sie aus Wikipedia, wenn es dort dasselbe Spiel gibt. Findet die Suche das Spiel nicht: unten <b>Spiele-Offensive per Link</b> aufklappen, im Shop die Spielseite öffnen, ihren Link kopieren und einfügen.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler kleiner oder größer machen – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li>
@@ -6978,6 +7098,12 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.82', datum:'01.11.2026', neu:[
+    'Spiel eintragen mit einem Tipp: Bei jeder Suche fragt die App nebenher auch Spiele-Offensive – nach etwa einer Minute stehen die Treffer mit Foto unter Wikipedia, antippen und übernehmen',
+    'Beide Quellen ergänzen sich: Fehlt bei Spiele-Offensive die Spieldauer, kommt sie aus Wikipedia – fehlt bei Wikipedia das Foto, kommt es von Spiele-Offensive',
+    'Gefunden wird über das Verzeichnis (Sitemap), das der Shop Programmen anbietet; der Weg über den Link bleibt unten als Ersatz',
+    { t:'Abholdienst: Auf GitHub liegt nur noch ein kleiner Starter, das Programm hält die App im Repo selbst aktuell – einrichten bzw. erneuern einmal über „Spiele-Offensive einrichten“ in der Trefferliste', admin:true }
+  ]},
   { v:'v1.81', datum:'31.10.2026', neu:[
     'Spiel eintragen: Angaben jetzt auch von Spiele-Offensive – unter „Im Internet suchen“ → „Spiele-Offensive“ im Shop suchen, den Link der Spielseite einfügen und „Abholen“ tippen',
     'Übernommen werden Name, Spieler, Alter, Beschreibung, Spielarten und das Foto (mit Quellenangabe) – eine Spieldauer nennt der Shop nicht',
