@@ -817,27 +817,6 @@
    "anleitung": "https://www.spiele-anleitungen.de/zahltag/",
    "erstellt": 1793526408791,
    "geaendert": 1793549156277
-  },
-  {
-   "id": "smvy7wekhbkm2",
-   "name": "Zicke Zacke Hühnerkacke",
-   "bild": "bilder/smvy7wekhbkm2-mvy7weki.jpg",
-   "spielerMin": 2,
-   "spielerMax": 4,
-   "alterAb": 4,
-   "dauer": 30,
-   "kategorien": [
-    "Brettspiel",
-    "Kinder"
-   ],
-   "beschreibung": "Zicke Zacke Hühnerkacke ist ein Brettspiel für zwei bis vier Spieler ab vier Jahren. Es wurde von Klaus Zoch entworfen und im eigenen Verlag vertrieben. Es besteht aus 24 großen eiförmigen Plättchen mit zwölf Bildern von Hühnern, Hasen, Igeln, Blumen und Anderem vom Hühnerhof, wobei jeweils zwei sich gleichen, sowie zwölf achteckigen Plättchen mit denselben Motiven, die verdeckt in die Mitte des Tisches gelegt werden. Nun legt man aus den gemischten Eiplättchen einen Parcours um die verdeckt liegenden Achteck-Plättchen. Jeder Mitspieler bekommt ein großes Holzhuhn einer Farbe, das über eine gleichfarbige Schwanzfeder verfügt. Die Hühner werden in gleichmäßigem Abstand auf die Eiplättchen gestellt. Der Spieler deckt ein achteckiges Plättchen auf; wenn es dasselbe Bild zeigt wie das vor dem Huhn des Spielers liegende Ei, darf er sein Huhn auf dieses Eiplättchen stellen und weiterspielen. Deckt man ein falsches Plättchen auf, legt man es wieder zurück und der Nächste ist an der Reihe.\nVon Klaus Zoch, erschienen 1998 bei Zoch Verlag,.",
-   "bemerkung": "",
-   "bildQuelle": "Foto: Druyts.t, CC BY-SA 3.0, Wikimedia Commons",
-   "link": "https://de.wikipedia.org/wiki/Zicke_Zacke_H%C3%BChnerkacke",
-   "anleitung": "",
-   "verlag": "Zoch Verlag,",
-   "erstellt": 1793560981697,
-   "geaendert": 1793560981697
   }
  ],
  "spieler": [
@@ -859,7 +838,7 @@
    "app": true,
    "version": "v1.90",
    "erst": 1792864131177,
-   "zuletzt": 1793560983981,
+   "zuletzt": 1793561176194,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
@@ -922,6 +901,7 @@
   "smvtdhh6a7fay": 1793268047634,
   "smvxr4o7dzsgf": 1793532846513,
   "smvmlr7xcr5o0": 1793541394018,
-  "smvy7sg354mb9": 1793560903666
+  "smvy7sg354mb9": 1793560903666,
+  "smvy7wekhbkm2": 1793561174272
  }
 }
