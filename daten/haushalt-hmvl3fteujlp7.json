@@ -475,13 +475,13 @@
    "kategorien": [
     "Strategie"
    ],
-   "beschreibung": "",
+   "beschreibung": "Schauplatz des Geschehens ist das alte Ägypten, wo der allmächtige Pharao Tut-Nur-So zu einem Wettbewerb im Pyramidenbauen aufgerufen hat. Hierfür erhält zunächst jeder Spieler sieben Baukarten auf die Hand, die selbstverständlich unter ganz bestimmten strengen Bauvorschriften, stufenartig ausgelegt werden sollen. Diese tragen je eine Ziffer zwischen eins und neun, als Sonderkarte gibt es noch einen Joker, der für jede beliebige Karte eingesetzt werden darf.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://share.google/dgoUD2UqCjzR8BBlL",
    "erstellt": 1792857561675,
-   "geaendert": 1792857603056
+   "geaendert": 1793549775264
   },
   {
    "id": "smvmo8ih7nf7b",
@@ -873,7 +873,7 @@
    "app": true,
    "version": "v1.89",
    "erst": 1792875164293,
-   "zuletzt": 1793549367924,
+   "zuletzt": 1793549777078,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   },
