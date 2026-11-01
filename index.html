@@ -1052,7 +1052,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.83';
+const VERSION = 'v1.84';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1237,7 +1237,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verliehen','wertung','erstellt','geaendert','hid']);
+const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1310,6 +1310,7 @@ function spielNorm(s){
     beschreibung:String(s.beschreibung || ''), bemerkung:String(s.bemerkung || ''),
     bildQuelle:String(s.bildQuelle || ''), link:/^https:\/\//.test(s.link || '') ? s.link : '',
     anleitung:linkAus(s.anleitung),
+    ...(String(s.verlag || '').trim() ? { verlag:String(s.verlag).trim().slice(0, 60) } : {}),
     ...(verliehenNorm(s.verliehen) ? { verliehen:verliehenNorm(s.verliehen) } : {}),
     ...(wertungNorm(s.wertung) && wertungNorm(s.wertung).art !== 'gewinner' ? { wertung:wertungNorm(s.wertung) } : {}),
     ...(bildPosNorm(s.bildPos) ? { bildPos:bildPosNorm(s.bildPos) } : {}),
@@ -2297,7 +2298,7 @@ function anleitungHtml(sp, kopien){
 }
 /* Verlage und ihre Internetseiten – für die gezielte Suche nach der offiziellen Anleitung (dort liegen die Regeln meist als PDF) */
 const VERLAGE = [
-  { t:'Kosmos', re:/\bkosmos\b/, seiten:['kosmos.de'] }, { t:'Ravensburger', re:/ravensburger/, seiten:['ravensburger.de'] },
+  { t:'Kosmos', re:/\bkosmos\b/, seiten:['kosmos.de'] }, { t:'Ravensburger', re:/ravensburger|\balea\b/, seiten:['ravensburger.de'] },
   { t:'Schmidt Spiele', re:/schmidt|drei magier/, seiten:['schmidtspiele.de'] }, { t:'Amigo', re:/\bamigo\b/, seiten:['amigo-spiele.de'] },
   { t:'Pegasus', re:/pegasus/, seiten:['pegasus.de'] },
   { t:'Asmodee', re:/asmodee|\brepos\b|days of wonder|libellud|space cowboys|zygomatic|next move|plan b games/, seiten:['asmodee.de', 'asmodee.net'] },
@@ -2308,22 +2309,43 @@ const VERLAGE = [
   { t:'Queen Games', re:/queen games/, seiten:['queen-games.com'] }, { t:'Lookout', re:/lookout/, seiten:['lookout-spiele.de'] },
   { t:'Feuerland', re:/feuerland/, seiten:['feuerland-spiele.de'] }, { t:'Noris', re:/\bnoris\b/, seiten:['noris-spiele.de'] },
   { t:'Moses', re:/\bmoses\b/, seiten:['moses-verlag.de'] }, { t:'Abacusspiele', re:/abacus/, seiten:['abacusspiele.de'] },
-  { t:'Game Factory', re:/game ?factory|carletto/, seiten:['gamefactory-spiele.com'] }, { t:'2F-Spiele', re:/2f.?spiele/, seiten:['2f-spiele.de'] }
+  { t:'Game Factory', re:/game ?factory|carletto/, seiten:['gamefactory-spiele.com'] }, { t:'2F-Spiele', re:/2f.?spiele/, seiten:['2f-spiele.de'] },
+  // kleinere Verlage – oft mit dem Vertrieb, auf dessen Seite die deutsche Ausgabe steht
+  { t:'dlp games', re:/\bdlp\b/, seiten:['dlp-games.de', 'pegasus.de'] }, { t:'Frosted Games', re:/frosted/, seiten:['frostedgames.de', 'pegasus.de'] },
+  { t:'Edition Spielwiese', re:/spielwiese/, seiten:['edition-spielwiese.de', 'pegasus.de'] }, { t:'Deep Print Games', re:/deep print/, seiten:['pegasus.de'] },
+  { t:'Skellig Games', re:/skellig/, seiten:['skellig-games.de'] }, { t:'Strohmann Games', re:/strohmann/, seiten:['strohmann-games.de'] },
+  { t:'Board Game Circus', re:/board ?game ?circus/, seiten:['boardgamecircus.com'] }, { t:'Spielworxx', re:/spielworxx/, seiten:['spielworxx.de'] },
+  { t:'HeidelBÄR Games', re:/heidelbar/, seiten:['heidelbaer.de'] }, { t:'Kobold', re:/kobold/, seiten:['kobold-spieleverlag.de'] },
+  { t:'Mücke Spiele', re:/\bmucke\b/, seiten:['muecke-spiele.de'] }, { t:'Matagot', re:/matagot/, seiten:['matagot.com'] }
 ];
 const VERLAGE_GROSS = ['kosmos.de', 'ravensburger.de', 'schmidtspiele.de', 'amigo-spiele.de', 'pegasus.de', 'asmodee.net', 'asmodee.de', 'haba-play.com', 'hasbro.com', 'mattel.com', 'nsv.de', 'hans-im-glueck.de', 'zoch-verlag.com'];
-/* Verlag aus der Beschreibung lesen – dort steht er nach dem Übernehmen aus dem Netz („… erschienen 1995 bei Kosmos.“) */
+/* Welcher Verlag? Zuerst der gemerkte, sonst aus der Beschreibung („… erschienen 1995 bei Kosmos.“) – unbekannte Verlage ohne Seiten (frei) */
+function verlagAusName(name){
+  const n = String(name || '').trim(); if (!n) return null;
+  return VERLAGE.find(x => x.re.test(normText(n))) || { t:n.slice(0, 60), seiten:null };
+}
 function verlagVon(sp){
+  if (sp && sp.verlag) return verlagAusName(sp.verlag);
   const t = normText(`${(sp && sp.beschreibung) || ''}\n${(sp && sp.bemerkung) || ''}`);
   for (const m of t.matchAll(/\b(?:bei|verlag:?|hersteller:?)\s+([^.,;\n]{2,60})/g)){ const v = VERLAGE.find(x => x.re.test(m[1])); if (v) return v; }
   return null;
 }
 function anleitungSuchLinks(name, verlag){
-  const seiten = verlag ? verlag.seiten : VERLAGE_GROSS;
+  // Auf den Seiten der Verlage reicht der Name: so findet Google die Spielseite mit dem Download (dort heißt es mal Spielregel, mal Anleitung)
+  const q = verlag && !verlag.seiten ? `"${name}" ${verlag.t} (Spielanleitung OR Spielregel)` : `${name} (${(verlag ? verlag.seiten : VERLAGE_GROSS).map(x => 'site:' + x).join(' OR ')})`;
   return {
-    verlag:`https://www.google.com/search?q=${encodeURIComponent(`${name} Spielanleitung (${seiten.map(x => 'site:' + x).join(' OR ')})`)}`,
+    verlag:`https://www.google.com/search?q=${encodeURIComponent(q)}`,
     pdf:`https://www.google.com/search?q=${encodeURIComponent(`"${name}" (Spielanleitung OR Spielregel) filetype:pdf`)}`,
     video:`https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} Spielregeln erklärt`)}`
   };
+}
+const VERLAG_GESUCHT = new Set();
+function verlagSetzen(sp, name){
+  const h = D.haushalte[sp.hid]; if (!h || !darfBearbeiten(sp.hid)) return;
+  const x = h.spiele.find(y => y.id === sp.id); if (!x || (x.verlag || '') === name) return;
+  if (name) x.verlag = name; else delete x.verlag;
+  sp.verlag = name; x.geaendert = Date.now();
+  markiere(h.id, `${x.name}: Verlag ${name ? name : 'entfernt'}`); speichern(); syncBald();
 }
 /* Vorschläge aus den Weblinks des Wikipedia-Artikels (dort steht oft „Spielanleitung (PDF)“) */
 async function anleitungVorschlaege(sp){
@@ -2342,8 +2364,10 @@ function anleitungSheet(sp, fertig, variante = ''){
     <a class="knopf breit" href="${esc(such.verlag)}" target="_blank" rel="noopener" data-verlag-suche>${ic('suche')}<span data-verlag-text>${erkannt ? `Bei ${esc(erkannt.t)} suchen` : 'Bei den Verlagen suchen'}</span></a>
     <label class="verlag-wahl"><span>Verlag</span><select class="eingabe" data-verlag>
       <option value="">Große Verlage (Kosmos, Ravensburger, Schmidt …)</option>
-      ${VERLAGE.map((v, i) => `<option value="${i}"${v === erkannt ? ' selected' : ''}>${esc(v.t)}</option>`).join('')}</select></label>
-    <p class="text-leise text-klein" style="margin:4px 0 10px">Sucht nur auf den Seiten der Verlage – dort liegen die offiziellen Anleitungen.${erkannt ? ' Den Verlag hat die App in der Beschreibung gefunden.' : ''}</p>
+      ${erkannt && !erkannt.seiten ? `<option value="f" selected>${esc(erkannt.t)}</option>` : ''}
+      ${VERLAGE.map((v, i) => [v, i]).sort((a, b) => a[0].t.localeCompare(b[0].t, 'de')).map(([v, i]) => `<option value="${i}"${v === erkannt ? ' selected' : ''}>${esc(v.t)}</option>`).join('')}</select></label>
+    <p class="text-leise text-klein" style="margin:4px 0 2px">Sucht auf den Seiten des Verlags – dort steht die Spielseite mit der offiziellen Anleitung zum Herunterladen.</p>
+    <p class="text-leise text-klein" style="margin:0 0 10px" data-verlag-hinweis>${erkannt ? (sp.verlag ? 'Den Verlag hat sich die App beim Spiel gemerkt.' : 'Den Verlag hat die App in der Beschreibung gefunden.') : ''}</p>
     <div class="such-knoepfe">
       <a class="knopf zweit" href="${esc(such.pdf)}" target="_blank" rel="noopener">${ic('suche')}Überall als PDF</a>
       <a class="knopf zweit" href="${esc(such.video)}" target="_blank" rel="noopener">${ic('suche')}Als Video suchen</a>
@@ -2355,12 +2379,37 @@ function anleitungSheet(sp, fertig, variante = ''){
       <button class="knopf zweit" type="button" data-einfuegen>Einfügen</button></div>
     <button class="knopf breit" type="button" data-speichern style="margin-top:14px">Link speichern</button>`
     : `<p class="block-hinweis" style="margin-top:14px">Den Link beim Spiel speichern kann ${esc((D.haushalte[sp.hid] || {}).name || 'der Haushalt')} oder der Admin.</p>`}`);
-  const verlagWahl = $('[data-verlag]', s);
-  verlagWahl.addEventListener('change', () => {
-    const v = VERLAGE[Number(verlagWahl.value)] || null;
+  const verlagWahl = $('[data-verlag]', s), verlagHinweis = $('[data-verlag-hinweis]', s);
+  let frei = erkannt && !erkannt.seiten ? erkannt : null;
+  const gewaehlt = () => verlagWahl.value === '' ? null : verlagWahl.value === 'f' ? frei : VERLAGE[Number(verlagWahl.value)] || null;
+  const verlagZeigen = (v, hinweis) => {
     $('[data-verlag-suche]', s).href = anleitungSuchLinks(name, v).verlag;
     $('[data-verlag-text]', s).textContent = v ? `Bei ${v.t} suchen` : 'Bei den Verlagen suchen';
+    if (hinweis != null) verlagHinweis.textContent = hinweis;
+  };
+  verlagWahl.addEventListener('change', () => {
+    const v = gewaehlt();
+    verlagZeigen(v, v && darf ? 'Der Verlag wird beim Spiel gemerkt.' : '');
+    verlagSetzen(sp, v ? v.t : '');
   });
+  // Verlag unbekannt? Bei Spiele-Offensive nachschlagen (deren Spielseiten nennen den Hersteller) – einmal je Spiel und Sitzung
+  if (!erkannt && E.token && E.owner && !VERLAG_GESUCHT.has(nameSchluessel(name))) (async () => {
+    try{
+      const st = await abholdienstStand(); if (!st.da || st.alt || !s.isConnected) return;
+      VERLAG_GESUCHT.add(nameSchluessel(name));
+      const offen = () => s.isConnected && verlagWahl.value === '';
+      verlagHinweis.textContent = 'Verlag wird bei Spiele-Offensive nachgeschlagen …';
+      const e = await soAbholen({ name }, sek => { if (offen()) verlagHinweis.textContent = `Verlag wird bei Spiele-Offensive nachgeschlagen … ${sek} s`; }, () => s.isConnected);
+      if (!e || !offen()) return;
+      const tr = soTreffer(e), t = tr.find(x => soNameGleich(x.name, name)) || tr[0];
+      if (!t || !t.verlag){ verlagHinweis.textContent = 'Spiele-Offensive kennt den Verlag nicht – falls bekannt, bitte oben wählen.'; return; }
+      const v = verlagAusName(t.verlag);
+      if (v.seiten) verlagWahl.value = String(VERLAGE.indexOf(v));
+      else { frei = v; let o = $('option[value="f"]', verlagWahl); if (!o){ o = document.createElement('option'); o.value = 'f'; verlagWahl.insertBefore(o, verlagWahl.options[1]); } o.textContent = v.t; verlagWahl.value = 'f'; }
+      verlagZeigen(v, `Verlag laut Spiele-Offensive: ${t.verlag}${darf ? ' – beim Spiel gemerkt' : ''}.`);
+      verlagSetzen(sp, v.t);
+    }catch(err){ if (s.isConnected && verlagWahl.value === '') verlagHinweis.textContent = ''; }
+  })();
   // Vorschläge: bekannte Anleitung vom Verlag und aus Wikipedia (still, wenn nichts kommt)
   (variante ? Promise.resolve([]) : anleitungVorschlaege(sp).catch(() => [])).then(gefunden => {
     const liste = [...new Set([bekannt, ...gefunden].filter(Boolean))];
@@ -2613,6 +2662,7 @@ async function spielDetailsHolen(k){
       const kurz = kurzBeschreibung(p.extract || '');
       artTexte.push(saetze((p.extract || '').split(/\n==/)[0], 1));
       d.beschreibung = [kurz, herkunftSatz(ib)].filter(Boolean).join('\n').slice(0, 600);
+      d.verlag = wikiText(ib.Verlag).split('\n')[0].replace(/\s*\(.*?\)/g, '').trim().slice(0, 60);
       bildDatei = wikiText(ib.Bild).replace(/^(Datei|File|Bild|Image):/i, '').split('\n')[0].trim() || p.pageimage || '';
     }
   }
@@ -2747,7 +2797,7 @@ function soDetails(e){
   const verlag = String(e.verlag || '').trim().slice(0, 60), satz = verlag ? `Erschienen bei ${verlag}.` : '';
   let text = String(e.beschreibung || '').trim();
   if (satz && !normText(text).includes(normText(verlag))) text = [text.slice(0, 598 - satz.length), satz].filter(Boolean).join('\n');
-  return { name:String(e.name || '').slice(0, 80), spielerMin:n(e.spielerMin), spielerMax:n(e.spielerMax), alterAb:n(e.alterAb), dauer:n(e.dauer),
+  return { name:String(e.name || '').slice(0, 80), spielerMin:n(e.spielerMin), spielerMax:n(e.spielerMax), alterAb:n(e.alterAb), dauer:n(e.dauer), verlag,
     kategorien:artenAus([...(Array.isArray(e.kategorien) ? e.kategorien : []), e.beschreibung]), beschreibung:text.slice(0, 600),
     link:soLink(e.link) || '', quellen:['Spiele-Offensive'],
     bild:e.bild && e.bild.daten && /^image\/(jpeg|png|webp)$/.test(e.bild.typ || '') ? { url:`data:${e.bild.typ};base64,${e.bild.daten}`, quelle:'Foto: Spiele-Offensive.de' } : null };
@@ -2760,6 +2810,7 @@ function angabenErgaenzen(d, x, quelle){
   if (d.alterAb == null && x.alterAb != null){ d.alterAb = x.alterAb; dazu.push('Alter'); }
   if (!d.beschreibung && x.beschreibung){ d.beschreibung = x.beschreibung; dazu.push('Beschreibung'); }
   if (!d.bild && x.bild){ d.bild = x.bild; dazu.push('Foto'); }
+  if (!d.verlag && x.verlag) d.verlag = x.verlag;
   d.kategorien = [...new Set([...(d.kategorien || []), ...(x.kategorien || [])])];
   if (dazu.length) d.ergaenzt = [d.ergaenzt, `${dazu.join(', ')} von ${quelle}`].filter(Boolean).join(' · ');
   return d;
@@ -2961,7 +3012,7 @@ function spielFormular(sp){
   const w = sp ? { ...sp } : { name:'', spielerMin:2, spielerMax:4, alterAb:8, dauer:null, kategorien:[], beschreibung:'', bemerkung:'', bild:'' };
   let neuesFoto = null, fotoEntfernt = false, vorschauUrl = null;
   let pos = bildPosNorm(w.bildPos) || { x:50, y:50, z:1 };      // Bildausschnitt
-  let fotoQuelle = '', link = sp ? (sp.link || '') : '';     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
+  let fotoQuelle = '', link = sp ? (sp.link || '') : '', verlag = sp ? (sp.verlag || '') : '';     // Herkunft eines Fotos aus dem Netz, Link zum Eintrag
   const s = sheet(`<form novalidate>
     <div class="sheet-kopf"><h2>${neu ? 'Spiel eintragen' : 'Spiel bearbeiten'}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     <div class="foto-feld" id="foto-feld"></div>
@@ -3065,6 +3116,7 @@ function spielFormular(sp){
     const text = feldVon(form, 'beschreibung');
     if (d.beschreibung && !text.value.trim()) text.value = d.beschreibung.slice(0, 600);
     if (d.link) link = d.link;
+    if (d.verlag) verlag = d.verlag;
     if (foto){
       neuesFoto = foto; fotoEntfernt = false; fotoQuelle = quelle || ''; pos = { x:50, y:50, z:1 };
       if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
@@ -3127,6 +3179,7 @@ function spielFormular(sp){
     $('#form-kat-wahl', s).textContent = q.kategorien.join(', ');
     if (q.beschreibung) feldVon(form, 'beschreibung').value = q.beschreibung;
     if (q.link) link = q.link;
+    if (q.verlag) verlag = q.verlag;
     uebernahme = { anleitung:q.anleitung || '', wertung:q.wertung || null };
     if (q.bild && !neuesFoto){ w.bild = q.bild; w.bildQuelle = q.bildQuelle || ''; fotoEntfernt = false; pos = bildPosNorm(q.bildPos) || { x:50, y:50, z:1 }; fotoZeigen(); }
     vorhandenEl.innerHTML = `<p class="hinweis" style="margin:10px 0 0">Angaben${q.bild ? ' und Foto' : ''} von ${esc((D.haushalte[q.hid] || {}).name || '')} übernommen – bei Bedarf anpassen.</p>`;
@@ -3153,7 +3206,7 @@ function spielFormular(sp){
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
       beschreibung: feldVon(form, 'beschreibung').value.trim(), bemerkung: feldVon(form, 'bemerkung').value.trim(),
       varianten: [...varianten, $('[data-variante]', s).value].filter(v => nameSchluessel(v) !== nameSchluessel(name)),
-      link, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : (w.bildQuelle || ''))),
+      link, verlag, bildQuelle: neuesFoto ? fotoQuelle : (fotoEntfernt ? '' : (sp ? sp.bildQuelle : (w.bildQuelle || ''))),
       ...(!sp && uebernahme ? { anleitung:uebernahme.anleitung, wertung:uebernahme.wertung } : {}),
       bildPos: (neuesFoto || (w.bild && !fotoEntfernt)) ? pos : null,
       erstellt: sp ? sp.erstellt : Date.now(), geaendert: Date.now()
@@ -7021,7 +7074,7 @@ const HILFE = [
     <li>Der <b>Würfel</b> bevorzugt Spiele, die lange nicht oder noch nie gespielt wurden.</li></ul>` },
   { id:'anleitung', titel:'Spielanleitung', seite:'spiele', fkt:'anleitung', text:`
     <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
-    <li><b>Beim Verlag suchen</b> sucht nur auf den Seiten der Verlage – dort liegen die offiziellen Anleitungen. Den Verlag erkennt die App in der Beschreibung („… erschienen bei Kosmos“, das steht nach dem Übernehmen aus Wikipedia oder von Spiele-Offensive dort); sonst darunter den Verlag wählen oder bei den großen Verlagen suchen.</li>
+    <li><b>Beim Verlag suchen</b> sucht auf den Seiten des Verlags – dort steht die Spielseite mit der offiziellen Anleitung zum Herunterladen. Den Verlag merkt sich die App beim Spiel: Er kommt beim Übernehmen aus Wikipedia oder von Spiele-Offensive mit, steht in der Beschreibung („… erschienen bei Kosmos“), oder du wählst ihn darunter. Ist er unbekannt, schlägt die App ihn bei Spiele-Offensive nach (dauert etwa eine Minute); bis dahin wird bei den großen Verlagen gesucht.</li>
     <li><b>Überall als PDF</b> sucht im ganzen Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
     <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
     <li>Danach öffnet <b>Spielanleitung öffnen</b> sie mit einem Tipp – auf allen Geräten. Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen.</li>
@@ -7140,6 +7193,13 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.84', datum:'01.11.2026', neu:[
+    'Beim Verlag suchen findet mehr: gesucht wird nur noch nach dem Spielnamen auf den Seiten des Verlags – die Spielseite dort hat die Anleitung zum Herunterladen, egal ob sie „Spielregel“ oder „Anleitung“ heißt',
+    'Der Verlag wird beim Spiel gemerkt – aus Wikipedia, von Spiele-Offensive oder wenn du ihn wählst; beim nächsten Mal ist er vorgewählt',
+    'Verlag unbekannt? Die App schlägt ihn bei Spiele-Offensive nach (z. B. „Die Kathedralenbauer von Orléans“ → dlp games)',
+    'Mehr Verlage zur Wahl (jetzt 34, alphabetisch), u. a. dlp games, Frosted Games, Skellig, Strohmann, Board Game Circus – kleinere zusammen mit Pegasus, wo deren deutsche Ausgaben stehen',
+    'Behoben: Zurück auf „Große Verlage“ wählte versehentlich Kosmos'
+  ]},
   { v:'v1.83', datum:'01.11.2026', neu:[
     'Spielanleitung suchen: neuer Knopf „Beim Verlag suchen“ – sucht nur auf den Seiten der Verlage, wo die offiziellen Anleitungen liegen, statt im ganzen Netz',
     'Den Verlag erkennt die App in der Beschreibung („… erschienen bei Kosmos“); sonst lässt er sich wählen, oder es wird bei den großen Verlagen gesucht (Kosmos, Ravensburger, Schmidt, Amigo, Pegasus, Asmodee, HABA, Hasbro, Mattel …)',
