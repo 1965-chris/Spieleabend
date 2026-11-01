@@ -636,6 +636,11 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .karte-anl svg{flex:none;width:13px;height:13px}
 .karte-anl-cloud{color:color-mix(in srgb, var(--gelb) 70%, var(--tinte))}
 .karte-anl-keine{color:var(--rot)}
+.karte-anl-cloudok{color:var(--filz)}
+.karte-doppelt{color:var(--filz)}
+.freigabe-haken{display:flex;align-items:flex-start;gap:10px;margin:10px 0 2px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--linie);font-size:14px;font-weight:600;cursor:pointer;text-align:left}
+.freigabe-haken input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--filz)}
+.freigabe-haken small{display:block;font-weight:500;color:var(--leise);font-size:12.5px;margin-top:2px}
 .detail-bemerkung{background:color-mix(in srgb, var(--gelb) 18%, var(--karte));border-radius:12px;padding:10px 12px;font-size:15px;margin:12px 0}
 
 /* Würfel-Overlay */
@@ -1063,7 +1068,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.87';
+const VERSION = 'v1.88';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1140,7 +1145,7 @@ const VORLAGEN = [
   { passt:n => ['romme', 'rommee', 'rommecup'].includes(n), w:{ art:'tief' } },
   { passt:n => ['scrabble', 'carcassonne', 'azul', 'kingdomino', 'qwinto', 'wingspan', 'flugelschlag'].some(x => n.startsWith(x)), w:{ art:'hoch' } }
 ];
-const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','geloescht']);
+const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','freigaben','geloescht']);
 const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand']);
 function ausListe(a){ return Array.isArray(a) ? [...new Set(a.map(String))].filter(k => /^[a-z]+$/.test(k)).sort() : []; }
 
@@ -1172,7 +1177,7 @@ if (!D.haushalte) D.haushalte = {};
 if (!D.meta) D.meta = {};
 datenVorbereiten();
 let E = Object.assign({ ...standardOrt(), branch:'main', token:'', meinHaushalt:'', einladungen:[], admin:false }, lesen(LS.einst, {}));
-let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], sort:'name' }, lesen(LS.filter, {}));
+let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[], sort:'name' }, lesen(LS.filter, {}));
 F.suche = '';
 let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[], anwesend:[] }, lesen(LS.runde, {}));
 let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
@@ -1477,8 +1482,15 @@ function verwaltungNorm(v){
     adminGeraete:(Array.isArray(v.adminGeraete) ? v.adminGeraete : []).filter(x => x && x.id).map(x => ({
       id:String(x.id), name:String(x.name || 'Gerät').slice(0, 60), seit:zahl(x.seit) || 0, stand:zahl(x.stand) || 0
     })).sort((a, b) => a.seit - b.seit || a.id.localeCompare(b.id)),
+    // vom Admin geprüft: Cloud-Links (Google Drive & Co.), die für alle freigegeben sind – je Link, mit Zeitstempel zum Abgleichen
+    freigaben:freigabenNorm(v.freigaben),
     geloescht:g
   };
+}
+function freigabenNorm(f){
+  const r = {};
+  if (f && typeof f === 'object') for (const [url, x] of Object.entries(f).slice(0, 500)) if (/^https:\/\//.test(url) && x && typeof x === 'object') r[url] = { an:!!x.an, stand:zahl(x.stand) || 0 };
+  return r;
 }
 function verwaltungMischen(a, b){
   const A = verwaltungNorm(a), B = verwaltungNorm(b);
@@ -1489,7 +1501,8 @@ function verwaltungMischen(a, b){
   const g = new Map(); for (const x of B.adminGeraete) g.set(x.id, x);
   for (const x of A.adminGeraete){ const y = g.get(x.id); if (!y || x.stand > y.stand) g.set(x.id, x); }
   const fk = A.ausStand >= B.ausStand ? A : B;
-  return verwaltungNorm({ ...unbekannte(B, V_FELDER), ...unbekannte(A, V_FELDER), pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, aus:fk.aus, ausStand:fk.ausStand,
+  const fr = { ...B.freigaben }; for (const [u, x] of Object.entries(A.freigaben)) if (!fr[u] || x.stand > fr[u].stand) fr[u] = x;
+  return verwaltungNorm({ ...unbekannte(B, V_FELDER), ...unbekannte(A, V_FELDER), pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, aus:fk.aus, ausStand:fk.ausStand, freigaben:fr,
     kreise:[...m.values()].filter(k => !(tomb[k.id] && tomb[k.id] >= k.stand)),
     adminGeraete:[...g.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), geloescht:tomb });
 }
@@ -2094,6 +2107,7 @@ function passt(s, f){
   if (f.haushalte && f.haushalte.length && !f.haushalte.includes(s.hid) && !(verliehenAn(s) && f.haushalte.includes(verliehenAn(s).hid))) return false;
   if (f.ohne && f.ohne.includes(s.hid)) return false;
   if (f.anleitungen && f.anleitungen.length && anleitungFilterAn() && !f.anleitungen.includes(anleitungArt(s))) return false;
+  if (f.doppelt && f.doppelt.length && E.admin){ if (!DOPPEL) DOPPEL = doppelInfo(); if (!doppeltPasst(DOPPEL.get(s.id), f.doppelt)) return false; }
   if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, ...(s.varianten || []), s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
   return true;
 }
@@ -2129,6 +2143,7 @@ function filterAktiv(){
   for (const k of F.kategorien) a.push({ k:'kat:' + k, t:k });
   for (const id of F.haushalte){ const h = D.haushalte[id]; if (h) a.push({ k:'hh:' + id, t:h.name }); }
   if (anleitungFilterAn()) for (const k of F.anleitungen || []){ const x = ANL_ARTEN.find(y => y.k === k); if (x) a.push({ k:'anl:' + k, t:'Anleitung: ' + x.kurz }); }
+  if (E.admin) for (const k of F.doppelt || []){ const x = DOPPEL_ARTEN.find(y => y.k === k); if (x) a.push({ k:'dop:' + k, t:x.t }); }
   return a;
 }
 /* Gleiche Spiele mehrerer Haushalte → eine Kachel. Vorne steht die eigene Ausgabe, sonst eine mit Foto. */
@@ -2152,11 +2167,13 @@ function karteHtml(s, kopien){
     <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${v ? `<span class="karte-verliehen">${ic('tausch')}${v.hid === E.meinHaushalt ? 'ausgeliehen' : 'verliehen'}</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${varianten.length ? `<span class="karte-varianten">＋ ${esc(varianten.join(' · '))}</span>` : ''}${faktenHtml(s)}
       ${anleitungFilterAn() && (F.anleitungen || []).length ? `<span class="karte-anl karte-anl-${anleitungArt(s)}">${ic('buch')}<span>${esc(anleitungKachelText(s))}</span></span>` : ''}
+      ${DOPPEL && doppelKachelText(DOPPEL.get(s.id)) ? `<span class="karte-anl karte-doppelt">${ic('tausch')}<span>${esc(doppelKachelText(DOPPEL.get(s.id)))}</span></span>` : ''}
       ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
         : `<span class="karte-haushalte"><span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>${beiZeile(s)}</span>`}</span></button>`;
 }
 function renderSpiele(){
   filterBereinigen();
+  DOPPEL = E.admin && (F.doppelt || []).length ? doppelInfo() : null;
   const aktiv = filterAktiv();
   $('#filter-auf').innerHTML = `${ic('filter')}Filter${aktiv.length ? ` <b>${aktiv.length}</b>` : ''}`;
   $('#filter-leiste').innerHTML = aktiv.map(a => `<button type="button" class="chip weg" data-weg="${esc(a.k)}" aria-label="${esc(a.t)} entfernen">${esc(a.t)}${ic('x')}</button>`).join('');
@@ -2211,6 +2228,14 @@ function filterSheet(){
         <p class="text-leise text-klein" style="margin:8px 0 0">Nur für den Admin: Wo liegt die Anleitung der Spiele? Bei privaten Links sehen die anderen sie nur, wenn sie freigegeben ist. Die Kacheln zeigen dann, wo sie liegt und wer sie gespeichert hat.</p>`,
         { klasse:'leicht feld', standard:(F.anleitungen || []).length > 0, kleinId:'f-anl-zahl' });
     })() : ''}
+    ${E.admin ? (() => {
+      const info = doppelInfo(), gezaehlt = new Set(), zahl = { mehrfach:0, selbe:0, aehnlich:0 };
+      for (const x of alleSpiele()){ const d = info.get(x.id), k = nameSchluessel(x.name) || x.id; if (gezaehlt.has(k)) continue; gezaehlt.add(k);
+        if (d.mehrfach) zahl.mehrfach++; if (d.selbe.length) zahl.selbe++; if (d.aehnlich.length) zahl.aehnlich++; }
+      return klapp('filter-doppelt', 'Doppelte Spiele', `${chipsHtml('dop', DOPPEL_ARTEN.map(x => ({ w:x.k, t:`${x.t} · ${zahl[x.k]}` })), F.doppelt || [])}
+        <p class="text-leise text-klein" style="margin:8px 0 0">Nur für den Admin. Gleiche Namen stehen schon auf einer Kachel – hier siehst du, welche Spiele mehrfach da sind, was in einem Haushalt doppelt eingetragen ist und welche Namen sich nur in der Schreibweise unterscheiden.</p>`,
+        { klasse:'leicht feld', standard:(F.doppelt || []).length > 0, kleinId:'f-dop-zahl' });
+    })() : ''}
     ${klapp('filter-sort', 'Sortieren', chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true }), { klasse:'leicht feld', kleinId:'f-sort' })}
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zuruecksetzen>Zurücksetzen</button><button class="knopf" type="button" data-zu data-anzeigen></button></div>`);
   function aktualisieren(){
@@ -2220,6 +2245,7 @@ function filterSheet(){
     $('#f-kat-zahl', s).textContent = F.kategorien.length ? `${F.kategorien.length} gewählt` : '';
     $('#f-hh-zahl', s).textContent = F.haushalte.length ? `${F.haushalte.length} gewählt` : '';
     const anlZahl = $('#f-anl-zahl', s); if (anlZahl) anlZahl.textContent = (F.anleitungen || []).length ? `${F.anleitungen.length} gewählt` : '';
+    const dopZahl = $('#f-dop-zahl', s); if (dopZahl) dopZahl.textContent = (F.doppelt || []).length ? `${F.doppelt.length} gewählt` : '';
     $('#f-sort', s).textContent = F.sort === 'neu' ? 'zuletzt eingetragen' : 'nach Name';
   }
   s.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') F.personen = e.detail; if (n === 'alter') F.alter = e.detail; aktualisieren(); });
@@ -2229,13 +2255,14 @@ function filterSheet(){
     if (g === 'kat') F.kategorien = w;
     if (g === 'hh') F.haushalte = w;
     if (g === 'anl') F.anleitungen = w;
+    if (g === 'dop') F.doppelt = w;
     if (g === 'sort') F.sort = w[0] || 'name';
     aktualisieren();
   });
   $('[data-zuruecksetzen]', s).addEventListener('click', () => { filterZuruecksetzen(); s.schliessen(); });
   aktualisieren();
 }
-function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[] }); schreiben(LS.filter, F); renderSpiele(); }
+function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[] }); schreiben(LS.filter, F); renderSpiele(); }
 
 /* ---------- Spiel: Ansicht ---------- */
 function spielDetail(id){
@@ -2267,6 +2294,11 @@ function spielDetail(id){
     </div>` : `<p class="block-hinweis" style="margin-top:16px">Ändern oder löschen kann dieses Spiel nur ${esc(h ? h.name : 'der Haushalt')} oder der Admin.</p>`}`);
   bilderBeobachten(s);
   const neuOeffnen = () => { s.schliessen(); setTimeout(() => spielDetail(sp.id), 240); };
+  s.addEventListener('change', e => {
+    const f = e.target.closest('[data-freigabe]'); if (!f || !E.admin) return;
+    freigabeSetzen(f.dataset.freigabe, f.checked);
+    toast(f.checked ? 'Als freigegeben markiert – der Hinweis ist für alle weg' : 'Haken entfernt'); neuOeffnen();
+  });
   s.addEventListener('click', e => {
     const kp = e.target.closest('[data-kopie]'); if (kp){ s.schliessen(); setTimeout(() => spielDetail(kp.dataset.kopie), 240); return; }
     const b = e.target.closest('[data-anl]');
@@ -2315,6 +2347,12 @@ const CLOUD_DIENSTE = [
   [/(^|\.)dropbox\.com$/, 'Dropbox', 'bei der Datei „Teilen“ → Link für „Jeder mit dem Link“ erstellen'],
   [/(^|\.)icloud\.com$/, 'iCloud Drive', 'bei der Datei „Teilen“ → Freigabeoptionen „Jeder mit dem Link“ wählen']
 ];
+function freigegeben(url){ const f = ((D.verwaltung || {}).freigaben || {})[url]; return !!(f && f.an); }
+function freigabeSetzen(url, an){
+  if (!E.admin || !url) return;
+  D.verwaltung.freigaben = { ...(D.verwaltung.freigaben || {}), [url]:{ an:!!an, stand:Date.now() } };
+  markiereV(an ? 'Anleitung als freigegeben markiert' : 'Freigabe-Haken entfernt'); speichern(); syncBald();
+}
 function cloudLink(url){
   try{ const h = new URL(url).hostname.toLowerCase(), c = CLOUD_DIENSTE.find(([re]) => re.test(h)); return c ? { t:c[1], wie:c[2] } : null; }catch(e){ return null; }
 }
@@ -2323,25 +2361,69 @@ function linkAnzeige(url){
 }
 /* Wo liegt die Spielanleitung? (Admin-Filter) */
 const ANL_ARTEN = [
-  { k:'internet', t:'Internet-Link', kurz:'Internet-Link' }, { k:'cloud', t:'Privater Link (Google Drive & Co.)', kurz:'Privater Link' },
+  { k:'internet', t:'Internet-Link', kurz:'Internet-Link' }, { k:'cloud', t:'Privater Link – noch nicht geprüft', kurz:'Privater Link' },
+  { k:'cloudok', t:'Privater Link – für alle freigegeben', kurz:'Freigegeben' },
   { k:'verlag', t:'Vom Verlag (kennt die App)', kurz:'Vom Verlag' }, { k:'keine', t:'Keine Anleitung', kurz:'Keine Anleitung' }
 ];
 function anleitungArt(sp){
   const a = anleitungFuer(sp, sp.name);
-  return !a ? 'keine' : a.bekannt ? 'verlag' : cloudLink(a.url) ? 'cloud' : 'internet';
+  return !a ? 'keine' : a.bekannt ? 'verlag' : cloudLink(a.url) ? (freigegeben(a.url) ? 'cloudok' : 'cloud') : 'internet';
 }
 function anleitungFilterAn(){ return E.admin && funktionAn('anleitung'); }
+/* Doppelte Spiele (Admin): gleicher Name mehrfach, doppelt im selben Haushalt, ähnliche Namen („Quixx“/„Qwixx“, „Catan“/„Die Siedler von Catan“) */
+const DOPPEL_ARTEN = [{ k:'mehrfach', t:'Mehrfach vorhanden' }, { k:'selbe', t:'Doppelt im selben Haushalt' }, { k:'aehnlich', t:'Ähnliche Namen' }];
+let DOPPEL = null;
+function abstand(a, b){
+  if (Math.abs(a.length - b.length) > 2) return 9;
+  let z = Array.from({ length:b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++){ const n = [i]; for (let j = 1; j <= b.length; j++) n[j] = Math.min(z[j] + 1, n[j - 1] + 1, z[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); z = n; }
+  return z[b.length];
+}
+function namenAehnlich(a, b){
+  const kern = k => k.replace(/^(?:die|der|das|the)(?=[a-z0-9]{4})/, '');
+  const A = kern(a), B = kern(b); if (A === B) return true;
+  const [k, l] = A.length <= B.length ? [A, B] : [B, A];
+  if (k.length >= 5 && l.includes(k)) return true;
+  return k.length >= 4 && abstand(k, l) <= (k.length >= 8 ? 2 : 1);
+}
+function doppelInfo(){
+  const gruppen = new Map();
+  for (const x of alleSpiele()){ const k = nameSchluessel(x.name) || x.id; if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push(x); }
+  const keys = [...gruppen.keys()], aehnlich = new Map();
+  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) if (namenAehnlich(keys[i], keys[j])){
+    aehnlich.set(keys[i], [...(aehnlich.get(keys[i]) || []), keys[j]]); aehnlich.set(keys[j], [...(aehnlich.get(keys[j]) || []), keys[i]]);
+  }
+  const info = new Map();
+  for (const [k, g] of gruppen){
+    const hids = g.map(x => x.hid), selbe = [...new Set(hids.filter((h, i) => hids.indexOf(h) !== i))];
+    const d = { anzahl:g.length, mehrfach:g.length > 1, selbe, aehnlich:(aehnlich.get(k) || []).map(k2 => gruppen.get(k2)[0].name) };
+    for (const x of g) info.set(x.id, d);
+  }
+  return info;
+}
+function doppeltPasst(d, arten){ return !!d && arten.some(k => k === 'mehrfach' ? d.mehrfach : k === 'selbe' ? d.selbe.length > 0 : d.aehnlich.length > 0); }
+function doppelKachelText(d){
+  if (!d) return '';
+  const t = [];
+  if (d.selbe.length) t.push(`doppelt bei ${d.selbe.map(h => (D.haushalte[h] || {}).name || '?').join(', ')}`);
+  else if (d.mehrfach) t.push(`${d.anzahl}× vorhanden`);
+  if (d.aehnlich.length) t.push(`ähnlich: ${d.aehnlich.join(', ')}`);
+  return t.join(' · ');
+}
 /* Auf der Kachel (nur solange der Filter läuft): wo liegt sie, und wer hat sie gespeichert? */
 function anleitungKachelText(sp){
   const a = anleitungFuer(sp, sp.name); if (!a) return 'keine Anleitung';
   if (a.bekannt) return 'vom Verlag';
   const c = cloudLink(a.url), wer = a.hid && a.hid !== sp.hid ? (D.haushalte[a.hid] || {}).name : '';
-  return `${c ? c.t : linkAnzeige(a.url)}${wer ? ' · gespeichert von ' + wer : ''}`;
+  return `${c ? c.t + (freigegeben(a.url) ? ' ✓ freigegeben' : '') : linkAnzeige(a.url)}${wer ? ' · gespeichert von ' + wer : ''}`;
 }
 function cloudHinweisHtml(a){
   const c = a && !a.bekannt && cloudLink(a.url); if (!c) return '';
-  const wer = (D.haushalte[a.hid] || {}).name || 'der Haushalt';
-  return `<p class="anleitung-cloud">${ic('wolke')}<span>Liegt in ${esc(c.t)}: Andere öffnen sie nur, wenn sie dort für „Jeder mit dem Link“ freigegeben ist.
+  const wer = (D.haushalte[a.hid] || {}).name || 'der Haushalt', ok = freigegeben(a.url);
+  // Nur der Admin sieht den Haken – ist er gesetzt, verschwindet der Hinweis für alle
+  const haken = E.admin ? `<label class="freigabe-haken"><input type="checkbox" data-freigabe="${esc(a.url)}"${ok ? ' checked' : ''}><span>Für alle freigegeben (geprüft)<small>Nur für dich als Admin sichtbar</small></span></label>` : '';
+  if (ok) return haken;
+  return haken + `<p class="anleitung-cloud">${ic('wolke')}<span>Liegt in ${esc(c.t)}: Andere öffnen sie nur, wenn sie dort für „Jeder mit dem Link“ freigegeben ist.
     ${a.hid === E.meinHaushalt || E.admin ? `So geht's: in ${esc(c.t)} ${esc(c.wie)}.` : `Falls sie sich nicht öffnet: ${esc(wer)} bitten, sie freizugeben.`}</span></p>`;
 }
 function anleitungHtml(sp, kopien){
@@ -2499,7 +2581,7 @@ function anleitungSheet(sp, fertig, variante = ''){
   if (!darf) return;
   const feld = $('[data-url]', s), cloudEl = $('[data-cloud-hinweis]', s);
   const cloudPruefen = () => {
-    const c = cloudLink(linkAus(feld.value) || feld.value.trim());
+    const u = linkAus(feld.value) || feld.value.trim(), c = !freigegeben(u) && cloudLink(u);
     cloudEl.hidden = !c;
     if (c) cloudEl.innerHTML = `${ic('wolke')}<span><b>${esc(c.t)}-Link:</b> Die anderen können die Anleitung nur öffnen, wenn sie dort freigegeben ist – ${esc(c.wie)}. Besser ist meist der offizielle Link vom Verlag.</span>`;
   };
@@ -7284,6 +7366,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.88', datum:'01.11.2026', neu:[
+    { t:'Anleitung in Google Drive & Co.: Haken „Für alle freigegeben (geprüft)“ beim Spiel – danach verschwindet der Hinweis für alle, und im Filter steht sie unter „Freigegeben“', admin:true },
+    { t:'Filter „Doppelte Spiele“: mehrfach vorhanden, doppelt im selben Haushalt oder ähnliche Namen (z. B. „Quixx“ und „Qwixx“) – die Kacheln zeigen, was doppelt ist', admin:true }
+  ]},
   { v:'v1.87', datum:'01.11.2026', neu:[
     '„Kurz erklärt“ fasst jetzt 2000 statt 600 Zeichen – aus Wikipedia kommen Einleitung und Spielablauf mit, von Spiele-Offensive alle Absätze der Beschreibung',
     'Lange Beschreibungen sind beim Spiel zugeklappt – „Mehr lesen“ zeigt alles',
@@ -8385,6 +8471,7 @@ function verdrahten(){
     else if (k.startsWith('kat:')) F.kategorien = F.kategorien.filter(x => x !== k.slice(4));
     else if (k.startsWith('hh:')) F.haushalte = F.haushalte.filter(x => x !== k.slice(3));
     else if (k.startsWith('anl:')) F.anleitungen = (F.anleitungen || []).filter(x => x !== k.slice(4));
+    else if (k.startsWith('dop:')) F.doppelt = (F.doppelt || []).filter(x => x !== k.slice(4));
     schreiben(LS.filter, F); renderSpiele();
   });
   document.addEventListener('click', e => {
