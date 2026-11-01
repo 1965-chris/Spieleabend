@@ -693,14 +693,18 @@
    "spielerMax": 6,
    "alterAb": 8,
    "dauer": null,
-   "kategorien": [],
+   "kategorien": [
+    "Strategie",
+    "Glück",
+    "Party"
+   ],
    "beschreibung": "Das Ziel des Spiels ist es, abwechselnd Holzklötze aus dem Turm zu ziehen und oben aufzulegen, ohne dass der gesamte Turm einstürzt. Die gewürfelte Farbe bestimmt dabei, welchen Stein du bewegen musst.",
    "bemerkung": "",
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://drive.google.com/file/d/1MtBFVHWbEX9XIrg8zCJLRFxheINp3vzG/view?usp=drivesdk",
    "erstellt": 1792879825330,
-   "geaendert": 1793542689366
+   "geaendert": 1793548898183
   },
   {
    "id": "smvtdfzyotcmc",
@@ -853,7 +857,7 @@
    "app": true,
    "version": "v1.89",
    "erst": 1792875164293,
-   "zuletzt": 1793548773355,
+   "zuletzt": 1793548900422,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   },
