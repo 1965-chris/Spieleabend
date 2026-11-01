@@ -837,6 +837,16 @@
    "zuletzt": 1793461642306,
    "name": "iPad Christian",
    "nameStand": 1792875867192
+  },
+  {
+   "id": "gmvxkreolqt28",
+   "art": "Windows-PC",
+   "app": true,
+   "version": "v1.81",
+   "erst": 1793524873739,
+   "zuletzt": 1793524873739,
+   "name": "",
+   "nameStand": 0
   }
  ],
  "geloescht": {
