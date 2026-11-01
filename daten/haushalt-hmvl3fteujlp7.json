@@ -773,6 +773,25 @@
    },
    "erstellt": 1792862906066,
    "geaendert": 1793127619276
+  },
+  {
+   "id": "smvxnbdxz0rck",
+   "name": "Zahltag",
+   "bild": "",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1793526408791,
+   "geaendert": 1793526408791
   }
  ],
  "spieler": [
@@ -794,7 +813,7 @@
    "app": true,
    "version": "v1.81",
    "erst": 1792864131177,
-   "zuletzt": 1793525483109,
+   "zuletzt": 1793526410739,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
