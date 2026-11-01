@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.87",
+ "app": "v1.88",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -25,23 +25,6 @@
    "verlag": "Asmodee",
    "erstellt": 1792863517012,
    "geaendert": 1793539928976
-  },
-  {
-   "id": "smvmopks8nvfa",
-   "name": "Das Spiel Des Lebens",
-   "bild": "bilder/smvmopks8nvfa-mvmopks9.jpg",
-   "spielerMin": 2,
-   "spielerMax": 6,
-   "alterAb": 8,
-   "dauer": null,
-   "kategorien": [],
-   "beschreibung": "",
-   "bemerkung": "",
-   "bildQuelle": "",
-   "link": "",
-   "anleitung": "",
-   "erstellt": 1792863622520,
-   "geaendert": 1792863622520
   },
   {
    "id": "smvmorrm1vzqo",
@@ -232,6 +215,26 @@
    "anleitung": "",
    "erstellt": 1792863236228,
    "geaendert": 1792881314105
+  },
+  {
+   "id": "smvmopks8nvfa",
+   "name": "Spiel des Lebens",
+   "bild": "bilder/smvmopks8nvfa-mvmopks9.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": 90,
+   "kategorien": [
+    "Brettspiel"
+   ],
+   "beschreibung": "Das Spiel des Lebens ist ein Gesellschaftsspiel von Reuben Klamer (20. Juni 1922 – 14. Alle Spieler ziehen reihum, gedreht wird das bereits erwähnte „Glücksrad“. Jeder Spieler hat zu Beginn des Spiels gerade sein Abitur abgeschlossen und steht vor der Entscheidung, ob er gleich „losarbeiten“ will und sofort Gehalt erhält oder einen Kredit für ein Studium aufnimmt, wodurch er mehr Auswahlmöglichkeiten bezüglich seines zukünftigen Gehalts und auch eine bessere Aussicht auf ein höheres Gehalt bekommt. Sobald ein Spieler einen Beruf (von „Verkäufer“ über „Rockstar“ bis „Anwalt“ sind verschiedenste vertreten) ergriffen hat, bekommt er vor jedem seiner weiteren Züge sein Gehalt ausgezahlt, dreht dann das Glücksrad und zieht die entsprechende Anzahl Felder voran. Auf roten Stoppfeldern muss er vorzeitig haltmachen, bei Weggabelungen muss er sich entscheiden, wo er langgeht. Abschließend führt er die Anweisungen des Feldes aus, auf dem er gelandet ist. Die Spanne reicht vom Gewinn oder Verlust kleinerer Geldbeträge über Casinospiele bis zur Geburt von Kindern, die dann hinter dem Ehepartner im Auto Platz nehmen.\nVon Milton Bradley (1860),, Reuben Klamer (1960), erschienen 1861 bei MB-Spiele,.",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Spiel_des_Lebens_(Spiel)",
+   "anleitung": "",
+   "verlag": "MB-Spiele,",
+   "erstellt": 1792863622520,
+   "geaendert": 1793542746312
   },
   {
    "id": "smvtdhh6a7fay",
