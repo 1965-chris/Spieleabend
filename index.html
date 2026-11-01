@@ -638,6 +638,9 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .karte-anl-keine{color:var(--rot)}
 .karte-anl-cloudok{color:var(--filz)}
 .karte-doppelt{color:var(--filz)}
+.karte-fehlt{color:var(--rot)}
+.karte-fehlt > span{-webkit-line-clamp:3}
+.filter-admin-kopf{margin:18px 0 2px;padding-top:12px;border-top:1px solid var(--linie);font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--leise)}
 .freigabe-haken{display:flex;align-items:flex-start;gap:10px;margin:10px 0 2px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--linie);font-size:14px;font-weight:600;cursor:pointer;text-align:left}
 .freigabe-haken input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--filz)}
 .freigabe-haken small{display:block;font-weight:500;color:var(--leise);font-size:12.5px;margin-top:2px}
@@ -1068,7 +1071,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.88';
+const VERSION = 'v1.89';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1177,7 +1180,7 @@ if (!D.haushalte) D.haushalte = {};
 if (!D.meta) D.meta = {};
 datenVorbereiten();
 let E = Object.assign({ ...standardOrt(), branch:'main', token:'', meinHaushalt:'', einladungen:[], admin:false }, lesen(LS.einst, {}));
-let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[], sort:'name' }, lesen(LS.filter, {}));
+let F = Object.assign({ suche:'', personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[], fehlt:[], sort:'name' }, lesen(LS.filter, {}));
 F.suche = '';
 let R = Object.assign({ ohne:[], personen:4, alter:null, dauerMax:null, kategorien:[], anwesend:[] }, lesen(LS.runde, {}));
 let O = Object.assign({ hoch:[], weg:[] }, lesen(LS.offen, {}));
@@ -2108,6 +2111,7 @@ function passt(s, f){
   if (f.ohne && f.ohne.includes(s.hid)) return false;
   if (f.anleitungen && f.anleitungen.length && anleitungFilterAn() && !f.anleitungen.includes(anleitungArt(s))) return false;
   if (f.doppelt && f.doppelt.length && E.admin){ if (!DOPPEL) DOPPEL = doppelInfo(); if (!doppeltPasst(DOPPEL.get(s.id), f.doppelt)) return false; }
+  if (f.fehlt && f.fehlt.length && E.admin && !fehltPasst(s, f.fehlt)) return false;
   if (f.suche){ const q = normText(f.suche).trim(); if (q && !normText([s.name, ...(s.varianten || []), s.beschreibung, s.bemerkung, s.kategorien.join(' ')].join(' ')).includes(q)) return false; }
   return true;
 }
@@ -2144,6 +2148,7 @@ function filterAktiv(){
   for (const id of F.haushalte){ const h = D.haushalte[id]; if (h) a.push({ k:'hh:' + id, t:h.name }); }
   if (anleitungFilterAn()) for (const k of F.anleitungen || []){ const x = ANL_ARTEN.find(y => y.k === k); if (x) a.push({ k:'anl:' + k, t:'Anleitung: ' + x.kurz }); }
   if (E.admin) for (const k of F.doppelt || []){ const x = DOPPEL_ARTEN.find(y => y.k === k); if (x) a.push({ k:'dop:' + k, t:x.t }); }
+  if (E.admin) for (const k of F.fehlt || []){ const x = FEHLT_ARTEN.find(y => y.k === k); if (x) a.push({ k:'feh:' + k, t:x.kurz ? 'Fehlt: ' + x.kurz : 'Unvollständig' }); }
   return a;
 }
 /* Gleiche Spiele mehrerer Haushalte → eine Kachel. Vorne steht die eigene Ausgabe, sonst eine mit Foto. */
@@ -2167,6 +2172,10 @@ function karteHtml(s, kopien){
     <span class="karte-bild"${bildAttr(s)}><span class="platzhalter">${esc(initiale(s.name))}</span>${v ? `<span class="karte-verliehen">${ic('tausch')}${v.hid === E.meinHaushalt ? 'ausgeliehen' : 'verliehen'}</span>` : ''}</span>
     <span class="karte-text"><span class="karte-name">${esc(s.name)}</span>${varianten.length ? `<span class="karte-varianten">＋ ${esc(varianten.join(' · '))}</span>` : ''}${faktenHtml(s)}
       ${anleitungFilterAn() && (F.anleitungen || []).length ? `<span class="karte-anl karte-anl-${anleitungArt(s)}">${ic('buch')}<span>${esc(anleitungKachelText(s))}</span></span>` : ''}
+      ${E.admin && (F.fehlt || []).length ? (() => {
+        const t = mehrere ? kopien.filter(k => fehltText(k)).map(k => `${(D.haushalte[k.hid] || {}).name || '?'}: ${fehltText(k)}`).join(' · ') : fehltText(s);
+        return t ? `<span class="karte-anl karte-fehlt">${ic('stift')}<span>fehlt: ${esc(t)}</span></span>` : '';
+      })() : ''}
       ${DOPPEL && doppelKachelText(DOPPEL.get(s.id)) ? `<span class="karte-anl karte-doppelt">${ic('tausch')}<span>${esc(doppelKachelText(DOPPEL.get(s.id)))}</span></span>` : ''}
       ${mehrere ? `<span class="karte-haushalte">${kopien.slice(0, 3).map(hhZeile).join('')}${kopien.length > 3 ? `<span class="karte-haushalt">+ ${kopien.length - 3} weitere</span>` : ''}</span>`
         : `<span class="karte-haushalte"><span class="karte-haushalt">${figur(farbe, 14)}${esc(h ? h.name : '')}</span>${beiZeile(s)}</span>`}</span></button>`;
@@ -2222,10 +2231,17 @@ function filterSheet(){
     <div class="feld"><span class="feld-titel">Spieldauer höchstens</span>${chipsHtml('dauer', [30,45,60,90,120].map(d => ({ w:String(d), t:'bis ' + dauerText(d) })), F.dauerMax ? [String(F.dauerMax)] : [], { mehrfach:false })}</div>
     ${klapp('filter-kat', 'Art des Spiels', chipsHtml('kat', KATEGORIEN.map(k => ({ w:k, t:k })), F.kategorien), { klasse:'leicht feld', standard:F.kategorien.length > 0, kleinId:'f-kat-zahl' })}
     ${klapp('filter-hh', 'Haushalt', figurChipsHtml('hh', F.haushalte), { klasse:'leicht feld', standard:F.haushalte.length > 0, kleinId:'f-hh-zahl' })}
+    ${E.admin ? '<p class="filter-admin-kopf">Nur für dich als Admin</p>' : ''}
+    ${E.admin ? (() => {
+      const zahl = {}; for (const x of alleSpiele()){ const m = fehltVon(x); if (m.length) zahl.alles = (zahl.alles || 0) + 1; for (const k of m) zahl[k] = (zahl[k] || 0) + 1; }
+      return klapp('filter-fehlt', 'Fehlende Angaben', `${chipsHtml('feh', FEHLT_ARTEN.filter(x => x.k !== 'anleitung' || funktionAn('anleitung')).map(x => ({ w:x.k, t:`${x.t} · ${zahl[x.k] || 0}` })), F.fehlt || [])}
+        <p class="text-leise text-klein" style="margin:8px 0 0">Zeigt die Spiele, bei denen etwas fehlt – die Kacheln nennen, was. Antippen und „Bearbeiten“ zum Ergänzen.</p>`,
+        { klasse:'leicht feld', standard:(F.fehlt || []).length > 0, kleinId:'f-feh-zahl' });
+    })() : ''}
     ${anleitungFilterAn() ? (() => {
       const zahl = {}; for (const x of alleSpiele()){ const k = anleitungArt(x); zahl[k] = (zahl[k] || 0) + 1; }
       return klapp('filter-anl', 'Spielanleitung', `${chipsHtml('anl', ANL_ARTEN.map(x => ({ w:x.k, t:`${x.t} · ${zahl[x.k] || 0}` })), F.anleitungen || [])}
-        <p class="text-leise text-klein" style="margin:8px 0 0">Nur für den Admin: Wo liegt die Anleitung der Spiele? Bei privaten Links sehen die anderen sie nur, wenn sie freigegeben ist. Die Kacheln zeigen dann, wo sie liegt und wer sie gespeichert hat.</p>`,
+        <p class="text-leise text-klein" style="margin:8px 0 0">Wo liegt die Anleitung der Spiele? Bei privaten Links sehen die anderen sie nur, wenn sie freigegeben ist. Die Kacheln zeigen dann, wo sie liegt und wer sie gespeichert hat.</p>`,
         { klasse:'leicht feld', standard:(F.anleitungen || []).length > 0, kleinId:'f-anl-zahl' });
     })() : ''}
     ${E.admin ? (() => {
@@ -2233,19 +2249,20 @@ function filterSheet(){
       for (const x of alleSpiele()){ const d = info.get(x.id), k = nameSchluessel(x.name) || x.id; if (gezaehlt.has(k)) continue; gezaehlt.add(k);
         if (d.mehrfach) zahl.mehrfach++; if (d.selbe.length) zahl.selbe++; if (d.aehnlich.length) zahl.aehnlich++; }
       return klapp('filter-doppelt', 'Doppelte Spiele', `${chipsHtml('dop', DOPPEL_ARTEN.map(x => ({ w:x.k, t:`${x.t} · ${zahl[x.k]}` })), F.doppelt || [])}
-        <p class="text-leise text-klein" style="margin:8px 0 0">Nur für den Admin. Gleiche Namen stehen schon auf einer Kachel – hier siehst du, welche Spiele mehrfach da sind, was in einem Haushalt doppelt eingetragen ist und welche Namen sich nur in der Schreibweise unterscheiden.</p>`,
+        <p class="text-leise text-klein" style="margin:8px 0 0">Gleiche Namen stehen schon auf einer Kachel – hier siehst du, welche Spiele mehrfach da sind, was in einem Haushalt doppelt eingetragen ist und welche Namen sich nur in der Schreibweise unterscheiden.</p>`,
         { klasse:'leicht feld', standard:(F.doppelt || []).length > 0, kleinId:'f-dop-zahl' });
     })() : ''}
     ${klapp('filter-sort', 'Sortieren', chipsHtml('sort', [{ w:'name', t:'Nach Name' }, { w:'neu', t:'Zuletzt eingetragen' }], [F.sort], { mehrfach:false, pflicht:true }), { klasse:'leicht feld', kleinId:'f-sort' })}
     <div class="sheet-fuss"><button class="knopf rahmen" type="button" data-zuruecksetzen>Zurücksetzen</button><button class="knopf" type="button" data-zu data-anzeigen></button></div>`);
   function aktualisieren(){
     schreiben(LS.filter, F); renderSpiele();
-    const n = alleSpiele().filter(x => passt(x, F)).length;
+    const n = spielGruppen(alleSpiele().filter(x => passt(x, F))).length;   // wie die Liste: gleiche Spiele zählen einmal
     $('[data-anzeigen]', s).textContent = `${n} ${n === 1 ? 'Spiel' : 'Spiele'} zeigen`;
     $('#f-kat-zahl', s).textContent = F.kategorien.length ? `${F.kategorien.length} gewählt` : '';
     $('#f-hh-zahl', s).textContent = F.haushalte.length ? `${F.haushalte.length} gewählt` : '';
     const anlZahl = $('#f-anl-zahl', s); if (anlZahl) anlZahl.textContent = (F.anleitungen || []).length ? `${F.anleitungen.length} gewählt` : '';
     const dopZahl = $('#f-dop-zahl', s); if (dopZahl) dopZahl.textContent = (F.doppelt || []).length ? `${F.doppelt.length} gewählt` : '';
+    const fehZahl = $('#f-feh-zahl', s); if (fehZahl) fehZahl.textContent = (F.fehlt || []).length ? `${F.fehlt.length} gewählt` : '';
     $('#f-sort', s).textContent = F.sort === 'neu' ? 'zuletzt eingetragen' : 'nach Name';
   }
   s.addEventListener('wert', e => { const n = e.target.dataset.name; if (n === 'personen') F.personen = e.detail; if (n === 'alter') F.alter = e.detail; aktualisieren(); });
@@ -2256,13 +2273,14 @@ function filterSheet(){
     if (g === 'hh') F.haushalte = w;
     if (g === 'anl') F.anleitungen = w;
     if (g === 'dop') F.doppelt = w;
+    if (g === 'feh') F.fehlt = w;
     if (g === 'sort') F.sort = w[0] || 'name';
     aktualisieren();
   });
   $('[data-zuruecksetzen]', s).addEventListener('click', () => { filterZuruecksetzen(); s.schliessen(); });
   aktualisieren();
 }
-function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[] }); schreiben(LS.filter, F); renderSpiele(); }
+function filterZuruecksetzen(){ Object.assign(F, { personen:null, alter:null, dauerMax:null, kategorien:[], haushalte:[], anleitungen:[], doppelt:[], fehlt:[] }); schreiben(LS.filter, F); renderSpiele(); }
 
 /* ---------- Spiel: Ansicht ---------- */
 function spielDetail(id){
@@ -2401,6 +2419,20 @@ function doppelInfo(){
   }
   return info;
 }
+/* Vollständigkeit (Admin): welche Angaben fehlen bei einem Spiel? */
+const FEHLT_ARTEN = [
+  { k:'alles', t:'Irgendetwas fehlt' },
+  { k:'foto', t:'Ohne Foto', kurz:'Foto', f:x => !x.bild },
+  { k:'spieler', t:'Ohne Spieleranzahl', kurz:'Spieler', f:x => x.spielerMin == null && x.spielerMax == null },
+  { k:'alter', t:'Ohne Alter', kurz:'Alter', f:x => x.alterAb == null },
+  { k:'dauer', t:'Ohne Spieldauer', kurz:'Dauer', f:x => !x.dauer },
+  { k:'art', t:'Ohne Art des Spiels', kurz:'Art', f:x => !(x.kategorien || []).length },
+  { k:'text', t:'Ohne Beschreibung', kurz:'Beschreibung', f:x => !shopTextWeg(x.beschreibung).trim() },
+  { k:'anleitung', t:'Ohne Spielanleitung', kurz:'Anleitung', f:x => funktionAn('anleitung') && anleitungArt(x) === 'keine' }
+];
+function fehltVon(x){ return FEHLT_ARTEN.filter(a => a.f && a.f(x)).map(a => a.k); }
+function fehltPasst(x, arten){ const m = fehltVon(x); return arten.includes('alles') ? m.length > 0 : arten.some(k => m.includes(k)); }
+function fehltText(x){ return fehltVon(x).map(k => FEHLT_ARTEN.find(a => a.k === k).kurz).join(', '); }
 function doppeltPasst(d, arten){ return !!d && arten.some(k => k === 'mehrfach' ? d.mehrfach : k === 'selbe' ? d.selbe.length > 0 : d.aehnlich.length > 0); }
 function doppelKachelText(d){
   if (!d) return '';
@@ -7256,7 +7288,8 @@ const HILFE = [
     <li>In <b>jedem Spielblock</b> (Punkteblock, Kniffel, Wizard, Phase 10, Qwixx, die Clever-Blöcke …) öffnet das <b>Buch oben</b> die Anleitung, sobald eine da ist – bei einer Variante die der Variante.</li></ul>` },
   { id:'finden', titel:'Spiele finden und filtern', seite:'spiele', text:`
     <p>Das Suchfeld findet Namen und Beschreibungen. Unter <b>Filter</b> gibt es Personen, Alter des Jüngsten, Spieldauer, Art des Spiels, Haushalt und Sortierung.</p>
-    <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>` },
+    <p>Aktive Filter stehen unter der Suche – das ✕ daran entfernt sie wieder.</p>
+    <p data-nur-admin><b>Nur für dich als Admin</b> stehen im Filter darunter drei Prüfungen: <b>Fehlende Angaben</b> (ohne Foto, Spieleranzahl, Alter, Spieldauer, Art, Beschreibung oder Spielanleitung – oder „Irgendetwas fehlt“), <b>Spielanleitung</b> (wo sie liegt) und <b>Doppelte Spiele</b>. Die Zahl hinter jedem Punkt sagt, wie viele Spiele betroffen sind; die Kacheln nennen dann, was fehlt – bei mehreren Haushalten für jeden einzeln. Spiel antippen, <b>Bearbeiten</b>, ergänzen – danach fällt es aus der Liste.</p>` },
   { id:'runde', titel:'Spielrunde und Würfeln', seite:'runde', text:`
     <ul><li>Unter <b>Wer spielt mit?</b> die Namen antippen, die heute dabei sind – die App zählt mit. Gäste ohne Namen zählst du mit + dazu.</li>
     <li>Ein Tipp auf einen <b>Spielkreis</b> wählt alle Mitspieler dieser Haushalte auf einmal aus. Wer fehlt, einfach wieder abwählen.</li>
@@ -7366,6 +7399,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.89', datum:'01.11.2026', neu:[
+    { t:'Filter „Fehlende Angaben“: zeigt Spiele ohne Foto, Spieleranzahl, Alter, Spieldauer, Art, Beschreibung oder Spielanleitung (oder „Irgendetwas fehlt“) – mit Anzahl, die Kacheln nennen, was fehlt', admin:true },
+    { t:'Im Filter stehen die Prüfungen für den Admin jetzt zusammen unter „Nur für dich als Admin“', admin:true },
+    'Der Knopf im Filter zählt Spiele, die mehrere Haushalte haben, nur einmal – wie die Liste'
+  ]},
   { v:'v1.88', datum:'01.11.2026', neu:[
     { t:'Anleitung in Google Drive & Co.: Haken „Für alle freigegeben (geprüft)“ beim Spiel – danach verschwindet der Hinweis für alle, und im Filter steht sie unter „Freigegeben“', admin:true },
     { t:'Filter „Doppelte Spiele“: mehrfach vorhanden, doppelt im selben Haushalt oder ähnliche Namen (z. B. „Quixx“ und „Qwixx“) – die Kacheln zeigen, was doppelt ist', admin:true }
@@ -8472,6 +8510,7 @@ function verdrahten(){
     else if (k.startsWith('hh:')) F.haushalte = F.haushalte.filter(x => x !== k.slice(3));
     else if (k.startsWith('anl:')) F.anleitungen = (F.anleitungen || []).filter(x => x !== k.slice(4));
     else if (k.startsWith('dop:')) F.doppelt = (F.doppelt || []).filter(x => x !== k.slice(4));
+    else if (k.startsWith('feh:')) F.fehlt = (F.fehlt || []).filter(x => x !== k.slice(4));
     schreiben(LS.filter, F); renderSpiele();
   });
   document.addEventListener('click', e => {
