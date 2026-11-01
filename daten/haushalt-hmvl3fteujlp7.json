@@ -55,7 +55,7 @@
    "spielerMin": 2,
    "spielerMax": 5,
    "alterAb": 14,
-   "dauer": null,
+   "dauer": 60,
    "kategorien": [
     "Kartenspiel",
     "Glück",
@@ -67,7 +67,7 @@
    "link": "",
    "anleitung": "https://www.spiele4us.de/wp-content/uploads/2022/10/das-spiel-der-namen-gebraucht-g003700810.pdf",
    "erstellt": 1792917743779,
-   "geaendert": 1793548953533
+   "geaendert": 1793549100990
   },
   {
    "id": "smvnkwaezsdjk",
