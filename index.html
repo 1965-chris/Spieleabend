@@ -1052,7 +1052,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.84';
+const VERSION = 'v1.85';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2318,6 +2318,8 @@ const VERLAGE = [
   { t:'HeidelBÄR Games', re:/heidelbar/, seiten:['heidelbaer.de'] }, { t:'Kobold', re:/kobold/, seiten:['kobold-spieleverlag.de'] },
   { t:'Mücke Spiele', re:/\bmucke\b/, seiten:['muecke-spiele.de'] }, { t:'Matagot', re:/matagot/, seiten:['matagot.com'] }
 ];
+/* Sammlungen mit Spielregeln – offizielle (Dized, Tabletopia, 1jour-1jeu) und eingescannte bzw. eigene Fassungen */
+const REGEL_SAMMLUNGEN = ['spielregeln.de', 'spielregeln-spielanleitungen.de', 'dized.com', 'tabletopia.com', '1jour-1jeu.com', 'pagat.com', 'libble.de', 'manuall.de', 'luudoo.com'];
 const VERLAGE_GROSS = ['kosmos.de', 'ravensburger.de', 'schmidtspiele.de', 'amigo-spiele.de', 'pegasus.de', 'asmodee.net', 'asmodee.de', 'haba-play.com', 'hasbro.com', 'mattel.com', 'nsv.de', 'hans-im-glueck.de', 'zoch-verlag.com'];
 /* Welcher Verlag? Zuerst der gemerkte, sonst aus der Beschreibung („… erschienen 1995 bei Kosmos.“) – unbekannte Verlage ohne Seiten (frei) */
 function verlagAusName(name){
@@ -2335,6 +2337,7 @@ function anleitungSuchLinks(name, verlag){
   const q = verlag && !verlag.seiten ? `"${name}" ${verlag.t} (Spielanleitung OR Spielregel)` : `${name} (${(verlag ? verlag.seiten : VERLAGE_GROSS).map(x => 'site:' + x).join(' OR ')})`;
   return {
     verlag:`https://www.google.com/search?q=${encodeURIComponent(q)}`,
+    sammlung:`https://www.google.com/search?q=${encodeURIComponent(`${name} (${REGEL_SAMMLUNGEN.map(x => 'site:' + x).join(' OR ')})`)}`,
     pdf:`https://www.google.com/search?q=${encodeURIComponent(`"${name}" (Spielanleitung OR Spielregel) filetype:pdf`)}`,
     video:`https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} Spielregeln erklärt`)}`
   };
@@ -2367,7 +2370,9 @@ function anleitungSheet(sp, fertig, variante = ''){
       ${erkannt && !erkannt.seiten ? `<option value="f" selected>${esc(erkannt.t)}</option>` : ''}
       ${VERLAGE.map((v, i) => [v, i]).sort((a, b) => a[0].t.localeCompare(b[0].t, 'de')).map(([v, i]) => `<option value="${i}"${v === erkannt ? ' selected' : ''}>${esc(v.t)}</option>`).join('')}</select></label>
     <p class="text-leise text-klein" style="margin:4px 0 2px">Sucht auf den Seiten des Verlags – dort steht die Spielseite mit der offiziellen Anleitung zum Herunterladen.</p>
-    <p class="text-leise text-klein" style="margin:0 0 10px" data-verlag-hinweis>${erkannt ? (sp.verlag ? 'Den Verlag hat sich die App beim Spiel gemerkt.' : 'Den Verlag hat die App in der Beschreibung gefunden.') : ''}</p>
+    <p class="text-leise text-klein" style="margin:0 0 12px" data-verlag-hinweis>${erkannt ? (sp.verlag ? 'Den Verlag hat sich die App beim Spiel gemerkt.' : 'Den Verlag hat die App in der Beschreibung gefunden.') : ''}</p>
+    <a class="knopf zweit breit" href="${esc(such.sammlung)}" target="_blank" rel="noopener" data-sammlung-suche>${ic('suche')}In Regel-Sammlungen suchen</a>
+    <p class="text-leise text-klein" style="margin:4px 0 12px">spielregeln.de, Dized, Tabletopia, 1jour-1jeu, Pagat (Kartenspiele), Libble, Manuall …</p>
     <div class="such-knoepfe">
       <a class="knopf zweit" href="${esc(such.pdf)}" target="_blank" rel="noopener">${ic('suche')}Überall als PDF</a>
       <a class="knopf zweit" href="${esc(such.video)}" target="_blank" rel="noopener">${ic('suche')}Als Video suchen</a>
@@ -7075,6 +7080,7 @@ const HILFE = [
   { id:'anleitung', titel:'Spielanleitung', seite:'spiele', fkt:'anleitung', text:`
     <ul><li>Ein Spiel antippen, unten bei <b>Spielanleitung</b> auf <b>Spielanleitung suchen</b> tippen.</li>
     <li><b>Beim Verlag suchen</b> sucht auf den Seiten des Verlags – dort steht die Spielseite mit der offiziellen Anleitung zum Herunterladen. Den Verlag merkt sich die App beim Spiel: Er kommt beim Übernehmen aus Wikipedia oder von Spiele-Offensive mit, steht in der Beschreibung („… erschienen bei Kosmos“), oder du wählst ihn darunter. Ist er unbekannt, schlägt die App ihn bei Spiele-Offensive nach (dauert etwa eine Minute); bis dahin wird bei den großen Verlagen gesucht.</li>
+    <li><b>In Regel-Sammlungen suchen</b> sucht auf Seiten, die Spielregeln sammeln: spielregeln.de, spielregeln-spielanleitungen.de, Dized und Tabletopia (offizielle Regeln), 1jour-1jeu, Pagat (Kartenspiele), Libble, Manuall und Luudoo.</li>
     <li><b>Überall als PDF</b> sucht im ganzen Internet, <b>Als Video suchen</b> ein Erklärvideo auf YouTube. Steht im Wikipedia-Artikel ein passender Link, schlägt die App ihn gleich vor.</li>
     <li>Passende Anleitung gefunden? Den Link lange drücken → <b>Link kopieren</b> (oder im offenen PDF: Teilen → <b>Kopieren</b>), zurück in die App, <b>Einfügen</b> und <b>Link speichern</b>.</li>
     <li>Danach öffnet <b>Spielanleitung öffnen</b> sie mit einem Tipp – auf allen Geräten. Hat ein anderer Haushalt dasselbe Spiel mit Anleitung, ist sie auch bei euch zu sehen.</li>
@@ -7193,6 +7199,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.85', datum:'01.11.2026', neu:[
+    'Spielanleitung: neuer Knopf „In Regel-Sammlungen suchen“ – sucht gezielt auf spielregeln.de, spielregeln-spielanleitungen.de, Dized und Tabletopia (offizielle Regeln), 1jour-1jeu, Pagat (Kartenspiele), Libble, Manuall und Luudoo'
+  ]},
   { v:'v1.84', datum:'01.11.2026', neu:[
     'Beim Verlag suchen findet mehr: gesucht wird nur noch nach dem Spielnamen auf den Seiten des Verlags – die Spielseite dort hat die Anleitung zum Herunterladen, egal ob sie „Spielregel“ oder „Anleitung“ heißt',
     'Der Verlag wird beim Spiel gemerkt – aus Wikipedia, von Spiele-Offensive oder wenn du ihn wählst; beim nächsten Mal ist er vorgewählt',
