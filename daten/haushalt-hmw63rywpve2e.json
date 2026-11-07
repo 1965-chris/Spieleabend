@@ -25,5 +25,17 @@
   }
  ],
  "spieler": [],
+ "geraete": [
+  {
+   "id": "gmw68dfk9xfkl",
+   "art": "iPhone",
+   "app": false,
+   "version": "v1.91",
+   "erst": 1794045512268,
+   "zuletzt": 1794045512268,
+   "name": "",
+   "nameStand": 0
+  }
+ ],
  "geloescht": {}
 }
