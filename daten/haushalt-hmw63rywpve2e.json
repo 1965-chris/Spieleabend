@@ -35,17 +35,9 @@
    "zuletzt": 1794045512268,
    "name": "",
    "nameStand": 0
-  },
-  {
-   "id": "gmw68jpq4ora6",
-   "art": "iPhone",
-   "app": true,
-   "version": "v1.92",
-   "erst": 1794045804660,
-   "zuletzt": 1794046463506,
-   "name": "",
-   "nameStand": 0
   }
  ],
- "geloescht": {}
+ "geloescht": {
+  "gmw68jpq4ora6": 1794046716004
+ }
 }
