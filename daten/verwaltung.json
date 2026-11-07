@@ -6,6 +6,15 @@
  "pinStand": 1792777561392,
  "kreise": [
   {
+   "id": "kmw63pk36uumu",
+   "name": "Mättigopoly",
+   "haushalte": [
+    "hmvl3fteujlp7"
+   ],
+   "aus": [],
+   "stand": 1794037673203
+  },
+  {
    "id": "kmvl9j0zyt6wq",
    "name": "Spieleabend Baumberg",
    "haushalte": [
