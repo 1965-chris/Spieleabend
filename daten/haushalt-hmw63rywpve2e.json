@@ -1,11 +1,29 @@
 {
  "format": 1,
- "app": "v1.90",
+ "app": "v1.91",
  "id": "hmw63rywpve2e",
  "name": "Mättigopoly Baumberg",
  "farbe": "#EB7A2F",
  "stand": 1794037785721,
- "spiele": [],
+ "spiele": [
+  {
+   "id": "smw66nfx1bi6w",
+   "name": "Mättigopoly",
+   "bild": "bilder/smw66nfx1bi6w-mw66nfx4.jpg",
+   "spielerMin": 2,
+   "spielerMax": 6,
+   "alterAb": 8,
+   "dauer": null,
+   "kategorien": [],
+   "beschreibung": "",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "",
+   "anleitung": "",
+   "erstellt": 1794042613334,
+   "geaendert": 1794042613334
+  }
+ ],
  "spieler": [],
  "geloescht": {}
 }
