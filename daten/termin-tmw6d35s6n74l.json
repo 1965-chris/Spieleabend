@@ -1,0 +1,32 @@
+{
+ "format": 1,
+ "app": "v1.92",
+ "id": "tmw6d35s6n74l",
+ "art": "bowling",
+ "titel": "Bowling",
+ "notiz": "",
+ "ort": "",
+ "gastgeber": "",
+ "erstelltVon": "hmvl3fteujlp7",
+ "erstellt": 1794053424390,
+ "stand": 1794053424390,
+ "haushalte": [
+  "hmvl3fteujlp7",
+  "hmvlefhlj93r0",
+  "hmvlejsgars5t"
+ ],
+ "optionen": [
+  {
+   "id": "omw6d2tv8ecqr",
+   "zeit": "2026-11-14T19:00",
+   "stand": 1794053408949
+  }
+ ],
+ "orte": [],
+ "spiele": [],
+ "stimmen": {},
+ "festgelegt": "",
+ "festOrt": "",
+ "festStand": 1794053424390,
+ "geloescht": {}
+}
