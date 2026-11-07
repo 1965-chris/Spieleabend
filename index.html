@@ -1093,7 +1093,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.90';
+const VERSION = 'v1.91';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -7628,6 +7628,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.91', datum:'07.11.2026', neu:[
+    { t:'Einladung für den Spielkreis Mättigopoly: die Nachricht beginnt mit einem Gruß aus dem Spielkreis, danach die App-Anleitung für iPhone und Android', admin:true }
+  ]},
   { v:'v1.90', datum:'01.11.2026', neu:[
     'Neu: „Spiel des Jahres & Co.“ über den Spielen – alle Spiele, Kennerspiele und Kinderspiele des Jahres, die bei euch noch fehlen',
     '„Haben wir – eintragen“: Die App sucht Spieler, Alter, Dauer, Beschreibung und Foto – bei 28 Spielen kommt die Spielanleitung vom Verlag gleich mit',
@@ -8509,8 +8512,14 @@ function einladungsText(name){
     ...(name ? ['', `Der Link gehört zu ${name}: Jedes Handy und Tablet, das ihn öffnet, landet gleich im richtigen Haushalt.`] : [])
   ].join('\n');
 }
+/* Nur für den Spielkreis Mättigopoly: ein Hinweis ganz oben, bevor die App-Anleitung kommt */
+const SPIELKREIS_VORWORT = { kreis:'Mättigopoly', text:'Hallo aus dem Spielkreis Mättigopoly! Mit dieser App sehen wir alle gemeinsam unsere Spiele. Die Anleitung steht unten in der Nachricht, der Link gehört nur zu dir:' };
 async function einladen(hid, vorwort){
   const h = D.haushalte[hid];
+  if (!vorwort && h){
+    const k = D.verwaltung.kreise.find(x => x.name === SPIELKREIS_VORWORT.kreis && x.haushalte.includes(h.id));
+    if (k) vorwort = SPIELKREIS_VORWORT.text;
+  }
   const link = einladungsLink(h ? h.id : '');
   const text = (vorwort ? vorwort + '\n\n' : '') + einladungsText(h ? h.name : '');
   if (navigator.share){
