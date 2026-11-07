@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "app": "v1.92",
+ "id": "tmw6cybogfapo",
+ "art": "spiele",
+ "titel": "Spieleabend",
+ "notiz": "",
+ "ort": "",
+ "gastgeber": "hmvl3fteujlp7",
+ "erstelltVon": "hmvl3fteujlp7",
+ "erstellt": 1794053198751,
+ "stand": 1794053198751,
+ "haushalte": [
+  "hmvl3fteujlp7",
+  "hmw63rywpve2e",
+  "hmw63sypv8s3h",
+  "hmw63twpvspur",
+  "hmw63uoi3xour",
+  "hmw69l3364x81"
+ ],
+ "optionen": [
+  {
+   "id": "omw6cxieku5hv",
+   "zeit": "2026-11-14T19:00",
+   "stand": 1794053160815
+  }
+ ],
+ "orte": [
+  {
+   "id": "wmw6cxienhgqa",
+   "hid": "hmvl3fteujlp7",
+   "text": "",
+   "pos": 0,
+   "stand": 0
+  }
+ ],
+ "spiele": [],
+ "stimmen": {},
+ "festgelegt": "",
+ "festOrt": "",
+ "festStand": 1794053198751,
+ "geloescht": {}
+}
