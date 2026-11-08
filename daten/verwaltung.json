@@ -65,6 +65,12 @@
    "name": "iPhone – Familie Mättig Baumberg",
    "seit": 1792782806189,
    "stand": 1792782806189
+  },
+  {
+   "id": "gmvlci8srx8ih",
+   "name": "iPhone – Familie Mättig Baumberg",
+   "seit": 1794135122259,
+   "stand": 1794135122259
   }
  ],
  "freigaben": {
@@ -106,7 +112,6 @@
   }
  },
  "geloescht": {
-  "gmvlci8srx8ih": 1792782965970,
   "gmvxkreolqt28": 1793551667839,
   "gmvlcjlfyw1x1": 1793558254494
  }
