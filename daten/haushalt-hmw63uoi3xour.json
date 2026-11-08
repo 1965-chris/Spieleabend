@@ -1,11 +1,17 @@
 {
  "format": 1,
- "app": "v1.90",
+ "app": "v1.93",
  "id": "hmw63uoi3xour",
  "name": "Mättigopoly Wuppertal",
  "farbe": "#1A9AA0",
  "stand": 1794037912203,
  "spiele": [],
- "spieler": [],
+ "spieler": [
+  {
+   "id": "pmw7or5mmu57v",
+   "name": "Wolfdieter",
+   "stand": 1794133485886
+  }
+ ],
  "geloescht": {}
 }
