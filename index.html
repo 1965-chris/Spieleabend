@@ -1095,7 +1095,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.96';
+const VERSION = 'v1.97';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1174,7 +1174,7 @@ const VORLAGEN = [
   { passt:n => ['scrabble', 'carcassonne', 'azul', 'kingdomino', 'qwinto', 'wingspan', 'flugelschlag'].some(x => n.startsWith(x)), w:{ art:'hoch' } }
 ];
 const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','freigaben','geloescht']);
-const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand']);
+const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand','nurEigene']);
 function ausListe(a){ return Array.isArray(a) ? [...new Set(a.map(String))].filter(k => /^[a-z]+$/.test(k)).sort() : []; }
 
 const KATEGORIEN = ['Brettspiel','Kartenspiel','Würfelspiel','Strategie','Glück','Allgemeinwissen','Aktivität','Party','Kommunikation','Geschicklichkeit','Kooperativ','Rätsel & Krimi','Familie','Kinder'];
@@ -1283,7 +1283,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis']);
+const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1362,7 +1362,8 @@ function spielNorm(s){
     ...(bildPosNorm(s.bildPos) ? { bildPos:bildPosNorm(s.bildPos) } : {}),
     ...(variantenNorm(s.varianten).length ? { varianten:variantenNorm(s.varianten) } : {}),
     ...(Object.keys(anleitungenNorm(s.anleitungen)).length ? { anleitungen:anleitungenNorm(s.anleitungen) } : {}),
-    ...(String(s.nurKreis || '').trim() && D.verwaltung.kreise.some(k => k.id === s.nurKreis) ? { nurKreis:String(s.nurKreis) } : {}),
+    ...(String(s.nurKreis || '').trim() ? { nurKreis:String(s.nurKreis).trim() } : {}),   // nicht gegen die Spielkreise prüfen – die sind beim Laden evtl. noch nicht da
+    ...(s.eigeneKachel ? { eigeneKachel:true } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -1628,7 +1629,8 @@ function verwaltungNorm(v){
     pinHash:typeof v.pinHash === 'string' ? v.pinHash : '', pinSalz:typeof v.pinSalz === 'string' ? v.pinSalz : '', pinStand:zahl(v.pinStand) || 0,
     kreise:(Array.isArray(v.kreise) ? v.kreise : []).filter(k => k && k.id).map(k => ({
       ...unbekannte(k, KREIS_FELDER),
-      id:String(k.id), name:String(k.name || 'Spielkreis'), haushalte:Array.isArray(k.haushalte) ? [...new Set(k.haushalte.map(String))].sort() : [], aus:ausListe(k.aus), stand:zahl(k.stand) || 0
+      id:String(k.id), name:String(k.name || 'Spielkreis'), haushalte:Array.isArray(k.haushalte) ? [...new Set(k.haushalte.map(String))].sort() : [], aus:ausListe(k.aus), stand:zahl(k.stand) || 0,
+      nurEigene:!!k.nurEigene
     })).sort((a, b) => a.name.localeCompare(b.name, 'de') || a.id.localeCompare(b.id)),
     // ausgeschaltete Funktionen für Haushalte ohne Spielkreis (oder für alle, solange es keine Spielkreise gibt)
     aus:ausListe(v.aus), ausStand:zahl(v.ausStand) || 0,
@@ -2271,11 +2273,18 @@ function haushaltListe(alle=false){
     .sort((a, b) => (a.id === E.meinHaushalt ? -1 : b.id === E.meinHaushalt ? 1 : 0) || a.name.localeCompare(b.name, 'de'));
 }
 function alleSpiele(){
-  const m = new Map(), sicht = sichtbareIds(), kreise = sichtbareKreise();
+  const m = new Map(), sicht = sichtbareIds(), kreise = sichtbareKreise(), ak = aktiverKreis();
+  const gibtKreis = new Set((D.verwaltung.kreise || []).map(k => k.id));   // Einschränkung auf einen gelöschten Spielkreis gilt nicht mehr
+  // Ohne gewählten Kreis: über welche Spielkreise sehe ich einen fremden Haushalt? (für „Nur eigene Spiele zeigen“)
+  const ueber = (!ak && kreise) ? kreiseVonHaushalt(E.meinHaushalt) : null;
   for (const h of Object.values(D.haushalte)){
     if (!sicht.has(h.id)) continue;
+    const wege = (ueber && h.id !== E.meinHaushalt) ? ueber.filter(k => k.haushalte.includes(h.id)) : null;
     for (const s of h.spiele){
-      if (s.nurKreis && kreise && !kreise.has(s.nurKreis)) continue;      // nur in diesem einen Spielkreis sichtbar
+      const nk = s.nurKreis && gibtKreis.has(s.nurKreis) ? s.nurKreis : '';
+      if (nk && kreise && !kreise.has(nk)) continue;                      // nur in diesem einen Spielkreis sichtbar
+      if (ak && ak.nurEigene && nk !== ak.id) continue;                   // dieser Spielkreis zeigt nur seine eigens zugeordneten Spiele
+      if (wege && wege.length && !wege.some(k => !k.nurEigene || nk === k.id)) continue;  // fremdes Spiel nur über „Nur eigene“-Kreise erreichbar
       const x = m.get(s.id); if (!x || s.geaendert > x.geaendert) m.set(s.id, { ...s, hid:h.id });
     }
   }
@@ -2334,7 +2343,7 @@ function filterAktiv(){
 /* Gleiche Spiele mehrerer Haushalte → eine Kachel. Vorne steht die eigene Ausgabe, sonst eine mit Foto. */
 function spielGruppen(liste){
   const m = new Map();
-  for (const s of liste){ const k = nameSchluessel(s.name) || s.id; if (!m.has(k)) m.set(k, []); m.get(k).push(s); }
+  for (const s of liste){ const k = s.eigeneKachel ? 'ek:' + s.id : (nameSchluessel(s.name) || s.id); if (!m.has(k)) m.set(k, []); m.get(k).push(s); }
   return [...m.values()].map(kopien => {
     const hier = k => stehtBei(k) === E.meinHaushalt;
     kopien.sort((a, b) => hier(b) - hier(a) || (b.hid === E.meinHaushalt) - (a.hid === E.meinHaushalt) || (b.bild ? 1 : 0) - (a.bild ? 1 : 0) || a.hid.localeCompare(b.hid));
@@ -2660,9 +2669,9 @@ function namenAehnlich(a, b){
 }
 function doppelInfo(){
   const gruppen = new Map();
-  for (const x of alleSpiele()){ const k = nameSchluessel(x.name) || x.id; if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push(x); }
+  for (const x of alleSpiele()){ const k = x.eigeneKachel ? 'ek:' + x.id : (nameSchluessel(x.name) || x.id); if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push(x); }
   const keys = [...gruppen.keys()], aehnlich = new Map();
-  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) if (namenAehnlich(keys[i], keys[j])){
+  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) if (!keys[i].startsWith('ek:') && !keys[j].startsWith('ek:') && namenAehnlich(keys[i], keys[j])){
     aehnlich.set(keys[i], [...(aehnlich.get(keys[i]) || []), keys[j]]); aehnlich.set(keys[j], [...(aehnlich.get(keys[j]) || []), keys[i]]);
   }
   const info = new Map();
@@ -3483,6 +3492,8 @@ function spielFormular(sp, vorgabe){
       ${vorgabe && vorgabe.preis ? `<p class="hinweis empf-hinweis" style="margin:10px 0 0">${ic('pokal')}<span><b>${esc(vorgabe.preis)}</b>${vorgabe.anleitung && funktionAn('anleitung') ? ' – die Spielanleitung vom Verlag wird mit gespeichert.' : ''}<span data-empf-tipp> Tippe bei der Suche auf den passenden Treffer und dann auf „Übernehmen“.</span></span></p>` : ''}</div>
     ${sichtbar.length > 1 ? `<div class="feld"><span class="feld-titel">Steht bei</span>${figurChipsHtml('hh', [startHh], { mehrfach:false, pflicht:true, liste:sichtbar })}</div>` : ''}
     <div class="feld" data-kreis-feld></div>
+    <label class="foto-wahl"><input type="checkbox" data-eigene-kachel${w.eigeneKachel ? ' checked' : ''}>Eigene Kachel, nicht mit gleichnamigen Spielen zusammenfassen</label>
+    <p class="block-hinweis" style="margin-top:-4px">Für Spiele, die trotz gleichen Namens bei jedem Haushalt etwas anderes sind – z. B. je ein eigenes Spielbrett mit eigenem Foto.</p>
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
       <div class="feld"><span class="feld-titel">bis</span>${stepperHtml('spielerMax', w.spielerMax ?? w.spielerMin ?? 4, { min:1, max:30 })}</div>
@@ -3502,12 +3513,13 @@ function spielFormular(sp, vorgabe){
   const form = $('form', s), datei = $('#foto-datei', s), feld = $('#foto-feld', s);
   const farbe = () => farbeVon(gewaehltesHh());
   const gewaehltesHh = () => { const g = $('[data-gruppe="hh"]', s); const v = g ? gewaehlteChips(g)[0] : null; return v || startHh; };
-  // „Nur sichtbar im Spielkreis …“: nur ein Thema, wenn der Haushalt in mehr als einem Spielkreis Mitglied ist
+  // „Nur sichtbar im Spielkreis …“: ein Thema, wenn der Haushalt in mehr als einem Spielkreis ist –
+  // oder in einem Spielkreis mit „Nur eigene Spiele zeigen“ (dort erscheinen nur zugeordnete Spiele)
   function kreisFeldZeigen(){
     const el = $('[data-kreis-feld]', s); if (!el) return;
     const kreise = kreiseVonHaushalt(gewaehltesHh());
-    if (kreise.length < 2){ el.innerHTML = ''; return; }
-    const jetzt = kreise.some(k => k.id === w.nurKreis) ? w.nurKreis : '';
+    if (kreise.length < 2 && !kreise.some(k => k.nurEigene)){ el.innerHTML = ''; return; }
+    const jetzt = kreise.some(k => k.id === w.nurKreis) ? w.nurKreis : (neu && kreise.length === 1 ? kreise[0].id : '');
     el.innerHTML = `<label><span class="feld-titel">Nur sichtbar im Spielkreis</span>
       <select class="eingabe" data-nur-kreis><option value="">Allen Spielkreisen dieses Haushalts</option>
       ${kreise.map(k => `<option value="${esc(k.id)}"${k.id === jetzt ? ' selected' : ''}>${esc(k.name)}</option>`).join('')}</select></label>
@@ -3684,14 +3696,16 @@ function spielFormular(sp, vorgabe){
     if (!name){ feldVon(form, 'name').focus(); toast('Bitte einen Namen eingeben.', 'fehler'); return; }
     const hid = gewaehltesHh();
     if (neu){
-      const doppelt = D.haushalte[hid].spiele.find(x => nameSchluessel(x.name) === nameSchluessel(name));
+      const doppelt = !$('[data-eigene-kachel]', s).checked && D.haushalte[hid].spiele.find(x => nameSchluessel(x.name) === nameSchluessel(name));
       if (doppelt && !await frage('Schon eingetragen', `„${doppelt.name}“ steht bei ${D.haushalte[hid].name} schon in der Liste. Trotzdem ein zweites Mal speichern?`, 'Trotzdem speichern', false)) return;
     }
     const dauerW = gewaehlteChips($('[data-gruppe="dauer"]', s))[0];
     const kreisEl = $('[data-nur-kreis]', s);
-    const nurKreis = kreisEl && kreiseVonHaushalt(hid).some(k => k.id === kreisEl.value) ? kreisEl.value : '';
+    const wahlKreis = kreisEl ? kreisEl.value : (sp && sp.nurKreis) || '';   // ohne Feld: bisherige Zuordnung behalten, solange der Haushalt im Kreis ist
+    const nurKreis = wahlKreis && kreiseVonHaushalt(hid).some(k => k.id === wahlKreis) ? wahlKreis : '';
+    const eigeneKachel = $('[data-eigene-kachel]', s).checked;
     const spiel = spielNorm({
-      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis,
+      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis, eigeneKachel,
       spielerMin: stepperWert($('[data-name="spielerMin"]', s)), spielerMax: stepperWert($('[data-name="spielerMax"]', s)),
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
@@ -7518,7 +7532,10 @@ function renderEinstellungen(){
   const v = $('#verwaltung');
   if (!v) return;
   v.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) verwaltungAktion(b.dataset.v, b.dataset.kreis); });
-  v.addEventListener('change', e => { const c = e.target.closest('[data-fkt]'); if (c) funktionUmschalten(c.dataset.kreis, c.dataset.fkt, c.checked); });
+  v.addEventListener('change', e => {
+    const c = e.target.closest('[data-fkt]'); if (c) funktionUmschalten(c.dataset.kreis, c.dataset.fkt, c.checked);
+    const e2 = e.target.closest('[data-kreis-eigen]'); if (e2) kreisEigenUmschalten(e2.dataset.kreisEigen, e2.checked);
+  });
   v.addEventListener('wahl', e => {
     const g = e.target; if (g.dataset.gruppe !== 'kreis-mitglieder') return;
     const k = D.verwaltung.kreise.find(x => x.id === g.dataset.kreis); if (!k) return;
@@ -7544,7 +7561,8 @@ const HILFE = [
     <li><b>Gibt es das Spiel schon</b> bei einem anderen Haushalt? Beim Eintippen des Namens erscheint es unter „Schon in der App“ – antippen übernimmt Angaben und Foto.</li>
     <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li>
     <li><b>Varianten</b>: Unter <b>Bearbeiten</b> weitere Ausgaben zum selben Spiel eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ (bekannte Varianten schlägt die App vor). Sie stehen auf der Kachel, die Suche findet sie, und hat eine Variante einen eigenen Spielblock, startet er direkt beim Spiel. Ergebnisse stehen beim Spiel unter „Gespielt“ mit dem Namen der Variante.</li>
-    <li>Ist ein Haushalt in mehreren Spielkreisen, erscheint beim Eintragen <b>Nur sichtbar im Spielkreis …</b> – so bleibt ein Spiel, das nur einen eurer Spielkreise etwas angeht, für die anderen unsichtbar.</li></ul>` },
+    <li>Ist ein Haushalt in mehreren Spielkreisen, erscheint beim Eintragen <b>Nur sichtbar im Spielkreis …</b> – so bleibt ein Spiel, das nur einen eurer Spielkreise etwas angeht, für die anderen unsichtbar. Das Feld erscheint auch, wenn euer einziger Spielkreis „Nur eigene Spiele zeigen“ eingeschaltet hat – dann ist dieser Kreis schon vorgewählt.</li>
+    <li><b>Eigene Kachel</b>: Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
     <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
@@ -7625,7 +7643,8 @@ const HILFE = [
     <li>Der Admin sieht alles und kann sich mit seiner PIN auf weiteren Geräten anmelden.</li>
     <li>Unter <b>Admin-Geräte</b> sieht der Admin, wo er angemeldet ist, und kann andere Geräte aus der Ferne abmelden.</li>
     <li>Auf Geräten ohne Admin ist dieser Bereich ausgeblendet.</li>
-    <li><b>Funktionen</b>: In jedem Spielkreis schaltet der Admin einzelne Funktionen ein oder aus – z. B. Termine, Würfeln, Verleihen. Ein Haushalt in mehreren Spielkreisen bekommt eine Funktion, sobald sie in einem davon an ist. Für Haushalte ohne Spielkreis gilt „Funktionen ohne Spielkreis“. Auf Admin-Geräten ist immer alles an.</li></ul>
+    <li><b>Funktionen</b>: In jedem Spielkreis schaltet der Admin einzelne Funktionen ein oder aus – z. B. Termine, Würfeln, Verleihen. Ein Haushalt in mehreren Spielkreisen bekommt eine Funktion, sobald sie in einem davon an ist. Für Haushalte ohne Spielkreis gilt „Funktionen ohne Spielkreis“. Auf Admin-Geräten ist immer alles an.</li>
+    <li><b>Nur eigene Spiele zeigen</b>: Ist das bei einem Spielkreis angehakt (z. B. „Mättigopoly“), sieht man in diesem Kreis nur die Spiele, die beim Eintragen auf genau diesen Kreis beschränkt wurden – die übrigen Spiele der beteiligten Haushalte bleiben dort ausgeblendet. Wer den Kreis oben bei „Spielkreis: …“ wechselt, sieht wieder alles Andere.</li></ul>
     <p><b>Wer darf was?</b> Sobald es einen Admin gibt, ändert jeder nur seinen eigenen Haushalt: eigene Spiele, Mitspieler, Name und Farbe. Die Spiele der anderen lassen sich nur ansehen. „Mein Haushalt“ eines Geräts stellt nur der Admin um.</p>
     <p data-nur-admin>Das ist eine Ordnungshilfe, kein Schutz: Wer den Schlüssel hat, könnte technisch alle Daten lesen.</p>
     <p><b>In mehreren Spielkreisen?</b> Oben auf den Seiten steht dann „Spielkreis: …“. Antippen und wählen, mit welchem Kreis ihr gerade spielt – dann zeigt die App nur dessen Haushalte, Spiele und Ergebnisse, und neue Termine laden nur diesen Kreis ein. Das gilt nur auf dem jeweiligen Gerät und lässt sich jederzeit zurück auf „Alle zusammen“ stellen.</p>
@@ -7700,6 +7719,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.97', datum:'08.11.2026', neu:[
+    'Beim Eintragen eines Spiels: „Eigene Kachel“ – gleichnamige Spiele (z. B. die einzelnen Mättigopoly-Spielbretter) werden dann nicht mehr zu einer Kachel zusammengefasst, jedes bekommt seine eigene mit eigenem Foto',
+    { t:'Spielkreise: neuer Schalter „Nur eigene Spiele zeigen“ – in diesem Kreis erscheinen dann nur die Spiele, die auf ihn beschränkt sind, nicht die übrigen Spiele der Haushalte', admin:true },
+    '„Nur sichtbar im Spielkreis …“ bleibt jetzt auch nach einem Neustart, auf neuen Geräten und beim Bearbeiten zuverlässig erhalten'
+  ]},
   { v:'v1.96', datum:'08.11.2026', neu:[
     { t:'Haushalte: „schon dabei“/„Einladung …“ jetzt grün, „noch nicht eingeladen“ rot – auf einen Blick erkennbar', admin:true },
     'Beim Spiel bearbeiten: Foto drehen und spiegeln, auch bei einem schon gespeicherten Foto'
@@ -8106,6 +8130,8 @@ function verwaltungHtml(){
           <div class="chips" data-gruppe="kreis-mitglieder" data-kreis="${esc(k.id)}" data-mehrfach="1">${alle.map(h =>
             `<button type="button" class="chip figur-chip" style="--hf:${esc(h.farbe)}" data-wert="${esc(h.id)}" aria-pressed="${k.haushalte.includes(h.id)}">${figur(h.farbe, 17)}${esc(h.name)}</button>`).join('')}</div>
           <div style="margin-top:12px">${klapp('kreis-fkt-' + k.id, 'Funktionen', funktionenSchalterHtml(k.id, k.aus), { klasse:'leicht', klein:funktionenKurz(k.aus) })}</div>
+          <label class="schalter-zeile" style="margin-top:10px"><span><b>Nur eigene Spiele zeigen</b><small>Wer in diesem Spielkreis ist, sieht dann nur Spiele, die beim Eintragen auf „${esc(k.name)}“ beschränkt wurden – nicht die übrigen Spiele der beteiligten Haushalte.</small></span>
+            <input type="checkbox" class="schalter" data-kreis-eigen="${esc(k.id)}"${k.nurEigene ? ' checked' : ''} aria-label="Nur eigene Spiele zeigen"></label>
           <div class="hh-knoepfe" style="margin-top:12px">
             <button class="knopf zweit" type="button" data-v="kreis-name" data-kreis="${esc(k.id)}">${ic('stift')}Umbenennen</button>
             <button class="knopf gefahr" type="button" data-v="kreis-weg" data-kreis="${esc(k.id)}">${ic('muell')}Löschen</button>
@@ -8133,6 +8159,12 @@ function funktionUmschalten(kreisId, key, an){
   const neu = liste => an ? liste.filter(x => x !== key) : [...new Set([...liste, key])].sort();
   if (kreisId){ const k = V.kreise.find(x => x.id === kreisId); if (!k) return; k.aus = neu(k.aus); k.stand = jetzt; markiereV(`${k.name}: ${key} ${an ? 'an' : 'aus'}`); }
   else { V.aus = neu(V.aus); V.ausStand = jetzt; markiereV(`Funktion ${key} ${an ? 'an' : 'aus'}`); }
+  speichern(); renderAlles(); syncBald();
+}
+function kreisEigenUmschalten(kreisId, an){
+  if (!E.admin) return;
+  const k = D.verwaltung.kreise.find(x => x.id === kreisId); if (!k) return;
+  k.nurEigene = an; k.stand = Date.now(); markiereV(`${k.name}: nur eigene Spiele ${an ? 'an' : 'aus'}`);
   speichern(); renderAlles(); syncBald();
 }
 function werSiehtWenHtml(){
