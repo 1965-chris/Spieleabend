@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.95",
+ "app": "v1.97",
  "pinHash": "bbadc6e05980bbd1cb3a18da8ab6f99dff455a73a70a03113383f701e842c00f",
  "pinSalz": "bf42f5c2140250f126bdf921",
  "pinStand": 1792777561392,
@@ -21,7 +21,8 @@
     "hmw7zmlanegf0"
    ],
    "aus": [],
-   "stand": 1794151748687
+   "stand": 1794168442941,
+   "nurEigene": true
   },
   {
    "id": "kmvl9j0zyt6wq",
@@ -33,7 +34,8 @@
     "hmvlejsgars5t"
    ],
    "aus": [],
-   "stand": 1792870267860
+   "stand": 1792870267860,
+   "nurEigene": false
   },
   {
    "id": "kmvl9jqd69inu",
@@ -45,7 +47,8 @@
     "hmvlf82o4u91q"
    ],
    "aus": [],
-   "stand": 1792873669031
+   "stand": 1792873669031,
+   "nurEigene": false
   }
  ],
  "aus": [
