@@ -94,6 +94,8 @@ mark{background:#FFE36B;color:#1C2230;border-radius:3px;padding:0 1px}
 .info-version{margin:0;color:var(--leise);display:flex;align-items:center;justify-content:center;gap:8px}
 .marke-mein.grau{color:var(--leise);background:var(--grund)}
 .marke-mein.warn{color:var(--gelb-tinte);background:color-mix(in srgb, var(--gelb) 45%, var(--karte))}
+.marke-mein.schlecht{color:var(--rot);background:color-mix(in srgb, var(--rot) 16%, var(--karte))}
+.hh-info .marke-mein{margin-left:4px;vertical-align:middle}
 .info-liste{margin:0 0 12px;padding-left:20px}
 .info-liste li{margin-bottom:6px;line-height:1.45}
 .info-dank{text-align:center;color:var(--leise);margin:18px 0 14px;line-height:1.5}
@@ -1093,7 +1095,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.95';
+const VERSION = 'v1.96';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1268,7 +1270,9 @@ const ICONS = {
   wolke:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/>',
   suche:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>',
   frage:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor" stroke="none"/>',
-  link:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>'
+  link:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>',
+  dreh:'<path d="M4.5 12a7.5 7.5 0 1 1 2.3 5.4"/><path d="M4 18.3v-5h5"/>',
+  spiegel:'<path d="M12 4v16"/><path d="M7.5 8L4.5 12l3 4"/><path d="M16.5 8l3 4-3 4"/>'
 };
 function ic(n, extra=''){ return `<svg class="ic" ${extra} viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`; }
 const MEEPLE = 'M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z';
@@ -1746,6 +1750,21 @@ async function fotoVerkleinern(datei){
     const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.72));
     if (!blob) throw new Error('Das Foto ließ sich nicht verkleinern.');
     return blob;
+  } finally { URL.revokeObjectURL(url); }
+}
+/* Foto um 90° drehen oder horizontal spiegeln – für die Bildbearbeitung beim Bearbeiten eines Spiels */
+async function fotoTransformieren(blob, aktion){
+  const url = URL.createObjectURL(blob);
+  try{
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Das Foto ließ sich nicht öffnen.')); i.src = url; });
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const c = document.createElement('canvas'); c.width = aktion === 'dreht' ? h : w; c.height = aktion === 'dreht' ? w : h;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    if (aktion === 'dreht'){ ctx.translate(h, 0); ctx.rotate(Math.PI / 2); } else { ctx.translate(w, 0); ctx.scale(-1, 1); }
+    ctx.drawImage(img, 0, 0);
+    const out = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.82));
+    if (!out) throw new Error('Das Foto ließ sich nicht bearbeiten.');
+    return out;
   } finally { URL.revokeObjectURL(url); }
 }
 
@@ -3504,7 +3523,10 @@ function spielFormular(sp, vorgabe){
         <div class="ausschnitt"><span class="foto-mini" style="--hf:${esc(farbe())}" title="So sieht die Ansicht aus"><img alt=""></span>
           <label class="ausschnitt-regler"><b aria-hidden="true">−</b><input type="range" min="0.4" max="3" step="0.05" value="${pos.z}" data-zoom aria-label="Kleiner oder größer"><b aria-hidden="true">+</b></label></div>
         <p class="ausschnitt-hinweis"><span>Bild mit dem Finger verschieben, mit dem Regler kleiner oder größer machen. Groß: die Kachel, klein: die Ansicht.</span><button type="button" data-mitte>Mitte</button></p>
-        <div class="foto-knoepfe"><button type="button" class="knopf zweit" data-foto>${ic('kamera')}Anderes Foto</button><button type="button" class="knopf rahmen" data-foto-weg>Foto entfernen</button></div>`;
+        <div class="foto-knoepfe"><button type="button" class="knopf zweit" data-foto>${ic('kamera')}Anderes Foto</button>
+          <button type="button" class="knopf-rund" data-foto-dreh aria-label="Drehen">${ic('dreh')}</button>
+          <button type="button" class="knopf-rund" data-foto-spiegel aria-label="Spiegeln">${ic('spiegel')}</button>
+          <button type="button" class="knopf rahmen" data-foto-weg>Foto entfernen</button></div>`;
       bilderBeobachten(feld);
       ausschnittZeigen();
     }
@@ -3535,10 +3557,23 @@ function spielFormular(sp, vorgabe){
   });
   const zugEnde = e => { if (zug && e.pointerId === zug.id) zug = null; };
   feld.addEventListener('pointerup', zugEnde); feld.addEventListener('pointercancel', zugEnde);
+  async function fotoBearbeiten(aktion){
+    let blob = neuesFoto;
+    if (!blob && w.bild && !fotoEntfernt){ const url = await bildLaden(w.bild); if (url) blob = await fetch(url).then(r => r.blob()).catch(() => null); }
+    if (!blob) return;
+    try{
+      neuesFoto = await fotoTransformieren(blob, aktion); fotoQuelle = ''; fotoEntfernt = false; pos = { x:50, y:50, z:1 };
+      if (vorschauUrl) URL.revokeObjectURL(vorschauUrl);
+      vorschauUrl = URL.createObjectURL(neuesFoto);
+      fotoZeigen();
+    }catch(err){ toast(err.message, 'fehler'); }
+  }
   feld.addEventListener('click', e => {
     if (e.target.closest('[data-foto]')) datei.click();
     if (e.target.closest('[data-foto-weg]')){ neuesFoto = null; fotoEntfernt = true; pos = { x:50, y:50, z:1 }; fotoZeigen(); }
     if (e.target.closest('[data-mitte]')){ pos = { x:50, y:50, z:1 }; const r = $('[data-zoom]', feld); if (r) r.value = 1; ausschnittZeigen(); }
+    if (e.target.closest('[data-foto-dreh]')) fotoBearbeiten('dreht');
+    if (e.target.closest('[data-foto-spiegel]')) fotoBearbeiten('spiegelt');
   });
   datei.addEventListener('change', async () => {
     const f = datei.files && datei.files[0]; datei.value = ''; if (!f) return;
@@ -7048,7 +7083,7 @@ function renderHaushalte(){
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
-          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}${E.admin ? ` · ${h.eingeladenAm ? 'Einladung ' + esc(datumKurzTs(h.eingeladenAm)) : (h.geraete || []).length ? 'schon dabei' : 'noch nicht eingeladen'}` : ''}</span></span>
+          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}${E.admin ? (h.eingeladenAm ? `<span class="marke-mein">Einladung ${esc(datumKurzTs(h.eingeladenAm))}</span>` : (h.geraete || []).length ? '<span class="marke-mein">schon dabei</span>' : '<span class="marke-mein schlecht">noch nicht eingeladen</span>') : ''}</span></span>
           ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
           ${ic('pfeil')}
         </summary>
@@ -7504,6 +7539,7 @@ const HILFE = [
     <li><b>Spiele-Offensive</b>: Bei jeder Suche fragt die App nebenher auch Spiele-Offensive. Nach etwa einer Minute erscheinen die Treffer mit Foto unter <b>Spiele-Offensive</b> – antippen, prüfen, <b>Übernehmen</b>. Fehlt die Spieldauer, ergänzt die App sie aus Wikipedia, wenn es dort dasselbe Spiel gibt. Findet die Suche das Spiel nicht: unten <b>Spiele-Offensive per Link</b> aufklappen, im Shop die Spielseite öffnen, ihren Link kopieren und einfügen.</li>
     <li>Findet sie nichts, die Angaben einfach selbst eintragen. Ein eigenes Foto geht über <b>Foto der Schachtel aufnehmen</b>.</li>
     <li><b>Bildausschnitt</b>: Das Foto im Formular mit dem Finger verschieben und mit dem Regler kleiner oder größer machen – so legst du fest, was in der Kachel und in der Ansicht zu sehen ist. Das große Bild zeigt die Kachel, das kleine die Ansicht. <b>Mitte</b> setzt alles zurück.</li>
+    <li>Neben <b>Anderes Foto</b> drehen die beiden runden Knöpfe das Bild um 90° oder spiegeln es – geht auch bei einem schon gespeicherten Foto, ohne es neu aufzunehmen.</li>
     <li>Ein Spiel antippen zeigt alle Angaben – dort gibt es auch <b>Bearbeiten</b> und <b>Löschen</b>.</li>
     <li><b>Gibt es das Spiel schon</b> bei einem anderen Haushalt? Beim Eintippen des Namens erscheint es unter „Schon in der App“ – antippen übernimmt Angaben und Foto.</li>
     <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li>
@@ -7664,6 +7700,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.96', datum:'08.11.2026', neu:[
+    { t:'Haushalte: „schon dabei“/„Einladung …“ jetzt grün, „noch nicht eingeladen“ rot – auf einen Blick erkennbar', admin:true },
+    'Beim Spiel bearbeiten: Foto drehen und spiegeln, auch bei einem schon gespeicherten Foto'
+  ]},
   { v:'v1.95', datum:'08.11.2026', neu:[
     { t:'Haushalte: „noch nicht eingeladen“ steht jetzt nur noch, wenn wirklich weder eine Einladung vermerkt noch ein Gerät gemeldet ist – sonst „schon dabei“', admin:true }
   ]},
