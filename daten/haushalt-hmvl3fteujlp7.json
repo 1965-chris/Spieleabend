@@ -406,8 +406,10 @@
    "spielerMin": 2,
    "spielerMax": 6,
    "alterAb": 8,
-   "dauer": null,
-   "kategorien": [],
+   "dauer": 120,
+   "kategorien": [
+    "Brettspiel"
+   ],
    "beschreibung": "Hallo Brüder, Nichten und Neffen.\nZiel des Spieles ist ein gemütliches Beisammensein.\nBitte bringt euren Teil des Spiels „Mättigopoly“ mit. Gewinnen müsst ihr nicht. Wichtiger ist, dass wir zusammenkommen, in Erinnerungen schwelgen und Geschichten auspacken. Die Pleite nehmen wir dabei gern in Kauf.",
    "bemerkung": "",
    "bildQuelle": "",
@@ -415,7 +417,7 @@
    "anleitung": "https://drive.google.com/file/d/1vKDjvt5rBJKiOI_C0unTsmP5IvjSqo5S/view?usp=drivesdk",
    "nurKreis": "kmw63pk36uumu",
    "erstellt": 1794133075665,
-   "geaendert": 1794133075665
+   "geaendert": 1794134893234
   },
   {
    "id": "smvmx60xy7hhz",
@@ -856,7 +858,7 @@
    "app": true,
    "version": "v1.93",
    "erst": 1792864131177,
-   "zuletzt": 1794133077652,
+   "zuletzt": 1794134895276,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430
   },
