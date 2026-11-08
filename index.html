@@ -1093,7 +1093,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.94';
+const VERSION = 'v1.95';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -7048,7 +7048,7 @@ function renderHaushalte(){
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
-          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}${E.admin ? ` · ${h.eingeladenAm ? 'Einladung ' + esc(datumKurzTs(h.eingeladenAm)) : 'noch nicht eingeladen'}` : ''}</span></span>
+          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}${E.admin ? ` · ${h.eingeladenAm ? 'Einladung ' + esc(datumKurzTs(h.eingeladenAm)) : (h.geraete || []).length ? 'schon dabei' : 'noch nicht eingeladen'}` : ''}</span></span>
           ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
           ${ic('pfeil')}
         </summary>
@@ -7579,7 +7579,7 @@ const HILFE = [
     <p><b>Mitspieler</b>: Über <b>+ Mitspieler</b> trägst du die Namen ein – mehrere auf einmal mit Komma getrennt. Einen Namen antippen, um ihn zu ändern oder zu entfernen.</p>
     <p><b>Einladen</b>: Jeder Haushalt hat seinen <b>persönlichen Einladungslink</b> (Haushalt aufklappen → <b>Einladen</b>, oder Einstellungen → Haushalte einladen). Wer ihn öffnet, gehört gleich zu diesem Haushalt – ohne Auswahlliste – und sieht nur, was sein Spielkreis sehen darf.</p>
     <p>Neuer Haushalt: Der Admin legt ihn an, wählt dabei die Spielkreise und schickt gleich den Link. Für ein weiteres Handy oder Tablet schickt jeder Haushalt sich selbst den eigenen Link.</p>
-    <p data-nur-admin>Nach <b>Einladen</b> steht beim Haushalt „Einladung TT.MM.JJ“, sonst „noch nicht eingeladen“ – so siehst du, wem du den Link schon geschickt hast.</p>
+    <p data-nur-admin>Nach <b>Einladen</b> steht beim Haushalt „Einladung TT.MM.JJ“ – so siehst du, wem du den Link schon geschickt hast. Hat ein Haushalt schon ein gemeldetes Gerät, aber (noch) kein vermerktes Einladungsdatum (z. B. von vor dieser Funktion), steht „schon dabei“. Nur bei „noch nicht eingeladen“ fehlt beides wirklich.</p>
     <p><b>Neue Familie dazuholen</b> (ohne Admin): Unter Haushalte ganz unten auf <b>Neue Familie dazuholen</b> tippen und den Namen eintragen. Die App bietet an, dem Admin per WhatsApp Bescheid zu geben. Der Admin sieht die Anfrage oben unter Haushalte (rote Zahl am Reiter), wählt den Spielkreis und gibt frei. Danach steht bei euch unter <b>Eure Einladungen</b> der Knopf <b>Einladungslink teilen</b>.</p>
     <p>Beim Freigeben schlägt die App den Spielkreis „… &amp; Freunde“ vor: Darin sind nur die anfragende Familie und ihre Gäste – die Spiele der anderen bleiben für die Gäste unsichtbar.</p>` },
   { id:'kreise', titel:'Spielkreise und Admin', seite:'einstellungen', text:`
@@ -7664,6 +7664,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.95', datum:'08.11.2026', neu:[
+    { t:'Haushalte: „noch nicht eingeladen“ steht jetzt nur noch, wenn wirklich weder eine Einladung vermerkt noch ein Gerät gemeldet ist – sonst „schon dabei“', admin:true }
+  ]},
   { v:'v1.94', datum:'08.11.2026', neu:[
     { t:'Haushalte: zeigt dir, ob und wann ein Haushalt schon seinen Einladungslink bekommen hat', admin:true }
   ]},
