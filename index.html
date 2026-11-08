@@ -457,6 +457,13 @@ a.knopf{text-decoration:none}
 .chip.stimme[data-a="nein"]{background:color-mix(in srgb, var(--rot) 12%, var(--karte));border-color:color-mix(in srgb, var(--rot) 55%, transparent);color:var(--leise)}
 .stimm-liste{font-size:13.5px;color:var(--leise);margin:8px 0 0;line-height:1.5}
 .fest-karte{background:color-mix(in srgb, #2E9E5B 13%, var(--karte));border:1.5px solid color-mix(in srgb, #2E9E5B 45%, transparent);border-radius:14px;padding:12px 14px;margin:0 0 10px}
+.teile{display:grid;grid-template-columns:repeat(var(--spalten,3),1fr);gap:0;border-radius:12px;overflow:hidden;border:1.5px solid var(--linie);background:var(--grund);margin:4px 0 0}
+.teil{display:block;aspect-ratio:1;padding:0;border:0;margin:0;background:color-mix(in srgb, var(--hf) 22%, var(--karte));cursor:pointer;position:relative;overflow:hidden}
+.teil.leer{background:repeating-linear-gradient(45deg, transparent 0 8px, color-mix(in srgb, var(--tinte) 5%, transparent) 8px 16px);outline:1px dashed color-mix(in srgb, var(--tinte) 18%, transparent);outline-offset:-1px;cursor:default}
+.teil-bild{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}
+.teil-bild img{width:100%;height:100%;object-fit:cover;display:block}
+.teil-bild .platzhalter{font-family:var(--rund);font-weight:800;font-size:28px;color:var(--hf)}
+.teil-bild.hat-bild .platzhalter{display:none}
 .fest-karte b{font-family:var(--rund);font-size:18px}
 .termin-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .termin-knoepfe .knopf{min-height:42px;font-size:14.5px;padding:0 10px}
@@ -1095,7 +1102,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.97';
+const VERSION = 'v1.98';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1283,7 +1290,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel']);
+const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel','teil']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1347,6 +1354,7 @@ function bildPosAnwenden(img, p){
   img.style.transformOrigin = `${p.x}% ${p.y}%`;
   img.style.transform = p.z !== 1 ? `scale(${p.z})` : '';
 }
+const TEILE_MAX = 12, TEILE_SPALTEN = 3;
 function spielNorm(s){
   return {
     ...unbekannte(s, SPIEL_FELDER),
@@ -1364,6 +1372,7 @@ function spielNorm(s){
     ...(Object.keys(anleitungenNorm(s.anleitungen)).length ? { anleitungen:anleitungenNorm(s.anleitungen) } : {}),
     ...(String(s.nurKreis || '').trim() ? { nurKreis:String(s.nurKreis).trim() } : {}),   // nicht gegen die Spielkreise prüfen – die sind beim Laden evtl. noch nicht da
     ...(s.eigeneKachel ? { eigeneKachel:true } : {}),
+    ...(s.eigeneKachel && Number.isInteger(Number(s.teil)) && s.teil >= 1 && s.teil <= TEILE_MAX ? { teil:Number(s.teil) } : {}),   // Platz im Gesamtbild (z. B. Mättigopoly-Spielbretter)
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -3494,6 +3503,9 @@ function spielFormular(sp, vorgabe){
     <div class="feld" data-kreis-feld></div>
     <label class="foto-wahl"><input type="checkbox" data-eigene-kachel${w.eigeneKachel ? ' checked' : ''}>Eigene Kachel, nicht mit gleichnamigen Spielen zusammenfassen</label>
     <p class="block-hinweis" style="margin-top:-4px">Für Spiele, die trotz gleichen Namens bei jedem Haushalt etwas anderes sind – z. B. je ein eigenes Spielbrett mit eigenem Foto.</p>
+    <label class="feld" data-teil-feld${w.eigeneKachel ? '' : ' hidden'}><span class="feld-titel">Platz im Gesamtbild</span>
+      <select class="eingabe" data-teil><option value="">egal</option>${Array.from({ length:TEILE_MAX }, (_, i) => `<option value="${i + 1}"${w.teil === i + 1 ? ' selected' : ''}>${i + 1}${i < TEILE_SPALTEN ? ' (oben)' : ''}</option>`).join('')}</select>
+      <span class="block-hinweis">Gehört das Spiel zu einem Spielkreis, zeigt der Termin die Teile aller Zusagen als ein Bild – je ${TEILE_SPALTEN} nebeneinander, Platz 1 oben links.</span></label>
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
       <div class="feld"><span class="feld-titel">bis</span>${stepperHtml('spielerMax', w.spielerMax ?? w.spielerMin ?? 4, { min:1, max:30 })}</div>
@@ -3526,6 +3538,7 @@ function spielFormular(sp, vorgabe){
       <p class="block-hinweis">Für ein Spiel, das nur in einem eurer Spielkreise eine Rolle spielt – in den anderen bleibt es unsichtbar.</p>`;
   }
   kreisFeldZeigen();
+  $('[data-eigene-kachel]', s).addEventListener('change', e => { $('[data-teil-feld]', s).hidden = !e.target.checked; });
   function fotoZeigen(){
     const hatAltes = w.bild && !fotoEntfernt;
     if (!neuesFoto && !hatAltes){
@@ -3703,9 +3716,9 @@ function spielFormular(sp, vorgabe){
     const kreisEl = $('[data-nur-kreis]', s);
     const wahlKreis = kreisEl ? kreisEl.value : (sp && sp.nurKreis) || '';   // ohne Feld: bisherige Zuordnung behalten, solange der Haushalt im Kreis ist
     const nurKreis = wahlKreis && kreiseVonHaushalt(hid).some(k => k.id === wahlKreis) ? wahlKreis : '';
-    const eigeneKachel = $('[data-eigene-kachel]', s).checked;
+    const eigeneKachel = $('[data-eigene-kachel]', s).checked, teil = eigeneKachel ? Number($('[data-teil]', s).value) || 0 : 0;
     const spiel = spielNorm({
-      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis, eigeneKachel,
+      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis, eigeneKachel, teil,
       spielerMin: stepperWert($('[data-name="spielerMin"]', s)), spielerMax: stepperWert($('[data-name="spielerMax"]', s)),
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
@@ -4055,6 +4068,7 @@ function renderTermine(){
           <h3 class="termin-rubrik">🎳 Kino, Bowling &amp; Co.</h3>${sonstige.map(terminKarteHtml).join('')}`
       : aktuell.map(terminKarteHtml).join('')}
     ${alt.length ? `<div style="margin-top:6px">${klapp('termine-alt', 'Vergangene Termine', alt.map(terminKarteHtml).join(''), { klasse:'leicht', klein:`${alt.length}` })}</div>` : ''}`;
+  bilderBeobachten(el);
   termineZahlZeigen();
 }
 function abstimmungHtml(t, liste, titelHtml, festId, meine){
@@ -4097,7 +4111,7 @@ function terminKarteHtml(t){
       ${mehrOrte ? '<p class="termin-abschnitt">Wann?</p>' : ''}
       ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
       ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
-      ${istSpieleabend(t) ? spieleVorschlagHtml(t, meine) + terminSpieleHtml(t) : ''}
+      ${istSpieleabend(t) ? terminTeileHtml(t) + spieleVorschlagHtml(t, meine) + terminSpieleHtml(t) : ''}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
                   <button class="knopf zweit" type="button" data-t="teilen-fest" data-id="${esc(t.id)}">${ic('teilen')}Teilen</button>`
@@ -4686,6 +4700,59 @@ function spieleVorschlagHtml(t, meine){
     ${!liste.length && meine && !vorbei ? '<p class="text-leise text-klein" style="margin:6px 0 0">Noch keine Vorschläge – schlag Spiele vor, die anderen tippen 👍 an.</p>' : ''}
     ${meine && !vorbei ? `<button class="knopf zweit breit" type="button" data-t="spiel-vorschlagen" data-id="${esc(t.id)}" style="margin-top:10px">${ic('plus')}Spiel vorschlagen</button>` : ''}
     ${nachher ? `<button class="knopf zweit breit" type="button" data-t="gespielt" data-id="${esc(t.id)}" style="margin-top:10px">${ic('pokal')}Gespielt eintragen</button>` : ''}`;
+}
+/* Gesamtbild aus Teilen (z. B. die Mättigopoly-Spielbretter): Spiele mit „Eigene Kachel“, die auf einen Spielkreis beschränkt sind.
+   Gilt für einen Termin, dessen eingeladene Haushalte alle in diesem Spielkreis sind. */
+function kreisTeile(k){
+  const liste = [];
+  for (const hid of k.haushalte){ const h = D.haushalte[hid]; if (!h) continue; for (const sp of h.spiele) if (sp.eigeneKachel && sp.nurKreis === k.id) liste.push({ ...sp, hid }); }
+  return liste;
+}
+function terminTeileKreis(t){
+  if (!t.haushalte.length) return null;
+  let best = null;
+  for (const k of D.verwaltung.kreise || []){
+    if (!t.haushalte.every(id => k.haushalte.includes(id))) continue;
+    const teile = kreisTeile(k);
+    if (teile.length && (!best || teile.length > best.teile.length)) best = { k, teile };
+  }
+  return best;
+}
+/* Für welchen Termin zählen die Zusagen? Der festgelegte – sonst der mit den meisten Zusagen */
+function teileOption(t){
+  const fest = t.optionen.find(o => o.id === t.festgelegt); if (fest) return fest;
+  let best = null, bp = 0;
+  for (const o of t.optionen){ const w = optionAuswertung(t, o), p = w.ja * 2 + w.vl; if (p > bp){ bp = p; best = o; } }
+  return best;
+}
+function haushaltSagtZu(t, o, hid){
+  const g = o && terminTeilnehmer(t).find(x => x.h.id === hid);
+  return !!g && t.haushalte.includes(hid) && g.leute.some(p => stimmeVon(t, o.id, p.pid) === 'ja');
+}
+function terminTeileHtml(t){
+  const tk = terminTeileKreis(t); if (!tk) return '';
+  const o = teileOption(t);
+  // Plätze: feste Plätze zuerst, die übrigen füllen die Lücken der Reihe nach
+  const sortiert = [...tk.teile].sort((a, b) => (a.teil || 99) - (b.teil || 99) || ((D.haushalte[a.hid] || {}).name || '').localeCompare((D.haushalte[b.hid] || {}).name || '', 'de') || a.id.localeCompare(b.id));
+  const plaetze = [];
+  for (const x of sortiert) if (x.teil && !plaetze[x.teil - 1]) plaetze[x.teil - 1] = x;
+  for (const x of sortiert) if (!plaetze.includes(x)){ let i = 0; while (plaetze[i]) i++; plaetze[i] = x; }
+  const anzahl = Math.ceil(Math.max(6, plaetze.length) / TEILE_SPALTEN) * TEILE_SPALTEN;
+  const dabei = x => haushaltSagtZu(t, o, x.hid);
+  const zahl = tk.teile.filter(dabei).length;
+  const fehlen = [...new Set(tk.teile.filter(x => !dabei(x)).map(x => (D.haushalte[x.hid] || {}).name).filter(Boolean))];
+  const felder = Array.from({ length:anzahl }, (_, i) => {
+    const x = plaetze[i];
+    if (!x || !dabei(x)) return `<span class="teil leer" aria-label="Platz ${i + 1}: noch leer"></span>`;
+    return `<button type="button" class="teil" data-spiel="${esc(x.id)}" style="--hf:${esc(farbeVon(x.hid))}" aria-label="Platz ${i + 1}: ${esc((D.haushalte[x.hid] || {}).name || '')}"><span class="teil-bild"${bildAttr(x)}><span class="platzhalter">${esc(initiale((D.haushalte[x.hid] || {}).name || x.name))}</span></span></button>`;
+  }).join('');
+  const wann = o && !t.festgelegt ? `Für ${terminZeitText(o.zeit).split(' um ')[0]}: ` : '';
+  const text = !o ? 'Noch keine Zusagen – sobald jemand ✓ tippt, erscheint sein Teil.'
+    : zahl === tk.teile.length ? `${wann}Alle ${zahl} Teile sind dabei – das Spiel ist komplett! 🎉`
+    : `${wann}${zahl} von ${tk.teile.length} Teilen zugesagt.${fehlen.length ? ` Es fehlt noch: ${esc(fehlen.join(', '))}.` : ''}`;
+  return `<p class="termin-abschnitt">🧩 ${esc(tk.k.name)} – das Gesamtbild</p>
+    <div class="teile" style="--spalten:${TEILE_SPALTEN}">${felder}</div>
+    <p class="stimm-liste" style="margin-top:6px">${text}</p>`;
 }
 /* Welche Spiele gibt es bei den eingeladenen Haushalten? (gleiche Spiele nur einmal, mit allen Haushalten) */
 function terminSpieleHtml(t){
@@ -7562,7 +7629,7 @@ const HILFE = [
     <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li>
     <li><b>Varianten</b>: Unter <b>Bearbeiten</b> weitere Ausgaben zum selben Spiel eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ (bekannte Varianten schlägt die App vor). Sie stehen auf der Kachel, die Suche findet sie, und hat eine Variante einen eigenen Spielblock, startet er direkt beim Spiel. Ergebnisse stehen beim Spiel unter „Gespielt“ mit dem Namen der Variante.</li>
     <li>Ist ein Haushalt in mehreren Spielkreisen, erscheint beim Eintragen <b>Nur sichtbar im Spielkreis …</b> – so bleibt ein Spiel, das nur einen eurer Spielkreise etwas angeht, für die anderen unsichtbar. Das Feld erscheint auch, wenn euer einziger Spielkreis „Nur eigene Spiele zeigen“ eingeschaltet hat – dann ist dieser Kreis schon vorgewählt.</li>
-    <li><b>Eigene Kachel</b>: Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li></ul>` },
+    <li><b>Eigene Kachel</b> (darunter <b>Platz im Gesamtbild</b>, 1 = oben links): Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
     <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
@@ -7625,6 +7692,7 @@ const HILFE = [
     <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
     <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
     <li><b>Was spielen wir?</b> Jeder schlägt Spiele der eingeladenen Haushalte vor, alle tippen bei ihrem Namen 👍 an. „Es steht fest …“ nennt die beliebtesten Spiele.</li>
+    <li><b>Gesamtbild (z. B. Mättigopoly)</b>: Sind alle Eingeladenen in einem Spielkreis, dessen Spiele aus Teilen bestehen (Spiele mit „Eigene Kachel“, beschränkt auf diesen Spielkreis), zeigt der Termin die Teile als ein zusammenhängendes Bild – 6 Felder, je 3 nebeneinander. Ein Teil erscheint, sobald jemand aus seinem Haushalt ✓ getippt hat – für den festgelegten Termin, vorher für die beste Wahl. Fehlende Felder bleiben leer, darunter steht, wer noch fehlt. Den Platz eines Teils legt man beim Spiel unter <b>Platz im Gesamtbild</b> fest.</li>
     <li><b>In den Kalender</b> legt den Termin mit einer Erinnerung einen Tag vorher an.</li>
     <li>Die rote Zahl am Reiter <b>Termine</b> zeigt, wo dein Haushalt noch nicht abgestimmt hat.</li>
     <li>Eine Umfrage sehen nur die eingeladenen Haushalte. Vergangene Abende rutschen nach unten unter <b>Vergangene Spieleabende</b>.</li></ul>` },
@@ -7719,6 +7787,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.98', datum:'08.11.2026', neu:[
+    'Termine im Spielkreis Mättigopoly: die Spielbretter aller, die zugesagt haben, erscheinen als ein zusammenhängendes Bild mit 6 Feldern – fehlende bleiben leer, darunter steht, wer noch fehlt',
+    'Beim Spiel mit „Eigene Kachel“: neues Feld „Platz im Gesamtbild“ (1 = oben links), damit die Bretter richtig zusammenpassen'
+  ]},
   { v:'v1.97', datum:'08.11.2026', neu:[
     'Beim Eintragen eines Spiels: „Eigene Kachel“ – gleichnamige Spiele (z. B. die einzelnen Mättigopoly-Spielbretter) werden dann nicht mehr zu einer Kachel zusammengefasst, jedes bekommt seine eigene mit eigenem Foto',
     { t:'Spielkreise: neuer Schalter „Nur eigene Spiele zeigen“ – in diesem Kreis erscheinen dann nur die Spiele, die auf ihn beschränkt sind, nicht die übrigen Spiele der Haushalte', admin:true },
