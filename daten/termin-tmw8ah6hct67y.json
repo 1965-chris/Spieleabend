@@ -40,7 +40,12 @@
   }
  ],
  "spiele": [],
- "stimmen": {},
+ "stimmen": {
+  "omw8agtioxo2i|pmvl9layukjpl": {
+   "a": "ja",
+   "stand": 1794169983026
+  }
+ },
  "festgelegt": "",
  "festOrt": "",
  "festStand": 1794169971983,
