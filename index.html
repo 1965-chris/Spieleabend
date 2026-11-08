@@ -1093,7 +1093,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.93';
+const VERSION = 'v1.94';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1281,7 +1281,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
 const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
 const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand']);
 const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
@@ -1552,6 +1552,7 @@ function haushaltNorm(h){
     partien:(Array.isArray(h.partien) ? h.partien : []).filter(x => x && x.id).map(partieNorm).filter(x => x.datum && x.name).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id)),
     geraete:(Array.isArray(h.geraete) ? h.geraete : []).filter(x => x && x.id).map(geraetNorm).filter(x => x.zuletzt > grenze).sort(geraeteSort),
     nachrichten:(Array.isArray(h.nachrichten) ? h.nachrichten : []).filter(x => x && x.id && String(x.text || '').trim()).map(nachrichtNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
+    ...(zahl(h.eingeladenAm) ? { eingeladenAm:zahl(h.eingeladenAm) } : {}),
     geloescht:g
   };
 }
@@ -1559,7 +1560,8 @@ function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
     ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}),
-    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}), geloescht:n.geloescht };
+    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}),
+    ...(n.eingeladenAm ? { eingeladenAm:n.eingeladenAm } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
 function gleich(a, b){ return JSON.stringify(dateiForm(a)) === JSON.stringify(dateiForm(b)); }
@@ -1608,7 +1610,8 @@ function zusammenfuehren(lokal, fern){
     na.set(x.id, nachrichtNorm({ ...basis, verlauf:[...vl.values()], status:st.status, statusStand:st.statusStand, stand:Math.max(x.stand, y.stand) }));
   }
   const nachrichten = [...na.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id));
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, geloescht:tomb };
+  const eingeladenAm = Math.max(A.eingeladenAm || 0, B.eingeladenAm || 0) || undefined;
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, ...(eingeladenAm ? { eingeladenAm } : {}), geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -7045,7 +7048,7 @@ function renderHaushalte(){
       return `<details class="klapp hh-klapp" data-klapp="hh-${esc(h.id)}" style="--hf:${esc(h.farbe)}"${klappAuf('hh-' + h.id, false) ? ' open' : ''}>
         <summary>
           <span class="hh-figur">${figur(h.farbe, 30)}</span>
-          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}</span></span>
+          <span class="hh-text"><span class="hh-name">${esc(h.name)}</span><span class="hh-info">${n} ${n === 1 ? 'Spiel' : 'Spiele'}, ${sp.length} Mitspieler${wartet ? ' – noch nicht hochgeladen' : ''}${E.admin ? ` · ${h.eingeladenAm ? 'Einladung ' + esc(datumKurzTs(h.eingeladenAm)) : 'noch nicht eingeladen'}` : ''}</span></span>
           ${h.id === E.meinHaushalt ? '<span class="marke-mein">Mein Haushalt</span>' : ''}
           ${ic('pfeil')}
         </summary>
@@ -7576,6 +7579,7 @@ const HILFE = [
     <p><b>Mitspieler</b>: Über <b>+ Mitspieler</b> trägst du die Namen ein – mehrere auf einmal mit Komma getrennt. Einen Namen antippen, um ihn zu ändern oder zu entfernen.</p>
     <p><b>Einladen</b>: Jeder Haushalt hat seinen <b>persönlichen Einladungslink</b> (Haushalt aufklappen → <b>Einladen</b>, oder Einstellungen → Haushalte einladen). Wer ihn öffnet, gehört gleich zu diesem Haushalt – ohne Auswahlliste – und sieht nur, was sein Spielkreis sehen darf.</p>
     <p>Neuer Haushalt: Der Admin legt ihn an, wählt dabei die Spielkreise und schickt gleich den Link. Für ein weiteres Handy oder Tablet schickt jeder Haushalt sich selbst den eigenen Link.</p>
+    <p data-nur-admin>Nach <b>Einladen</b> steht beim Haushalt „Einladung TT.MM.JJ“, sonst „noch nicht eingeladen“ – so siehst du, wem du den Link schon geschickt hast.</p>
     <p><b>Neue Familie dazuholen</b> (ohne Admin): Unter Haushalte ganz unten auf <b>Neue Familie dazuholen</b> tippen und den Namen eintragen. Die App bietet an, dem Admin per WhatsApp Bescheid zu geben. Der Admin sieht die Anfrage oben unter Haushalte (rote Zahl am Reiter), wählt den Spielkreis und gibt frei. Danach steht bei euch unter <b>Eure Einladungen</b> der Knopf <b>Einladungslink teilen</b>.</p>
     <p>Beim Freigeben schlägt die App den Spielkreis „… &amp; Freunde“ vor: Darin sind nur die anfragende Familie und ihre Gäste – die Spiele der anderen bleiben für die Gäste unsichtbar.</p>` },
   { id:'kreise', titel:'Spielkreise und Admin', seite:'einstellungen', text:`
@@ -7660,6 +7664,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.94', datum:'08.11.2026', neu:[
+    { t:'Haushalte: zeigt dir, ob und wann ein Haushalt schon seinen Einladungslink bekommen hat', admin:true }
+  ]},
   { v:'v1.93', datum:'08.11.2026', neu:[
     'Beim Eintragen eines Spiels: ist ein Haushalt in mehreren Spielkreisen, lässt sich festlegen „Nur sichtbar im Spielkreis …“ – in den anderen Spielkreisen des Haushalts bleibt das Spiel dann unsichtbar'
   ]},
@@ -8561,14 +8568,21 @@ async function einladen(hid, vorwort){
   const link = einladungsLink(h ? h.id : '');
   const text = (vorwort ? vorwort + '\n\n' : '') + einladungsText(h ? h.name : '');
   if (navigator.share){
-    try{ await navigator.share({ title:'Spieleabend', text, url:link }); return; }catch(e){ if (e.name === 'AbortError') return; }
+    try{ await navigator.share({ title:'Spieleabend', text, url:link }); einladungMarkieren(h); return; }catch(e){ if (e.name === 'AbortError') return; }
   }
-  try{ await navigator.clipboard.writeText(`${text}\n\n${link}`); toast('Einladung kopiert – jetzt in WhatsApp einfügen'); }
+  try{ await navigator.clipboard.writeText(`${text}\n\n${link}`); toast('Einladung kopiert – jetzt in WhatsApp einfügen'); einladungMarkieren(h); }
   catch(e){
     const s = sheet(`<div class="sheet-kopf"><h2>Einladungslink${h ? ' für ' + esc(h.name) : ''}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
       <p class="text-leise">Link markieren und kopieren:</p><textarea class="eingabe" readonly style="min-height:120px;font-size:13px">${esc(link)}</textarea>`);
     $('textarea', s).select();
+    einladungMarkieren(h);
   }
+}
+/* Merkt sich, dass dieser Haushalt (zuletzt) einen Einladungslink bekommen hat – zeigt sich in der Haushalte-Liste für den Admin */
+function einladungMarkieren(h){
+  if (!h) return;
+  h.eingeladenAm = Date.now();
+  markiere(h.id, 'Einladungslink verschickt'); speichern(); renderAlles(); syncBald();
 }
 function einladenAngebot(hid){
   const h = D.haushalte[hid]; if (!h || !E.token) return;
