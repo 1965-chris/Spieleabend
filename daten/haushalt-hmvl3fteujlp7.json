@@ -415,7 +415,6 @@
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://drive.google.com/file/d/1vKDjvt5rBJKiOI_C0unTsmP5IvjSqo5S/view?usp=drivesdk",
-   "nurKreis": "kmw63pk36uumu",
    "erstellt": 1794133075665,
    "geaendert": 1794134893234
   },
@@ -896,9 +895,9 @@
    "id": "gmvlcjlfyw1x1",
    "art": "iPad",
    "app": true,
-   "version": "v1.89",
+   "version": "v1.93",
    "erst": 1792875164293,
-   "zuletzt": 1793550056171,
+   "zuletzt": 1794143040098,
    "name": "iPad Christian",
    "nameStand": 1792875867192
   },
