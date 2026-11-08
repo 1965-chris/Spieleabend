@@ -1,11 +1,22 @@
 {
  "format": 1,
- "app": "v1.90",
+ "app": "v1.93",
  "id": "hmw63twpvspur",
  "name": "Mättigopoly Runzer",
  "farbe": "#D64545",
  "stand": 1794037876195,
  "spiele": [],
- "spieler": [],
+ "spieler": [
+  {
+   "id": "pmw7p3sikvo91",
+   "name": "Jeniffer",
+   "stand": 1794134075420
+  },
+  {
+   "id": "pmw7p3sikqf1e",
+   "name": "Till",
+   "stand": 1794134075420
+  }
+ ],
  "geloescht": {}
 }
