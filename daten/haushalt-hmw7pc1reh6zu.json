@@ -1,0 +1,22 @@
+{
+ "format": 1,
+ "app": "v1.93",
+ "id": "hmw7pc1reh6zu",
+ "name": "Familie Mättig Dortmund",
+ "farbe": "#D64545",
+ "stand": 1794134460650,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmw7pc1rfohqs",
+   "name": "Benedikt",
+   "stand": 1794134460651
+  },
+  {
+   "id": "pmw7pc1rfwu8e",
+   "name": "Caro",
+   "stand": 1794134460651
+  }
+ ],
+ "geloescht": {}
+}
