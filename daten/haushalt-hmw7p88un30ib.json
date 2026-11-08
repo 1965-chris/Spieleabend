@@ -1,0 +1,17 @@
+{
+ "format": 1,
+ "app": "v1.93",
+ "id": "hmw7p88un30ib",
+ "name": "Familie Lars Pantförder",
+ "farbe": "#D6589B",
+ "stand": 1794134283215,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmw7p88un3kva",
+   "name": "Lars",
+   "stand": 1794134283215
+  }
+ ],
+ "geloescht": {}
+}
