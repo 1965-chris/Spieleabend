@@ -1,11 +1,22 @@
 {
  "format": 1,
- "app": "v1.90",
+ "app": "v1.93",
  "id": "hmw63sypv8s3h",
  "name": "Mättigopoly Duisburg",
  "farbe": "#2E9E5B",
  "stand": 1794037832131,
  "spiele": [],
- "spieler": [],
+ "spieler": [
+  {
+   "id": "pmw7p1tgaicel",
+   "name": "Chris",
+   "stand": 1794133983322
+  },
+  {
+   "id": "pmw7p1tg9x09a",
+   "name": "Nele",
+   "stand": 1794133983322
+  }
+ ],
  "geloescht": {}
 }
