@@ -859,9 +859,16 @@
    "app": true,
    "version": "v2.01",
    "erst": 1792864131177,
-   "zuletzt": 1794239658400,
+   "zuletzt": 1794239662910,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QN9pW0AAPk2RVb5EzXVd-3QbFljTlg_y1pS_FYgP64tq0X39F-rRGerftjIAuPuaqTKGzPRPACfm6BUY-Nk9KNDrdh2VyLlc5L1CwbigSIr8VeHvKNLBxPlCln4R00cJxpUP5oJLEjX25loiDYcPaNbbiBZBXpEl5n9j5alOmQU",
+    "p256dh": "BO4J59RAzSp-azrOsrO7ANvaQR1DegG3Mmv6ZFkJxcKa19wj5LXUx1_3L5TQEOvAZtUAP6XypywwN1857Cm0DJg",
+    "auth": "59wBaZj9uGqoxmWJ0SdhxA",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794239662910
+   },
    "personen": [
     "pmvl9l3p8z309"
    ],
