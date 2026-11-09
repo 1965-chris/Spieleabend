@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.99",
+ "app": "v2.00",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -894,9 +894,9 @@
    "id": "gmvlci8srx8ih",
    "art": "iPhone",
    "app": true,
-   "version": "v1.93",
+   "version": "v2.00",
    "erst": 1792871140289,
-   "zuletzt": 1794135071384,
+   "zuletzt": 1794235472163,
    "name": "iPhone 6S Plus / Christian",
    "nameStand": 1792871414764
   },
