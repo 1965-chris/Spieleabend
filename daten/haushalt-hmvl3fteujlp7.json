@@ -417,8 +417,9 @@
    "anleitung": "https://drive.google.com/file/d/1vKDjvt5rBJKiOI_C0unTsmP5IvjSqo5S/view?usp=drivesdk",
    "nurKreis": "kmw63pk36uumu",
    "eigeneKachel": true,
+   "teil": 5,
    "erstellt": 1794133075665,
-   "geaendert": 1794168511140
+   "geaendert": 1794242759890
   },
   {
    "id": "smvmx60xy7hhz",
@@ -946,7 +947,7 @@
    "app": true,
    "version": "v2.02",
    "erst": 1793524873739,
-   "zuletzt": 1794242571415,
+   "zuletzt": 1794242762474,
    "name": "",
    "nameStand": 0,
    "push": {
