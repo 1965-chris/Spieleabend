@@ -3,6 +3,7 @@
  "fehler": "",
  "gesehen": [
   "c:cmw9f9exb6l8f",
+  "c:cmw9fb8t8g3iv",
   "n:nmvnon9z9bovg",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
@@ -40,8 +41,14 @@
    "titel": "💬 Christian (Familie Mättig Baumberg)",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794238567515,
+   "titel": "💬 Birgit (Familie Mättig Baumberg)",
+   "an": 1,
+   "ok": 1
   }
  ],
  "geraete": 2,
- "zeit": 1794238482263
+ "zeit": 1794238567515
 }
