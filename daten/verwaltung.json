@@ -79,6 +79,12 @@
     "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
     "stand": 1794239662910
    }
+  },
+  {
+   "id": "gmvlci8srx8ih",
+   "name": "iPhone – Familie Mättig Berlin",
+   "seit": 1794244060352,
+   "stand": 1794244060352
   }
  ],
  "push": {
@@ -125,7 +131,6 @@
  },
  "geloescht": {
   "gmvxkreolqt28": 1793551667839,
-  "gmvlcjlfyw1x1": 1794234813862,
-  "gmvlci8srx8ih": 1794241938934
+  "gmvlcjlfyw1x1": 1794234813862
  }
 }
