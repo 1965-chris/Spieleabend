@@ -937,7 +937,12 @@
    "erst": 1793524873739,
    "zuletzt": 1793551629560,
    "name": "",
-   "nameStand": 0
+   "nameStand": 0,
+   "personen": [
+    "pmvl9layukjpl",
+    "pmvl9l3p8z309"
+   ],
+   "personenStand": 1794238673901
   }
  ],
  "chat": [
