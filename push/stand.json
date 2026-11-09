@@ -3,6 +3,7 @@
  "fehler": "",
  "gesehen": [
   "n:nmvnon9z9bovg",
+  "t:tmw9dr4ltxozw",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
   "v:amvqp2hnokqeq",
@@ -27,8 +28,14 @@
    "titel": "Antwort vom Admin",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794235950552,
+   "titel": "Neuer Termin: 🎲 Spieleabend",
+   "an": 1,
+   "ok": 1
   }
  ],
  "geraete": 2,
- "zeit": 1794235890317
+ "zeit": 1794235950552
 }
