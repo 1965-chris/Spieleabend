@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "app": "v2.00",
+ "geraet": "gmvlcjlfyw1x1",
+ "id": "tmw9dr4ltxozw",
+ "art": "spiele",
+ "titel": "Spieleabend",
+ "notiz": "Bring was zu essen mit",
+ "ort": "",
+ "gastgeber": "hmw9d0w3awrul",
+ "erstelltVon": "hmw9d0w3awrul",
+ "erstellt": 1794235941137,
+ "stand": 1794235941137,
+ "haushalte": [
+  "hmvl3fteujlp7",
+  "hmw9d0w3awrul"
+ ],
+ "optionen": [
+  {
+   "id": "omw9dq9qs8gsf",
+   "zeit": "2026-11-14T19:00",
+   "stand": 1794235901140
+  },
+  {
+   "id": "omw9dqnef8vox",
+   "zeit": "2026-11-21T19:00",
+   "stand": 1794235941137
+  }
+ ],
+ "orte": [
+  {
+   "id": "wmw9dq9qsdsna",
+   "hid": "hmw9d0w3awrul",
+   "text": "",
+   "pos": 0,
+   "stand": 0
+  }
+ ],
+ "spiele": [],
+ "stimmen": {},
+ "festgelegt": "",
+ "festOrt": "",
+ "festStand": 1794235941137,
+ "geloescht": {}
+}
