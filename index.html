@@ -1109,7 +1109,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.99';
+const VERSION = 'v2.00';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2135,7 +2135,9 @@ function frage(titel, text, jaText='OK', gefahr=true){
 let toastTimer = null;
 function toast(text, art=''){
   const t = $('#toast'); t.textContent = text; t.className = 'toast zeigen ' + art;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = 'toast', art === 'fehler' ? 5000 : 2600);
+  // Fehlermeldungen bleiben länger stehen (je nach Länge, mind. 8 s) – Antippen schließt sie
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = 'toast', art === 'fehler' ? Math.max(8000, text.length * 90) : 2600);
+  if (!t.dataset.zu){ t.dataset.zu = '1'; t.addEventListener('click', () => { clearTimeout(toastTimer); t.className = 'toast'; }); }
 }
 function stepperHtml(name, wert, { min=1, max=99, leer='', start=null, gross=false } = {}){
   return `<div class="stepper${gross ? ' gross' : ''}" data-name="${name}" data-min="${min}" data-max="${max}" data-leer="${esc(leer)}" data-start="${start ?? min}" data-wert="${wert ?? ''}">
@@ -7815,6 +7817,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.00', datum:'09.11.2026', neu:[
+    'Fehlermeldungen (rote Hinweise) bleiben länger stehen – Antippen schließt sie',
+    { t:'Mitteilungen einrichten: Die App legt ihre Dateien bei GitHub jetzt zuverlässig an, auch wenn gleichzeitig abgeglichen wird (vorher fehlte dann push/mitteilungen.py)', admin:true }
+  ]},
   { v:'v1.99', datum:'08.11.2026', neu:[
     'Mitteilungen: Das Handy meldet sich bei neuen Terminen und bei Antworten vom Admin – auch wenn die App zu ist. Einschalten unter Einstellungen → Mitteilungen',
     'Zahl am App-Symbol: zeigt, was neu ist (offene Abstimmungen, neue Antworten)',
@@ -9170,15 +9176,21 @@ async function pushSchluesselErzeugen(){
 }
 let pushDateienOk = false;
 async function pushDateiAktuell(pfad, inhalt, muster, version){
-  const r = await gh('GET', `/contents/${pfadKod(pfad)}?ref=${encodeURIComponent(E.branch)}`);
-  let sha = '';
-  if (r.ok){
-    const j = await r.json(); sha = j.sha;
-    let v = 0; try{ const m = muster.exec(textAusB64(j.content || '')); v = m ? Number(m[1]) : 0; }catch(e){}
-    if (v >= version) return;
-  } else if (r.status !== 404) return;
-  const w = await gh('PUT', `/contents/${pfadKod(pfad)}`, { message:`Mitteilungen: ${pfad} ${sha ? 'erneuert' : 'angelegt'}`, branch:E.branch, content:b64AusText(inhalt), ...(sha ? { sha } : {}) });
-  if (!w.ok && w.status !== 409 && w.status !== 422) throw await fehlerAus(w, 'Mitteilungen');
+  // Schreibt GitHub gerade parallel (z. B. der Abgleich), lehnt es mit 409/422 ab – dann kurz warten und nochmal
+  for (let versuch = 0; versuch < 5; versuch++){
+    const r = await gh('GET', `/contents/${pfadKod(pfad)}?ref=${encodeURIComponent(E.branch)}`);
+    let sha = '';
+    if (r.ok){
+      const j = await r.json(); sha = j.sha;
+      let v = 0; try{ const m = muster.exec(textAusB64(j.content || '')); v = m ? Number(m[1]) : 0; }catch(e){}
+      if (v >= version) return;
+    } else if (r.status !== 404) throw await fehlerAus(r, 'Mitteilungen');
+    const w = await gh('PUT', `/contents/${pfadKod(pfad)}`, { message:`Mitteilungen: ${pfad} ${sha ? 'erneuert' : 'angelegt'}`, branch:E.branch, content:b64AusText(inhalt), ...(sha ? { sha } : {}) });
+    if (w.ok) return;
+    if (w.status !== 409 && w.status !== 422) throw await fehlerAus(w, 'Mitteilungen');
+    await warte(1500 + 1500 * versuch);
+  }
+  throw new Error('Mitteilungen: ' + pfad + ' ließ sich nicht anlegen.');
 }
 /* sw.js und push/mitteilungen.py im Repo aktuell halten – macht ein Admin-Gerät, nie eine ältere Fassung über eine neuere */
 async function pushDateienAktuell(){
