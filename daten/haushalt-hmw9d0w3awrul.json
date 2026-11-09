@@ -1,0 +1,17 @@
+{
+ "format": 1,
+ "app": "v1.99",
+ "id": "hmw9d0w3awrul",
+ "name": "Test",
+ "farbe": "#D64545",
+ "stand": 1794234717046,
+ "spiele": [],
+ "spieler": [
+  {
+   "id": "pmw9d0w3bxc78",
+   "name": "Ich",
+   "stand": 1794234717047
+  }
+ ],
+ "geloescht": {}
+}
