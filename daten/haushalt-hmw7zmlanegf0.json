@@ -1,12 +1,24 @@
 {
  "format": 1,
- "app": "v1.95",
+ "app": "v2.02",
  "id": "hmw7zmlanegf0",
  "name": "Familie Mättig Berlin",
  "farbe": "#E0A100",
  "stand": 1794151748687,
  "spiele": [],
  "spieler": [],
+ "geraete": [
+  {
+   "id": "gmvlci8srx8ih",
+   "art": "iPhone",
+   "app": true,
+   "version": "v2.02",
+   "erst": 1794241948049,
+   "zuletzt": 1794241948049,
+   "name": "",
+   "nameStand": 0
+  }
+ ],
  "eingeladenAm": 1794151760803,
  "geloescht": {}
 }
