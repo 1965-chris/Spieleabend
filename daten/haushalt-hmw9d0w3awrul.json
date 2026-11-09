@@ -20,7 +20,7 @@
    "app": true,
    "version": "v2.00",
    "erst": 1794234815825,
-   "zuletzt": 1794235684767,
+   "zuletzt": 1794235882640,
    "name": "",
    "nameStand": 0,
    "push": {
@@ -32,26 +32,7 @@
    }
   }
  ],
- "nachrichten": [
-  {
-   "id": "nmw9dm5f78q99",
-   "art": "sonst",
-   "text": "Hallo test",
-   "von": "Ich",
-   "betrifft": [],
-   "erstellt": 1794235708915,
-   "stand": 1794235834268,
-   "status": "offen",
-   "statusStand": 0,
-   "verlauf": [
-    {
-     "id": "amw9dou58r0qt",
-     "admin": true,
-     "text": "Geht klar",
-     "zeit": 1794235834268
-    }
-   ]
-  }
- ],
- "geloescht": {}
+ "geloescht": {
+  "nmw9dm5f78q99": 1794235880653
+ }
 }
