@@ -1,8 +1,8 @@
 # Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.
 # Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.
 # Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),
-# neuer Termin (an die eingeladenen Haushalte). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.
-MITTEILUNGEN_VERSION = 1
+# neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.
+MITTEILUNGEN_VERSION = 2
 import base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request
 from urllib.parse import urlparse
 
@@ -146,10 +146,10 @@ def abos_sammeln(haushalte, verwaltung, schluessel):
             if not gid or not abo_ok(p, schluessel): continue
             alt = abos.get(gid)
             if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:
-                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0}
+                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0, 'personen': [str(x) for x in (g.get('personen') or [])]}
     for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt
         p, gid = x.get('push'), str(x.get('id', ''))
-        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0}
+        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0, 'personen': []}
     return abos
 
 
@@ -176,6 +176,31 @@ def ereignisse(haushalte, termine, verwaltung, abos):
                     an, titel = an_admin, f"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}"
                 liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,
                     'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})
+    # Chat
+    kreise = {str(k.get('id')): k for k in verwaltung.get('kreise') or [] if k.get('id')}
+    for h in haushalte.values():
+        hname = h.get('name') or 'Ein Haushalt'
+        namen = {str(p.get('id')): p.get('name') for p in h.get('spieler') or []}
+        for c in h.get('chat') or []:
+            if not c.get('id') or not str(c.get('text', '')).strip(): continue
+            von, an, geraet = str(c.get('von') or ''), str(c.get('an') or ''), str(c.get('geraet') or '')
+            wer = namen.get(von) or 'Jemand'
+            # nicht an das schreibende Gerät und nicht an andere Geräte, die allein dieser Person gehören
+            def ohne_absender(gids):
+                return sorted(g for g in gids if g != geraet and not (abos[g]['hid'] == h.get('id') and abos[g]['personen'] == [von]))
+            if an.startswith('k:'):
+                k = kreise.get(an[2:])
+                if not k or 'chat' in (k.get('aus') or []): continue
+                empf = ohne_absender(g for g, a in abos.items() if a['hid'] in set(k.get('haushalte') or []))
+                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,
+                    'titel': f"💬 {kurz(k.get('name') or 'Spielkreis', 60)}", 'text': f"{wer}: {kurz(c.get('text'))}", 'ziel': 'chat:' + an, 'tag': 'c-' + an})
+            elif an.startswith('p:') and an.count(':') == 2:
+                _, zhid, zpid = an.split(':')
+                im_haus = [g for g, a in abos.items() if a['hid'] == zhid]
+                persoenlich = [g for g in im_haus if zpid in abos[g]['personen']]
+                empf = ohne_absender(persoenlich or im_haus)
+                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,
+                    'titel': f"💬 {wer} ({hname})", 'text': kurz(c.get('text')), 'ziel': f"chat:p:{h.get('id')}:{von}", 'tag': f"c-p-{h.get('id')}-{von}"})
     for t in termine.values():
         if not t.get('id'): continue
         eingeladen = set(t.get('haushalte') or []) or set(haushalte)
