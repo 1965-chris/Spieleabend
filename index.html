@@ -779,6 +779,9 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .chat-zeile-eingabe{display:flex;gap:8px;align-items:flex-end}
 .chat-zeile-eingabe textarea{flex:1;resize:none;min-height:44px;max-height:140px}
 .chat-zeile-eingabe .knopf{flex:none;width:48px;padding:0}
+.teilen-info{background:var(--filz-hell);border-radius:12px;padding:10px 12px;margin:-2px 0 4px;font-size:15px;line-height:1.45}
+.teilen-info p{margin:0 0 6px}
+.teilen-info p:last-child{margin:0}
 .push-schritte{margin:8px 0 12px;padding-left:22px}
 .push-schritte > li{margin:0 0 14px}
 .push-schritte ol{margin:6px 0 8px;padding-left:18px}
@@ -1139,7 +1142,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.02';
+const VERSION = 'v2.03';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -4196,7 +4199,7 @@ function terminKlick(e){
   if (was === 'spiel-vorschlagen') return spielVorschlagen(t);
   if (was === 'spiel-weg') return spielVorschlagWeg(t, b.dataset.sp);
   if (was === 'gespielt') return terminGespielt(t);
-  if (was === 'teilen') return teilenSheet('Einladung teilen', terminEinladungText(t));
+  if (was === 'teilen') return teilenSheet('Einladung teilen', terminEinladungText(t), terminMitteilungHtml(t));
   if (was === 'teilen-fest') return teilenSheet('Termin teilen', terminFestText(t));
   if (was === 'kalender') return kalenderDatei(t);
   if (was === 'festlegen') return terminFestlegen(t);
@@ -4247,9 +4250,34 @@ async function teilen(text){
   try{ await navigator.clipboard.writeText(text); toast('Text kopiert – jetzt in WhatsApp einfügen'); return true; }
   catch(e){ return false; }
 }
-function teilenSheet(titel, text){
+/* Wer bekommt zur Einladung schon eine Mitteilung aufs Handy? Dem muss man sie nicht noch per WhatsApp schicken.
+   Eine Person gilt als erreicht, wenn in ihrem Haushalt ein Gerät mit Mitteilungen ihr gehört oder keinem bestimmten (gemeinsam). */
+function terminMitteilungsStand(t){
+  const mit = [], ohne = [], key = pushSchluessel();
+  if (!key || !funktionAn('termine')) return null;
+  const ichDa = geraetPersonen().length === 1 ? E.meinHaushalt + ':' + geraetPersonen()[0] : '';
+  const anlegend = t.geraet || '';
+  for (const g of terminTeilnehmer(t)){
+    const geraete = (g.h.geraete || []).filter(x => x.push && x.push.schluessel === key && x.id !== anlegend);
+    for (const p of g.leute){
+      if (g.h.id + ':' + p.pid === ichDa) continue;                       // man selbst
+      const erreicht = geraete.some(x => !(x.personen || []).length || x.personen.includes(p.pid));
+      (erreicht ? mit : ohne).push({ name:p.name, hh:g.h.name });
+    }
+  }
+  return { mit, ohne };
+}
+function terminMitteilungHtml(t){
+  const st = terminMitteilungsStand(t); if (!st || !st.mit.length) return '';
+  const liste = l => l.map(x => `<b>${esc(x.name)}</b> <small class="text-leise">(${esc(x.hh)})</small>`).join(', ');
+  return `<div class="teilen-info">
+    <p>🔔 <b>Bekommen schon eine Mitteilung aufs Handy</b> – nicht extra schicken:<br>${liste(st.mit)}</p>
+    ${st.ohne.length ? `<p>📤 <b>Per WhatsApp & Co. nur noch an:</b><br>${liste(st.ohne)}</p>` : '<p>✓ <b>Alle Eingeladenen bekommen eine Mitteilung</b> – Teilen ist nicht nötig.</p>'}</div>`;
+}
+function teilenSheet(titel, text, info=''){
   const s = sheet(`<div class="sheet-kopf"><h2>${esc(titel)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
-    <p class="text-leise" style="margin-top:-4px">Dieser Text geht zum Beispiel per WhatsApp an alle:</p>
+    ${info}
+    <p class="text-leise" style="margin-top:${info ? '10px' : '-4px'}">Dieser Text geht zum Beispiel per WhatsApp an ${info ? 'die anderen' : 'alle'}:</p>
     <textarea class="eingabe" readonly style="min-height:200px;font-size:14.5px">${esc(text)}</textarea>
     <button class="knopf breit" type="button" data-senden style="margin-top:12px">${ic('teilen')}Jetzt teilen</button>`);
   $('[data-senden]', s).addEventListener('click', async () => {
@@ -4407,7 +4435,7 @@ function terminFormular(t, artVorwahl){
     markiereT(id, neu ? 'Termine vorgeschlagen' : 'Termine geändert');
     KL['termin-' + id] = true; schreiben(LS.klapp, KL);
     speichern(); s.schliessen(); renderAlles(); syncBald();
-    if (neu) setTimeout(() => teilenSheet('Einladung verschicken', terminEinladungText(fertig)), 260);
+    if (neu) setTimeout(() => teilenSheet('Einladung verschicken', terminEinladungText(fertig), terminMitteilungHtml(fertig)), 260);
     else toast('Gespeichert');
   });
 }
@@ -7802,6 +7830,7 @@ const HILFE = [
     <ul><li><b>Neuer Termin</b>, zu dem dein Haushalt eingeladen ist.</li>
     <li><b>Antwort vom Admin</b> auf eine Nachricht deines Haushalts.</li>
     <li><b>Chat:</b> neue Nachrichten in deinen Gruppen und an dich.</li>
+    <li><b>Einladung teilen:</b> Beim Teilen eines neuen Termins zeigt die App, wer schon eine Mitteilung bekommt – an die muss die Einladung nicht noch per WhatsApp.</li>
     <li>Für den Admin: <b>neue Nachrichten</b> und Antworten der Haushalte.</li></ul>
     <p>Die Zahl am App-Symbol zeigt, was neu ist; beim Öffnen der App stellt sie sich auf den echten Stand. Antippen einer Mitteilung öffnet gleich die passende Stelle.</p>
     <p><b>Einschalten:</b> Einstellungen → <b>Mitteilungen</b> → <b>Mitteilungen erlauben</b>, dann die Frage des Handys mit „Erlauben“ bestätigen. Das macht jedes Gerät einmal selbst. <b>Test-Mitteilung</b> zeigt, ob alles klappt (kommt nach etwa einer Minute).</p>
@@ -7875,6 +7904,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.03', datum:'09.11.2026', neu:[
+    'Einladung zu einem Termin teilen: Die App zeigt, wer schon eine Mitteilung aufs Handy bekommt – per WhatsApp & Co. nur noch an die anderen schicken, so gibt es nichts doppelt'
+  ]},
   { v:'v2.02', datum:'09.11.2026', neu:[
     'Chat-Knopf fehlte nach dem Öffnen der App, wenn beim Abgleich nichts Neues kam – jetzt ist er immer da; auch die Zahl am App-Symbol stimmt gleich beim Öffnen',
     'Chat „Neue Nachricht an …“: Haushalte, in denen noch niemand die App geöffnet hat, stehen unten unter „Noch nicht in der App“ und sind nicht antippbar',
