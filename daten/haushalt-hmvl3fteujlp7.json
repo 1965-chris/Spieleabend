@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.01",
+ "app": "v2.02",
  "id": "hmvl3fteujlp7",
  "name": "Familie Mättig Baumberg",
  "farbe": "#2F6FDE",
@@ -857,9 +857,9 @@
    "id": "gmvlch98lgubm",
    "art": "iPhone",
    "app": true,
-   "version": "v2.01",
+   "version": "v2.02",
    "erst": 1792864131177,
-   "zuletzt": 1794240085682,
+   "zuletzt": 1794241086205,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
