@@ -1,7 +1,8 @@
 {
- "version": 1,
+ "version": 2,
  "fehler": "",
  "gesehen": [
+  "c:cmw9f9exb6l8f",
   "n:nmvnon9z9bovg",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
@@ -33,8 +34,14 @@
    "titel": "Neuer Termin: 🎲 Spieleabend",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794238482263,
+   "titel": "💬 Christian (Familie Mättig Baumberg)",
+   "an": 1,
+   "ok": 1
   }
  ],
  "geraete": 2,
- "zeit": 1794236410978
+ "zeit": 1794238482263
 }
