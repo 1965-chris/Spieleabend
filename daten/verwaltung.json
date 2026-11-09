@@ -77,12 +77,6 @@
     "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
     "stand": 1794233598256
    }
-  },
-  {
-   "id": "gmvlcjlfyw1x1",
-   "name": "iPad – Familie Mättig Baumberg",
-   "seit": 1794234785725,
-   "stand": 1794234785725
   }
  ],
  "push": {
@@ -129,6 +123,7 @@
  },
  "geloescht": {
   "gmvxkreolqt28": 1793551667839,
-  "gmvlci8srx8ih": 1794135377061
+  "gmvlci8srx8ih": 1794135377061,
+  "gmvlcjlfyw1x1": 1794234813862
  }
 }
