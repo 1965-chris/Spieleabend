@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.99",
+ "app": "v2.00",
  "id": "hmw9d0w3awrul",
  "name": "Test",
  "farbe": "#D64545",
@@ -18,9 +18,9 @@
    "id": "gmvlcjlfyw1x1",
    "art": "iPad",
    "app": true,
-   "version": "v1.99",
+   "version": "v2.00",
    "erst": 1794234815825,
-   "zuletzt": 1794234815825,
+   "zuletzt": 1794235684767,
    "name": "",
    "nameStand": 0,
    "push": {
