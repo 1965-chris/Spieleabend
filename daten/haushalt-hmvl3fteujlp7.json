@@ -958,14 +958,6 @@
  ],
  "chat": [
   {
-   "id": "cmw9f9exb6l8f",
-   "an": "p:hmvl3fteujlp7:pmvl9layukjpl",
-   "von": "pmvl9l3p8z309",
-   "text": "Hallo😃",
-   "zeit": 1794238473935,
-   "geraet": "gmvlch98lgubm"
-  },
-  {
    "id": "cmw9fb8t8g3iv",
    "an": "p:hmvl3fteujlp7:pmvl9l3p8z309",
    "von": "pmvl9layukjpl",
@@ -1007,6 +999,7 @@
   "smvxr4o7dzsgf": 1793532846513,
   "smvmlr7xcr5o0": 1793541394018,
   "smvy7sg354mb9": 1793560903666,
-  "smvy7wekhbkm2": 1793561174272
+  "smvy7wekhbkm2": 1793561174272,
+  "cmw9f9exb6l8f": 1794242324337
  }
 }
