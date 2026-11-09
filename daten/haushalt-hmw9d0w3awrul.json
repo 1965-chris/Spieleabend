@@ -13,5 +13,24 @@
    "stand": 1794234717047
   }
  ],
+ "geraete": [
+  {
+   "id": "gmvlcjlfyw1x1",
+   "art": "iPad",
+   "app": true,
+   "version": "v1.99",
+   "erst": 1794234815825,
+   "zuletzt": 1794234815825,
+   "name": "",
+   "nameStand": 0,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QLt34Xybjlo76xSTJrg1E-xJuCyLe6d935ILJTwGr-pXwHByGJm2b-VOnU0gBEJKZxeIwiMy-vga_tCZo5YGuaqjLuWqP3OyISKkQkRGBi_OjhE6DY7SO0YNX1Lq7z_HYVbH0E_zs0_dqboLBYFloxXSyjBBuzAfvXgBnR67hII",
+    "p256dh": "BJeNL8tV9pYNTIiEx-cMQE1gSfBcu3jJH7So1Wy3eiYfrtbfeC0M3FVoep6PmjOJZnvUp1G6XfE252PZCi8-TVg",
+    "auth": "7-KUREb0Sg2RAEJcq8nmiQ",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794234761912
+   }
+  }
+ ],
  "geloescht": {}
 }
