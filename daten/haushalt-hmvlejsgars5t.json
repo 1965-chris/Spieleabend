@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.89",
+ "app": "v2.01",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -294,7 +294,11 @@
    "erst": 1792870366996,
    "zuletzt": 1792870366996,
    "name": "Verena",
-   "nameStand": 1792870463038
+   "nameStand": 1792870463038,
+   "personen": [
+    "pmvlejsgaz739"
+   ],
+   "personenStand": 1794238680147
   },
   {
    "id": "gmvxkreolqt28",
