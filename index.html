@@ -1139,7 +1139,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.01';
+const VERSION = 'v2.02';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -7875,6 +7875,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.02', datum:'09.11.2026', neu:[
+    'Chat-Knopf fehlte nach dem Öffnen der App, wenn beim Abgleich nichts Neues kam – jetzt ist er immer da; auch die Zahl am App-Symbol stimmt gleich beim Öffnen',
+    'Chat „Neue Nachricht an …“: Haushalte, in denen noch niemand die App geöffnet hat, stehen unten unter „Noch nicht in der App“ und sind nicht antippbar',
+    'Hat ein Haushalt nur Geräte mit älterer App-Version, steht dabei: liest es erst nach dem Update'
+  ]},
   { v:'v2.01', datum:'09.11.2026', neu:[
     'Chat: oben rechts der Sprechblasen-Knopf – eine Gruppe für jeden Spielkreis und Nachrichten direkt an einzelne Personen',
     'Wem gehört dieses Gerät? Einmal festlegen, dann kommen Nachrichten an dich genau auf deinem Gerät an (oder „gemeinsames Gerät“)',
@@ -9018,12 +9023,12 @@ function installHinweis(){
    Jede Nachricht liegt in der Datei des Haushalts, der sie geschrieben hat (h.chat) – so schreibt jeder nur in seine eigene Datei.
    Unterhaltungen: 'k:<Spielkreis>' für die Gruppe, 'p:<Haushalt>:<Person>' für die Unterhaltung mit dieser Person (aus meiner Sicht). */
 function chatMoeglich(){ return !!(E.token && meinHaushaltGueltig() && funktionAn('chat')); }
-function personName(hid, pid){ const h = D.haushalte[hid], p = h && h.spieler.find(x => x.id === pid); return p ? p.name : 'Jemand'; }
+function personName(hid, pid){ const h = D.haushalte[hid], p = h && (h.spieler || []).find(x => x.id === pid); return p ? p.name : 'Jemand'; }
 function eigenesGeraet(){ const h = D.haushalte[E.meinHaushalt]; return h && (h.geraete || []).find(g => g.id === E.geraetId); }
 /* Wem gehört dieses Gerät? Leer = noch nicht festgelegt; alle Mitspieler = gemeinsames Gerät */
 function geraetPersonen(){
   const g = eigenesGeraet(), h = D.haushalte[E.meinHaushalt];
-  return g && g.personen ? g.personen.filter(pid => h.spieler.some(p => p.id === pid)) : [];
+  return g && g.personen ? g.personen.filter(pid => (h.spieler || []).some(p => p.id === pid)) : [];
 }
 function geraetZugeordnet(){ const g = eigenesGeraet(); return !!(g && g.personenStand); }
 /* Wer schreibt gerade? Ein Gerät mit genau einer Person: die. Sonst die zuletzt gewählte. */
@@ -9031,7 +9036,7 @@ function chatIch(){
   const h = D.haushalte[E.meinHaushalt]; if (!h) return null;
   const pers = geraetPersonen();
   if (pers.length === 1) return pers[0];
-  const kandidaten = pers.length ? pers : h.spieler.map(p => p.id);
+  const kandidaten = pers.length ? pers : (h.spieler || []).map(p => p.id);
   if (kandidaten.length === 1) return kandidaten[0];
   return kandidaten.includes(E.chatIch) ? E.chatIch : null;
 }
@@ -9039,11 +9044,11 @@ function chatIch(){
 function chatIchSet(){
   const h = D.haushalte[E.meinHaushalt]; if (!h) return new Set();
   const pers = geraetPersonen();
-  return new Set((pers.length ? pers : h.spieler.map(p => p.id)).map(pid => E.meinHaushalt + ':' + pid));
+  return new Set((pers.length ? pers : (h.spieler || []).map(p => p.id)).map(pid => E.meinHaushalt + ':' + pid));
 }
 function chatKreise(){
   if (!meinHaushaltGueltig()) return [];
-  return D.verwaltung.kreise.filter(k => k.haushalte.includes(E.meinHaushalt) && !(k.aus || []).includes('chat'));
+  return (D.verwaltung.kreise || []).filter(k => (k.haushalte || []).includes(E.meinHaushalt) && !(k.aus || []).includes('chat'));
 }
 /* Alle Nachrichten, die mich betreffen, nach Unterhaltung geordnet */
 function chatUnterhaltungen(){
@@ -9073,8 +9078,8 @@ function chatGelesenSetzen(key, liste){
 }
 function chatTitel(key){
   if (key.startsWith('k:')){ const k = D.verwaltung.kreise.find(x => x.id === key.slice(2)); return { t:k ? k.name : 'Spielkreis', u:'Gruppe' + (k ? ` · ${k.haushalte.filter(id => D.haushalte[id]).length} Haushalte` : '') }; }
-  const [, hid, pid] = key.split(':'); const h = D.haushalte[hid];
-  return { t:personName(hid, pid), u:h ? h.name : '' };
+  const [, hid, pid] = key.split(':'); const h = D.haushalte[hid], st = chatHaushaltStand(hid);
+  return { t:personName(hid, pid), u:(h ? h.name : '') + (st === 'alt' ? ' · liest es erst nach dem App-Update' : st === 'ohne' ? ' · noch nicht in der App' : '') };
 }
 function chatKnopfZeigen(){
   const b = $('#chat-knopf'); if (!b) return;
@@ -9127,12 +9132,23 @@ function chatZeitKurz(z){
   if (d.toDateString() === heute.toDateString()) return d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
   return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' });
 }
+/* Ab dieser Version kann eine App den Chat lesen */
+const CHAT_AB = 'v2.01';
+function chatHaushaltStand(hid){
+  if (hid === E.meinHaushalt) return 'ok';
+  const g = (D.haushalte[hid] || {}).geraete || [];
+  if (!g.length) return 'ohne';                                           // noch nie ein Gerät gemeldet – liest niemand
+  return g.some(x => versionZahl(x.version) >= versionZahl(CHAT_AB)) ? 'ok' : 'alt';
+}
 function chatNeuHtml(){
-  const ich = chatIch(), ids = [...sichtbareIds(true)].filter(id => D.haushalte[id]).sort((a, b) => (a === E.meinHaushalt ? -1 : b === E.meinHaushalt ? 1 : D.haushalte[a].name.localeCompare(D.haushalte[b].name, 'de')));
+  const ich = chatIch(), ids = [...sichtbareIds(true)].filter(id => D.haushalte[id] && D.haushalte[id].spieler.length).sort((a, b) => (a === E.meinHaushalt ? -1 : b === E.meinHaushalt ? 1 : D.haushalte[a].name.localeCompare(D.haushalte[b].name, 'de')));
+  const ohne = ids.filter(id => chatHaushaltStand(id) === 'ohne');
   return `<div class="sheet-kopf"><button class="knopf-rund" type="button" data-chat-zurueck aria-label="Zurück">${ic('zurueck')}</button><h2 style="flex:1;margin-left:8px">Neue Nachricht an …</h2></div>
-    ${ids.map(id => { const h = D.haushalte[id], leute = h.spieler.filter(p => !(ich && id === E.meinHaushalt && p.id === ich));
+    ${ids.filter(id => chatHaushaltStand(id) !== 'ohne').map(id => { const h = D.haushalte[id], leute = h.spieler.filter(p => !(ich && id === E.meinHaushalt && p.id === ich));
       return leute.length ? `<p class="chat-abschnitt"><span class="hh-punkt" style="background:${esc(h.farbe)}"></span>${esc(h.name)}</p>
-        <div class="chips" style="margin-bottom:10px">${leute.map(p => `<button type="button" class="chip" data-chat-auf="${esc('p:' + id + ':' + p.id)}">${esc(p.name)}</button>`).join('')}</div>` : ''; }).join('')}`;
+        ${chatHaushaltStand(id) === 'alt' ? '<p class="text-leise text-klein" style="margin:-4px 0 6px">Hat noch eine ältere App-Version – liest es erst nach dem Update.</p>' : ''}
+        <div class="chips" style="margin-bottom:10px">${leute.map(p => `<button type="button" class="chip" data-chat-auf="${esc('p:' + id + ':' + p.id)}">${esc(p.name)}</button>`).join('')}</div>` : ''; }).join('')}
+    ${ohne.length ? `<p class="chat-abschnitt">Noch nicht in der App</p><p class="text-leise text-klein" style="margin:0" data-chat-ohne>${esc(ohne.map(id => D.haushalte[id].name).join(', '))} – dort hat noch niemand die App geöffnet, Nachrichten würden nicht gelesen.</p>` : ''}`;
 }
 function chatVerlaufHtml(key){
   const l = chatUnterhaltungen().get(key) || [];
@@ -9150,7 +9166,7 @@ function chatVerlaufHtml(key){
 function chatGespraechHtml(key){
   const t = chatTitel(key), ich = chatIch(), h = D.haushalte[E.meinHaushalt];
   const wahl = !ich || (geraetPersonen().length !== 1 && h.spieler.length > 1);
-  const kandidaten = geraetPersonen().length > 1 ? geraetPersonen() : h.spieler.map(p => p.id);
+  const kandidaten = geraetPersonen().length > 1 ? geraetPersonen() : (h.spieler || []).map(p => p.id);
   return `<div class="sheet-kopf"><button class="knopf-rund" type="button" data-chat-zurueck aria-label="Zurück">${ic('zurueck')}</button>
       <div style="flex:1;margin-left:8px;min-width:0"><h2 style="margin:0">${esc(t.t)}</h2><small class="text-leise">${esc(t.u)}</small></div>
       <button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
@@ -9193,7 +9209,7 @@ async function chatKlick(e){
 function chatGeraetZuordnen(hid, gid, personen){
   const h = D.haushalte[hid], g = h && (h.geraete || []).find(x => x.id === gid);
   if (!g){ if (gid === E.geraetId){ geraetMelden(); return chatGeraetZuordnen(hid, gid, personen); } return; }
-  g.personen = personen || h.spieler.map(p => p.id); g.personenStand = Date.now();
+  g.personen = personen || (h.spieler || []).map(p => p.id); g.personenStand = Date.now();
   if (personen && personen.length === 1 && gid === E.geraetId){ E.chatIch = personen[0]; einstSpeichern(); }
   markiere(hid, 'Gerät zugeordnet'); speichern(); syncBald();
 }
@@ -9669,6 +9685,7 @@ function start(){
   blockHinweisZeigen();
   installHinweis();
   seiteZeigen('spiele');
+  try{ chatKnopfZeigen(); badgeZeigen(); }catch(e){}      // gleich beim Start – nicht erst, wenn der Abgleich etwas Neues bringt (darf den Start nie aufhalten)
   terminLinkPruefen();
   if (eingeladen && !istStandalone()) ueberSheet(true);      // sofort, damit die Haushaltsfrage danach kommt
   else if (eingeladen) setTimeout(haushaltWechselPruefen, 500);
@@ -9676,6 +9693,7 @@ function start(){
   const startZiel = zielAusAdresse();
   if (startZiel) setTimeout(() => zielOeffnen(startZiel), 50);
   Promise.resolve(sync(eingeladen ? 'Einladung' : 'Start')).finally(() => {
+    try{ chatKnopfZeigen(); badgeZeigen(); }catch(e){}
     if (startZiel) zielOeffnen(startZiel);
     if (pushEingerichtet()){
       pushPruefen(); if (E.push) pushStandLaden().then(renderPushTeile);
