@@ -1,0 +1,21 @@
+{
+ "version": 1,
+ "fehler": "",
+ "gesehen": [
+  "n:nmvnon9z9bovg",
+  "v:amvnq9o9n63es",
+  "v:amvnxqo9ezzjk",
+  "v:amvqp2hnokqeq",
+  "v:amvr3k8igllvb"
+ ],
+ "test": {
+  "id": "tmw9cwbmwzwx7",
+  "geraet": "gmvlch98lgubm",
+  "zeit": 1794234511038,
+  "ergebnis": "ok"
+ },
+ "abgelaufen": {},
+ "gesendet": [],
+ "geraete": 1,
+ "zeit": 1794234511038
+}
