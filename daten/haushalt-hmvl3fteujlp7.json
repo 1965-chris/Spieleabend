@@ -946,9 +946,16 @@
    "app": true,
    "version": "v2.02",
    "erst": 1793524873739,
-   "zuletzt": 1794242303538,
+   "zuletzt": 1794242571415,
    "name": "",
    "nameStand": 0,
+   "push": {
+    "endpoint": "https://wns2-am3p.notify.windows.com/w/?token=BQYAAAABf%2fRt28N4v0gyRFy7GwjbFiT5DCnx%2bGvtMqMdlUyQ2hJUiwgerjOSq8Umes3mb8iODf%2fqqcf5M0UL22VTNBd1iTTeAwcpqfUeQgpZs0JvIBnzr4casYug5B959gAQGxUq5S3S59cn6bTWzXKwanIUQM5Qx150%2b1TIhUP0QI5AMDHA6NKxw2s5eko6uOTE1UesJxWuXU9ntSDO%2f3KJBkTvT1R8YxUeSou1nlgF4ENFmP46X6fCs7ITJs7jCZkhIPkXjrwM0xgDkVpiucpYXL5bLrG9FgTO09m4qdlCFK954sQRxdkrebvjin6ilv1LrMR6IcFoS9mRfx%2bdEuXCx%2bZr",
+    "p256dh": "BB2CQ-GW6JhoERzGzVrTGMdPPXALV41Wp3fDJFSUwtkPe8y7DLxKiUdlzX0G7hhZheYQZ422mybBD6NQiyGl_zY",
+    "auth": "tbm8oKmjbTZCyQ9WNBG2OQ",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794242571415
+   },
    "personen": [
     "pmvl9l3p8z309"
    ],
