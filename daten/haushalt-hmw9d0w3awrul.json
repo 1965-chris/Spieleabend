@@ -40,10 +40,17 @@
    "von": "Ich",
    "betrifft": [],
    "erstellt": 1794235708915,
-   "stand": 1794235708915,
+   "stand": 1794235834268,
    "status": "offen",
    "statusStand": 0,
-   "verlauf": []
+   "verlauf": [
+    {
+     "id": "amw9dou58r0qt",
+     "admin": true,
+     "text": "Geht klar",
+     "zeit": 1794235834268
+    }
+   ]
   }
  ],
  "geloescht": {}
