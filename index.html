@@ -750,6 +750,12 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 
 /* Installationshinweis */
 .install{display:flex;gap:10px;align-items:flex-start}
+.push-schritte{margin:8px 0 12px;padding-left:22px}
+.push-schritte > li{margin:0 0 14px}
+.push-schritte ol{margin:6px 0 8px;padding-left:18px}
+.push-schritte p{margin:6px 0 8px}
+.push-geheim{font-family:ui-monospace,Menlo,monospace;font-size:14px;min-height:56px;word-break:break-all}
+.knopf-link{background:none;border:0;padding:0;color:var(--filz, #1E6B52);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
 .install p{margin:0;flex:1}
 
 /* ---------- Ganz schön clever: Blatt wie das Original ---------- */
@@ -1033,6 +1039,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 <main>
   <div id="update-hinweis"></div>
   <div id="install-hinweis"></div>
+  <div id="push-hinweis"></div>
   <div id="block-hinweis"></div>
   <div id="live-hinweis"></div>
   <div id="kreis-leiste" class="kreis-leiste" hidden></div>
@@ -1102,7 +1109,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v1.98';
+const VERSION = 'v1.99';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1180,7 +1187,7 @@ const VORLAGEN = [
   { passt:n => ['romme', 'rommee', 'rommecup'].includes(n), w:{ art:'tief' } },
   { passt:n => ['scrabble', 'carcassonne', 'azul', 'kingdomino', 'qwinto', 'wingspan', 'flugelschlag'].some(x => n.startsWith(x)), w:{ art:'hoch' } }
 ];
-const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','freigaben','geloescht']);
+const V_FELDER = new Set(['format','app','pinHash','pinSalz','pinStand','kreise','adminGeraete','aus','ausStand','freigaben','push','geloescht']);
 const KREIS_FELDER = new Set(['id','name','haushalte','aus','stand','nurEigene']);
 function ausListe(a){ return Array.isArray(a) ? [...new Set(a.map(String))].filter(k => /^[a-z]+$/.test(k)).sort() : []; }
 
@@ -1260,6 +1267,7 @@ function istStandalone(){ return window.navigator.standalone === true || matchMe
 const ICONS = {
   haken:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   brief:'<rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4.5 7.5l7.5 5.5 7.5-5.5"/>',
+  glocke:'<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
   personen:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.8 14.1c2.3.2 4.1 1.7 4.7 4.4"/>',
   kuchen:'<path d="M5 20h14v-6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0"/><path d="M12 12V8.5"/><path d="M12 6c.8-.6.8-1.6 0-2.5-.8.9-.8 1.9 0 2.5z"/>',
   uhr:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
@@ -1294,12 +1302,12 @@ const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spie
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
-const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand']);
+const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand','push']);
 const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
 function geraetNorm(g){
   return { ...unbekannte(g, GERAET_FELDER), id:String(g.id), art:GERAET_ARTEN.includes(g.art) ? g.art : 'Computer', app:!!g.app,
     version:String(g.version || '').slice(0, 12), erst:zahl(g.erst) || 0, zuletzt:zahl(g.zuletzt) || 0,
-    name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0 };
+    name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0, ...(pushAboNorm(g.push) ? { push:pushAboNorm(g.push) } : {}) };
 }
 function geraeteSort(a, b){ return a.erst - b.erst || a.id.localeCompare(b.id); }
 /* Nachrichten an den Admin: liegen in der Datei des Haushalts, der sie geschickt hat. Antworten des Admins kommen in den Verlauf. */
@@ -1645,8 +1653,10 @@ function verwaltungNorm(v){
     aus:ausListe(v.aus), ausStand:zahl(v.ausStand) || 0,
     // Geräte, auf denen gerade jemand als Admin angemeldet ist – der Admin kann sie aus der Ferne abmelden
     adminGeraete:(Array.isArray(v.adminGeraete) ? v.adminGeraete : []).filter(x => x && x.id).map(x => ({
-      id:String(x.id), name:String(x.name || 'Gerät').slice(0, 60), seit:zahl(x.seit) || 0, stand:zahl(x.stand) || 0
+      id:String(x.id), name:String(x.name || 'Gerät').slice(0, 60), seit:zahl(x.seit) || 0, stand:zahl(x.stand) || 0, ...(pushAboNorm(x.push) ? { push:pushAboNorm(x.push) } : {})
     })).sort((a, b) => a.seit - b.seit || a.id.localeCompare(b.id)),
+    // Mitteilungen: öffentlicher Schlüssel (der geheime liegt nur als Secret bei GitHub)
+    ...(pushVerwaltungNorm(v.push) ? { push:pushVerwaltungNorm(v.push) } : {}),
     // vom Admin geprüft: Cloud-Links (Google Drive & Co.), die für alle freigegeben sind – je Link, mit Zeitstempel zum Abgleichen
     freigaben:freigabenNorm(v.freigaben),
     geloescht:g
@@ -1667,7 +1677,8 @@ function verwaltungMischen(a, b){
   for (const x of A.adminGeraete){ const y = g.get(x.id); if (!y || x.stand > y.stand) g.set(x.id, x); }
   const fk = A.ausStand >= B.ausStand ? A : B;
   const fr = { ...B.freigaben }; for (const [u, x] of Object.entries(A.freigaben)) if (!fr[u] || x.stand > fr[u].stand) fr[u] = x;
-  return verwaltungNorm({ ...unbekannte(B, V_FELDER), ...unbekannte(A, V_FELDER), pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, aus:fk.aus, ausStand:fk.ausStand, freigaben:fr,
+  const push = (A.push && B.push) ? (A.push.stand >= B.push.stand ? A.push : B.push) : (A.push || B.push || null);   // Mitteilungen: der neuere Schlüssel zählt
+  return verwaltungNorm({ ...unbekannte(B, V_FELDER), ...unbekannte(A, V_FELDER), pinHash:pin.pinHash, pinSalz:pin.pinSalz, pinStand:pin.pinStand, aus:fk.aus, ausStand:fk.ausStand, freigaben:fr, push,
     kreise:[...m.values()].filter(k => !(tomb[k.id] && tomb[k.id] >= k.stand)),
     adminGeraete:[...g.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)), geloescht:tomb });
 }
@@ -4041,9 +4052,10 @@ function nochNichtAbgestimmt(t){
   const gewaehlt = liste => liste.some(o => g.leute.some(p => stimmeVon(t, o.id, p.pid)));
   return !gewaehlt(t.optionen) || (ortAbstimmung(t) && !gewaehlt(t.orte));
 }
+function termineOffenZahl(){ return funktionAn('termine') ? Object.values(D.termine || {}).filter(nochNichtAbgestimmt).length : 0; }
 function termineZahlZeigen(){
   const el = $('#termine-zahl'); if (!el) return;
-  const n = funktionAn('termine') ? Object.values(D.termine || {}).filter(nochNichtAbgestimmt).length : 0;
+  const n = termineOffenZahl();
   el.textContent = n; el.hidden = !n;
 }
 
@@ -4335,6 +4347,7 @@ function terminFormular(t, artVorwahl){
       gastgeber:wo ? wo.hid : '', ort:wo ? wo.text : '',      // für ältere App-Versionen
       orte, haushalte, optionen, geloescht, stand:jetzt,
       erstelltVon:neu ? (meinHaushaltGueltig() ? E.meinHaushalt : (orte[0] || {}).hid || '') : w.erstelltVon, erstellt:neu ? jetzt : w.erstellt,
+      ...(neu ? { geraet:E.geraetId || '' } : {}),
       festgelegt, festOrt, festStand:(festgelegt !== w.festgelegt || festOrt !== w.festOrt) ? jetzt : (w.festStand || 0)
     });
     // Stimmen, die während des Bearbeitens dazugekommen sind, bleiben erhalten
@@ -7556,6 +7569,8 @@ function renderEinstellungen(){
     ${nachrichtenMoeglich() ? klapp('e-nachrichten', E.admin ? 'Nachrichten' : 'Nachricht an den Admin', `<div id="nachrichten">${nachrichtenHtml()}</div>`,
       { zwingend:nachrichtenNeuZahl() > 0, klein:nachrichtenNeuZahl() ? `<span class="neu-punkt"></span>${nachrichtenNeuZahl()} neu` : (E.admin ? `${sichtbareNachrichten().filter(x => x.n.status !== 'erledigt').length} offen` : '') }) : ''}
 
+    ${pushEingerichtet() || E.admin ? klapp('e-mitteilungen', 'Mitteilungen', `<div id="mitteilungen">${pushHtml()}</div>`, { klein:esc(pushKlein()), kleinId:'e-mitteilungen-klein', zwingend:pushZustand() === 'neu' }) : ''}
+
     ${E.admin ? klapp('e-nutzung', 'Wer nutzt die App?', `<div id="nutzung">${nutzungHtml()}</div>`, { klein:`${nutzungZahl()} Gerät${nutzungZahl() === 1 ? '' : 'e'}` }) : ''}
 
     ${adminBereichSichtbar() ? klapp('e-admin', 'Spielkreise & Admin', `<div id="verwaltung">${verwaltungHtml()}</div>`,
@@ -7592,6 +7607,8 @@ function renderEinstellungen(){
   $('#e-import-datei').addEventListener('change', async e => { const f = e.target.files[0]; e.target.value = ''; if (f) await sicherungEinspielen(f); });
   $('#e-neu').addEventListener('click', allesNeuLaden);
   const nu = $('#nutzung'); if (nu) nu.addEventListener('click', e => { const b = e.target.closest('[data-geraet]'); if (b) geraetSheet(b.dataset.geraet); });
+  const mt = $('#mitteilungen'); if (mt) mt.addEventListener('click', e => { const b = e.target.closest('[data-push]'); if (b) pushAktion(b.dataset.push); });
+  if (pushEingerichtet() && Date.now() - pushStandZeit > 60000) pushStandLaden().then(renderPushTeile);
   const na = $('#nachrichten'); if (na) na.addEventListener('click', e => {
     const b = e.target.closest('[data-nachricht]'); if (b){ nachrichtSheet(b.dataset.nachricht); return; }
     if (e.target.closest('[data-nachricht-neu]')) nachrichtFormular();
@@ -7721,6 +7738,17 @@ const HILFE = [
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
     <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
     <li>Die <b>Pfeile</b> gleichen sofort ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
+  { id:'mitteilungen', titel:'Mitteilungen und Zahl am App-Symbol', seite:'einstellungen', text:`
+    <p>Das Handy meldet sich, wenn etwas Neues da ist – auch wenn die App geschlossen ist:</p>
+    <ul><li><b>Neuer Termin</b>, zu dem dein Haushalt eingeladen ist.</li>
+    <li><b>Antwort vom Admin</b> auf eine Nachricht deines Haushalts.</li>
+    <li>Für den Admin: <b>neue Nachrichten</b> und Antworten der Haushalte.</li></ul>
+    <p>Die Zahl am App-Symbol zeigt, was neu ist; beim Öffnen der App stellt sie sich auf den echten Stand. Antippen einer Mitteilung öffnet gleich die passende Stelle.</p>
+    <p><b>Einschalten:</b> Einstellungen → <b>Mitteilungen</b> → <b>Mitteilungen erlauben</b>, dann die Frage des Handys mit „Erlauben“ bestätigen. Das macht jedes Gerät einmal selbst. <b>Test-Mitteilung</b> zeigt, ob alles klappt (kommt nach etwa einer Minute).</p>
+    <ul><li><b>iPhone/iPad:</b> nur in der App vom Home-Bildschirm (ab iOS 16.4) – nicht im Safari-Tab. Wer die App bisher in Safari nutzt: Teilen → <b>Zum Home-Bildschirm</b>.</li>
+    <li><b>Ausgeschaltet oder versehentlich abgelehnt?</b> Einstellungen des iPhones → Mitteilungen → Spieleabend → Mitteilungen erlauben.</li>
+    <li>Wer eine Mitteilung auslöst (z. B. einen Termin anlegt), bekommt auf diesem Gerät selbst keine.</li></ul>
+    <p data-nur-admin><b>Admin:</b> Einmal einrichten unter Einstellungen → Mitteilungen → <b>Mitteilungen einrichten</b>: Schlüssel erzeugen, den geheimen Teil bei GitHub als Secret <b>PUSH_SCHLUESSEL</b> eintragen, die Versand-Datei anlegen. Verschickt wird von GitHub aus (Actions → „Mitteilungen“), kostenlos und ohne weiteres Konto. Der geheime Schlüssel steht in keiner Datei. Unter „Wer nutzt die App?“ zeigt 🔔, auf welchen Geräten Mitteilungen an sind.</p>` },
   { id:'nachrichten', titel:'Nachricht an den Admin', seite:'einstellungen', fkt:'nachrichten', text:`
     <p>Dir ist etwas aufgefallen, du hast einen Änderungswunsch – oder ein neuer Haushalt soll mit anderen in einen Spielkreis? Unter <b>Einstellungen → Nachricht an den Admin</b> (oder im ℹ-Fenster) schreibst du es dem Admin.</p>
     <p>Zuerst antippen, <b>wer schreibt</b> – so weiß der Admin, mit wem aus eurem Haushalt er schreibt. Das Gerät merkt sich den Namen fürs nächste Mal.</p>
@@ -7787,6 +7815,13 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v1.99', datum:'08.11.2026', neu:[
+    'Mitteilungen: Das Handy meldet sich bei neuen Terminen und bei Antworten vom Admin – auch wenn die App zu ist. Einschalten unter Einstellungen → Mitteilungen',
+    'Zahl am App-Symbol: zeigt, was neu ist (offene Abstimmungen, neue Antworten)',
+    'Antippen einer Mitteilung öffnet gleich die passende Stelle',
+    { t:'Mitteilungen für den Admin: neue Nachrichten und Antworten der Haushalte; Einrichtung einmalig unter Einstellungen → Mitteilungen (Versand über GitHub, ohne weiteres Konto)', admin:true },
+    { t:'„Wer nutzt die App?“ zeigt mit 🔔, auf welchen Geräten Mitteilungen an sind', admin:true }
+  ]},
   { v:'v1.98', datum:'08.11.2026', neu:[
     'Termine im Spielkreis Mättigopoly: die Spielbretter aller, die zugesagt haben, erscheinen als ein zusammenhängendes Bild mit 6 Feldern – fehlende bleiben leer, darunter steht, wer noch fehlt',
     'Beim Spiel mit „Eigene Kachel“: neues Feld „Platz im Gesamtbild“ (1 = oben links), damit die Bretter richtig zusammenpassen'
@@ -8468,11 +8503,13 @@ function geraetMelden(){
   if (!h || !E.token || S.neuereApp) return;
   geraetKennung();
   const jetzt = Date.now(), m = D.meta[hid] || {}, alt = (h.geraete || []).find(g => g.id === E.geraetId);
-  const art = geraetTyp(), app = istStandalone();
+  const art = geraetTyp(), app = istStandalone(), push = pushAn() ? E.push : null;
+  const pushGleich = JSON.stringify((alt && alt.push) || null) === JSON.stringify(push);
   // Unverändert und vor kurzem gemeldet? Dann nichts schreiben. Wird der Haushalt ohnehin hochgeladen, die Zeit gleich mitnehmen.
-  if (alt && alt.art === art && alt.app === app && alt.version === VERSION && jetzt - alt.zuletzt < (m.dirty ? 60e3 : MELDEN_ALLE)) return;
+  if (alt && alt.art === art && alt.app === app && alt.version === VERSION && pushGleich && jetzt - alt.zuletzt < (m.dirty ? 60e3 : MELDEN_ALLE)) return;
   const neu = { ...(alt || {}), id:E.geraetId, art, app, version:VERSION, erst:alt && alt.erst ? alt.erst : jetzt, zuletzt:jetzt,
     name:alt ? alt.name : '', nameStand:alt ? alt.nameStand : 0 };
+  if (push) neu.push = push; else delete neu.push;
   h.geraete = [...(h.geraete || []).filter(g => g.id !== E.geraetId), neu].sort(geraeteSort);
   if (m.dirty) speichern(); else markiere(hid, 'Gerät meldet sich');
 }
@@ -8509,7 +8546,7 @@ function nutzungHtml(){
     return `<li style="align-items:center"><span class="punkt" data-k="${k}" style="margin-top:0"></span>
       <span style="flex:1;min-width:0"><b>${esc(g.name || g.art)}</b>${g.name ? ` <span class="text-leise">· ${esc(g.art)}</span>` : ''}
         ${g.id === E.geraetId ? ' <span class="marke-mein">dieses Gerät</span>' : ''}
-        ${g.app ? ' <span class="marke-mein">als App</span>' : ' <span class="marke-mein warn">nur im Browser</span>'}<br>
+        ${g.app ? ' <span class="marke-mein">als App</span>' : ' <span class="marke-mein warn">nur im Browser</span>'}${g.push && g.push.schluessel === pushSchluessel() ? ' <span class="marke-mein">🔔 Mitteilungen</span>' : ''}<br>
         <span class="text-leise text-klein">zuletzt online ${g.id === E.geraetId ? 'jetzt' : esc(zuletztText(g.zuletzt))} · ${vorher ? `Link geöffnet ${esc(datumKurzTs(vorher.erst))}, ` : ''}${g.app ? 'installiert' : 'zuerst'} ${esc(datumKurzTs(g.erst))}
         · <span${alt ? ' style="color:var(--rot);font-weight:600"' : ''}>${esc(g.version || '?')}${alt ? ' – veraltet' : ''}</span></span></span>
       <button class="knopf-rund" type="button" data-geraet="${esc(h.id)}|${esc(g.id)}" aria-label="Gerät benennen oder entfernen" style="flex:none">${ic('stift')}</button></li>`;
@@ -8902,6 +8939,315 @@ function installHinweis(){
   });
 }
 
+/* ---------- Mitteilungen (Push) ----------
+   Ein Gerät, das Mitteilungen erlaubt, legt sein Abo (Adresse beim Mitteilungsdienst von Apple/Google und dessen öffentliche Schlüssel)
+   in seinem Geräte-Eintrag ab. Verschickt wird von GitHub aus (Workflow „Mitteilungen“) mit einem Schlüsselpaar:
+   den öffentlichen Teil kennt die App (daten/verwaltung.json), den geheimen nur GitHub (Secret PUSH_SCHLUESSEL) – er steht in keiner Datei. */
+/*PUSH-DATEIEN-ANFANG*/
+const PUSH_SW = "// Spieleabend – Mitteilungen. Diese Datei legt die App selbst ins Repo und hält sie aktuell.\n// Sie zeigt eingehende Mitteilungen an, setzt die Zahl am App-Symbol und öffnet beim Antippen die passende Seite.\n// Sie speichert nichts zwischen und greift nicht in das Laden der App ein.\nconst SW_VERSION = 1;\nself.addEventListener('install', () => self.skipWaiting());\nself.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n\n// Zahl am App-Symbol: hochzählen bei jeder Mitteilung, die App setzt sie beim Öffnen auf den echten Stand\nasync function zahl(plus, setzen){\n  let n = 0;\n  try{\n    const c = await caches.open('spieleabend-zahl');\n    const r = await c.match('zahl'); n = r ? Number(await r.text()) || 0 : 0;\n    n = setzen != null ? setzen : n + plus;\n    await c.put('zahl', new Response(String(n)));\n  }catch(e){ n = setzen != null ? setzen : 1; }\n  try{\n    // (Der Test-Browser ohne Bildschirm stürzt hier ab – echte Handys und Computer nicht.)\n    if (self.navigator.setAppBadge && !/HeadlessChrome/.test(self.navigator.userAgent)){ if (n > 0) await self.navigator.setAppBadge(n); else await self.navigator.clearAppBadge(); }\n  }catch(e){}\n  return n;\n}\n\nself.addEventListener('push', e => {\n  let d = {};\n  try{ d = e.data ? e.data.json() : {}; }catch(err){ try{ d = { text:e.data.text() }; }catch(x){} }\n  e.waitUntil((async () => {\n    await zahl(1);\n    await self.registration.showNotification(d.titel || 'Spieleabend', {\n      body:d.text || '', tag:d.tag || undefined, renotify:!!d.tag, icon:'icon.png', badge:'icon.png', data:{ ziel:d.ziel || '' }\n    });\n  })());\n});\n\nself.addEventListener('notificationclick', e => {\n  e.notification.close();\n  const ziel = (e.notification.data && e.notification.data.ziel) || '';\n  e.waitUntil((async () => {\n    const fenster = await self.clients.matchAll({ type:'window', includeUncontrolled:true });\n    for (const f of fenster){\n      try{ await f.focus(); f.postMessage({ art:'ziel', ziel }); return; }catch(err){}\n    }\n    await self.clients.openWindow('./' + (ziel ? '#ziel=' + encodeURIComponent(ziel) : ''));\n  })());\n});\n\nself.addEventListener('message', e => {\n  if (e.data && e.data.art === 'zahl') e.waitUntil(zahl(0, Math.max(0, Number(e.data.n) || 0)));\n});\n";
+const PUSH_PY = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.\n# Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.\n# Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),\n# neuer Termin (an die eingeladenen Haushalte). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.\nMITTEILUNGEN_VERSION = 1\nimport base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request\nfrom urllib.parse import urlparse\n\nFRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)\nSTAND_DATEI, TEST_ORDNER = 'push/stand.json', 'push/test'\nNACHRICHT_ZEICHEN = {'fehler': '🐞', 'wunsch': '💡', 'kreis': '🏠', 'sonst': '💬'}\nTERMIN_ZEICHEN = {'spiele': '🎲', 'kino': '🎬', 'bowling': '🎳', 'essen': '🍽️', 'grillen': '🔥', 'sonst': '✨'}\nTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']\n\n\ndef b64u(b):\n    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()\n\n\ndef unb64u(s):\n    s = str(s).strip()\n    return base64.urlsafe_b64decode(s + '=' * (-len(s) % 4))\n\n\n# ---------- Web Push: Verschlüsselung (RFC 8291) und Absender-Ausweis (VAPID, RFC 8292) ----------\ndef _hkdf(salz, ikm, info, laenge):\n    prk = hmac.new(salz, ikm, hashlib.sha256).digest()\n    return hmac.new(prk, info + b'\\x01', hashlib.sha256).digest()[:laenge]\n\n\ndef schluessel_laden(text):\n    from cryptography.hazmat.primitives.asymmetric import ec\n    roh = unb64u(text)\n    if len(roh) != 32: raise ValueError('Der Schlüssel hat nicht die richtige Länge.')\n    return ec.derive_private_key(int.from_bytes(roh, 'big'), ec.SECP256R1())\n\n\ndef oeffentlich_roh(privat):\n    from cryptography.hazmat.primitives import serialization\n    return privat.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)\n\n\ndef verschluesseln(nutzlast, p256dh, auth, _salz=None, _privat=None):\n    \"\"\"Inhalt für genau ein Gerät verschlüsseln (aes128gcm, ein Datensatz).\"\"\"\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n    ua_public, auth_secret = unb64u(p256dh), unb64u(auth)\n    as_privat = _privat or ec.generate_private_key(ec.SECP256R1())\n    as_public = oeffentlich_roh(as_privat)\n    geraet = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), ua_public)\n    ecdh = as_privat.exchange(ec.ECDH(), geraet)\n    ikm = _hkdf(auth_secret, ecdh, b'WebPush: info\\x00' + ua_public + as_public, 32)\n    salz = _salz or os.urandom(16)\n    cek = _hkdf(salz, ikm, b'Content-Encoding: aes128gcm\\x00', 16)\n    nonce = _hkdf(salz, ikm, b'Content-Encoding: nonce\\x00', 12)\n    geheim = AESGCM(cek).encrypt(nonce, nutzlast + b'\\x02', None)\n    return salz + (4096).to_bytes(4, 'big') + bytes([len(as_public)]) + as_public + geheim\n\n\ndef vapid(endpunkt, privat, absender, jetzt=None):\n    from cryptography.hazmat.primitives import hashes\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature\n    u = urlparse(endpunkt)\n    kopf = b64u(json.dumps({'typ': 'JWT', 'alg': 'ES256'}, separators=(',', ':')).encode())\n    inhalt = b64u(json.dumps({'aud': f'{u.scheme}://{u.netloc}', 'exp': int(jetzt or time.time()) + 12 * 3600, 'sub': absender}, separators=(',', ':')).encode())\n    r, s = decode_dss_signature(privat.sign(f'{kopf}.{inhalt}'.encode(), ec.ECDSA(hashes.SHA256())))\n    return f'vapid t={kopf}.{inhalt}.{b64u(r.to_bytes(32, \"big\") + s.to_bytes(32, \"big\"))}, k={b64u(oeffentlich_roh(privat))}'\n\n\ndef senden(abo, daten, privat, absender):\n    \"\"\"Eine Mitteilung an ein Gerät. Antwort: HTTP-Code (201 = angenommen, 404/410 = Gerät hat sie abbestellt).\"\"\"\n    koerper = verschluesseln(json.dumps(daten, ensure_ascii=False).encode(), abo['p256dh'], abo['auth'])\n    req = urllib.request.Request(abo['endpoint'], data=koerper, method='POST', headers={\n        'TTL': '86400', 'Urgency': 'normal', 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream',\n        'Authorization': vapid(abo['endpoint'], privat, absender)})\n    try:\n        with urllib.request.urlopen(req, timeout=20) as r: return r.status\n    except urllib.error.HTTPError as e:\n        return e.code\n    except Exception:\n        return 0\n\n\n# ---------- GitHub ----------\nREPO = os.environ.get('GITHUB_REPOSITORY', '')\nZWEIG = os.environ.get('GITHUB_REF_NAME', 'main')\nTOKEN = os.environ.get('GH_TOKEN', '')\nAPI = os.environ.get('GITHUB_API_URL', 'https://api.github.com')\n\n\ndef gh(methode, pfad, daten=None, roh=False):\n    req = urllib.request.Request(f'{API}/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github.raw' if roh else 'application/vnd.github+json',\n                 'Content-Type': 'application/json', 'User-Agent': 'Spieleabend-Mitteilungen'})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                b = r.read()\n                return b if roh else json.loads(b or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\ndef json_lesen(pfad):\n    b = gh('GET', f'/contents/{pfad}?ref={ZWEIG}', roh=True)\n    if b is None: return None\n    try: return json.loads(b.decode('utf-8'))\n    except Exception: return None\n\n\ndef schreiben(pfad, daten, nachricht):\n    alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n    gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,\n        'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n\n\n# ---------- Wer bekommt was? ----------\ndef zeit_text(z):\n    try:\n        d = datetime.datetime.strptime(z, '%Y-%m-%dT%H:%M')\n        return f'{TAGE[d.weekday()]}, {d.day:02d}.{d.month:02d}. um {d.hour:02d}:{d.minute:02d} Uhr'\n    except Exception:\n        return ''\n\n\ndef kurz(text, n=140):\n    text = re.sub(r'\\s+', ' ', str(text or '')).strip()\n    return text if len(text) <= n else text[:n - 1].rsplit(' ', 1)[0] + ' …'\n\n\ndef abo_ok(p, schluessel):\n    return (isinstance(p, dict) and str(p.get('endpoint', '')).startswith('https://') and p.get('p256dh') and p.get('auth')\n            and p.get('schluessel') == schluessel)\n\n\ndef abos_sammeln(haushalte, verwaltung, schluessel):\n    \"\"\"Geräte mit erlaubten Mitteilungen: Geräte-ID -> {abo, hid}. Ein Gerät, das den Haushalt gewechselt hat, zählt beim neuesten.\"\"\"\n    abos = {}\n    for h in haushalte.values():\n        for g in h.get('geraete') or []:\n            p, gid = g.get('push'), str(g.get('id', ''))\n            if not gid or not abo_ok(p, schluessel): continue\n            alt = abos.get(gid)\n            if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:\n                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0}\n    for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt\n        p, gid = x.get('push'), str(x.get('id', ''))\n        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0}\n    return abos\n\n\ndef ereignisse(haushalte, termine, verwaltung, abos):\n    \"\"\"Alle Ereignisse mit Schlüssel, Zeitpunkt, Empfängern und Text – gemeldet wird nur, was neu ist.\"\"\"\n    admin = {str(x.get('id')) for x in verwaltung.get('adminGeraete') or []}\n    an_admin = sorted(g for g in abos if g in admin)\n    def an_haushalte(hids, ohne_admin=False, ohne=()):\n        return sorted(g for g, a in abos.items() if a['hid'] in hids and g not in ohne and not (ohne_admin and g in admin))\n    liste = []\n    for h in haushalte.values():\n        name = h.get('name') or 'Ein Haushalt'\n        for n in h.get('nachrichten') or []:\n            if not n.get('id'): continue\n            zeichen = NACHRICHT_ZEICHEN.get(n.get('art'), '💬')\n            von = f\" ({n['von']})\" if n.get('von') else ''\n            liste.append({'k': 'n:' + str(n['id']), 'zeit': (n.get('erstellt') or 0) / 1000, 'an': an_admin,\n                'titel': f'Neue Nachricht von {name}{von}', 'text': f\"{zeichen} {kurz(n.get('text'))}\", 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n            for v in n.get('verlauf') or []:\n                if not v.get('id'): continue\n                if v.get('admin'):\n                    an, titel = an_haushalte({h.get('id')}, ohne_admin=True), 'Antwort vom Admin'\n                else:\n                    an, titel = an_admin, f\"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}\"\n                liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,\n                    'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n    for t in termine.values():\n        if not t.get('id'): continue\n        eingeladen = set(t.get('haushalte') or []) or set(haushalte)\n        optionen = [o for o in t.get('optionen') or [] if o.get('zeit')]\n        wer = (haushalte.get(t.get('erstelltVon')) or {}).get('name') or 'Jemand'\n        wann = zeit_text(optionen[0]['zeit']) if len(optionen) == 1 else (f'{len(optionen)} Termine zur Auswahl' if optionen else '')\n        liste.append({'k': 't:' + str(t['id']), 'zeit': (t.get('erstellt') or 0) / 1000,\n            'an': an_haushalte(eingeladen, ohne={str(t.get('geraet') or '')}),\n            'titel': f\"Neuer Termin: {TERMIN_ZEICHEN.get(t.get('art'), '🎲')} {kurz(t.get('titel') or 'Spieleabend', 60)}\",\n            'text': f\"{wer} lädt ein{(' – ' + wann) if wann else ''}. Bitte in der App abstimmen.\", 'ziel': 'termin:' + str(t['id']), 'tag': 't-' + str(t['id'])})\n    return liste\n\n\ndef main():\n    jetzt = time.time()\n    owner, repo = (REPO.split('/') + [''])[:2]\n    absender = f'https://{owner.lower()}.github.io/{repo}/'\n    haushalte, termine = {}, {}\n    for f in gh('GET', f'/contents/daten?ref={ZWEIG}') or []:\n        n = f.get('name', '')\n        if f.get('type') != 'file' or not n.endswith('.json'): continue\n        if n.startswith('haushalt-'):\n            d = json_lesen(f'daten/{n}')\n            if d and d.get('id'): haushalte[str(d['id'])] = d\n        elif n.startswith('termin-'):\n            d = json_lesen(f'daten/{n}')\n            if d: d.setdefault('id', n[7:-5]); termine[str(d['id'])] = d\n    verwaltung = json_lesen('daten/verwaltung.json') or {}\n    schluessel = (verwaltung.get('push') or {}).get('schluessel') or ''\n    stand_alt = json_lesen(STAND_DATEI)\n    stand = dict(stand_alt or {})\n    stand.update({'version': MITTEILUNGEN_VERSION, 'fehler': ''})\n\n    privat = None\n    geheim = os.environ.get('PUSH_SCHLUESSEL', '').strip()\n    if not schluessel:\n        stand['fehler'] = 'In der App ist noch kein Schlüssel für Mitteilungen erzeugt.'\n    elif not geheim:\n        stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL fehlt.'\n    else:\n        try:\n            privat = schluessel_laden(geheim)\n            if b64u(oeffentlich_roh(privat)) != schluessel:\n                privat, stand['fehler'] = None, 'Das GitHub-Secret PUSH_SCHLUESSEL passt nicht zum Schlüssel der App – bitte den zuletzt angezeigten Schlüssel eintragen.'\n        except Exception:\n            stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL ist kein gültiger Schlüssel.'\n\n    abos = abos_sammeln(haushalte, verwaltung, schluessel)\n    liste = ereignisse(haushalte, termine, verwaltung, abos)\n    gesehen = set(stand.get('gesehen') or [])\n    erstes_mal = stand_alt is None or 'gesehen' not in stand_alt\n    abgelaufen = dict(stand.get('abgelaufen') or {})\n    gesendet = list(stand.get('gesendet') or [])\n\n    def zustellen(gids, daten):\n        ok = 0\n        for gid in gids:\n            code = senden(abos[gid]['abo'], daten, privat, absender)\n            print(f\"  {daten['titel'][:40]!r} -> {gid}: {code}\")\n            if 200 <= code < 300: ok += 1\n            elif code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n        return ok\n\n    if not erstes_mal and privat:\n        for e in liste:\n            if e['k'] in gesehen or not e['an'] or jetzt - e['zeit'] > FRISCH: continue\n            ok = zustellen(e['an'], {'titel': e['titel'], 'text': e['text'], 'ziel': e['ziel'], 'tag': e['tag']})\n            gesendet.append({'zeit': int(jetzt * 1000), 'titel': e['titel'], 'an': len(e['an']), 'ok': ok})\n    stand['gesehen'] = sorted({e['k'] for e in liste})       # nur, was es noch gibt – so wächst die Datei nicht\n\n    # Test-Mitteilungen aus der App\n    for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        auftrag = json_lesen(f'{TEST_ORDNER}/{f[\"name\"]}') or {}\n        gid = str(auftrag.get('geraet') or '')\n        if not privat: ergebnis = stand['fehler']\n        elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'\n        else:\n            code = senden(abos[gid]['abo'], {'titel': 'Test-Mitteilung', 'text': 'So sehen Mitteilungen vom Spieleabend aus. 🎲', 'ziel': 'einstellungen', 'tag': 'test'}, privat, absender)\n            if code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n            ergebnis = 'ok' if 200 <= code < 300 else f'Der Mitteilungsdienst hat abgelehnt (Code {code}).'\n        stand['test'] = {'id': f['name'][:-5], 'geraet': gid, 'zeit': int(jetzt * 1000), 'ergebnis': ergebnis}\n        print('Test', gid, ergebnis)\n        gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Mitteilungen: Test erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n\n    stand['abgelaufen'] = {g: z for g, z in abgelaufen.items() if jetzt * 1000 - z < 60 * 86400000}\n    stand['gesendet'] = gesendet[-30:]\n    stand['geraete'] = len(abos)\n    if stand != stand_alt:\n        stand['zeit'] = int(jetzt * 1000)\n        schreiben(STAND_DATEI, stand, 'Mitteilungen: ' + ('eingerichtet' if erstes_mal else 'verschickt'))\n    print('Geräte mit Mitteilungen:', len(abos), '| Fehler:', stand['fehler'] or '–')\n\n\nif __name__ == '__main__':\n    main()\n";
+const PUSH_YML = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen bei neuen Nachrichten, Antworten und Terminen.\n# Das eigentliche Programm (push/mitteilungen.py) legt die App selbst ins Repo und hält es aktuell.\n# Der geheime Schlüssel steht nur in den Repo-Einstellungen (Secret PUSH_SCHLUESSEL), nie in einer Datei.\nname: Mitteilungen\non:\n  push:\n    paths: ['daten/**', 'push/test/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: mitteilungen\n  cancel-in-progress: false\njobs:\n  senden:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - name: Mitteilungen verschicken\n        env:\n          GH_TOKEN: ${{ github.token }}\n          PUSH_SCHLUESSEL: ${{ secrets.PUSH_SCHLUESSEL }}\n        run: |\n          curl -fsSL -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github.raw\" -o mitteilungen.py \\\n            \"https://api.github.com/repos/$GITHUB_REPOSITORY/contents/push/mitteilungen.py?ref=$GITHUB_SHA\"\n          python3 -c \"import cryptography\" 2>/dev/null || python3 -m pip install --quiet --user --break-system-packages cryptography\n          python3 mitteilungen.py\n";
+/*PUSH-DATEIEN-ENDE*/
+const PUSH_WORKFLOW = '.github/workflows/mitteilungen.yml', PUSH_PY_PFAD = 'push/mitteilungen.py', PUSH_SW_PFAD = 'sw.js', PUSH_STAND_PFAD = 'push/stand.json';
+const PUSH_SW_VERSION = Number(/SW_VERSION = (\d+)/.exec(PUSH_SW)[1]), PUSH_PY_VERSION = Number(/MITTEILUNGEN_VERSION = (\d+)/.exec(PUSH_PY)[1]);
+function b64uAusBytes(by){ let s = ''; for (const b of new Uint8Array(by)) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function bytesAusB64u(t){
+  const s = String(t).replace(/-/g, '+').replace(/_/g, '/'), bin = atob(s + '='.repeat((4 - s.length % 4) % 4));
+  const by = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) by[i] = bin.charCodeAt(i); return by;
+}
+function pushSchluessel(){ return (D.verwaltung.push && D.verwaltung.push.schluessel) || ''; }
+function pushEingerichtet(){ return !!pushSchluessel(); }
+function istIos(){ const ua = navigator.userAgent; return /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function pushTechnik(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function pushNurAlsApp(){ return istIos() && !istStandalone(); }            // iPhone/iPad: Mitteilungen nur in der App vom Home-Bildschirm
+function pushErlaubnis(){ return 'Notification' in window ? Notification.permission : 'default'; }
+function pushVerwaltungNorm(p){ return p && typeof p === 'object' && String(p.schluessel || '').trim() ? { schluessel:String(p.schluessel).trim().slice(0, 200), stand:zahl(p.stand) || 0 } : null; }
+function pushAboNorm(p){
+  if (!p || typeof p !== 'object' || !/^https:\/\//.test(String(p.endpoint || '')) || !p.p256dh || !p.auth) return null;
+  return { endpoint:String(p.endpoint).slice(0, 1000), p256dh:String(p.p256dh).slice(0, 200), auth:String(p.auth).slice(0, 100),
+    schluessel:String(p.schluessel || '').slice(0, 200), stand:zahl(p.stand) || 0 };
+}
+let PUSHSTAND = null, pushStandZeit = 0;                                    // push/stand.json – Rückmeldung des Versands
+function pushAbgelaufen(){ const z = PUSHSTAND && PUSHSTAND.abgelaufen && PUSHSTAND.abgelaufen[E.geraetId]; return !!(z && E.push && z > (E.push.stand || 0)); }
+function pushAn(){ return !!(E.push && !E.push.weg && E.push.schluessel === pushSchluessel() && pushErlaubnis() === 'granted' && !pushAbgelaufen()); }
+function pushZustand(){
+  if (!pushEingerichtet()) return 'fehlt';
+  if (pushNurAlsApp()) return 'app';
+  if (!pushTechnik()) return 'nein';
+  if (pushErlaubnis() === 'denied') return 'gesperrt';
+  if (pushAn()) return 'an';
+  return E.push ? 'neu' : 'aus';                                            // „neu“: Schlüssel gewechselt oder Abo abgelaufen
+}
+/* Das eigene Abo in den Geräte-Eintrag (und auf Admin-Geräten in die Admin-Liste) schreiben */
+function pushMelden(){
+  geraetMelden();
+  if (!E.admin) return;
+  const V = D.verwaltung, x = V.adminGeraete.find(g => g.id === E.geraetId); if (!x) return;
+  const push = pushAn() ? E.push : null;
+  if (JSON.stringify(x.push || null) === JSON.stringify(push)) return;
+  if (push) x.push = push; else delete x.push;
+  x.stand = Date.now(); markiereV('Mitteilungen ' + (push ? 'an' : 'aus')); speichern();
+}
+async function pushRegistrierung(){
+  let reg;
+  try{ reg = await navigator.serviceWorker.register(PUSH_SW_PFAD); }
+  catch(e){ throw new Error(E.admin ? 'Die Datei sw.js ist noch nicht online. GitHub braucht nach dem Einrichten ein, zwei Minuten – dann nochmal tippen.' : 'Mitteilungen sind gerade nicht erreichbar – in ein paar Minuten nochmal versuchen.'); }
+  const bereit = await Promise.race([navigator.serviceWorker.ready, warte(15000).then(() => null)]);
+  if (!bereit) throw new Error('Mitteilungen ließen sich nicht starten – bitte die App einmal schließen und neu öffnen.');
+  return bereit || reg;
+}
+async function pushEinschalten(){
+  if (!pushEingerichtet()) return;
+  if (pushNurAlsApp()){ toast('Mitteilungen gibt es nur in der App vom Home-Bildschirm.'); return; }
+  if (!pushTechnik()){ toast('Dieser Browser kann keine Mitteilungen empfangen.', 'fehler'); return; }
+  let erlaubnis = pushErlaubnis();
+  try{ erlaubnis = await Notification.requestPermission(); }catch(e){}       // als Erstes – das iPhone fragt nur direkt nach dem Antippen
+  if (erlaubnis !== 'granted'){
+    toast(erlaubnis === 'denied' ? 'Mitteilungen sind gesperrt – so erlaubst du sie: Einstellungen → Mitteilungen.' : 'Mitteilungen wurden nicht erlaubt.', 'fehler');
+    renderPushTeile(); return;
+  }
+  try{
+    const reg = await pushRegistrierung(), key = pushSchluessel();
+    let abo = await reg.pushManager.getSubscription();
+    const alterKey = abo && abo.options && abo.options.applicationServerKey ? b64uAusBytes(abo.options.applicationServerKey) : '';
+    if (abo && (alterKey !== key || pushAbgelaufen() || (E.push && E.push.weg))){ await abo.unsubscribe().catch(() => {}); abo = null; }
+    if (!abo) abo = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:bytesAusB64u(key) });
+    const j = abo.toJSON();
+    E.push = { endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth, schluessel:key, stand:Date.now() };
+    E.pushHinweisWeg = ''; einstSpeichern();
+    pushMelden(); syncBald(); badgeZeigen();
+    toast('Mitteilungen sind an 🔔');
+  }catch(e){ toast(e.message || 'Mitteilungen ließen sich nicht einschalten.', 'fehler'); }
+  renderPushTeile();
+}
+async function pushAusschalten(){
+  try{ const reg = await navigator.serviceWorker.getRegistration(PUSH_SW_PFAD); const abo = reg && await reg.pushManager.getSubscription(); if (abo) await abo.unsubscribe(); }catch(e){}
+  try{ if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {}); }catch(e){}
+  E.push = null; einstSpeichern();
+  pushMelden(); syncBald(); toast('Mitteilungen sind aus'); renderPushTeile();
+}
+/* Beim Start: Abo noch da? Hat der Mitteilungsdienst die Adresse geändert? (geht ohne Antippen) */
+async function pushPruefen(){
+  if (!E.push || !pushEingerichtet() || !pushTechnik() || pushNurAlsApp()) return;
+  try{
+    const reg = await navigator.serviceWorker.register(PUSH_SW_PFAD);
+    const abo = await reg.pushManager.getSubscription();
+    if (!abo){ if (!E.push.weg){ E.push = { ...E.push, weg:true }; einstSpeichern(); pushMelden(); syncBald(); renderPushTeile(); } return; }
+    const j = abo.toJSON();
+    if (j.endpoint !== E.push.endpoint || (j.keys || {}).p256dh !== E.push.p256dh){
+      E.push = { ...E.push, endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth, stand:Date.now() }; delete E.push.weg; einstSpeichern(); pushMelden(); syncBald();
+    }
+  }catch(e){}
+}
+async function pushStandLaden(sofort){
+  if (!E.token || !pushEingerichtet() || (!sofort && Date.now() - pushStandZeit < 60000)) return;
+  pushStandZeit = Date.now();
+  try{
+    const r = await gh('GET', `/contents/${PUSH_STAND_PFAD}?ref=${encodeURIComponent(E.branch)}`, null, { Accept:'application/vnd.github.raw' });
+    if (r.status === 404){ PUSHSTAND = null; return; }
+    if (!r.ok) return;
+    PUSHSTAND = JSON.parse(await r.text());
+    if (E.push && pushAbgelaufen()){ pushMelden(); syncBald(); }            // der Mitteilungsdienst kennt das Abo nicht mehr
+  }catch(e){}
+}
+/* Zahl am App-Symbol: was hier neu ist – Nachrichten bzw. Antworten und Termine, bei denen noch abzustimmen ist */
+function badgeZahl(){ return nachrichtenNeuZahl() + termineOffenZahl(); }
+function badgeZeigen(){
+  if (!pushEingerichtet() || !('setAppBadge' in navigator)) return;
+  const n = pushAn() ? badgeZahl() : 0;
+  try{ (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(() => {}); }catch(e){}
+  try{ const c = navigator.serviceWorker && navigator.serviceWorker.controller; if (c) c.postMessage({ art:'zahl', n }); }catch(e){}
+}
+/* Antippen einer Mitteilung: passende Stelle öffnen */
+function zielAusAdresse(){
+  const m = /[#&]ziel=([^&]+)/.exec(location.hash); if (!m) return '';
+  try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  return decodeURIComponent(m[1]);
+}
+function zielOeffnen(ziel){
+  ziel = String(ziel || '');
+  const auf = (k, sel) => { KL[k] = true; schreiben(LS.klapp, KL); const d = sel(); if (d){ d.open = true; d.scrollIntoView({ block:'start' }); } };
+  if (ziel === 'nachrichten'){ if (!nachrichtenMoeglich()) return; seiteZeigen('einstellungen'); auf('e-nachrichten', () => $('[data-klapp="e-nachrichten"]')); }
+  else if (ziel.startsWith('termin:')){ const id = ziel.slice(7); seiteZeigen('termine'); auf('termin-' + id, () => document.getElementById('termin-' + id)); }
+  else if (ziel === 'einstellungen'){ seiteZeigen('einstellungen'); auf('e-mitteilungen', () => $('[data-klapp="e-mitteilungen"]')); }
+}
+/* Einstellungen → Mitteilungen */
+function pushWasText(){
+  const was = [];
+  if (nachrichtenMoeglich()) was.push(E.admin ? 'neuen Nachrichten an dich und Antworten darauf' : 'Antworten vom Admin auf eure Nachrichten');
+  if (funktionAn('termine')) was.push('neuen Terminen, zu denen ihr eingeladen seid');
+  return was.length ? `Das Handy meldet sich bei ${was.join(' und bei ')}. Die Zahl am App-Symbol zeigt, was neu ist.` : '';
+}
+function pushKlein(){
+  return { fehlt:'noch einrichten', app:'nur in der App', nein:'nicht möglich', gesperrt:'gesperrt', an:'🔔 an', neu:'neu einschalten', aus:'aus' }[pushZustand()];
+}
+function pushVersandHtml(){
+  if (!E.admin || !pushEingerichtet()) return '';
+  const st = PUSHSTAND, t = st && st.test && st.test.geraet === E.geraetId ? st.test : null;
+  return `<div class="push-versand">
+    ${!st ? '<p class="hinweis" style="margin:12px 0 0">Vom Versand bei GitHub kam noch keine Rückmeldung. Sie kommt, sobald die Versand-Datei angelegt ist und jemand etwas ändert.</p>'
+      : st.fehler ? `<p class="hinweis warn" style="margin:12px 0 0"><b>Versand:</b> ${esc(st.fehler)}</p>`
+      : `<p class="text-leise text-klein" style="margin:12px 0 0">✓ Versand bei GitHub läuft · zuletzt ${esc(zuletztText(st.zeit))} · ${st.geraete || 0} Gerät${st.geraete === 1 ? '' : 'e'} mit Mitteilungen</p>`}
+    ${t ? `<p class="text-leise text-klein" style="margin:4px 0 0">Letzter Test ${esc(zuletztText(t.zeit))}: ${t.ergebnis === 'ok' ? 'verschickt ✓' : esc(t.ergebnis)}</p>` : ''}
+    <button class="knopf rahmen breit" type="button" data-push="einrichten" style="margin-top:10px">Einrichtung ansehen</button></div>`;
+}
+function pushHtml(){
+  const z = pushZustand(), was = pushWasText();
+  const teile = {
+    fehlt:`<p class="text-leise" style="margin:0 0 10px">Noch nicht eingerichtet. Du richtest es einmal ein – danach kann jedes Gerät Mitteilungen erlauben.</p>
+      <button class="knopf breit" type="button" data-push="einrichten">${ic('glocke')}Mitteilungen einrichten</button>`,
+    app:`<p class="hinweis" style="margin:0">Auf dem iPhone und iPad gibt es Mitteilungen nur in der App vom Home-Bildschirm: In <b>Safari</b> auf <b>Teilen</b> tippen, dann <b>Zum Home-Bildschirm</b>. Danach den Spieleabend über das neue Symbol öffnen und hier „Mitteilungen erlauben“ tippen.</p>`,
+    nein:'<p class="text-leise" style="margin:0">Dieser Browser kann keine Mitteilungen empfangen.</p>',
+    gesperrt:`<p class="hinweis warn" style="margin:0">Mitteilungen sind für den Spieleabend gesperrt. So erlaubst du sie: <b>Einstellungen</b> (das graue Zahnrad auf dem Home-Bildschirm) → <b>Mitteilungen</b> → <b>Spieleabend</b> → <b>Mitteilungen erlauben</b>. Danach den Spieleabend neu öffnen.</p>`,
+    aus:`${was ? `<p class="text-klein" style="margin:0 0 10px">${esc(was)}</p>` : ''}<button class="knopf breit" type="button" data-push="an">${ic('glocke')}Mitteilungen erlauben</button>
+      <p class="block-hinweis">Danach fragt das Handy einmal, ob der Spieleabend Mitteilungen schicken darf – mit „Erlauben“ bestätigen.</p>`,
+    neu:`<p class="hinweis" style="margin:0 0 10px">Die Mitteilungen müssen auf diesem Gerät einmal neu eingeschaltet werden.</p>
+      <button class="knopf breit" type="button" data-push="an">${ic('glocke')}Neu einschalten</button>`,
+    an:`<p style="margin:0 0 8px;font-weight:600">✓ Mitteilungen sind an.</p>${was ? `<p class="text-klein" style="margin:0 0 10px">${esc(was)}</p>` : ''}
+      <div class="knopfreihe"><button class="knopf zweit" type="button" data-push="test">Test-Mitteilung</button><button class="knopf rahmen" type="button" data-push="aus">Ausschalten</button></div>`
+  };
+  return teile[z] + (z !== 'fehlt' ? pushVersandHtml() : '');
+}
+function renderPushTeile(){
+  const el = $('#mitteilungen'); if (el) el.innerHTML = pushHtml();
+  const k = $('#e-mitteilungen-klein'); if (k) k.textContent = pushKlein();
+  pushHinweisZeigen(); badgeZeigen();
+}
+function pushAktion(was){
+  if (was === 'an') pushEinschalten();
+  else if (was === 'aus') pushAusschalten();
+  else if (was === 'test') pushTest();
+  else if (was === 'einrichten') pushEinrichtenSheet();
+}
+async function pushTest(){
+  if (!pushAn()) return;
+  const b = $('[data-push="test"]'); if (b){ b.disabled = true; b.textContent = 'Test läuft …'; }
+  try{
+    pushMelden(); await sync('Test-Mitteilung');                             // das eigene Abo muss zuerst bei GitHub liegen
+    const id = neueId('t').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const r = await gh('PUT', `/contents/push/test/${id}.json`, { message:'Mitteilungen: Test', branch:E.branch, content:b64AusText(JSON.stringify({ geraet:E.geraetId, zeit:Date.now() })) });
+    if (!r.ok) throw await fehlerAus(r, 'Test-Mitteilung');
+    toast('Test ist unterwegs – die Mitteilung kommt in etwa einer Minute.');
+    const start = Date.now();
+    while (Date.now() - start < 180000){
+      await warte(6000);
+      await pushStandLaden(true);
+      const t = PUSHSTAND && PUSHSTAND.test;
+      if (t && t.id === id){ toast(t.ergebnis === 'ok' ? 'Test-Mitteilung ist verschickt ✓' : t.ergebnis, t.ergebnis === 'ok' ? '' : 'fehler'); return; }
+    }
+    toast(E.admin ? 'Vom Versand kam keine Rückmeldung – ist die Versand-Datei bei GitHub angelegt (Einrichtung ansehen)?' : 'Keine Rückmeldung – bitte später nochmal versuchen.', 'fehler');
+  }catch(e){ toast(e.message, 'fehler'); }
+  finally{ renderPushTeile(); }
+}
+/* Einmaliger Hinweis oben: „Neu: Mitteilungen“ */
+function pushHinweisZeigen(){
+  const el = $('#push-hinweis'); if (!el) return;
+  const z = pushZustand(), key = z === 'neu' ? 'neu' + ((E.push || {}).stand || 0) : 'hinweis';
+  const zeigen = E.token && meinHaushaltGueltig() && E.pushHinweisWeg !== key
+    && (z === 'aus' || z === 'neu' || (z === 'app' && (lesen(LS.hinweis, false) || istStandalone())));
+  if (!zeigen){ el.innerHTML = ''; return; }
+  const was = `Das Handy meldet sich bei neuen Terminen${nachrichtenMoeglich() ? (E.admin ? ' und Nachrichten' : ' und Antworten vom Admin') : ''}`;
+  const text = z === 'neu' ? '🔔 Die Mitteilungen müssen auf diesem Gerät einmal neu eingeschaltet werden.'
+    : z === 'app' ? '🔔 <b>Neu: Mitteilungen.</b> Die gibt es auf dem iPhone, wenn du den Spieleabend vom Home-Bildschirm aus öffnest.'
+    : `🔔 <b>Neu: Mitteilungen.</b> ${esc(was)}.`;
+  el.innerHTML = `<div class="hinweis install"><p>${text}</p>
+    ${z !== 'app' ? '<button class="knopf" type="button" data-push-hinweis="an" style="min-height:38px;padding:0 14px;flex:none">Einschalten</button>' : ''}
+    <button class="knopf-rund" type="button" aria-label="Hinweis ausblenden" data-push-hinweis="zu">${ic('x')}</button></div>`;
+  el.onclick = e => {
+    const b = e.target.closest('[data-push-hinweis]'); if (!b) return;
+    if (b.dataset.pushHinweis === 'an') pushEinschalten();
+    else { E.pushHinweisWeg = key; einstSpeichern(); el.innerHTML = ''; }
+  };
+}
+/* Admin: einmal einrichten – Schlüsselpaar erzeugen, Secret bei GitHub eintragen, Versand-Datei anlegen */
+async function pushSchluesselErzeugen(){
+  const paar = await crypto.subtle.generateKey({ name:'ECDSA', namedCurve:'P-256' }, true, ['sign', 'verify']);
+  const jwk = await crypto.subtle.exportKey('jwk', paar.privateKey), roh = await crypto.subtle.exportKey('raw', paar.publicKey);
+  D.verwaltung.push = { schluessel:b64uAusBytes(roh), stand:Date.now() };
+  markiereV('Mitteilungen: Schlüssel erzeugt'); speichern(); syncBald();
+  pushDateienOk = false; pushDateienAktuell().catch(() => {});
+  return jwk.d;
+}
+let pushDateienOk = false;
+async function pushDateiAktuell(pfad, inhalt, muster, version){
+  const r = await gh('GET', `/contents/${pfadKod(pfad)}?ref=${encodeURIComponent(E.branch)}`);
+  let sha = '';
+  if (r.ok){
+    const j = await r.json(); sha = j.sha;
+    let v = 0; try{ const m = muster.exec(textAusB64(j.content || '')); v = m ? Number(m[1]) : 0; }catch(e){}
+    if (v >= version) return;
+  } else if (r.status !== 404) return;
+  const w = await gh('PUT', `/contents/${pfadKod(pfad)}`, { message:`Mitteilungen: ${pfad} ${sha ? 'erneuert' : 'angelegt'}`, branch:E.branch, content:b64AusText(inhalt), ...(sha ? { sha } : {}) });
+  if (!w.ok && w.status !== 409 && w.status !== 422) throw await fehlerAus(w, 'Mitteilungen');
+}
+/* sw.js und push/mitteilungen.py im Repo aktuell halten – macht ein Admin-Gerät, nie eine ältere Fassung über eine neuere */
+async function pushDateienAktuell(){
+  if (pushDateienOk || !E.admin || !E.token || !pushEingerichtet()) return;
+  await pushDateiAktuell(PUSH_SW_PFAD, PUSH_SW, /SW_VERSION = (\d+)/, PUSH_SW_VERSION);
+  await pushDateiAktuell(PUSH_PY_PFAD, PUSH_PY, /MITTEILUNGEN_VERSION = (\d+)/, PUSH_PY_VERSION);
+  pushDateienOk = true;
+}
+function kopieren(text, ersatz){
+  const fallback = () => { if (ersatz){ ersatz.value = text; ersatz.hidden = false; ersatz.focus(); ersatz.select(); } toast('Bitte den markierten Text kopieren.'); };
+  try{ navigator.clipboard.writeText(text).then(() => toast('Kopiert'), fallback); }catch(e){ fallback(); }
+}
+function pushEinrichtenSheet(){
+  if (!E.admin) return;
+  const basis = `https://github.com/${encodeURIComponent(E.owner)}/${encodeURIComponent(E.repo)}`;
+  let geheim = '', versand = null;                                          // der geheime Teil lebt nur, solange dieses Fenster offen ist
+  const s = sheet(`<div class="sheet-kopf"><h2>Mitteilungen einrichten</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Einmalig, dauert etwa 3 Minuten. Danach verschickt GitHub die Mitteilungen – kostenlos, ohne weiteres Konto.</p>
+    <div data-push-schritte></div>
+    <textarea class="eingabe so-text" readonly hidden data-push-ersatz></textarea>`, { beimSchliessen:() => { geheim = ''; renderPushTeile(); } });
+  const el = $('[data-push-schritte]', s);
+  const zeigen = () => {
+    const hat = pushEingerichtet();
+    const neu = `${basis}/new/${encodeURIComponent(E.branch)}?filename=${encodeURIComponent(PUSH_WORKFLOW)}&value=${encodeURIComponent(PUSH_YML)}`;
+    el.innerHTML = `<ol class="push-schritte">
+      <li><b>Schlüssel erzeugen</b>${hat ? ` <span class="marke-mein">✓ erledigt</span>` : `
+        <p class="text-klein">Die App erzeugt ein Schlüsselpaar: der öffentliche Teil kommt in die App-Daten, der geheime Teil nur zu GitHub.</p>
+        <button class="knopf breit" type="button" data-ps="erzeugen">Schlüssel erzeugen</button>`}</li>
+      <li><b>Geheimen Schlüssel bei GitHub eintragen</b>${geheim ? `
+        <p class="text-klein">Er wird <b>nur jetzt</b> angezeigt und nirgends gespeichert – also gleich eintragen:</p>
+        <textarea class="eingabe push-geheim" readonly data-ps-geheim>${esc(geheim)}</textarea>
+        <ol class="text-klein"><li>„Schlüssel kopieren“ tippen, dann „GitHub öffnen“.</li>
+          <li>Bei <b>Name</b> eintragen: <b>PUSH_SCHLUESSEL</b> <button class="knopf-link" type="button" data-ps="name">Namen kopieren</button></li>
+          <li>Bei <b>Secret</b> den Schlüssel einsetzen und <b>Add secret</b> tippen.</li></ol>
+        <div class="knopfreihe"><button class="knopf rahmen" type="button" data-ps="geheim">Schlüssel kopieren</button>
+          <a class="knopf" href="${esc(basis + '/settings/secrets/actions/new')}" target="_blank" rel="noopener">GitHub öffnen</a></div>`
+      : hat ? `<p class="text-klein">Schon eingetragen? Dann weiter mit Schritt 3. Falls der Schlüssel nicht bei GitHub angekommen ist:
+          <button class="knopf-link" type="button" data-ps="erzeugen">neuen Schlüssel erzeugen</button> – danach schaltet jedes Gerät die Mitteilungen einmal neu ein.</p>`
+      : '<p class="text-klein text-leise">Kommt nach Schritt 1.</p>'}</li>
+      <li><b>Versand-Datei anlegen</b>${versand ? ' <span class="marke-mein">✓ angelegt</span>' : `
+        <ol class="text-klein"><li>„GitHub öffnen“ tippen – Dateiname und Text sind schon eingetragen.</li><li>„Commit changes…“ und noch einmal „Commit changes“ tippen.</li></ol>
+        <div class="knopfreihe"><a class="knopf" href="${esc(neu)}" target="_blank" rel="noopener">GitHub öffnen</a>
+          <button class="knopf rahmen" type="button" data-ps="text">Text kopieren</button></div>
+        <p class="text-leise text-klein" style="margin:6px 0 0">Ist das Textfeld bei GitHub leer: „Text kopieren“ tippen und dort einfügen.</p>`}</li>
+      <li><b>Ausprobieren</b><p class="text-klein">Zurück in der App: Einstellungen → Mitteilungen → „Mitteilungen erlauben“, dann „Test-Mitteilung“.</p></li></ol>
+      ${PUSHSTAND && PUSHSTAND.fehler ? `<p class="hinweis warn"><b>Rückmeldung vom Versand:</b> ${esc(PUSHSTAND.fehler)}</p>` : ''}
+      <button class="knopf rahmen breit" type="button" data-ps="pruefen">Stand prüfen</button>`;
+  };
+  const pruefen = async () => {
+    try{ const r = await gh('GET', `/contents/${pfadKod(PUSH_WORKFLOW)}?ref=${encodeURIComponent(E.branch)}`); versand = r.ok; }catch(e){}
+    await pushStandLaden(true); zeigen();
+  };
+  el.addEventListener('click', async e => {
+    const b = e.target.closest('[data-ps]'); if (!b) return;
+    const was = b.dataset.ps, ersatz = $('[data-push-ersatz]', s);
+    if (was === 'erzeugen'){
+      if (pushEingerichtet() && !await frage('Neuen Schlüssel erzeugen?', 'Danach muss der neue geheime Schlüssel bei GitHub eingetragen werden, und jedes Gerät schaltet die Mitteilungen einmal neu ein.', 'Neu erzeugen', true)) return;
+      b.disabled = true;
+      try{ geheim = await pushSchluesselErzeugen(); }catch(err){ toast('Der Schlüssel ließ sich nicht erzeugen.', 'fehler'); }
+      zeigen();
+    }
+    if (was === 'geheim') kopieren(geheim, ersatz);
+    if (was === 'name') kopieren('PUSH_SCHLUESSEL', ersatz);
+    if (was === 'text') kopieren(PUSH_YML, ersatz);
+    if (was === 'pruefen'){ b.disabled = true; await pruefen(); }
+  });
+  zeigen(); pruefen();
+}
+
 /* ---------- Navigation & Verdrahtung ---------- */
 let aktiveSeite = 'spiele';
 function seiteZeigen(name){
@@ -8924,6 +9270,7 @@ function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
   termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); liveHinweisZeigen(); kreisLeisteZeigen(); gscNeuZeichnen();
+  pushHinweisZeigen(); badgeZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
@@ -9046,7 +9393,17 @@ function start(){
   if (eingeladen && !istStandalone()) ueberSheet(true);      // sofort, damit die Haushaltsfrage danach kommt
   else if (eingeladen) setTimeout(haushaltWechselPruefen, 500);
   if (!E.token && !Object.keys(D.haushalte).length && !eingeladen) setTimeout(/termin=/.test(location.hash) ? terminLinkOhneApp : willkommen, 350);
-  sync(eingeladen ? 'Einladung' : 'Start');
+  const startZiel = zielAusAdresse();
+  if (startZiel) setTimeout(() => zielOeffnen(startZiel), 50);
+  Promise.resolve(sync(eingeladen ? 'Einladung' : 'Start')).finally(() => {
+    if (startZiel) zielOeffnen(startZiel);
+    if (pushEingerichtet()){
+      pushPruefen(); if (E.push) pushStandLaden().then(renderPushTeile);
+      if (E.admin) pushDateienAktuell().catch(() => {});
+    }
+  });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.art === 'ziel') zielOeffnen(e.data.ziel); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') badgeZeigen(); });
   setTimeout(updatePruefen, 2500);
 }
 start();
