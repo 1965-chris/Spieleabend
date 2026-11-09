@@ -32,5 +32,19 @@
    }
   }
  ],
+ "nachrichten": [
+  {
+   "id": "nmw9dm5f78q99",
+   "art": "sonst",
+   "text": "Hallo test",
+   "von": "Ich",
+   "betrifft": [],
+   "erstellt": 1794235708915,
+   "stand": 1794235708915,
+   "status": "offen",
+   "statusStand": 0,
+   "verlauf": []
+  }
+ ],
  "geloescht": {}
 }
