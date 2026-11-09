@@ -886,9 +886,16 @@
    "app": true,
    "version": "v2.01",
    "erst": 1792866917428,
-   "zuletzt": 1794238791599,
+   "zuletzt": 1794238814655,
    "name": "Birgit",
    "nameStand": 1792866954685,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QIbiizrs5-SubTho3d7dGslVEQSRAzaIwnqmEyon-f85FtvNHhhV6x-xxbkOdCGOokvbDNKs1W-8xHmgz40GffkKUgTfAYkeW0pFhcigjVQl4IucEiZp9JybTlI_ajaT_02D9-VVmuOhlEAmFa4kRApcjLM2ytR3IpCBgd70iFw",
+    "p256dh": "BF0L4nZofDEsZnsRiUzZHjsE6aTHmS5dW-bOcH84cCfnR6eCCY5CyxhqBMg6fqwRdgMiByJZ_cj2x0F6TAZW7IA",
+    "auth": "cJKLolmMPhQSVrh2sb1GHg",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794238814655
+   },
    "personen": [
     "pmvl9layukjpl"
    ],
