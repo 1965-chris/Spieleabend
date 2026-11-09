@@ -859,7 +859,7 @@
    "app": true,
    "version": "v2.01",
    "erst": 1792864131177,
-   "zuletzt": 1794238416691,
+   "zuletzt": 1794238633535,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
@@ -888,7 +888,11 @@
    "erst": 1792866917428,
    "zuletzt": 1794068462291,
    "name": "Birgit",
-   "nameStand": 1792866954685
+   "nameStand": 1792866954685,
+   "personen": [
+    "pmvl9layukjpl"
+   ],
+   "personenStand": 1794238631358
   },
   {
    "id": "gmvlci8srx8ih",
