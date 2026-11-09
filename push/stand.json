@@ -7,6 +7,7 @@
   "c:cmw9hdqtshgbn",
   "c:cmw9hl8fr0s0c",
   "c:cmw9hm6lf65nt",
+  "c:cmw9hn0pwo7tn",
   "n:nmvnon9z9bovg",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
@@ -74,8 +75,14 @@
    "titel": "💬 Christian (Familie Mättig Baumberg)",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794242475796,
+   "titel": "💬 Birgit (Familie Mättig Baumberg)",
+   "an": 2,
+   "ok": 2
   }
  ],
  "geraete": 3,
- "zeit": 1794242437907
+ "zeit": 1794242475796
 }
