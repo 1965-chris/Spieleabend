@@ -1,0 +1,27 @@
+# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen bei neuen Nachrichten, Antworten und Terminen.
+# Das eigentliche Programm (push/mitteilungen.py) legt die App selbst ins Repo und hält es aktuell.
+# Der geheime Schlüssel steht nur in den Repo-Einstellungen (Secret PUSH_SCHLUESSEL), nie in einer Datei.
+name: Mitteilungen
+on:
+  push:
+    paths: ['daten/**', 'push/test/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mitteilungen
+  cancel-in-progress: false
+jobs:
+  senden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mitteilungen verschicken
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUSH_SCHLUESSEL: ${{ secrets.PUSH_SCHLUESSEL }}
+        run: |
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github.raw" -o mitteilungen.py \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/push/mitteilungen.py?ref=$GITHUB_SHA"
+          python3 -c "import cryptography" 2>/dev/null || python3 -m pip install --quiet --user --break-system-packages cryptography
+          python3 mitteilungen.py
