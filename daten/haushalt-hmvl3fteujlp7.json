@@ -859,7 +859,7 @@
    "app": true,
    "version": "v2.01",
    "erst": 1792864131177,
-   "zuletzt": 1794238633535,
+   "zuletzt": 1794238833034,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
@@ -868,7 +868,11 @@
     "auth": "zvS-OwTSTHlESTkruy3IWg",
     "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
     "stand": 1794233598256
-   }
+   },
+   "personen": [
+    "pmvl9layukjpl"
+   ],
+   "personenStand": 1794238830958
   },
   {
    "id": "gmvleovpfwtv3",
