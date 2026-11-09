@@ -750,6 +750,35 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 
 /* Installationshinweis */
 .install{display:flex;gap:10px;align-items:flex-start}
+.kopf-knopf.chat .ic{color:var(--filz)}
+.kopf-knopf .tab-zahl{top:-6px;right:-7px}
+.kopf-knopf[hidden]{display:none}
+@media (max-width:400px){ .titel .marke{display:none} }
+@media (max-width:360px){ .titel{font-size:21px} .kopf-innen{gap:8px} .kopf-rechts{gap:5px} .kopf-knopf{width:34px;height:34px} .kopf-knopf .ic{width:19px;height:19px} }
+.chip.an{background:var(--filz);border-color:var(--filz);color:var(--filz-tinte);font-weight:600}
+.chat-abschnitt{margin:14px 0 6px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--leise);display:flex;align-items:center;gap:7px}
+.hh-punkt{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.chat-zeile{appearance:none;width:100%;display:flex;align-items:center;gap:11px;padding:10px 4px;border:0;border-bottom:1px solid var(--linie);background:none;text-align:left;color:var(--tinte);font:inherit;cursor:pointer}
+.chat-punkt{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px}
+.chat-zeile-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.chat-zeile-text small{color:var(--leise);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.chat-zeile-rechts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+.chat-zeile-rechts small{color:var(--leise);font-size:12px}
+.chat-neu{min-width:20px;height:20px;border-radius:10px;background:var(--rot);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.chat-wem{background:var(--filz-hell);border-radius:12px;padding:10px 12px;margin:0 0 6px}
+.chat-wem p{margin:0 0 8px}
+.chat-verlauf{max-height:55vh;min-height:180px;overflow-y:auto;padding:4px 2px 8px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+.chat-tag{align-self:center;margin:8px 0 2px;font-size:12px;color:var(--leise);background:var(--grund);padding:2px 10px;border-radius:10px}
+.chat-blase{max-width:82%;align-self:flex-start;background:color-mix(in srgb, var(--hf) 12%, var(--karte));border:1px solid color-mix(in srgb, var(--hf) 30%, var(--linie));border-radius:14px 14px 14px 4px;padding:7px 11px 5px;display:flex;flex-direction:column;white-space:pre-wrap;word-break:break-word}
+.chat-blase b{font-size:13px;color:var(--hf)}
+.chat-blase b small{color:var(--leise);font-weight:500}
+.chat-blase.mein{align-self:flex-end;background:var(--filz);border-color:var(--filz);color:var(--filz-tinte);border-radius:14px 14px 4px 14px}
+.chat-uhr{align-self:flex-end;font-size:11px;opacity:.7;margin-top:2px}
+.chat-eingabe{border-top:1px solid var(--linie);padding-top:10px;margin-top:4px}
+.chat-wer{align-items:center;margin-bottom:8px}
+.chat-zeile-eingabe{display:flex;gap:8px;align-items:flex-end}
+.chat-zeile-eingabe textarea{flex:1;resize:none;min-height:44px;max-height:140px}
+.chat-zeile-eingabe .knopf{flex:none;width:48px;padding:0}
 .push-schritte{margin:8px 0 12px;padding-left:22px}
 .push-schritte > li{margin:0 0 14px}
 .push-schritte ol{margin:6px 0 8px;padding-left:18px}
@@ -1029,6 +1058,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div class="kopf-innen">
     <h1 class="titel"><span class="marke" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5.3" r="3.5" fill="#fff"/><path fill="#fff" d="M8.6 9.4h6.8c2.6.3 6.2 1.1 6.9 2.4.5.9-.1 2-1.1 2.1l-4.2.4 2.6 6.2c.4 1-.3 2.1-1.4 2.1h-2.6L12 17.8l-2.6 4.8H6.8c-1.1 0-1.8-1.1-1.4-2.1l2.6-6.2-4.2-.4c-1-.1-1.6-1.2-1.1-2.1.7-1.3 4.3-2.1 6.9-2.4z"/></svg></span>Spieleabend</h1>
     <div class="kopf-rechts">
+      <button class="kopf-knopf chat" id="chat-knopf" type="button" aria-label="Chat" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12.5a7.5 7 0 0 1-10.7 6.3L4.5 20l1.3-3.9A7 7 0 0 1 4.5 12.5 7.5 7 0 0 1 20 12.5z"/></svg><span class="tab-zahl" id="chat-zahl" hidden></span></button>
       <button class="kopf-knopf hilfe" id="hilfe-knopf" type="button" aria-label="Hilfe"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><circle cx="12" cy="17.2" r="1.1" fill="currentColor" stroke="none"/></svg></button>
       <button class="kopf-knopf info" id="info-knopf" type="button" aria-label="Info und Versionen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button>
       <button class="kopf-knopf sync" id="sync-knopf" type="button" data-k="aus" aria-label="Abgleich"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M17.8 3.5v3.6h-3.6"/><path d="M6.2 20.5v-3.6h3.6"/></svg><i></i><span class="sr">…</span></button>
@@ -1109,7 +1139,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.00';
+const VERSION = 'v2.01';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1125,7 +1155,8 @@ const FUNKTIONEN = [
   { k:'empfehlungen', t:'Spiel des Jahres & Co.', b:'Ausgezeichnete Spiele, die noch fehlen – mit einem Tipp eintragen' },
   { k:'verleihen', t:'Verleihen', b:'Vermerk, wenn ein Spiel ausgeliehen ist' },
   { k:'anfragen', t:'Neue Familie dazuholen', b:'Haushalte fragen beim Admin neue Familien an' },
-  { k:'nachrichten', t:'Nachricht an den Admin', b:'Auffälligkeiten und Wünsche in der App melden' }
+  { k:'nachrichten', t:'Nachricht an den Admin', b:'Auffälligkeiten und Wünsche in der App melden' },
+  { k:'chat', t:'Chat', b:'Gruppen-Chat je Spielkreis und Nachrichten an einzelne Personen' }
 ];
 /* Wertungsarten für den Punkteblock */
 const WERTUNGEN = [
@@ -1272,6 +1303,8 @@ const ICONS = {
   kuchen:'<path d="M5 20h14v-6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0"/><path d="M12 12V8.5"/><path d="M12 6c.8-.6.8-1.6 0-2.5-.8.9-.8 1.9 0 2.5z"/>',
   uhr:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  zurueck:'<path d="M15 5l-7 7 7 7"/>',
+  senden:'<path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/>',
   filter:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   kamera:'<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>',
   stift:'<path d="M15 5l4 4L9 19H5v-4z"/><path d="M13 7l4 4"/>',
@@ -1300,15 +1333,25 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
 const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel','teil']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','geloescht','eingeladenAm']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','chat','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
-const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand','push']);
+const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand','push','personen','personenStand']);
 const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
 function geraetNorm(g){
   return { ...unbekannte(g, GERAET_FELDER), id:String(g.id), art:GERAET_ARTEN.includes(g.art) ? g.art : 'Computer', app:!!g.app,
     version:String(g.version || '').slice(0, 12), erst:zahl(g.erst) || 0, zuletzt:zahl(g.zuletzt) || 0,
-    name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0, ...(pushAboNorm(g.push) ? { push:pushAboNorm(g.push) } : {}) };
+    name:String(g.name || '').trim().slice(0, 40), nameStand:zahl(g.nameStand) || 0, ...(pushAboNorm(g.push) ? { push:pushAboNorm(g.push) } : {}),
+    // Wem gehört das Gerät? (für Chat-Nachrichten an einzelne Personen) – vom Gerät selbst oder vom Admin festgelegt
+    ...(Array.isArray(g.personen) && g.personen.length ? { personen:[...new Set(g.personen.map(String))].slice(0, 12), personenStand:zahl(g.personenStand) || 0 } : zahl(g.personenStand) ? { personen:[], personenStand:zahl(g.personenStand) } : {}) };
 }
+/* Chat: Nachrichten liegen in der Datei des Haushalts, der sie schreibt. an = 'k:<Spielkreis>' (Gruppe) oder 'p:<Haushalt>:<Person>' (direkt) */
+const CHAT_FELDER = new Set(['id','an','von','text','zeit','geraet']);
+const CHAT_TAGE = 180;                                                  // ältere Nachrichten fallen weg, damit die Dateien klein bleiben
+function chatNorm(c){
+  return { ...unbekannte(c, CHAT_FELDER), id:String(c.id), an:String(c.an || '').slice(0, 120), von:String(c.von || '').slice(0, 60),
+    text:String(c.text || '').trim().slice(0, 1000), zeit:zahl(c.zeit) || 0, geraet:String(c.geraet || '').slice(0, 60) };
+}
+function chatGueltig(c){ return c && c.id && String(c.text || '').trim() && /^(k:[^:]+|p:[^:]+:[^:]+)$/.test(String(c.an || '')) && (zahl(c.zeit) || 0) > Date.now() - CHAT_TAGE * 864e5; }
 function geraeteSort(a, b){ return a.erst - b.erst || a.id.localeCompare(b.id); }
 /* Nachrichten an den Admin: liegen in der Datei des Haushalts, der sie geschickt hat. Antworten des Admins kommen in den Verlauf. */
 const NACHRICHT_ARTEN = [
@@ -1574,6 +1617,7 @@ function haushaltNorm(h){
     partien:(Array.isArray(h.partien) ? h.partien : []).filter(x => x && x.id).map(partieNorm).filter(x => x.datum && x.name).sort((a, b) => a.datum.localeCompare(b.datum) || a.id.localeCompare(b.id)),
     geraete:(Array.isArray(h.geraete) ? h.geraete : []).filter(x => x && x.id).map(geraetNorm).filter(x => x.zuletzt > grenze).sort(geraeteSort),
     nachrichten:(Array.isArray(h.nachrichten) ? h.nachrichten : []).filter(x => x && x.id && String(x.text || '').trim()).map(nachrichtNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
+    chat:(Array.isArray(h.chat) ? h.chat : []).filter(chatGueltig).map(chatNorm).sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id)),
     ...(zahl(h.eingeladenAm) ? { eingeladenAm:zahl(h.eingeladenAm) } : {}),
     geloescht:g
   };
@@ -1582,7 +1626,7 @@ function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
     ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}),
-    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}),
+    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}), ...(n.chat.length ? { chat:n.chat } : {}),
     ...(n.eingeladenAm ? { eingeladenAm:n.eingeladenAm } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
@@ -1618,8 +1662,10 @@ function zusammenfuehren(lokal, fern){
   for (const x of B.geraete) ge.set(x.id, x);
   for (const x of A.geraete){
     const y = ge.get(x.id); if (!y){ ge.set(x.id, x); continue; }
-    const basis = x.zuletzt >= y.zuletzt ? x : y, nm = x.nameStand >= y.nameStand ? x : y;
-    ge.set(x.id, { ...basis, erst:Math.min(x.erst || basis.erst, y.erst || basis.erst), name:nm.name, nameStand:nm.nameStand });
+    const basis = x.zuletzt >= y.zuletzt ? x : y, nm = x.nameStand >= y.nameStand ? x : y, pe = (x.personenStand || 0) >= (y.personenStand || 0) ? x : y;
+    const neu = { ...basis, erst:Math.min(x.erst || basis.erst, y.erst || basis.erst), name:nm.name, nameStand:nm.nameStand };
+    if (pe.personenStand){ neu.personen = pe.personen || []; neu.personenStand = pe.personenStand; } else { delete neu.personen; delete neu.personenStand; }
+    ge.set(x.id, neu);
   }
   const geraete = [...ge.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= Math.max(x.zuletzt, x.nameStand))).sort(geraeteSort);
   // Nachrichten: Verlauf beider Seiten zusammenführen, Status nach eigenem Stand
@@ -1632,8 +1678,11 @@ function zusammenfuehren(lokal, fern){
     na.set(x.id, nachrichtNorm({ ...basis, verlauf:[...vl.values()], status:st.status, statusStand:st.statusStand, stand:Math.max(x.stand, y.stand) }));
   }
   const nachrichten = [...na.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.stand)).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id));
+  // Chat: Nachrichten ändern sich nicht – beide Seiten zusammennehmen, gelöschte bleiben weg
+  const ch = new Map(); for (const x of [...B.chat, ...A.chat]) ch.set(x.id, x);
+  const chat = [...ch.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.zeit)).sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id));
   const eingeladenAm = Math.max(A.eingeladenAm || 0, B.eingeladenAm || 0) || undefined;
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, ...(eingeladenAm ? { eingeladenAm } : {}), geloescht:tomb };
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, chat, ...(eingeladenAm ? { eingeladenAm } : {}), geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -7740,10 +7789,19 @@ const HILFE = [
     <ul><li><b>?</b> öffnet diese Hilfe. Das Suchfeld oben zeigt nur die passenden Themen und markiert die Fundstellen gelb.</li>
     <li><b>i</b> zeigt die Version, was in jeder Version neu ist, und ob es schon eine neuere gibt.</li>
     <li>Die <b>Pfeile</b> gleichen sofort ab. Antippen zeigt auch kurz den Stand.</li></ul>` },
+  { id:'chat', titel:'Chat', seite:'einstellungen', fkt:'chat', text:`
+    <p>Oben rechts der grüne Sprechblasen-Knopf öffnet den <b>Chat</b>. Die rote Zahl daran zeigt ungelesene Nachrichten.</p>
+    <ul><li><b>Gruppen:</b> Für jeden Spielkreis, in dem dein Haushalt ist, gibt es eine Gruppe – alle Haushalte darin lesen mit.</li>
+    <li><b>Direkt:</b> „Neue Nachricht an …“ – du siehst die Personen aller Haushalte, die du in der App siehst. Die Unterhaltung erscheint nur bei euch beiden.</li>
+    <li><b>Wem gehört dieses Gerät?</b> Beim ersten Öffnen fragt die App das, wenn in deinem Haushalt mehrere Personen sind. Dann kommen Nachrichten an dich genau auf deinem Gerät an. Bei „Gemeinsames Gerät“ wählst du beim Schreiben, wer schreibt. Ändern: unten in der Chat-Liste „ändern“.</li>
+    <li><b>Löschen:</b> Eigene Nachricht antippen – sie verschwindet für alle.</li>
+    <li>Mit eingeschalteten <b>Mitteilungen</b> meldet sich das Handy bei neuen Chat-Nachrichten. Nachrichten verschwinden nach einem halben Jahr von selbst.</li></ul>
+    <p data-nur-admin><b>Admin:</b> Den Chat schaltest du je Spielkreis unter Spielkreise &amp; Admin → Funktionen ein und aus. Unter „Wer nutzt die App?“ kannst du beim Gerät festlegen, wem es gehört. Technisch liegen die Nachrichten wie alles andere in den Haushaltsdateien im Repo – wer den Schlüssel hat, könnte sie dort lesen.</p>` },
   { id:'mitteilungen', titel:'Mitteilungen und Zahl am App-Symbol', seite:'einstellungen', text:`
     <p>Das Handy meldet sich, wenn etwas Neues da ist – auch wenn die App geschlossen ist:</p>
     <ul><li><b>Neuer Termin</b>, zu dem dein Haushalt eingeladen ist.</li>
     <li><b>Antwort vom Admin</b> auf eine Nachricht deines Haushalts.</li>
+    <li><b>Chat:</b> neue Nachrichten in deinen Gruppen und an dich.</li>
     <li>Für den Admin: <b>neue Nachrichten</b> und Antworten der Haushalte.</li></ul>
     <p>Die Zahl am App-Symbol zeigt, was neu ist; beim Öffnen der App stellt sie sich auf den echten Stand. Antippen einer Mitteilung öffnet gleich die passende Stelle.</p>
     <p><b>Einschalten:</b> Einstellungen → <b>Mitteilungen</b> → <b>Mitteilungen erlauben</b>, dann die Frage des Handys mit „Erlauben“ bestätigen. Das macht jedes Gerät einmal selbst. <b>Test-Mitteilung</b> zeigt, ob alles klappt (kommt nach etwa einer Minute).</p>
@@ -7817,6 +7875,12 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.01', datum:'09.11.2026', neu:[
+    'Chat: oben rechts der Sprechblasen-Knopf – eine Gruppe für jeden Spielkreis und Nachrichten direkt an einzelne Personen',
+    'Wem gehört dieses Gerät? Einmal festlegen, dann kommen Nachrichten an dich genau auf deinem Gerät an (oder „gemeinsames Gerät“)',
+    'Mitteilungen auch bei neuen Chat-Nachrichten, die Zahl am App-Symbol zählt sie mit',
+    { t:'Chat je Spielkreis abschaltbar (Funktionen); beim Gerät unter „Wer nutzt die App?“ festlegen, wem es gehört', admin:true }
+  ]},
   { v:'v2.00', datum:'09.11.2026', neu:[
     'Fehlermeldungen (rote Hinweise) bleiben länger stehen – Antippen schließt sie',
     { t:'Mitteilungen einrichten: Die App legt ihre Dateien bei GitHub jetzt zuverlässig an, auch wenn gleichzeitig abgeglichen wird (vorher fehlte dann push/mitteilungen.py)', admin:true }
@@ -8574,15 +8638,20 @@ function geraetSheet(wert){
     <p class="text-leise" style="margin-top:-4px">${esc(h.name)} · ${esc(g.art)} · ${g.app ? 'als App' : 'nur im Browser'}</p>
     <label class="feld"><span class="feld-titel">Name für dieses Gerät</span><input class="eingabe" name="t" value="${esc(g.name)}" placeholder="z. B. Omas iPhone" maxlength="40" autocomplete="off" autocapitalize="words"></label>
     <p class="block-hinweis" style="margin-top:-6px">Nur zur Übersicht für dich – die anderen sehen den Namen nicht.</p>
+    ${h.spieler.length > 1 ? `<div class="feld"><span class="feld-titel">Gehört</span><div class="chips">${h.spieler.map(p => `<button type="button" class="chip${(g.personen || []).includes(p.id) ? ' an' : ''}" data-person="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
+      <p class="block-hinweis">Für den Chat: Nachrichten an diese Person kommen auf diesem Gerät an. Mehrere antippen = gemeinsames Gerät.</p></div>` : ''}
     <div class="knopfreihe"><button class="knopf rahmen" type="button" data-zu>Abbrechen</button><button class="knopf" type="submit">Speichern</button></div>
     ${gid === E.geraetId ? '' : `<button class="knopf gefahr breit" type="button" data-weg style="margin-top:14px">${ic('muell')}Aus der Liste entfernen</button>
     <p class="block-hinweis">Taucht wieder auf, sobald das Gerät die App erneut öffnet.</p>`}</form>`);
   const f = $('form', s);
+  f.addEventListener('click', e => { const c = e.target.closest('[data-person]'); if (c) c.classList.toggle('an'); });
   f.addEventListener('submit', e => {
     e.preventDefault();
     const hh = D.haushalte[hid], x = hh && (hh.geraete || []).find(y => y.id === gid); if (!x){ s.schliessen(); return; }
     const t = feldVon(f, 't').value.trim().slice(0, 40);
     if (t !== x.name){ x.name = t; x.nameStand = Date.now(); markiere(hid, 'Gerät benannt'); speichern(); renderAlles(); syncBald(); }
+    const pers = $$('[data-person]', f).filter(c => c.classList.contains('an')).map(c => c.dataset.person);
+    if ($$('[data-person]', f).length && JSON.stringify(pers) !== JSON.stringify(x.personen || [])){ x.personen = pers; x.personenStand = Date.now(); markiere(hid, 'Gerät zugeordnet'); speichern(); renderAlles(); syncBald(); }
     s.schliessen();
   });
   const weg = $('[data-weg]', s);
@@ -8945,13 +9014,210 @@ function installHinweis(){
   });
 }
 
+/* ---------- Chat: Gruppe je Spielkreis und direkt an einzelne Personen ----------
+   Jede Nachricht liegt in der Datei des Haushalts, der sie geschrieben hat (h.chat) – so schreibt jeder nur in seine eigene Datei.
+   Unterhaltungen: 'k:<Spielkreis>' für die Gruppe, 'p:<Haushalt>:<Person>' für die Unterhaltung mit dieser Person (aus meiner Sicht). */
+function chatMoeglich(){ return !!(E.token && meinHaushaltGueltig() && funktionAn('chat')); }
+function personName(hid, pid){ const h = D.haushalte[hid], p = h && h.spieler.find(x => x.id === pid); return p ? p.name : 'Jemand'; }
+function eigenesGeraet(){ const h = D.haushalte[E.meinHaushalt]; return h && (h.geraete || []).find(g => g.id === E.geraetId); }
+/* Wem gehört dieses Gerät? Leer = noch nicht festgelegt; alle Mitspieler = gemeinsames Gerät */
+function geraetPersonen(){
+  const g = eigenesGeraet(), h = D.haushalte[E.meinHaushalt];
+  return g && g.personen ? g.personen.filter(pid => h.spieler.some(p => p.id === pid)) : [];
+}
+function geraetZugeordnet(){ const g = eigenesGeraet(); return !!(g && g.personenStand); }
+/* Wer schreibt gerade? Ein Gerät mit genau einer Person: die. Sonst die zuletzt gewählte. */
+function chatIch(){
+  const h = D.haushalte[E.meinHaushalt]; if (!h) return null;
+  const pers = geraetPersonen();
+  if (pers.length === 1) return pers[0];
+  const kandidaten = pers.length ? pers : h.spieler.map(p => p.id);
+  if (kandidaten.length === 1) return kandidaten[0];
+  return kandidaten.includes(E.chatIch) ? E.chatIch : null;
+}
+/* Meine Identitäten (Haushalt:Person): zugeordnete Personen – oder bei nicht zugeordnetem Gerät der ganze Haushalt */
+function chatIchSet(){
+  const h = D.haushalte[E.meinHaushalt]; if (!h) return new Set();
+  const pers = geraetPersonen();
+  return new Set((pers.length ? pers : h.spieler.map(p => p.id)).map(pid => E.meinHaushalt + ':' + pid));
+}
+function chatKreise(){
+  if (!meinHaushaltGueltig()) return [];
+  return D.verwaltung.kreise.filter(k => k.haushalte.includes(E.meinHaushalt) && !(k.aus || []).includes('chat'));
+}
+/* Alle Nachrichten, die mich betreffen, nach Unterhaltung geordnet */
+function chatUnterhaltungen(){
+  const ich = chatIchSet(), kreise = new Set(chatKreise().map(k => k.id)), u = new Map();
+  const dazu = (key, x) => { if (!u.has(key)) u.set(key, []); u.get(key).push(x); };
+  for (const k of kreise) u.set('k:' + k, []);
+  for (const h of Object.values(D.haushalte)) for (const c of h.chat || []){
+    const absender = h.id + ':' + c.von, x = { ...c, hid:h.id };
+    if (c.an.startsWith('k:')){ if (kreise.has(c.an.slice(2))) dazu(c.an, x); continue; }
+    const ziel = c.an.slice(2);
+    if (ich.has(absender)) dazu('p:' + ziel, x);
+    else if (ich.has(ziel)) dazu('p:' + absender, x);
+  }
+  for (const l of u.values()) l.sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id));
+  return u;
+}
+function chatVonMir(x){ return x.geraet === E.geraetId || (x.hid === E.meinHaushalt && geraetPersonen().length === 1 && geraetPersonen()[0] === x.von); }
+function chatUngelesen(key, liste){ const g = (E.chatGelesen || {})[key] || 0; return liste.filter(x => x.zeit > g && !chatVonMir(x)).length; }
+function chatUngelesenZahl(){
+  if (!chatMoeglich()) return 0;
+  let n = 0; for (const [key, l] of chatUnterhaltungen()) n += chatUngelesen(key, l); return n;
+}
+function chatGelesenSetzen(key, liste){
+  const z = liste.length ? liste[liste.length - 1].zeit : 0;
+  E.chatGelesen = { ...(E.chatGelesen || {}) };
+  if (z > (E.chatGelesen[key] || 0)){ E.chatGelesen[key] = z; einstSpeichern(); }
+}
+function chatTitel(key){
+  if (key.startsWith('k:')){ const k = D.verwaltung.kreise.find(x => x.id === key.slice(2)); return { t:k ? k.name : 'Spielkreis', u:'Gruppe' + (k ? ` · ${k.haushalte.filter(id => D.haushalte[id]).length} Haushalte` : '') }; }
+  const [, hid, pid] = key.split(':'); const h = D.haushalte[hid];
+  return { t:personName(hid, pid), u:h ? h.name : '' };
+}
+function chatKnopfZeigen(){
+  const b = $('#chat-knopf'); if (!b) return;
+  b.hidden = !chatMoeglich();
+  const n = b.hidden ? 0 : chatUngelesenZahl(), z = $('#chat-zahl');
+  if (z){ z.textContent = n; z.hidden = !n; }
+}
+const CHATUI = { s:null, key:'', timer:null, wem:false };
+function chatSheet(key=''){
+  if (!chatMoeglich()) return;
+  if (CHATUI.s){ CHATUI.key = key; chatRender(true); return; }
+  const s = sheet('<div data-chat></div>', { klasse:'chat-sheet', beimSchliessen:() => { clearInterval(CHATUI.timer); CHATUI.s = null; CHATUI.key = ''; chatKnopfZeigen(); badgeZeigen(); } });
+  CHATUI.s = s; CHATUI.key = key;
+  CHATUI.timer = setInterval(() => { if (document.visibilityState === 'visible' && !S.laeuft) sync('Chat'); }, 15000);
+  s.addEventListener('click', chatKlick);
+  s.addEventListener('submit', e => { e.preventDefault(); chatSenden(); });
+  s.addEventListener('input', e => { if (e.target.matches('[data-chat-text]')){ e.target.style.height = 'auto'; e.target.style.height = Math.min(140, e.target.scrollHeight) + 'px'; } });
+  s.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && e.target.matches('[data-chat-text]') && !istIos()){ e.preventDefault(); chatSenden(); } });
+  chatRender(true);
+}
+function chatPersonenWahlHtml(){
+  const h = D.haushalte[E.meinHaushalt]; if (!h || h.spieler.length < 2) return '';
+  const g = eigenesGeraet(), vorschlag = g && g.name ? h.spieler.find(p => nameSchluessel(g.name).includes(nameSchluessel(p.name))) : null;
+  return `<div class="chat-wem"><p><b>Wem gehört dieses Gerät?</b> Dann kommen Nachrichten an dich auch genau hier an.</p>
+    <div class="chips">${h.spieler.map(p => `<button type="button" class="chip${vorschlag && vorschlag.id === p.id ? ' an' : ''}" data-chat-geraet="${esc(p.id)}">${esc(p.name)}</button>`).join('')}
+    <button type="button" class="chip" data-chat-geraet="*">Gemeinsames Gerät</button></div></div>`;
+}
+function chatListeHtml(){
+  const u = chatUnterhaltungen(), h = D.haushalte[E.meinHaushalt];
+  const zeile = (key, l) => {
+    const t = chatTitel(key), letzte = l[l.length - 1], n = chatUngelesen(key, l);
+    const vorschau = letzte ? `${letzte.geraet === E.geraetId ? 'Du' : esc(personName(letzte.hid, letzte.von))}: ${esc(letzte.text.slice(0, 80))}` : '<i>noch keine Nachrichten</i>';
+    const farbe = key.startsWith('p:') ? farbeVon(key.split(':')[1]) : 'var(--filz)';
+    return `<button type="button" class="chat-zeile" data-chat-auf="${esc(key)}"><span class="chat-punkt" style="background:${esc(farbe)}">${key.startsWith('k:') ? '👥' : esc(initiale(t.t))}</span>
+      <span class="chat-zeile-text"><b>${esc(t.t)}</b><small>${vorschau}</small></span>
+      <span class="chat-zeile-rechts">${letzte ? `<small>${esc(chatZeitKurz(letzte.zeit))}</small>` : ''}${n ? `<span class="chat-neu">${n}</span>` : ''}</span></button>`;
+  };
+  const gruppen = [...u].filter(([k]) => k.startsWith('k:')), direkt = [...u].filter(([k]) => k.startsWith('p:')).sort((a, b) => b[1][b[1].length - 1].zeit - a[1][a[1].length - 1].zeit);
+  const zu = geraetPersonen(), zuText = !h ? '' : zu.length === 1 ? personName(E.meinHaushalt, zu[0]) : zu.length > 1 ? 'gemeinsam' : '';
+  return `<div class="sheet-kopf"><h2>Chat</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    ${!geraetZugeordnet() || CHATUI.wem ? chatPersonenWahlHtml() : ''}
+    ${gruppen.length ? `<p class="chat-abschnitt">Gruppen</p>${gruppen.map(([k, l]) => zeile(k, l)).join('')}` : ''}
+    <p class="chat-abschnitt">Direkt</p>
+    ${direkt.length ? direkt.map(([k, l]) => zeile(k, l)).join('') : '<p class="text-leise text-klein" style="margin:0 0 8px">Noch keine Unterhaltung.</p>'}
+    <button class="knopf rahmen breit" type="button" data-chat-neu style="margin-top:8px">${ic('plus')}Neue Nachricht an …</button>
+    ${zuText ? `<p class="text-leise text-klein" style="margin:14px 0 0">Dieses Gerät gehört: <b>${esc(zuText)}</b> · <button class="knopf-link" type="button" data-chat-wem>ändern</button></p>` : ''}`;
+}
+function chatZeitKurz(z){
+  const d = new Date(z), heute = new Date();
+  if (d.toDateString() === heute.toDateString()) return d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' });
+}
+function chatNeuHtml(){
+  const ich = chatIch(), ids = [...sichtbareIds(true)].filter(id => D.haushalte[id]).sort((a, b) => (a === E.meinHaushalt ? -1 : b === E.meinHaushalt ? 1 : D.haushalte[a].name.localeCompare(D.haushalte[b].name, 'de')));
+  return `<div class="sheet-kopf"><button class="knopf-rund" type="button" data-chat-zurueck aria-label="Zurück">${ic('zurueck')}</button><h2 style="flex:1;margin-left:8px">Neue Nachricht an …</h2></div>
+    ${ids.map(id => { const h = D.haushalte[id], leute = h.spieler.filter(p => !(ich && id === E.meinHaushalt && p.id === ich));
+      return leute.length ? `<p class="chat-abschnitt"><span class="hh-punkt" style="background:${esc(h.farbe)}"></span>${esc(h.name)}</p>
+        <div class="chips" style="margin-bottom:10px">${leute.map(p => `<button type="button" class="chip" data-chat-auf="${esc('p:' + id + ':' + p.id)}">${esc(p.name)}</button>`).join('')}</div>` : ''; }).join('')}`;
+}
+function chatVerlaufHtml(key){
+  const l = chatUnterhaltungen().get(key) || [];
+  if (!l.length) return `<p class="text-leise text-klein" style="text-align:center;margin:30px 0">Noch keine Nachrichten – schreib die erste!</p>`;
+  let tag = '';
+  return l.map(x => {
+    const d = new Date(x.zeit), t = d.toLocaleDateString('de-DE', { weekday:'short', day:'2-digit', month:'2-digit' });
+    const trenner = t !== tag ? `<p class="chat-tag">${esc(t)}</p>` : ''; tag = t;
+    const mein = chatVonMir(x), h = D.haushalte[x.hid];
+    return `${trenner}<div class="chat-blase${mein ? ' mein' : ''}"${x.hid === E.meinHaushalt ? ` data-chat-loeschen="${esc(x.id)}"` : ''} style="--hf:${esc(farbeVon(x.hid))}">
+      ${mein ? '' : `<b>${esc(personName(x.hid, x.von))}${key.startsWith('k:') && h ? ` <small>· ${esc(h.name)}</small>` : ''}</b>`}
+      <span>${esc(x.text)}</span><small class="chat-uhr">${esc(d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }))}</small></div>`;
+  }).join('');
+}
+function chatGespraechHtml(key){
+  const t = chatTitel(key), ich = chatIch(), h = D.haushalte[E.meinHaushalt];
+  const wahl = !ich || (geraetPersonen().length !== 1 && h.spieler.length > 1);
+  const kandidaten = geraetPersonen().length > 1 ? geraetPersonen() : h.spieler.map(p => p.id);
+  return `<div class="sheet-kopf"><button class="knopf-rund" type="button" data-chat-zurueck aria-label="Zurück">${ic('zurueck')}</button>
+      <div style="flex:1;margin-left:8px;min-width:0"><h2 style="margin:0">${esc(t.t)}</h2><small class="text-leise">${esc(t.u)}</small></div>
+      <button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="chat-verlauf" data-chat-verlauf>${chatVerlaufHtml(key)}</div>
+    <form class="chat-eingabe" novalidate>
+      ${wahl && kandidaten.length > 1 ? `<div class="chips chat-wer"><span class="text-leise text-klein">Wer schreibt?</span>${kandidaten.map(pid => `<button type="button" class="chip${pid === ich ? ' an' : ''}" data-chat-ich="${esc(pid)}">${esc(personName(E.meinHaushalt, pid))}</button>`).join('')}</div>` : ''}
+      <div class="chat-zeile-eingabe"><textarea class="eingabe" data-chat-text rows="1" maxlength="1000" placeholder="Nachricht …" aria-label="Nachricht"></textarea>
+      <button class="knopf" type="submit" aria-label="Senden" data-chat-senden>${ic('senden')}</button></div></form>`;
+}
+function chatRender(neu){
+  const s = CHATUI.s; if (!s) return;
+  const el = $('[data-chat]', s), key = CHATUI.key;
+  if (key && !neu){                                                       // nur den Verlauf neu zeichnen – die Eingabe bleibt, wie sie ist
+    const v = $('[data-chat-verlauf]', el);
+    if (v){ const unten = v.scrollHeight - v.scrollTop - v.clientHeight < 40; v.innerHTML = chatVerlaufHtml(key); if (unten) v.scrollTop = v.scrollHeight; }
+  } else {
+    el.innerHTML = key === 'neu' ? chatNeuHtml() : key ? chatGespraechHtml(key) : chatListeHtml();
+    $$('[data-zu]', el).forEach(b => b.addEventListener('click', () => s.schliessen()));
+    const v = $('[data-chat-verlauf]', el); if (v) v.scrollTop = v.scrollHeight;
+  }
+  if (key && key !== 'neu') chatGelesenSetzen(key, chatUnterhaltungen().get(key) || []);
+  chatKnopfZeigen(); badgeZeigen();
+}
+async function chatKlick(e){
+  const b = e.target.closest('[data-chat-auf],[data-chat-zurueck],[data-chat-neu],[data-chat-ich],[data-chat-geraet],[data-chat-wem],[data-chat-loeschen]'); if (!b) return;
+  if (b.dataset.chatAuf){ CHATUI.key = b.dataset.chatAuf; chatRender(true); setTimeout(() => { const t = $('[data-chat-text]', CHATUI.s); if (t && !istIos()) t.focus(); }, 50); }
+  else if (b.hasAttribute('data-chat-zurueck')){ CHATUI.key = ''; chatRender(true); }
+  else if (b.hasAttribute('data-chat-neu')){ CHATUI.key = 'neu'; chatRender(true); }
+  else if (b.dataset.chatIch){ E.chatIch = b.dataset.chatIch; einstSpeichern(); $$('[data-chat-ich]', CHATUI.s).forEach(x => x.classList.toggle('an', x === b)); }
+  else if (b.dataset.chatGeraet){ chatGeraetZuordnen(E.meinHaushalt, E.geraetId, b.dataset.chatGeraet === '*' ? null : [b.dataset.chatGeraet]); CHATUI.wem = false; chatRender(true); }
+  else if (b.hasAttribute('data-chat-wem')){ CHATUI.wem = true; chatRender(true); }
+  else if (b.dataset.chatLoeschen){
+    if (!await frage('Nachricht löschen?', 'Sie verschwindet für alle.', 'Löschen')) return;
+    const h = D.haushalte[E.meinHaushalt]; if (!h) return;
+    h.chat = (h.chat || []).filter(x => x.id !== b.dataset.chatLoeschen); h.geloescht[b.dataset.chatLoeschen] = Date.now();
+    markiere(h.id, 'Chat-Nachricht gelöscht'); speichern(); syncBald(); chatRender();
+  }
+}
+/* Gerät einer oder mehreren Personen zuordnen (null = alle Mitspieler des Haushalts, gemeinsames Gerät) */
+function chatGeraetZuordnen(hid, gid, personen){
+  const h = D.haushalte[hid], g = h && (h.geraete || []).find(x => x.id === gid);
+  if (!g){ if (gid === E.geraetId){ geraetMelden(); return chatGeraetZuordnen(hid, gid, personen); } return; }
+  g.personen = personen || h.spieler.map(p => p.id); g.personenStand = Date.now();
+  if (personen && personen.length === 1 && gid === E.geraetId){ E.chatIch = personen[0]; einstSpeichern(); }
+  markiere(hid, 'Gerät zugeordnet'); speichern(); syncBald();
+}
+function chatSenden(){
+  const s = CHATUI.s, key = CHATUI.key; if (!s || !key || key === 'neu') return;
+  const t = $('[data-chat-text]', s), text = t.value.trim();
+  if (!text) return;
+  const ich = chatIch();
+  if (!ich){ toast('Bitte erst antippen, wer schreibt.', 'fehler'); return; }
+  const h = D.haushalte[E.meinHaushalt]; if (!h) return;
+  h.chat = [...(h.chat || []), chatNorm({ id:neueId('c'), an:key, von:ich, text, zeit:Date.now(), geraet:E.geraetId })];
+  markiere(h.id, 'Chat-Nachricht'); speichern(); syncBald();
+  t.value = ''; t.style.height = '';
+  chatRender();
+  const v = $('[data-chat-verlauf]', s); if (v) v.scrollTop = v.scrollHeight;
+}
+
 /* ---------- Mitteilungen (Push) ----------
    Ein Gerät, das Mitteilungen erlaubt, legt sein Abo (Adresse beim Mitteilungsdienst von Apple/Google und dessen öffentliche Schlüssel)
    in seinem Geräte-Eintrag ab. Verschickt wird von GitHub aus (Workflow „Mitteilungen“) mit einem Schlüsselpaar:
    den öffentlichen Teil kennt die App (daten/verwaltung.json), den geheimen nur GitHub (Secret PUSH_SCHLUESSEL) – er steht in keiner Datei. */
 /*PUSH-DATEIEN-ANFANG*/
 const PUSH_SW = "// Spieleabend – Mitteilungen. Diese Datei legt die App selbst ins Repo und hält sie aktuell.\n// Sie zeigt eingehende Mitteilungen an, setzt die Zahl am App-Symbol und öffnet beim Antippen die passende Seite.\n// Sie speichert nichts zwischen und greift nicht in das Laden der App ein.\nconst SW_VERSION = 1;\nself.addEventListener('install', () => self.skipWaiting());\nself.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n\n// Zahl am App-Symbol: hochzählen bei jeder Mitteilung, die App setzt sie beim Öffnen auf den echten Stand\nasync function zahl(plus, setzen){\n  let n = 0;\n  try{\n    const c = await caches.open('spieleabend-zahl');\n    const r = await c.match('zahl'); n = r ? Number(await r.text()) || 0 : 0;\n    n = setzen != null ? setzen : n + plus;\n    await c.put('zahl', new Response(String(n)));\n  }catch(e){ n = setzen != null ? setzen : 1; }\n  try{\n    // (Der Test-Browser ohne Bildschirm stürzt hier ab – echte Handys und Computer nicht.)\n    if (self.navigator.setAppBadge && !/HeadlessChrome/.test(self.navigator.userAgent)){ if (n > 0) await self.navigator.setAppBadge(n); else await self.navigator.clearAppBadge(); }\n  }catch(e){}\n  return n;\n}\n\nself.addEventListener('push', e => {\n  let d = {};\n  try{ d = e.data ? e.data.json() : {}; }catch(err){ try{ d = { text:e.data.text() }; }catch(x){} }\n  e.waitUntil((async () => {\n    await zahl(1);\n    await self.registration.showNotification(d.titel || 'Spieleabend', {\n      body:d.text || '', tag:d.tag || undefined, renotify:!!d.tag, icon:'icon.png', badge:'icon.png', data:{ ziel:d.ziel || '' }\n    });\n  })());\n});\n\nself.addEventListener('notificationclick', e => {\n  e.notification.close();\n  const ziel = (e.notification.data && e.notification.data.ziel) || '';\n  e.waitUntil((async () => {\n    const fenster = await self.clients.matchAll({ type:'window', includeUncontrolled:true });\n    for (const f of fenster){\n      try{ await f.focus(); f.postMessage({ art:'ziel', ziel }); return; }catch(err){}\n    }\n    await self.clients.openWindow('./' + (ziel ? '#ziel=' + encodeURIComponent(ziel) : ''));\n  })());\n});\n\nself.addEventListener('message', e => {\n  if (e.data && e.data.art === 'zahl') e.waitUntil(zahl(0, Math.max(0, Number(e.data.n) || 0)));\n});\n";
-const PUSH_PY = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.\n# Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.\n# Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),\n# neuer Termin (an die eingeladenen Haushalte). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.\nMITTEILUNGEN_VERSION = 1\nimport base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request\nfrom urllib.parse import urlparse\n\nFRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)\nSTAND_DATEI, TEST_ORDNER = 'push/stand.json', 'push/test'\nNACHRICHT_ZEICHEN = {'fehler': '🐞', 'wunsch': '💡', 'kreis': '🏠', 'sonst': '💬'}\nTERMIN_ZEICHEN = {'spiele': '🎲', 'kino': '🎬', 'bowling': '🎳', 'essen': '🍽️', 'grillen': '🔥', 'sonst': '✨'}\nTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']\n\n\ndef b64u(b):\n    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()\n\n\ndef unb64u(s):\n    s = str(s).strip()\n    return base64.urlsafe_b64decode(s + '=' * (-len(s) % 4))\n\n\n# ---------- Web Push: Verschlüsselung (RFC 8291) und Absender-Ausweis (VAPID, RFC 8292) ----------\ndef _hkdf(salz, ikm, info, laenge):\n    prk = hmac.new(salz, ikm, hashlib.sha256).digest()\n    return hmac.new(prk, info + b'\\x01', hashlib.sha256).digest()[:laenge]\n\n\ndef schluessel_laden(text):\n    from cryptography.hazmat.primitives.asymmetric import ec\n    roh = unb64u(text)\n    if len(roh) != 32: raise ValueError('Der Schlüssel hat nicht die richtige Länge.')\n    return ec.derive_private_key(int.from_bytes(roh, 'big'), ec.SECP256R1())\n\n\ndef oeffentlich_roh(privat):\n    from cryptography.hazmat.primitives import serialization\n    return privat.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)\n\n\ndef verschluesseln(nutzlast, p256dh, auth, _salz=None, _privat=None):\n    \"\"\"Inhalt für genau ein Gerät verschlüsseln (aes128gcm, ein Datensatz).\"\"\"\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n    ua_public, auth_secret = unb64u(p256dh), unb64u(auth)\n    as_privat = _privat or ec.generate_private_key(ec.SECP256R1())\n    as_public = oeffentlich_roh(as_privat)\n    geraet = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), ua_public)\n    ecdh = as_privat.exchange(ec.ECDH(), geraet)\n    ikm = _hkdf(auth_secret, ecdh, b'WebPush: info\\x00' + ua_public + as_public, 32)\n    salz = _salz or os.urandom(16)\n    cek = _hkdf(salz, ikm, b'Content-Encoding: aes128gcm\\x00', 16)\n    nonce = _hkdf(salz, ikm, b'Content-Encoding: nonce\\x00', 12)\n    geheim = AESGCM(cek).encrypt(nonce, nutzlast + b'\\x02', None)\n    return salz + (4096).to_bytes(4, 'big') + bytes([len(as_public)]) + as_public + geheim\n\n\ndef vapid(endpunkt, privat, absender, jetzt=None):\n    from cryptography.hazmat.primitives import hashes\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature\n    u = urlparse(endpunkt)\n    kopf = b64u(json.dumps({'typ': 'JWT', 'alg': 'ES256'}, separators=(',', ':')).encode())\n    inhalt = b64u(json.dumps({'aud': f'{u.scheme}://{u.netloc}', 'exp': int(jetzt or time.time()) + 12 * 3600, 'sub': absender}, separators=(',', ':')).encode())\n    r, s = decode_dss_signature(privat.sign(f'{kopf}.{inhalt}'.encode(), ec.ECDSA(hashes.SHA256())))\n    return f'vapid t={kopf}.{inhalt}.{b64u(r.to_bytes(32, \"big\") + s.to_bytes(32, \"big\"))}, k={b64u(oeffentlich_roh(privat))}'\n\n\ndef senden(abo, daten, privat, absender):\n    \"\"\"Eine Mitteilung an ein Gerät. Antwort: HTTP-Code (201 = angenommen, 404/410 = Gerät hat sie abbestellt).\"\"\"\n    koerper = verschluesseln(json.dumps(daten, ensure_ascii=False).encode(), abo['p256dh'], abo['auth'])\n    req = urllib.request.Request(abo['endpoint'], data=koerper, method='POST', headers={\n        'TTL': '86400', 'Urgency': 'normal', 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream',\n        'Authorization': vapid(abo['endpoint'], privat, absender)})\n    try:\n        with urllib.request.urlopen(req, timeout=20) as r: return r.status\n    except urllib.error.HTTPError as e:\n        return e.code\n    except Exception:\n        return 0\n\n\n# ---------- GitHub ----------\nREPO = os.environ.get('GITHUB_REPOSITORY', '')\nZWEIG = os.environ.get('GITHUB_REF_NAME', 'main')\nTOKEN = os.environ.get('GH_TOKEN', '')\nAPI = os.environ.get('GITHUB_API_URL', 'https://api.github.com')\n\n\ndef gh(methode, pfad, daten=None, roh=False):\n    req = urllib.request.Request(f'{API}/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github.raw' if roh else 'application/vnd.github+json',\n                 'Content-Type': 'application/json', 'User-Agent': 'Spieleabend-Mitteilungen'})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                b = r.read()\n                return b if roh else json.loads(b or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\ndef json_lesen(pfad):\n    b = gh('GET', f'/contents/{pfad}?ref={ZWEIG}', roh=True)\n    if b is None: return None\n    try: return json.loads(b.decode('utf-8'))\n    except Exception: return None\n\n\ndef schreiben(pfad, daten, nachricht):\n    alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n    gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,\n        'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n\n\n# ---------- Wer bekommt was? ----------\ndef zeit_text(z):\n    try:\n        d = datetime.datetime.strptime(z, '%Y-%m-%dT%H:%M')\n        return f'{TAGE[d.weekday()]}, {d.day:02d}.{d.month:02d}. um {d.hour:02d}:{d.minute:02d} Uhr'\n    except Exception:\n        return ''\n\n\ndef kurz(text, n=140):\n    text = re.sub(r'\\s+', ' ', str(text or '')).strip()\n    return text if len(text) <= n else text[:n - 1].rsplit(' ', 1)[0] + ' …'\n\n\ndef abo_ok(p, schluessel):\n    return (isinstance(p, dict) and str(p.get('endpoint', '')).startswith('https://') and p.get('p256dh') and p.get('auth')\n            and p.get('schluessel') == schluessel)\n\n\ndef abos_sammeln(haushalte, verwaltung, schluessel):\n    \"\"\"Geräte mit erlaubten Mitteilungen: Geräte-ID -> {abo, hid}. Ein Gerät, das den Haushalt gewechselt hat, zählt beim neuesten.\"\"\"\n    abos = {}\n    for h in haushalte.values():\n        for g in h.get('geraete') or []:\n            p, gid = g.get('push'), str(g.get('id', ''))\n            if not gid or not abo_ok(p, schluessel): continue\n            alt = abos.get(gid)\n            if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:\n                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0}\n    for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt\n        p, gid = x.get('push'), str(x.get('id', ''))\n        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0}\n    return abos\n\n\ndef ereignisse(haushalte, termine, verwaltung, abos):\n    \"\"\"Alle Ereignisse mit Schlüssel, Zeitpunkt, Empfängern und Text – gemeldet wird nur, was neu ist.\"\"\"\n    admin = {str(x.get('id')) for x in verwaltung.get('adminGeraete') or []}\n    an_admin = sorted(g for g in abos if g in admin)\n    def an_haushalte(hids, ohne_admin=False, ohne=()):\n        return sorted(g for g, a in abos.items() if a['hid'] in hids and g not in ohne and not (ohne_admin and g in admin))\n    liste = []\n    for h in haushalte.values():\n        name = h.get('name') or 'Ein Haushalt'\n        for n in h.get('nachrichten') or []:\n            if not n.get('id'): continue\n            zeichen = NACHRICHT_ZEICHEN.get(n.get('art'), '💬')\n            von = f\" ({n['von']})\" if n.get('von') else ''\n            liste.append({'k': 'n:' + str(n['id']), 'zeit': (n.get('erstellt') or 0) / 1000, 'an': an_admin,\n                'titel': f'Neue Nachricht von {name}{von}', 'text': f\"{zeichen} {kurz(n.get('text'))}\", 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n            for v in n.get('verlauf') or []:\n                if not v.get('id'): continue\n                if v.get('admin'):\n                    an, titel = an_haushalte({h.get('id')}, ohne_admin=True), 'Antwort vom Admin'\n                else:\n                    an, titel = an_admin, f\"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}\"\n                liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,\n                    'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n    for t in termine.values():\n        if not t.get('id'): continue\n        eingeladen = set(t.get('haushalte') or []) or set(haushalte)\n        optionen = [o for o in t.get('optionen') or [] if o.get('zeit')]\n        wer = (haushalte.get(t.get('erstelltVon')) or {}).get('name') or 'Jemand'\n        wann = zeit_text(optionen[0]['zeit']) if len(optionen) == 1 else (f'{len(optionen)} Termine zur Auswahl' if optionen else '')\n        liste.append({'k': 't:' + str(t['id']), 'zeit': (t.get('erstellt') or 0) / 1000,\n            'an': an_haushalte(eingeladen, ohne={str(t.get('geraet') or '')}),\n            'titel': f\"Neuer Termin: {TERMIN_ZEICHEN.get(t.get('art'), '🎲')} {kurz(t.get('titel') or 'Spieleabend', 60)}\",\n            'text': f\"{wer} lädt ein{(' – ' + wann) if wann else ''}. Bitte in der App abstimmen.\", 'ziel': 'termin:' + str(t['id']), 'tag': 't-' + str(t['id'])})\n    return liste\n\n\ndef main():\n    jetzt = time.time()\n    owner, repo = (REPO.split('/') + [''])[:2]\n    absender = f'https://{owner.lower()}.github.io/{repo}/'\n    haushalte, termine = {}, {}\n    for f in gh('GET', f'/contents/daten?ref={ZWEIG}') or []:\n        n = f.get('name', '')\n        if f.get('type') != 'file' or not n.endswith('.json'): continue\n        if n.startswith('haushalt-'):\n            d = json_lesen(f'daten/{n}')\n            if d and d.get('id'): haushalte[str(d['id'])] = d\n        elif n.startswith('termin-'):\n            d = json_lesen(f'daten/{n}')\n            if d: d.setdefault('id', n[7:-5]); termine[str(d['id'])] = d\n    verwaltung = json_lesen('daten/verwaltung.json') or {}\n    schluessel = (verwaltung.get('push') or {}).get('schluessel') or ''\n    stand_alt = json_lesen(STAND_DATEI)\n    stand = dict(stand_alt or {})\n    stand.update({'version': MITTEILUNGEN_VERSION, 'fehler': ''})\n\n    privat = None\n    geheim = os.environ.get('PUSH_SCHLUESSEL', '').strip()\n    if not schluessel:\n        stand['fehler'] = 'In der App ist noch kein Schlüssel für Mitteilungen erzeugt.'\n    elif not geheim:\n        stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL fehlt.'\n    else:\n        try:\n            privat = schluessel_laden(geheim)\n            if b64u(oeffentlich_roh(privat)) != schluessel:\n                privat, stand['fehler'] = None, 'Das GitHub-Secret PUSH_SCHLUESSEL passt nicht zum Schlüssel der App – bitte den zuletzt angezeigten Schlüssel eintragen.'\n        except Exception:\n            stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL ist kein gültiger Schlüssel.'\n\n    abos = abos_sammeln(haushalte, verwaltung, schluessel)\n    liste = ereignisse(haushalte, termine, verwaltung, abos)\n    gesehen = set(stand.get('gesehen') or [])\n    erstes_mal = stand_alt is None or 'gesehen' not in stand_alt\n    abgelaufen = dict(stand.get('abgelaufen') or {})\n    gesendet = list(stand.get('gesendet') or [])\n\n    def zustellen(gids, daten):\n        ok = 0\n        for gid in gids:\n            code = senden(abos[gid]['abo'], daten, privat, absender)\n            print(f\"  {daten['titel'][:40]!r} -> {gid}: {code}\")\n            if 200 <= code < 300: ok += 1\n            elif code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n        return ok\n\n    if not erstes_mal and privat:\n        for e in liste:\n            if e['k'] in gesehen or not e['an'] or jetzt - e['zeit'] > FRISCH: continue\n            ok = zustellen(e['an'], {'titel': e['titel'], 'text': e['text'], 'ziel': e['ziel'], 'tag': e['tag']})\n            gesendet.append({'zeit': int(jetzt * 1000), 'titel': e['titel'], 'an': len(e['an']), 'ok': ok})\n    stand['gesehen'] = sorted({e['k'] for e in liste})       # nur, was es noch gibt – so wächst die Datei nicht\n\n    # Test-Mitteilungen aus der App\n    for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        auftrag = json_lesen(f'{TEST_ORDNER}/{f[\"name\"]}') or {}\n        gid = str(auftrag.get('geraet') or '')\n        if not privat: ergebnis = stand['fehler']\n        elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'\n        else:\n            code = senden(abos[gid]['abo'], {'titel': 'Test-Mitteilung', 'text': 'So sehen Mitteilungen vom Spieleabend aus. 🎲', 'ziel': 'einstellungen', 'tag': 'test'}, privat, absender)\n            if code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n            ergebnis = 'ok' if 200 <= code < 300 else f'Der Mitteilungsdienst hat abgelehnt (Code {code}).'\n        stand['test'] = {'id': f['name'][:-5], 'geraet': gid, 'zeit': int(jetzt * 1000), 'ergebnis': ergebnis}\n        print('Test', gid, ergebnis)\n        gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Mitteilungen: Test erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n\n    stand['abgelaufen'] = {g: z for g, z in abgelaufen.items() if jetzt * 1000 - z < 60 * 86400000}\n    stand['gesendet'] = gesendet[-30:]\n    stand['geraete'] = len(abos)\n    if stand != stand_alt:\n        stand['zeit'] = int(jetzt * 1000)\n        schreiben(STAND_DATEI, stand, 'Mitteilungen: ' + ('eingerichtet' if erstes_mal else 'verschickt'))\n    print('Geräte mit Mitteilungen:', len(abos), '| Fehler:', stand['fehler'] or '–')\n\n\nif __name__ == '__main__':\n    main()\n";
+const PUSH_PY = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.\n# Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.\n# Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),\n# neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.\nMITTEILUNGEN_VERSION = 2\nimport base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request\nfrom urllib.parse import urlparse\n\nFRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)\nSTAND_DATEI, TEST_ORDNER = 'push/stand.json', 'push/test'\nNACHRICHT_ZEICHEN = {'fehler': '🐞', 'wunsch': '💡', 'kreis': '🏠', 'sonst': '💬'}\nTERMIN_ZEICHEN = {'spiele': '🎲', 'kino': '🎬', 'bowling': '🎳', 'essen': '🍽️', 'grillen': '🔥', 'sonst': '✨'}\nTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']\n\n\ndef b64u(b):\n    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()\n\n\ndef unb64u(s):\n    s = str(s).strip()\n    return base64.urlsafe_b64decode(s + '=' * (-len(s) % 4))\n\n\n# ---------- Web Push: Verschlüsselung (RFC 8291) und Absender-Ausweis (VAPID, RFC 8292) ----------\ndef _hkdf(salz, ikm, info, laenge):\n    prk = hmac.new(salz, ikm, hashlib.sha256).digest()\n    return hmac.new(prk, info + b'\\x01', hashlib.sha256).digest()[:laenge]\n\n\ndef schluessel_laden(text):\n    from cryptography.hazmat.primitives.asymmetric import ec\n    roh = unb64u(text)\n    if len(roh) != 32: raise ValueError('Der Schlüssel hat nicht die richtige Länge.')\n    return ec.derive_private_key(int.from_bytes(roh, 'big'), ec.SECP256R1())\n\n\ndef oeffentlich_roh(privat):\n    from cryptography.hazmat.primitives import serialization\n    return privat.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)\n\n\ndef verschluesseln(nutzlast, p256dh, auth, _salz=None, _privat=None):\n    \"\"\"Inhalt für genau ein Gerät verschlüsseln (aes128gcm, ein Datensatz).\"\"\"\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n    ua_public, auth_secret = unb64u(p256dh), unb64u(auth)\n    as_privat = _privat or ec.generate_private_key(ec.SECP256R1())\n    as_public = oeffentlich_roh(as_privat)\n    geraet = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), ua_public)\n    ecdh = as_privat.exchange(ec.ECDH(), geraet)\n    ikm = _hkdf(auth_secret, ecdh, b'WebPush: info\\x00' + ua_public + as_public, 32)\n    salz = _salz or os.urandom(16)\n    cek = _hkdf(salz, ikm, b'Content-Encoding: aes128gcm\\x00', 16)\n    nonce = _hkdf(salz, ikm, b'Content-Encoding: nonce\\x00', 12)\n    geheim = AESGCM(cek).encrypt(nonce, nutzlast + b'\\x02', None)\n    return salz + (4096).to_bytes(4, 'big') + bytes([len(as_public)]) + as_public + geheim\n\n\ndef vapid(endpunkt, privat, absender, jetzt=None):\n    from cryptography.hazmat.primitives import hashes\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature\n    u = urlparse(endpunkt)\n    kopf = b64u(json.dumps({'typ': 'JWT', 'alg': 'ES256'}, separators=(',', ':')).encode())\n    inhalt = b64u(json.dumps({'aud': f'{u.scheme}://{u.netloc}', 'exp': int(jetzt or time.time()) + 12 * 3600, 'sub': absender}, separators=(',', ':')).encode())\n    r, s = decode_dss_signature(privat.sign(f'{kopf}.{inhalt}'.encode(), ec.ECDSA(hashes.SHA256())))\n    return f'vapid t={kopf}.{inhalt}.{b64u(r.to_bytes(32, \"big\") + s.to_bytes(32, \"big\"))}, k={b64u(oeffentlich_roh(privat))}'\n\n\ndef senden(abo, daten, privat, absender):\n    \"\"\"Eine Mitteilung an ein Gerät. Antwort: HTTP-Code (201 = angenommen, 404/410 = Gerät hat sie abbestellt).\"\"\"\n    koerper = verschluesseln(json.dumps(daten, ensure_ascii=False).encode(), abo['p256dh'], abo['auth'])\n    req = urllib.request.Request(abo['endpoint'], data=koerper, method='POST', headers={\n        'TTL': '86400', 'Urgency': 'normal', 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream',\n        'Authorization': vapid(abo['endpoint'], privat, absender)})\n    try:\n        with urllib.request.urlopen(req, timeout=20) as r: return r.status\n    except urllib.error.HTTPError as e:\n        return e.code\n    except Exception:\n        return 0\n\n\n# ---------- GitHub ----------\nREPO = os.environ.get('GITHUB_REPOSITORY', '')\nZWEIG = os.environ.get('GITHUB_REF_NAME', 'main')\nTOKEN = os.environ.get('GH_TOKEN', '')\nAPI = os.environ.get('GITHUB_API_URL', 'https://api.github.com')\n\n\ndef gh(methode, pfad, daten=None, roh=False):\n    req = urllib.request.Request(f'{API}/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github.raw' if roh else 'application/vnd.github+json',\n                 'Content-Type': 'application/json', 'User-Agent': 'Spieleabend-Mitteilungen'})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                b = r.read()\n                return b if roh else json.loads(b or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\ndef json_lesen(pfad):\n    b = gh('GET', f'/contents/{pfad}?ref={ZWEIG}', roh=True)\n    if b is None: return None\n    try: return json.loads(b.decode('utf-8'))\n    except Exception: return None\n\n\ndef schreiben(pfad, daten, nachricht):\n    alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n    gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,\n        'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n\n\n# ---------- Wer bekommt was? ----------\ndef zeit_text(z):\n    try:\n        d = datetime.datetime.strptime(z, '%Y-%m-%dT%H:%M')\n        return f'{TAGE[d.weekday()]}, {d.day:02d}.{d.month:02d}. um {d.hour:02d}:{d.minute:02d} Uhr'\n    except Exception:\n        return ''\n\n\ndef kurz(text, n=140):\n    text = re.sub(r'\\s+', ' ', str(text or '')).strip()\n    return text if len(text) <= n else text[:n - 1].rsplit(' ', 1)[0] + ' …'\n\n\ndef abo_ok(p, schluessel):\n    return (isinstance(p, dict) and str(p.get('endpoint', '')).startswith('https://') and p.get('p256dh') and p.get('auth')\n            and p.get('schluessel') == schluessel)\n\n\ndef abos_sammeln(haushalte, verwaltung, schluessel):\n    \"\"\"Geräte mit erlaubten Mitteilungen: Geräte-ID -> {abo, hid}. Ein Gerät, das den Haushalt gewechselt hat, zählt beim neuesten.\"\"\"\n    abos = {}\n    for h in haushalte.values():\n        for g in h.get('geraete') or []:\n            p, gid = g.get('push'), str(g.get('id', ''))\n            if not gid or not abo_ok(p, schluessel): continue\n            alt = abos.get(gid)\n            if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:\n                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0, 'personen': [str(x) for x in (g.get('personen') or [])]}\n    for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt\n        p, gid = x.get('push'), str(x.get('id', ''))\n        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0, 'personen': []}\n    return abos\n\n\ndef ereignisse(haushalte, termine, verwaltung, abos):\n    \"\"\"Alle Ereignisse mit Schlüssel, Zeitpunkt, Empfängern und Text – gemeldet wird nur, was neu ist.\"\"\"\n    admin = {str(x.get('id')) for x in verwaltung.get('adminGeraete') or []}\n    an_admin = sorted(g for g in abos if g in admin)\n    def an_haushalte(hids, ohne_admin=False, ohne=()):\n        return sorted(g for g, a in abos.items() if a['hid'] in hids and g not in ohne and not (ohne_admin and g in admin))\n    liste = []\n    for h in haushalte.values():\n        name = h.get('name') or 'Ein Haushalt'\n        for n in h.get('nachrichten') or []:\n            if not n.get('id'): continue\n            zeichen = NACHRICHT_ZEICHEN.get(n.get('art'), '💬')\n            von = f\" ({n['von']})\" if n.get('von') else ''\n            liste.append({'k': 'n:' + str(n['id']), 'zeit': (n.get('erstellt') or 0) / 1000, 'an': an_admin,\n                'titel': f'Neue Nachricht von {name}{von}', 'text': f\"{zeichen} {kurz(n.get('text'))}\", 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n            for v in n.get('verlauf') or []:\n                if not v.get('id'): continue\n                if v.get('admin'):\n                    an, titel = an_haushalte({h.get('id')}, ohne_admin=True), 'Antwort vom Admin'\n                else:\n                    an, titel = an_admin, f\"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}\"\n                liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,\n                    'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n    # Chat\n    kreise = {str(k.get('id')): k for k in verwaltung.get('kreise') or [] if k.get('id')}\n    for h in haushalte.values():\n        hname = h.get('name') or 'Ein Haushalt'\n        namen = {str(p.get('id')): p.get('name') for p in h.get('spieler') or []}\n        for c in h.get('chat') or []:\n            if not c.get('id') or not str(c.get('text', '')).strip(): continue\n            von, an, geraet = str(c.get('von') or ''), str(c.get('an') or ''), str(c.get('geraet') or '')\n            wer = namen.get(von) or 'Jemand'\n            # nicht an das schreibende Gerät und nicht an andere Geräte, die allein dieser Person gehören\n            def ohne_absender(gids):\n                return sorted(g for g in gids if g != geraet and not (abos[g]['hid'] == h.get('id') and abos[g]['personen'] == [von]))\n            if an.startswith('k:'):\n                k = kreise.get(an[2:])\n                if not k or 'chat' in (k.get('aus') or []): continue\n                empf = ohne_absender(g for g, a in abos.items() if a['hid'] in set(k.get('haushalte') or []))\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {kurz(k.get('name') or 'Spielkreis', 60)}\", 'text': f\"{wer}: {kurz(c.get('text'))}\", 'ziel': 'chat:' + an, 'tag': 'c-' + an})\n            elif an.startswith('p:') and an.count(':') == 2:\n                _, zhid, zpid = an.split(':')\n                im_haus = [g for g, a in abos.items() if a['hid'] == zhid]\n                persoenlich = [g for g in im_haus if zpid in abos[g]['personen']]\n                empf = ohne_absender(persoenlich or im_haus)\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {wer} ({hname})\", 'text': kurz(c.get('text')), 'ziel': f\"chat:p:{h.get('id')}:{von}\", 'tag': f\"c-p-{h.get('id')}-{von}\"})\n    for t in termine.values():\n        if not t.get('id'): continue\n        eingeladen = set(t.get('haushalte') or []) or set(haushalte)\n        optionen = [o for o in t.get('optionen') or [] if o.get('zeit')]\n        wer = (haushalte.get(t.get('erstelltVon')) or {}).get('name') or 'Jemand'\n        wann = zeit_text(optionen[0]['zeit']) if len(optionen) == 1 else (f'{len(optionen)} Termine zur Auswahl' if optionen else '')\n        liste.append({'k': 't:' + str(t['id']), 'zeit': (t.get('erstellt') or 0) / 1000,\n            'an': an_haushalte(eingeladen, ohne={str(t.get('geraet') or '')}),\n            'titel': f\"Neuer Termin: {TERMIN_ZEICHEN.get(t.get('art'), '🎲')} {kurz(t.get('titel') or 'Spieleabend', 60)}\",\n            'text': f\"{wer} lädt ein{(' – ' + wann) if wann else ''}. Bitte in der App abstimmen.\", 'ziel': 'termin:' + str(t['id']), 'tag': 't-' + str(t['id'])})\n    return liste\n\n\ndef main():\n    jetzt = time.time()\n    owner, repo = (REPO.split('/') + [''])[:2]\n    absender = f'https://{owner.lower()}.github.io/{repo}/'\n    haushalte, termine = {}, {}\n    for f in gh('GET', f'/contents/daten?ref={ZWEIG}') or []:\n        n = f.get('name', '')\n        if f.get('type') != 'file' or not n.endswith('.json'): continue\n        if n.startswith('haushalt-'):\n            d = json_lesen(f'daten/{n}')\n            if d and d.get('id'): haushalte[str(d['id'])] = d\n        elif n.startswith('termin-'):\n            d = json_lesen(f'daten/{n}')\n            if d: d.setdefault('id', n[7:-5]); termine[str(d['id'])] = d\n    verwaltung = json_lesen('daten/verwaltung.json') or {}\n    schluessel = (verwaltung.get('push') or {}).get('schluessel') or ''\n    stand_alt = json_lesen(STAND_DATEI)\n    stand = dict(stand_alt or {})\n    stand.update({'version': MITTEILUNGEN_VERSION, 'fehler': ''})\n\n    privat = None\n    geheim = os.environ.get('PUSH_SCHLUESSEL', '').strip()\n    if not schluessel:\n        stand['fehler'] = 'In der App ist noch kein Schlüssel für Mitteilungen erzeugt.'\n    elif not geheim:\n        stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL fehlt.'\n    else:\n        try:\n            privat = schluessel_laden(geheim)\n            if b64u(oeffentlich_roh(privat)) != schluessel:\n                privat, stand['fehler'] = None, 'Das GitHub-Secret PUSH_SCHLUESSEL passt nicht zum Schlüssel der App – bitte den zuletzt angezeigten Schlüssel eintragen.'\n        except Exception:\n            stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL ist kein gültiger Schlüssel.'\n\n    abos = abos_sammeln(haushalte, verwaltung, schluessel)\n    liste = ereignisse(haushalte, termine, verwaltung, abos)\n    gesehen = set(stand.get('gesehen') or [])\n    erstes_mal = stand_alt is None or 'gesehen' not in stand_alt\n    abgelaufen = dict(stand.get('abgelaufen') or {})\n    gesendet = list(stand.get('gesendet') or [])\n\n    def zustellen(gids, daten):\n        ok = 0\n        for gid in gids:\n            code = senden(abos[gid]['abo'], daten, privat, absender)\n            print(f\"  {daten['titel'][:40]!r} -> {gid}: {code}\")\n            if 200 <= code < 300: ok += 1\n            elif code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n        return ok\n\n    if not erstes_mal and privat:\n        for e in liste:\n            if e['k'] in gesehen or not e['an'] or jetzt - e['zeit'] > FRISCH: continue\n            ok = zustellen(e['an'], {'titel': e['titel'], 'text': e['text'], 'ziel': e['ziel'], 'tag': e['tag']})\n            gesendet.append({'zeit': int(jetzt * 1000), 'titel': e['titel'], 'an': len(e['an']), 'ok': ok})\n    stand['gesehen'] = sorted({e['k'] for e in liste})       # nur, was es noch gibt – so wächst die Datei nicht\n\n    # Test-Mitteilungen aus der App\n    for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        auftrag = json_lesen(f'{TEST_ORDNER}/{f[\"name\"]}') or {}\n        gid = str(auftrag.get('geraet') or '')\n        if not privat: ergebnis = stand['fehler']\n        elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'\n        else:\n            code = senden(abos[gid]['abo'], {'titel': 'Test-Mitteilung', 'text': 'So sehen Mitteilungen vom Spieleabend aus. 🎲', 'ziel': 'einstellungen', 'tag': 'test'}, privat, absender)\n            if code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n            ergebnis = 'ok' if 200 <= code < 300 else f'Der Mitteilungsdienst hat abgelehnt (Code {code}).'\n        stand['test'] = {'id': f['name'][:-5], 'geraet': gid, 'zeit': int(jetzt * 1000), 'ergebnis': ergebnis}\n        print('Test', gid, ergebnis)\n        gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Mitteilungen: Test erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n\n    stand['abgelaufen'] = {g: z for g, z in abgelaufen.items() if jetzt * 1000 - z < 60 * 86400000}\n    stand['gesendet'] = gesendet[-30:]\n    stand['geraete'] = len(abos)\n    if stand != stand_alt:\n        stand['zeit'] = int(jetzt * 1000)\n        schreiben(STAND_DATEI, stand, 'Mitteilungen: ' + ('eingerichtet' if erstes_mal else 'verschickt'))\n    print('Geräte mit Mitteilungen:', len(abos), '| Fehler:', stand['fehler'] or '–')\n\n\nif __name__ == '__main__':\n    main()\n";
 const PUSH_YML = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen bei neuen Nachrichten, Antworten und Terminen.\n# Das eigentliche Programm (push/mitteilungen.py) legt die App selbst ins Repo und hält es aktuell.\n# Der geheime Schlüssel steht nur in den Repo-Einstellungen (Secret PUSH_SCHLUESSEL), nie in einer Datei.\nname: Mitteilungen\non:\n  push:\n    paths: ['daten/**', 'push/test/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: mitteilungen\n  cancel-in-progress: false\njobs:\n  senden:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - name: Mitteilungen verschicken\n        env:\n          GH_TOKEN: ${{ github.token }}\n          PUSH_SCHLUESSEL: ${{ secrets.PUSH_SCHLUESSEL }}\n        run: |\n          curl -fsSL -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github.raw\" -o mitteilungen.py \\\n            \"https://api.github.com/repos/$GITHUB_REPOSITORY/contents/push/mitteilungen.py?ref=$GITHUB_SHA\"\n          python3 -c \"import cryptography\" 2>/dev/null || python3 -m pip install --quiet --user --break-system-packages cryptography\n          python3 mitteilungen.py\n";
 /*PUSH-DATEIEN-ENDE*/
 const PUSH_WORKFLOW = '.github/workflows/mitteilungen.yml', PUSH_PY_PFAD = 'push/mitteilungen.py', PUSH_SW_PFAD = 'sw.js', PUSH_STAND_PFAD = 'push/stand.json';
@@ -9057,7 +9323,7 @@ async function pushStandLaden(sofort){
   }catch(e){}
 }
 /* Zahl am App-Symbol: was hier neu ist – Nachrichten bzw. Antworten und Termine, bei denen noch abzustimmen ist */
-function badgeZahl(){ return nachrichtenNeuZahl() + termineOffenZahl(); }
+function badgeZahl(){ return nachrichtenNeuZahl() + termineOffenZahl() + chatUngelesenZahl(); }
 function badgeZeigen(){
   if (!pushEingerichtet() || !('setAppBadge' in navigator)) return;
   const n = pushAn() ? badgeZahl() : 0;
@@ -9076,12 +9342,14 @@ function zielOeffnen(ziel){
   if (ziel === 'nachrichten'){ if (!nachrichtenMoeglich()) return; seiteZeigen('einstellungen'); auf('e-nachrichten', () => $('[data-klapp="e-nachrichten"]')); }
   else if (ziel.startsWith('termin:')){ const id = ziel.slice(7); seiteZeigen('termine'); auf('termin-' + id, () => document.getElementById('termin-' + id)); }
   else if (ziel === 'einstellungen'){ seiteZeigen('einstellungen'); auf('e-mitteilungen', () => $('[data-klapp="e-mitteilungen"]')); }
+  else if (ziel.startsWith('chat:')) chatSheet(ziel.slice(5));
 }
 /* Einstellungen → Mitteilungen */
 function pushWasText(){
   const was = [];
   if (nachrichtenMoeglich()) was.push(E.admin ? 'neuen Nachrichten an dich und Antworten darauf' : 'Antworten vom Admin auf eure Nachrichten');
   if (funktionAn('termine')) was.push('neuen Terminen, zu denen ihr eingeladen seid');
+  if (funktionAn('chat')) was.push('neuen Chat-Nachrichten');
   return was.length ? `Das Handy meldet sich bei ${was.join(' und bei ')}. Die Zahl am App-Symbol zeigt, was neu ist.` : '';
 }
 function pushKlein(){
@@ -9282,7 +9550,7 @@ function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
   termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); liveHinweisZeigen(); kreisLeisteZeigen(); gscNeuZeichnen();
-  pushHinweisZeigen(); badgeZeigen();
+  pushHinweisZeigen(); chatKnopfZeigen(); if (CHATUI.s) chatRender(); badgeZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
   statusZeigen();
@@ -9414,6 +9682,7 @@ function start(){
       if (E.admin) pushDateienAktuell().catch(() => {});
     }
   });
+  $('#chat-knopf').addEventListener('click', () => chatSheet());
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.art === 'ziel') zielOeffnen(e.data.ziel); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') badgeZeigen(); });
   setTimeout(updatePruefen, 2500);
