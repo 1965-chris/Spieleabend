@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.89",
+ "app": "v2.01",
  "id": "hmvleifcayzbq",
  "name": "Familie Wodarz Garath",
  "farbe": "#1A9AA0",
@@ -511,8 +511,8 @@
    "version": "v1.80",
    "erst": 1793374140214,
    "zuletzt": 1793448900763,
-   "name": "",
-   "nameStand": 0
+   "name": "Alina",
+   "nameStand": 1794238715542
   }
  ],
  "geloescht": {}
