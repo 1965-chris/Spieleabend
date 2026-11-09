@@ -3,12 +3,10 @@
  "fehler": "",
  "gesehen": [
   "n:nmvnon9z9bovg",
-  "n:nmw9dm5f78q99",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
   "v:amvqp2hnokqeq",
-  "v:amvr3k8igllvb",
-  "v:amw9dou58r0qt"
+  "v:amvr3k8igllvb"
  ],
  "test": {
   "id": "tmw9cwbmwzwx7",
@@ -32,5 +30,5 @@
   }
  ],
  "geraete": 2,
- "zeit": 1794235843679
+ "zeit": 1794235890317
 }
