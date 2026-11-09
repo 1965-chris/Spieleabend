@@ -7,7 +7,8 @@
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
   "v:amvqp2hnokqeq",
-  "v:amvr3k8igllvb"
+  "v:amvr3k8igllvb",
+  "v:amw9dou58r0qt"
  ],
  "test": {
   "id": "tmw9cwbmwzwx7",
@@ -22,8 +23,14 @@
    "titel": "Neue Nachricht von Test (Ich)",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794235843679,
+   "titel": "Antwort vom Admin",
+   "an": 1,
+   "ok": 1
   }
  ],
  "geraete": 2,
- "zeit": 1794235719154
+ "zeit": 1794235843679
 }
