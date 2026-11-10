@@ -152,7 +152,8 @@
      "k": "quest"
     },
     {
-     "k": "journey"
+     "k": "journey",
+     "bild": "bilder/smvmpi5egc06c-erw-journey-mwaflfrg.jpg"
     },
     {
      "k": "origins",
@@ -176,7 +177,7 @@
     }
    ],
    "erstellt": 1792864955609,
-   "geaendert": 1794299471146
+   "geaendert": 1794299501071
   },
   {
    "id": "smvmpwvne2qnm",
