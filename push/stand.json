@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "fehler": "",
  "gesehen": [
   "c:cmw9fb8t8g3iv",
@@ -119,5 +119,52 @@
   }
  ],
  "geraete": 5,
- "zeit": 1794299317021
+ "zeit": 1794311788120,
+ "karten": {
+  "id": "kartenmwamwni9",
+  "zeit": 1794311829508,
+  "ergebnis": {
+   "grund": {
+    "anzahl": 90,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "quest": {
+    "anzahl": 164,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "journey": {
+    "anzahl": 89,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "origins": {
+    "anzahl": 163,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "daydreams": {
+    "anzahl": 164,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "memories": {
+    "anzahl": 83,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "revelations": {
+    "anzahl": 83,
+    "methode": "bilder",
+    "seiten": 1
+   },
+   "harmonies": {
+    "anzahl": 82,
+    "methode": "bilder",
+    "seiten": 1
+   }
+  },
+  "fehler": ""
+ }
 }
