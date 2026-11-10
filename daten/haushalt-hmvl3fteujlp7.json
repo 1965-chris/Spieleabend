@@ -166,14 +166,15 @@
      "quelle": "Foto: Spiele-Offensive.de"
     },
     {
-     "k": "revelations"
+     "k": "revelations",
+     "bild": "bilder/smvmpi5egc06c-erw-revelations-mwafe81j.jpg"
     },
     {
      "k": "harmonies"
     }
    ],
    "erstellt": 1792864955609,
-   "geaendert": 1794298383563
+   "geaendert": 1794299164480
   },
   {
    "id": "smvmpwvne2qnm",
@@ -888,7 +889,7 @@
    "app": true,
    "version": "v2.04",
    "erst": 1792864131177,
-   "zuletzt": 1794298991541,
+   "zuletzt": 1794299166443,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
