@@ -3,7 +3,7 @@
 # Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),
 # neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.
 # Nebenbei, auf Wunsch aus der App: Fingerabdrücke der Dixit-Karten für den Kartensortierer (aus den Kartenübersichten des Verlags; gespeichert werden nur grobe Farbmuster, keine Bilder).
-MITTEILUNGEN_VERSION = 4
+MITTEILUNGEN_VERSION = 5
 import base64, datetime, hashlib, hmac, json, os, re, sys, time, urllib.error, urllib.request
 from urllib.parse import urlparse
 
@@ -204,7 +204,7 @@ def pdf_kartenbilder(daten):
         kand.append({'seite': seite, 'x': x, 'drehung': drehung, 'bh': bh, 'cx': cx, 'cy': cy})
     if not kand: return [], ''
     hoehen = sorted(k['bh'] for k in kand); mh = hoehen[len(hoehen) // 2]
-    kand = [k for k in kand if abs(k['bh'] - mh) <= 0.15 * mh]
+    kand = [k for k in kand if abs(k['bh'] - mh) <= 0.25 * mh]           # manche liegen etwas größer (aufgefächert)
     # Lesereihenfolge: Seite, Zeile (von oben), dann von links
     kand.sort(key=lambda k: (k['seite'], -k['cy']))
     reihen, zeile = [], None
