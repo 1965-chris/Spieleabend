@@ -779,6 +779,26 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .chat-zeile-eingabe{display:flex;gap:8px;align-items:flex-end}
 .chat-zeile-eingabe textarea{flex:1;resize:none;min-height:44px;max-height:140px}
 .chat-zeile-eingabe .knopf{flex:none;width:48px;padding:0}
+.erw-raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:6px}
+.erw-kachel{appearance:none;position:relative;display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;color:var(--tinte);font:inherit;text-align:center;cursor:pointer}
+.erw-bild,.erw-gross{position:relative;display:grid;place-items:center;aspect-ratio:1;border-radius:12px;overflow:hidden;background:linear-gradient(150deg, color-mix(in srgb, var(--ef) 85%, #fff), color-mix(in srgb, var(--ef) 70%, #000));box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.erw-gross{max-width:260px;margin:0 auto}
+.erw-bild img,.erw-gross img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.erw-bild .platzhalter,.erw-gross .platzhalter{display:flex;flex-direction:column;align-items:center;color:#fff;font-family:var(--rund);font-weight:800;font-size:15px;line-height:1.1;text-shadow:0 1px 2px rgba(0,0,0,.35);padding:6px}
+.erw-gross .platzhalter{font-size:26px}
+.erw-bild .platzhalter small,.erw-gross .platzhalter small{font-size:.62em;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.erw-bild.hat-bild .platzhalter,.erw-gross.hat-bild .platzhalter{display:none}
+.erw-name{font-size:13.5px;font-weight:600;line-height:1.2}
+.erw-name small{display:block;font-size:11px;font-weight:500;color:var(--leise)}
+.erw-kachel.aus .erw-bild{filter:grayscale(1);opacity:.4}
+.erw-kachel.aus .erw-name{color:var(--leise)}
+.erw-haken{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--filz);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800;box-shadow:0 0 0 2px #fff}
+.erw-kachel.aus .erw-haken{display:none}
+.dx-tipp{appearance:none;min-width:110px;min-height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);font:inherit;font-weight:600;cursor:pointer}
+.dx-tipp.leer{border-style:dashed;color:var(--leise);font-weight:500}
+.dx-tipp.richtig{background:var(--filz-hell);border-color:var(--filz);color:var(--filz)}
+.dx-plus{color:var(--filz);font-weight:700;margin-left:auto;margin-right:8px}
+.chip.dx-erz{border-color:var(--filz)}
 .teilen-info{background:var(--filz-hell);border-radius:12px;padding:10px 12px;margin:-2px 0 4px;font-size:15px;line-height:1.45}
 .teilen-info p{margin:0 0 6px}
 .teilen-info p:last-child{margin:0}
@@ -1142,7 +1162,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.03';
+const VERSION = 'v2.04';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1174,6 +1194,8 @@ function azPasst(n){ return n.startsWith('azul') && !/sintra|buntglas|stainedgla
 const SPEZIAL = [
   { k:'kniffel', t:'Kniffel-Block', min:1, b:'Der Kniffel-Zettel: Einser bis Sechser mit Bonus, Dreier- und Viererpasch, Full House, Straßen, Kniffel und Chance – Feld antippen, die App rechnet alles zusammen.',
     passt:n => (n.includes('kniffel') && !n.includes('extreme')) || n.includes('yahtzee') || n.includes('yatzy') },
+  { k:'dixit', t:'Dixit-Block', min:3, b:'Jede Runde den Erzähler wählen und antippen, auf wessen Karte jeder getippt hat – die App rechnet die Punkte nach den Regeln aus, für beliebig viele Spieler. Wer zuerst 30 Punkte hat, gewinnt.',
+    passt:n => n.startsWith('dixit') },
   { k:'wizard', t:'Wizard-Block', min:3, max:6, b:'Jede Runde erst ansagen, wie viele Stiche jeder macht, dann die Stiche eintragen. Richtig: 20 + 10 je Stich, daneben: −10 je Stich.',
     passt:n => n.includes('wizard') && !n.includes('extreme') },
   { k:'phase10', t:'Phase-10-Block', min:2, max:6, b:'Jede Runde abhaken, wer seine Phase geschafft hat, und die Minuspunkte eintragen. Wer zuerst Phase 10 schafft, gewinnt – bei Gleichstand die wenigsten Punkte.',
@@ -1334,7 +1356,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 
 /* ---------- Datenform ---------- */
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
-const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel','teil']);
+const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel','teil','erweiterungen']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
 const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','chat','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
@@ -1427,6 +1449,7 @@ function spielNorm(s){
     ...(String(s.nurKreis || '').trim() ? { nurKreis:String(s.nurKreis).trim() } : {}),   // nicht gegen die Spielkreise prüfen – die sind beim Laden evtl. noch nicht da
     ...(s.eigeneKachel ? { eigeneKachel:true } : {}),
     ...(s.eigeneKachel && Number.isInteger(Number(s.teil)) && s.teil >= 1 && s.teil <= TEILE_MAX ? { teil:Number(s.teil) } : {}),   // Platz im Gesamtbild (z. B. Mättigopoly-Spielbretter)
+    ...(erweiterungenNorm(s.erweiterungen).length ? { erweiterungen:erweiterungenNorm(s.erweiterungen) } : {}),
     erstellt:zahl(s.erstellt) || 0, geaendert:zahl(s.geaendert) || 0
   };
 }
@@ -1445,6 +1468,124 @@ function variantenNorm(v){
 function variantenVon(sp){
   const k = nameSchluessel(sp.name);
   return variantenNorm([...(sp.varianten || []), ...alleSpiele().filter(x => nameSchluessel(x.name) === k).flatMap(x => x.varianten || [])]).filter(v => nameSchluessel(v) !== k);
+}
+/* ---------- Erweiterungen: bekannte Erweiterungen eines Spiels zum Abhaken, mit Bild ----------
+   Gespeichert am Spiel: erweiterungen:[{ k, bild?, quelle? }] – nur, was der Haushalt hat. Bilder: eigenes Foto oder über den Abholdienst. */
+const ERWEITERUNGEN = [
+  { k:'dixit', name:'Dixit', passt:n => n.startsWith('dixit'), liste:[
+    { k:'quest', t:'Quest', nr:2, u:'Eine traumhafte Suche nach der Unschuld', f:'#D98B2B' },
+    { k:'journey', t:'Journey', nr:3, u:'Eine geheimnisvolle und zauberhafte Reise', f:'#8C6A3F' },
+    { k:'origins', t:'Origins', nr:4, u:'Die Entstehung fantastischer Welten', f:'#3E7C8C' },
+    { k:'daydreams', t:'Daydreams', nr:5, u:'Emotionale Tagträumereien', f:'#7A4E9C' },
+    { k:'memories', t:'Memories', nr:6, u:'Bunte Kindheitserinnerungen', f:'#2F7FB8' },
+    { k:'revelations', t:'Revelations', nr:7, u:'Die Enthüllung feenhafter Anmut', f:'#C9852A' },
+    { k:'harmonies', t:'Harmonies', nr:8, u:'Der Ursprung natürlicher Harmonie', f:'#5E5A8F' },
+    { k:'anniversary', t:'Anniversary', nr:9, u:'Wo sich all diese Welten treffen', f:'#2C8C86' },
+    { k:'mirrors', t:'Mirrors', nr:10, u:'Ein bittersüßes Abbild unserer Gesellschaft', f:'#D2553A' },
+    { k:'odyssey', t:'Odyssey', u:'Eigenständiges Spiel – die 84 Karten lassen sich dazumischen', f:'#35618F' }
+  ] }
+];
+function erwKatalog(name){ const n = nameSchluessel(name || ''); return n ? ERWEITERUNGEN.find(x => x.passt(n)) || null : null; }
+function erweiterungenNorm(v){
+  const aus = [], schon = new Set();
+  for (const x of Array.isArray(v) ? v : []){
+    const k = String((x && x.k) || x || '').trim().toLowerCase().slice(0, 40);
+    if (!/^[a-z0-9-]+$/.test(k) || schon.has(k)) continue;
+    schon.add(k);
+    const bild = x && typeof x.bild === 'string' && /^bilder\//.test(x.bild) ? x.bild : '';
+    aus.push({ k, ...(bild ? { bild } : {}), ...(bild && x.quelle ? { quelle:String(x.quelle).slice(0, 80) } : {}) });
+  }
+  return aus;
+}
+/* Bild einer Erweiterung: das eigene – sonst eins, das ein anderer Haushalt für dieselbe Erweiterung hat */
+function erwBild(sp, k){
+  const eigen = (sp.erweiterungen || []).find(e => e.k === k && e.bild); if (eigen) return eigen;
+  const kat = erwKatalog(sp.name); if (!kat) return null;
+  for (const x of alleSpiele()) if (x.id !== sp.id && erwKatalog(x.name) === kat){ const e = (x.erweiterungen || []).find(y => y.k === k && y.bild); if (e) return e; }
+  return null;
+}
+function erwKachelHtml(sp, e, { an=null, wahl=false } = {}){
+  const b = erwBild(sp, e.k);
+  return `<button type="button" class="erw-kachel${an === false ? ' aus' : ''}" ${wahl ? `data-erw-wahl="${esc(e.k)}" aria-pressed="${!!an}"` : `data-erw="${esc(e.k)}"`} style="--ef:${esc(e.f || '#5E6B7A')}">
+    <span class="erw-bild"${b ? ` data-bild="${esc(b.bild)}"` : ''}><span class="platzhalter"><small>${esc(erwKatalog(sp.name).name)}</small>${esc(e.t)}</span></span>
+    <span class="erw-name">${e.nr ? `<small>Nr. ${e.nr}</small>` : ''}${esc(e.t)}</span>${wahl ? '<span class="erw-haken" aria-hidden="true">✓</span>' : ''}</button>`;
+}
+function erwDetailHtml(sp){
+  const kat = erwKatalog(sp.name); if (!kat) return '';
+  const hat = new Set((sp.erweiterungen || []).map(e => e.k)), liste = kat.liste.filter(e => hat.has(e.k));
+  const ohneBild = liste.filter(e => !erwBild(sp, e.k));
+  if (!liste.length) return darfBearbeiten(sp.hid) ? `<p class="termin-abschnitt" style="margin-top:16px">Erweiterungen</p><p class="text-leise text-klein" style="margin:0">Noch keine angehakt – unter „Bearbeiten“ antippen, welche ihr habt.</p>` : '';
+  return `<p class="termin-abschnitt" style="margin-top:16px">Erweiterungen (${liste.length} von ${kat.liste.length})</p>
+    <div class="erw-raster">${liste.map(e => erwKachelHtml(sp, e)).join('')}</div>
+    ${darfBearbeiten(sp.hid) && ohneBild.length ? `<button class="knopf rahmen breit" type="button" data-erw-alle style="margin-top:10px">${ic('kamera')}Fehlende Bilder holen (${ohneBild.length})</button>
+      <p class="block-hinweis">Holt die Schachtelbilder bei Spiele-Offensive – oder eine Erweiterung antippen und selbst fotografieren.</p>` : ''}`;
+}
+/* Ein Bild für eine Erweiterung speichern (wie ein Spielfoto: erst hier, beim Abgleich dann ins Repo) */
+async function erwBildSetzen(sp, k, blob, quelle){
+  const klein = await fotoVerkleinern(blob);
+  const pfad = `bilder/${sp.id}-erw-${k}-${Date.now().toString(36)}.jpg`;
+  await IDB.put(pfad, klein); bildUrls.set(pfad, URL.createObjectURL(klein)); O.hoch.push(pfad); offenSpeichern();
+  let alt = '';
+  spielAendern(sp, x => {
+    const l = erweiterungenNorm(x.erweiterungen), e = l.find(y => y.k === k);
+    if (e){ alt = e.bild || ''; e.bild = pfad; if (quelle) e.quelle = quelle; else delete e.quelle; } else l.push({ k, bild:pfad, ...(quelle ? { quelle } : {}) });
+    x.erweiterungen = l;
+  }, `${sp.name}: Bild ${k}`);
+  if (alt) fotoWeg(alt);
+}
+/* Schachtelbild über den Abholdienst bei Spiele-Offensive holen */
+async function erwBildHolen(sp, e){
+  const kat = erwKatalog(sp.name), ergebnis = await soAbholen({ name:`${kat.name} ${e.t}` }, () => {}, () => true);
+  const passend = soTreffer(ergebnis).find(t => { const n = nameSchluessel(t.name); return n.includes(nameSchluessel(kat.name)) && n.includes(nameSchluessel(e.t)); });
+  if (!passend || !passend.bild || !passend.bild.daten) throw new Error(`Für „${kat.name} ${e.t}“ gab es kein Bild.`);
+  const blob = await (await fetch(`data:${passend.bild.typ};base64,${passend.bild.daten}`)).blob();
+  await erwBildSetzen(spielFinden(sp.id) || sp, e.k, blob, 'Foto: Spiele-Offensive.de');
+}
+function erwSheet(sp, k, fertig){
+  const kat = erwKatalog(sp.name), e = kat && kat.liste.find(x => x.k === k); if (!e) return;
+  const eigen = (sp.erweiterungen || []).find(x => x.k === k && x.bild), b = erwBild(sp, k), darf = darfBearbeiten(sp.hid);
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(kat.name)} ${esc(e.t)}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <div class="erw-gross" style="--ef:${esc(e.f)}"${b ? ` data-bild="${esc(b.bild)}"` : ''}><span class="platzhalter"><small>${esc(kat.name)}</small>${esc(e.t)}</span></div>
+    <p style="margin:10px 0 2px">${e.nr ? `<b>Erweiterung Nr. ${e.nr}</b> · ` : ''}${esc(e.u)}</p>
+    ${b && b.quelle ? `<p class="quelle-text">${esc(b.quelle)}</p>` : ''}
+    ${b && !eigen ? '<p class="text-leise text-klein">Bild von einem anderen Haushalt.</p>' : ''}
+    ${darf ? `<input type="file" accept="image/*" data-erw-datei hidden>
+      <div class="knopfreihe" style="margin-top:14px"><button class="knopf zweit" type="button" data-erw-foto>${ic('kamera')}Foto</button>
+        <button class="knopf zweit" type="button" data-erw-shop>${ic('suche')}Bild holen</button></div>
+      ${eigen ? '<button class="knopf rahmen breit" type="button" data-erw-weg style="margin-top:8px">Bild entfernen</button>' : ''}
+      <p class="block-hinweis">„Foto“: die Schachtel selbst fotografieren. „Bild holen“: das Schachtelbild bei Spiele-Offensive suchen (dauert etwa eine Minute).</p>` : ''}`, { beimSchliessen:fertig });
+  bilderBeobachten(s);
+  if (!darf) return;
+  const datei = $('[data-erw-datei]', s);
+  $('[data-erw-foto]', s).addEventListener('click', () => datei.click());
+  datei.addEventListener('change', async () => {
+    const f = datei.files && datei.files[0]; if (!f) return;
+    try{ await erwBildSetzen(sp, k, f, ''); toast('Foto gespeichert'); s.schliessen(); }catch(err){ toast(err.message || 'Das Foto ließ sich nicht speichern.', 'fehler'); }
+  });
+  $('[data-erw-shop]', s).addEventListener('click', async ev => {
+    const knopf = ev.currentTarget; knopf.disabled = true; knopf.textContent = 'Wird geholt …';
+    try{ await erwBildHolen(sp, e); toast('Bild geholt'); s.schliessen(); }
+    catch(err){ toast(err.message || 'Das Bild ließ sich nicht holen.', 'fehler'); knopf.disabled = false; knopf.innerHTML = `${ic('suche')}Bild holen`; }
+  });
+  const weg = $('[data-erw-weg]', s);
+  if (weg) weg.addEventListener('click', () => {
+    const pfad = eigen.bild;
+    spielAendern(sp, x => { x.erweiterungen = erweiterungenNorm(x.erweiterungen).map(y => y.k === k ? { k } : y); }, `${sp.name}: Bild ${k} entfernt`);
+    fotoWeg(pfad); s.schliessen();
+  });
+}
+async function erwAlleBilderHolen(sp, knopf){
+  const kat = erwKatalog(sp.name); if (!kat) return;
+  const hat = new Set((sp.erweiterungen || []).map(e => e.k));
+  const offen = kat.liste.filter(e => hat.has(e.k) && !erwBild(sp, e.k));
+  if (!offen.length) return;
+  if (knopf){ knopf.disabled = true; knopf.textContent = `Bilder werden geholt … (0 von ${offen.length})`; }
+  let ok = 0, fertig = 0; const fehler = [];
+  await Promise.all(offen.map(async e => {
+    try{ await erwBildHolen(spielFinden(sp.id) || sp, e); ok++; }catch(err){ fehler.push(e.t); }
+    fertig++; if (knopf) knopf.textContent = `Bilder werden geholt … (${fertig} von ${offen.length})`;
+  }));
+  toast(fehler.length ? `${ok} Bild${ok === 1 ? '' : 'er'} geholt – kein Bild für: ${fehler.join(', ')}` : `${ok} Bild${ok === 1 ? '' : 'er'} geholt`, fehler.length ? 'fehler' : '');
 }
 /* Spielanleitungen der Varianten: { namensschlüssel: link } */
 function anleitungenNorm(o){
@@ -2638,6 +2779,7 @@ function spielDetail(id){
     ${shopTextWeg(sp.beschreibung) ? `<p class="detail-text${shopTextWeg(sp.beschreibung).length > 360 ? ' zu' : ''}" data-text>${esc(shopTextWeg(sp.beschreibung))}</p>
       ${shopTextWeg(sp.beschreibung).length > 360 ? '<button type="button" class="link-knopf mehr-lesen" data-mehr>Mehr lesen</button>' : ''}` : ''}
     ${sp.bemerkung ? `<p class="detail-bemerkung">${esc(sp.bemerkung)}</p>` : ''}
+    ${erwDetailHtml(sp)}
     ${sp.link ? `<a class="detail-link" href="${esc(sp.link)}" target="_blank" rel="noopener">${ic('link')}Mehr bei ${esc(linkQuelle(sp.link))}</a>` : ''}
     ${verleihHtml(sp)}
     ${anleitungHtml(sp, kopien)}
@@ -2656,6 +2798,8 @@ function spielDetail(id){
   });
   s.addEventListener('click', e => {
     const kp = e.target.closest('[data-kopie]'); if (kp){ s.schliessen(); setTimeout(() => spielDetail(kp.dataset.kopie), 240); return; }
+    const ew = e.target.closest('[data-erw]'); if (ew){ erwSheet(sp, ew.dataset.erw, () => { if (s.isConnected) neuOeffnen(); }); return; }
+    const ea = e.target.closest('[data-erw-alle]'); if (ea){ erwAlleBilderHolen(sp, ea).then(() => { if (s.isConnected) neuOeffnen(); }); return; }
     const b = e.target.closest('[data-anl]');
     if (b && b.dataset.anl === 'suchen') anleitungSheet(sp, neuOeffnen, b.dataset.variante || '');
     if (b && b.dataset.anl === 'weg') anleitungEntfernen(sp, neuOeffnen, b.dataset.variante || '');
@@ -2992,13 +3136,14 @@ function spielLoeschen(sp){
   h.spiele = h.spiele.filter(x => x.id !== sp.id);
   h.geloescht[sp.id] = Date.now();
   if (sp.bild) fotoWeg(sp.bild);
+  for (const e of sp.erweiterungen || []) if (e.bild) fotoWeg(e.bild);
   markiere(h.id, `${sp.name} gelöscht`);
   speichern(); renderAlles(); syncBald(); toast(`„${sp.name}“ gelöscht`);
 }
 function fotoWeg(pfad, ohne = null){
   // Übernommene Spiele teilen sich ein Foto – es wird erst gelöscht, wenn kein anderes Spiel es mehr benutzt
   const ausser = ohne instanceof Set ? ohne : new Set(ohne ? [ohne] : []);
-  if (Object.values(D.haushalte).some(h => h.spiele.some(x => x.bild === pfad && !ausser.has(x.id)))) return;
+  if (Object.values(D.haushalte).some(h => h.spiele.some(x => (x.bild === pfad && !ausser.has(x.id)) || (x.erweiterungen || []).some(e => e.bild === pfad && !ausser.has(x.id))))) return;
   if (O.hoch.includes(pfad)){ O.hoch = O.hoch.filter(p => p !== pfad); IDB.del(pfad); }
   else if (!O.weg.includes(pfad)) O.weg.push(pfad);
   offenSpeichern();
@@ -3571,6 +3716,7 @@ function spielFormular(sp, vorgabe){
     <label class="feld" data-teil-feld${w.eigeneKachel ? '' : ' hidden'}><span class="feld-titel">Platz im Gesamtbild</span>
       <select class="eingabe" data-teil><option value="">egal</option>${Array.from({ length:TEILE_MAX }, (_, i) => `<option value="${i + 1}"${w.teil === i + 1 ? ' selected' : ''}>${i + 1}${i < TEILE_SPALTEN ? ' (oben)' : ''}</option>`).join('')}</select>
       <span class="block-hinweis">Gehört das Spiel zu einem Spielkreis, zeigt der Termin die Teile aller Zusagen als ein Bild – je ${TEILE_SPALTEN} nebeneinander, Platz 1 oben links.</span></label>
+    <div class="feld" data-erw-feld></div>
     <div class="zwei-spalten">
       <div class="feld"><span class="feld-titel">Spieler von</span>${stepperHtml('spielerMin', w.spielerMin ?? 2, { min:1, max:30 })}</div>
       <div class="feld"><span class="feld-titel">bis</span>${stepperHtml('spielerMax', w.spielerMax ?? w.spielerMin ?? 4, { min:1, max:30 })}</div>
@@ -3603,6 +3749,23 @@ function spielFormular(sp, vorgabe){
       <p class="block-hinweis">Für ein Spiel, das nur in einem eurer Spielkreise eine Rolle spielt – in den anderen bleibt es unsichtbar.</p>`;
   }
   kreisFeldZeigen();
+  // Erweiterungen: erscheinen, sobald der Name zu einem Spiel mit bekannten Erweiterungen passt
+  const erwGewaehlt = new Set((w.erweiterungen || []).map(e => e.k));
+  const erwFeldZeigen = () => {
+    const el = $('[data-erw-feld]', s), kat = erwKatalog(feldVon(form, 'name').value);
+    if (!kat){ el.innerHTML = ''; return; }
+    const tmp = { ...w, id:sp ? sp.id : '', name:feldVon(form, 'name').value, erweiterungen:w.erweiterungen || [] };
+    el.innerHTML = `<span class="feld-titel">Erweiterungen – welche habt ihr?</span>
+      <div class="erw-raster">${kat.liste.map(e => erwKachelHtml(tmp, e, { an:erwGewaehlt.has(e.k), wahl:true })).join('')}</div>
+      <p class="block-hinweis">Antippen, was ihr habt. Bilder holt ihr danach beim Spiel (Foto oder aus dem Shop).</p>`;
+    bilderBeobachten(el);
+  };
+  $('[data-erw-feld]', s).addEventListener('click', e => {
+    const b = e.target.closest('[data-erw-wahl]'); if (!b) return;
+    const k = b.dataset.erwWahl, an = !erwGewaehlt.has(k);
+    if (an) erwGewaehlt.add(k); else erwGewaehlt.delete(k);
+    b.setAttribute('aria-pressed', an); b.classList.toggle('aus', !an);
+  });
   $('[data-eigene-kachel]', s).addEventListener('change', e => { $('[data-teil-feld]', s).hidden = !e.target.checked; });
   function fotoZeigen(){
     const hatAltes = w.bild && !fotoEntfernt;
@@ -3731,7 +3894,8 @@ function spielFormular(sp, vorgabe){
   });
   $('[data-variante-plus]', s).addEventListener('click', () => { const f = $('[data-variante]', s); varianteDazu(f.value); f.value = ''; });
   $('[data-variante]', s).addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('[data-variante-plus]', s).click(); } });
-  feldVon(form, 'name').addEventListener('input', () => variantenZeigen());
+  feldVon(form, 'name').addEventListener('input', () => { variantenZeigen(); erwFeldZeigen(); });
+  erwFeldZeigen();
   // Gibt es das Spiel schon bei einem anderen Haushalt? Dann Angaben (und Foto) übernehmen statt neu eintippen
   let uebernahme = null;
   const vorhandenEl = $('[data-vorhanden]', s);
@@ -3782,8 +3946,12 @@ function spielFormular(sp, vorgabe){
     const wahlKreis = kreisEl ? kreisEl.value : (sp && sp.nurKreis) || '';   // ohne Feld: bisherige Zuordnung behalten, solange der Haushalt im Kreis ist
     const nurKreis = wahlKreis && kreiseVonHaushalt(hid).some(k => k.id === wahlKreis) ? wahlKreis : '';
     const eigeneKachel = $('[data-eigene-kachel]', s).checked, teil = eigeneKachel ? Number($('[data-teil]', s).value) || 0 : 0;
+    // Erweiterungen: angehakte behalten ihr Bild, abgewählte geben es frei
+    const erwKat = erwKatalog(name), erwAlt = erweiterungenNorm((sp || w).erweiterungen);
+    const erweiterungen = erwKat ? [...erwAlt.filter(e => erwGewaehlt.has(e.k)), ...[...erwGewaehlt].filter(k => !erwAlt.some(e => e.k === k)).map(k => ({ k }))] : erwAlt;
+    const erwBilderWeg = erwAlt.filter(e => e.bild && !erweiterungen.some(x => x.k === e.k)).map(e => e.bild);
     const spiel = spielNorm({
-      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis, eigeneKachel, teil,
+      ...(sp || {}), id: sp ? sp.id : neueId('s'), name, nurKreis, eigeneKachel, teil, erweiterungen,
       spielerMin: stepperWert($('[data-name="spielerMin"]', s)), spielerMax: stepperWert($('[data-name="spielerMax"]', s)),
       alterAb: stepperWert($('[data-name="alterAb"]', s)), dauer: dauerW ? +dauerW : null,
       kategorien: gewaehlteChips($('[data-gruppe="kat"]', s)),
@@ -3815,6 +3983,7 @@ function spielFormular(sp, vorgabe){
     const h = D.haushalte[hid];
     h.spiele = [...h.spiele.filter(x => x.id !== spiel.id), spiel].sort(nachName);
     delete h.geloescht[spiel.id];
+    for (const pf of erwBilderWeg) fotoWeg(pf);                   // Bilder abgewählter Erweiterungen freigeben
     markiere(hid, neu ? `${name} eingetragen` : `${name} geändert`);
     speichern(); s.schliessen(); renderAlles(); syncBald();
     toast(neu ? `„${name}“ eingetragen` : 'Gespeichert');
@@ -4916,7 +5085,7 @@ function blockSpeichern(){ schreiben(LS.block, B); blockHinweisZeigen(); }
 function blockHinweisZeigen(){
   const el = $('#block-hinweis'); if (!el) return;
   if (!B){ el.innerHTML = ''; return; }
-  const runde = ['hoch', 'tief', 'grenze', 'phase10'].includes(B.w.art) ? ` · Runde ${B.runden.length + 1}`
+  const runde = ['hoch', 'tief', 'grenze', 'phase10', 'dixit'].includes(B.w.art) ? ` · Runde ${B.runden.length + 1}`
     : B.w.art === 'wizard' ? ` · Runde ${Math.min(B.runden.length + 1, wizardRunden())} von ${wizardRunden()}` : '';
   el.innerHTML = `<div class="hinweis pb-hinweis"><span>${ic('pokal')}Punkteblock läuft: <b>${esc(B.name)}</b>${runde}</span><button class="knopf" type="button" data-pb-weiter style="min-height:38px;padding:0 14px;flex:none">Weiter</button></div>`;
   $('[data-pb-weiter]', el).addEventListener('click', punkteblockZeigen);
@@ -6935,7 +7104,95 @@ function kniffelFeldSheet(pid, k, fertig){
     blockSpeichern(); s.schliessen(); fertig();
   });
 }
+/* Dixit: Der Erzähler gibt einen Hinweis, alle anderen tippen auf eine Karte – die App rechnet nach den Regeln:
+   alle oder niemand richtig → Erzähler 0, alle anderen 2; sonst Erzähler und alle Richtigen 3.
+   Dazu bekommt jeder (außer dem Erzähler) 1 Bonuspunkt für jeden Tipp auf seine eigene Karte. Gilt für beliebig viele Spieler. */
+const DIXIT_ZIEL = 30;
+function dixitStand(){ return B.dx || (B.dx = { erz:0, tipps:{}, ziel:DIXIT_ZIEL }); }
+function dixitErzaehler(){ const d = dixitStand(), n = B.mit.length; return B.mit[((d.erz % n) + n) % n]; }
+function dixitPunkte(erz, tipps){
+  const rater = B.mit.filter(p => p.pid !== erz).map(p => p.pid);
+  const richtig = rater.filter(pid => tipps[pid] === erz);
+  const pk = Object.fromEntries(B.mit.map(p => [p.pid, 0]));
+  if (!richtig.length || richtig.length === rater.length){ for (const pid of rater) pk[pid] += 2; }
+  else { pk[erz] += 3; for (const pid of richtig) pk[pid] += 3; }
+  for (const pid of rater){ const z = tipps[pid]; if (z && z !== erz && z !== pid && z in pk) pk[z] += 1; }
+  return pk;
+}
+function dixitRundeText(erz, tipps){
+  const rater = B.mit.filter(p => p.pid !== erz), richtig = rater.filter(p => tipps[p.pid] === erz).length;
+  return !richtig ? 'Niemand hat die Karte des Erzählers erraten' : richtig === rater.length ? 'Alle haben die Karte des Erzählers erraten'
+    : `${richtig} von ${rater.length} haben richtig getippt`;
+}
+function dixitSummen(){
+  const s = Object.fromEntries(B.mit.map(p => [p.pid, 0]));
+  for (const r of B.runden) for (const [pid, v] of Object.entries(r.p || {})) if (pid in s) s[pid] += Number(v) || 0;
+  return s;
+}
+function dixitWahlSheet(pid, zeichnen){
+  const d = dixitStand(), erz = dixitErzaehler(), p = B.mit.find(x => x.pid === pid); if (!p) return;
+  const rater = B.mit.filter(x => x.pid !== erz.pid);
+  const naechster = rater.slice(rater.findIndex(x => x.pid === pid) + 1).find(x => !d.tipps[x.pid]) || rater.find(x => !d.tipps[x.pid] && x.pid !== pid);
+  const ziele = [erz, ...B.mit.filter(x => x.pid !== erz.pid && x.pid !== pid)];
+  const s = sheet(`<div class="sheet-kopf"><h2>${esc(p.name)} tippt auf …</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Auf wessen Karte liegt das Tipprad?</p>
+    <div class="chips dx-ziele">${ziele.map(x => `<button type="button" class="chip${x.pid === erz.pid ? ' dx-erz' : ''}" data-wert="${esc(x.pid)}" aria-pressed="${d.tipps[pid] === x.pid}">${x.pid === erz.pid ? '★ ' : ''}${esc(x.name)}${x.pid === erz.pid ? ' (Erzähler)' : ''}</button>`).join('')}</div>
+    <p class="block-hinweis">${naechster ? `Danach geht es weiter mit ${esc(naechster.name)}.` : 'Danach haben alle getippt.'}</p>`, { beimSchliessen:zeichnen });
+  s.addEventListener('click', e => {
+    const b = e.target.closest('[data-wert]'); if (!b) return;
+    d.tipps[pid] = b.dataset.wert; blockSpeichern(); s.schliessen();
+    if (naechster) setTimeout(() => dixitWahlSheet(naechster.pid, zeichnen), 260);
+  });
+}
+function dixitZielSheet(zeichnen){
+  const d = dixitStand();
+  const s = sheet(`<div class="sheet-kopf"><h2>Bis wie viele Punkte?</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
+    <p class="text-leise" style="margin-top:-4px">Laut Spielregel endet das Spiel, sobald jemand 30 Punkte hat. Bei großen Runden geht es schneller – dann ruhig weniger nehmen.</p>
+    <div class="zahl-wahl">${[15, 20, 25, 30, 35, 40, 50, 60].map(n => `<button type="button" class="kn-knopf" data-wert="${n}" aria-pressed="${d.ziel === n}"><b>${n}</b></button>`).join('')}</div>`, { beimSchliessen:zeichnen });
+  s.addEventListener('click', e => { const b = e.target.closest('[data-wert]'); if (!b) return; d.ziel = Number(b.dataset.wert); blockSpeichern(); s.schliessen(); });
+}
 const BLOECKE = {
+  dixit:{
+    html(){
+      const d = dixitStand(), sum = dixitSummen(), r = B.runden.length + 1, erz = dixitErzaehler();
+      const rater = B.mit.filter(p => p.pid !== erz.pid), alle = rater.every(p => d.tipps[p.pid]);
+      const vorschau = alle ? dixitPunkte(erz.pid, d.tipps) : null, name = pid => (B.mit.find(p => p.pid === pid) || {}).name || '?';
+      const jetzt = B.ende ? '' : `<div class="wz-runde"><p class="wz-kopf"><b>Runde ${r}</b> · Ziel: ${d.ziel} Punkte · <button class="knopf-link" type="button" data-pb="x-dx-ziel">ändern</button></p>
+        <p class="termin-abschnitt" style="margin-top:6px">Erzähler</p>
+        <div class="chips">${B.mit.map((p, i) => `<button type="button" class="chip" data-pb="x-dx-erz" data-i="${i}" aria-pressed="${p.pid === erz.pid}">${p.pid === erz.pid ? '★ ' : ''}${esc(p.name)}</button>`).join('')}</div>
+        <p class="termin-abschnitt" style="margin-top:12px">Wer hat auf wessen Karte getippt?</p>
+        ${rater.map(p => { const z = d.tipps[p.pid];
+          return `<div class="wz-zeile"><span class="pb-name">${figur(p.farbe || '#8A93A0', 15)}<span>${esc(p.name)}</span></span>
+            ${vorschau ? `<small class="dx-plus">+${vorschau[p.pid]}</small>` : ''}
+            <button type="button" class="dx-tipp${z ? '' : ' leer'}${z && z === erz.pid ? ' richtig' : ''}" data-pb="x-dx-wahl" data-pid="${esc(p.pid)}" aria-label="Tipp von ${esc(p.name)}">${z ? (z === erz.pid ? '★ ' : '') + esc(name(z)) : 'antippen'}</button></div>`; }).join('')}
+        ${vorschau ? `<p class="wz-summe">${esc(dixitRundeText(erz.pid, d.tipps))} · ${esc(erz.name)} +${vorschau[erz.pid]}</p>`
+          : '<p class="block-hinweis" style="margin:6px 0 0">Antippen, auf wessen Karte jeder getippt hat – danach geht es automatisch mit dem Nächsten weiter.</p>'}
+        <button class="knopf breit" type="button" data-pb="x-dx-runde"${alle ? '' : ' disabled'}>Runde ${r} speichern</button></div>`;
+      return `${jetzt}
+        <p class="termin-abschnitt" style="margin-top:14px">Punkte</p>${summenListeHtml(sum, { text:p => `${sum[p.pid]}<small>/${d.ziel}</small>` })}
+        ${B.ende ? blockEndeHtml() : `<div class="knopfreihe" style="margin-top:8px">${B.runden.length ? '<button class="knopf rahmen" type="button" data-pb="x-dx-korr">Letzte Runde ändern</button><button class="knopf zweit" type="button" data-pb="beenden">Spiel beenden</button>' : ''}</div>`}
+        ${B.runden.length ? `<div style="margin-top:14px">${klapp('pb-runden', `Runden (${B.runden.length})`, `<div class="pb-tabelle-rahmen"><table class="pb-tabelle"><thead><tr><th></th>${B.mit.map(p => `<th>${esc(p.name)}</th>`).join('')}</tr></thead>
+          <tbody>${B.runden.map((x, i) => `<tr><td>${i + 1}</td>${B.mit.map(p => `<td>${p.pid === x.erz ? '★ ' : ''}${(x.p || {})[p.pid] || 0}</td>`).join('')}</tr>`).join('')}</tbody>
+          <tfoot><tr><td>Σ</td>${B.mit.map(p => `<td>${sum[p.pid]}</td>`).join('')}</tr></tfoot></table></div>
+          <p class="block-hinweis">★ = Erzähler der Runde.</p>`, { klasse:'leicht' })}</div>` : ''}`;
+    },
+    klick(b, zeichnen){
+      const d = dixitStand(), was = b.dataset.pb;
+      if (was === 'x-dx-wahl'){ dixitWahlSheet(b.dataset.pid, zeichnen); return; }
+      if (was === 'x-dx-ziel'){ dixitZielSheet(zeichnen); return; }
+      if (was === 'x-dx-erz'){ d.erz = Number(b.dataset.i) || 0; delete d.tipps[dixitErzaehler().pid]; }
+      if (was === 'x-dx-runde'){
+        const erz = dixitErzaehler();
+        if (!B.mit.filter(p => p.pid !== erz.pid).every(p => d.tipps[p.pid])) return;
+        B.runden.push({ erz:erz.pid, tipps:{ ...d.tipps }, p:dixitPunkte(erz.pid, d.tipps) });
+        d.erz = B.mit.findIndex(p => p.pid === erz.pid) + 1; d.tipps = {};
+        if (Object.values(dixitSummen()).some(v => v >= d.ziel)) B.ende = true;
+      }
+      if (was === 'x-dx-korr'){ const x = B.runden.pop(); if (x){ d.erz = Math.max(0, B.mit.findIndex(p => p.pid === x.erz)); d.tipps = { ...x.tipps }; B.ende = false; } }
+      blockSpeichern(); zeichnen();
+    },
+    ergebnis(){ return hoechsteGewinnen(dixitSummen()); }
+  },
   kniffel:{
     html(){
       const sums = Object.fromEntries(B.mit.map(p => [p.pid, kniffelSummen(p.pid)])), zug = kniffelAmZug();
@@ -7558,7 +7815,7 @@ async function haushaltLoeschen(id){
     }catch(e){ toast(e.message, 'fehler'); return; }
   }
   const eigene = new Set(h.spiele.map(x => x.id));
-  for (const s of h.spiele) if (s.bild) fotoWeg(s.bild, eigene);
+  for (const s of h.spiele){ if (s.bild) fotoWeg(s.bild, eigene); for (const e of s.erweiterungen || []) if (e.bild) fotoWeg(e.bild, eigene); }
   delete D.haushalte[id]; delete D.meta[id];
   if (E.meinHaushalt === id){ E.meinHaushalt = ''; einstSpeichern(); }
   speichern(); renderAlles(); syncBald(); toast(`„${h.name}“ gelöscht`);
@@ -7725,7 +7982,8 @@ const HILFE = [
     <li>Haben mehrere Haushalte dasselbe Spiel, gibt es <b>eine Kachel</b> mit allen Haushalten. In der Ansicht führt „auch bei …“ zur Ausgabe des anderen Haushalts.</li>
     <li><b>Varianten</b>: Unter <b>Bearbeiten</b> weitere Ausgaben zum selben Spiel eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ (bekannte Varianten schlägt die App vor). Sie stehen auf der Kachel, die Suche findet sie, und hat eine Variante einen eigenen Spielblock, startet er direkt beim Spiel. Ergebnisse stehen beim Spiel unter „Gespielt“ mit dem Namen der Variante.</li>
     <li>Ist ein Haushalt in mehreren Spielkreisen, erscheint beim Eintragen <b>Nur sichtbar im Spielkreis …</b> – so bleibt ein Spiel, das nur einen eurer Spielkreise etwas angeht, für die anderen unsichtbar. Das Feld erscheint auch, wenn euer einziger Spielkreis „Nur eigene Spiele zeigen“ eingeschaltet hat – dann ist dieser Kreis schon vorgewählt.</li>
-    <li><b>Eigene Kachel</b> (darunter <b>Platz im Gesamtbild</b>, 1 = oben links): Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li></ul>` },
+    <li><b>Eigene Kachel</b> (darunter <b>Platz im Gesamtbild</b>, 1 = oben links): Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li>
+    <li><b>Erweiterungen</b> (bisher bei <b>Dixit</b>): Beim Bearbeiten antippen, welche Erweiterungen ihr habt. Beim Spiel stehen sie dann mit Bild – eine Erweiterung antippen und die Schachtel fotografieren oder „Bild holen“ (sucht das Schachtelbild bei Spiele-Offensive). „Fehlende Bilder holen“ holt alle auf einmal. Hat ein anderer Haushalt schon ein Bild, wird es mitbenutzt.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
     <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
@@ -7733,7 +7991,7 @@ const HILFE = [
   { id:'gespielt', titel:'Gespielt und Rückblick', seite:'runde', fkt:'gespielt', text:`
     <ul><li><b>Punkteblock</b>: Spiel antippen → <b>Punkteblock starten</b> (oder beim Würfeln <b>Das spielen wir!</b>). Wertung wählen, Mitspieler antippen (Gäste gehen auch), los.</li>
     <li>Wertungen: <b>Nur Gewinner</b> · <b>Punkte – meiste gewinnt</b> · <b>Punkte – wenigste gewinnt</b> · <b>Bis zur Grenze</b> (z. B. Skyjo: bis 100, dann gewinnen die wenigsten Punkte) · <b>Platzierung</b> (1., 2., 3. …). Die Wertung lässt sich je Spiel merken.</li>
-    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten), <b>Ganz schön clever</b>, <b>Clever 4ever</b>, <b>Clever hoch drei</b> und <b>Doppelt so clever</b> (Original-Blöcke, siehe unten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
+    <li><b>Eigene Spielblöcke</b> für <b>Kniffel</b> (der ganze Zettel mit Bonus), <b>Wizard</b> (Ansagen und Stiche), <b>Dixit</b> (Erzähler und Tipps – die App rechnet die Punkte, für beliebig viele Spieler), <b>Phase 10</b> (Phasen abhaken, Minuspunkte), <b>Qwixx</b> (Kreuze je Farbe auswerten), <b>Ganz schön clever</b>, <b>Clever 4ever</b>, <b>Clever hoch drei</b> und <b>Doppelt so clever</b> (Original-Blöcke, siehe unten). Die App erkennt diese Spiele am Namen – der Block steht dann vorne bei „Wie wird gewertet?“.</li>
     <li><b>Ganz schön clever</b> gibt es als <b>Original-Block zum Antippen</b>: Kreuze in Gelb und Blau antippen, in Grün, Orange und Lila die Zahl wählen. Die App prüft die Regeln (z. B. Lila: „Die Zahl muss höher sein“, Grün: Mindestwert) und sagt, was nicht passt. Erreichte Boni stehen oben unter <b>Bonus einlösen</b>, bis sie eingetragen sind. Neuwürfe und +1 zählt die App mit, Runden-Boni gibt es mit <b>Runde … beginnen</b>, <b>↶ Rückgängig</b> nimmt den letzten Eintrag zurück.</li>
     <li><b>Clever 4ever</b> gibt es ebenso als <b>Original-Block</b>: In Gelb die Zeile frei wählen (oben steigend, Mitte zählt minus, unten plus), in Blau das Feld aus blauem Würfel (Zeile) und weißem (Spalte) antippen, in Grau einen ganzen Teilbereich (rot umrandet anfangen, danach angrenzend – die Zahl muss mindestens so groß sein wie die Felder), in Grün das obere oder untere Dreieck, in Rosa das nächste Feld (eine 3 bringt gleich noch eine 3). <b>?-Boni</b> (Wunschzahl) stehen oben, bis sie eingetragen sind – antippen, dann in der Farbe mit einer beliebigen Zahl eintragen; das schwarze ? fragt erst nach der Farbe. Nachwürfeln, Zusatzwürfel und Silber polieren mit <b>Nutzen</b> einsetzen.</li>
     <li><b>Clever hoch drei</b> und <b>Doppelt so clever</b> funktionieren genauso: Felder antippen, bei Zahlen die Zahl wählen – die App prüft die Regeln (z. B. Blau ab der 7: links je 1 weniger, rechts je 1 mehr; bei Doppelt so clever Blau absteigend). Bei Clever hoch drei steht in Rosa „halb mit Bonus“ oder „mal Stern“ zur Wahl, die <b>Zahlen-Joker</b> tippst du einzeln an. Bei Doppelt so clever wird Gelb beim ersten Antippen eingekreist, beim zweiten angekreuzt.</li>
@@ -7741,6 +7999,7 @@ const HILFE = [
     <li><b>Azul</b> hat zwei Blöcke wie das Tableau: <b>Seite A</b> (farbige Wand) und <b>Seite B</b> (graue Wand). Am Rundenende die Fliesen antippen, die an die Wand kommen – die Reihenfolge ist egal, die App wertet von oben nach unten. Auf Seite B wählst du nach dem Antippen die Farbe (jede nur einmal pro Reihe und Spalte). Darunter die <b>Bodenreihe</b> (letztes belegtes Feld antippen), dann <b>Runde fertig</b>. Ist eine waagrechte Reihe voll, heißt es <b>Spielende</b>; die Endwertung und bei Gleichstand „mehr volle Reihen“ rechnet die App.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
+    <li><b>Dixit:</b> Jede Runde den Erzähler antippen (★, wechselt danach von selbst weiter) und bei jedem anderen, auf wessen Karte er getippt hat. Die App rechnet nach den Regeln: Haben alle oder niemand die Karte des Erzählers erraten, bekommt er 0 und alle anderen 2 Punkte – sonst bekommen der Erzähler und alle Richtigen 3. Dazu gibt es 1 Bonuspunkt für jeden Tipp auf die eigene Karte. Schluss ist bei 30 Punkten – bei großen Runden lässt sich das Ziel ändern.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
     <li>Der Punkteblock bleibt auf dem Gerät erhalten, auch wenn die App zwischendurch zu ist – oben steht dann <b>Punkteblock läuft … Weiter</b>.</li>
@@ -7904,6 +8163,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.04', datum:'10.11.2026', neu:[
+    'Dixit-Block: Erzähler und Tipps antippen, die App rechnet die Punkte nach den Regeln aus – für beliebig viele Spieler, Ziel 30 Punkte (änderbar)',
+    'Erweiterungen bei Dixit: beim Bearbeiten anhaken, welche ihr habt (Quest bis Mirrors, Odyssey) – beim Spiel mit Bild, selbst fotografiert oder über „Bild holen“ aus dem Shop'
+  ]},
   { v:'v2.03', datum:'09.11.2026', neu:[
     'Einladung zu einem Termin teilen: Die App zeigt, wer schon eine Mitteilung aufs Handy bekommt – per WhatsApp & Co. nur noch an die anderen schicken, so gibt es nichts doppelt'
   ]},
