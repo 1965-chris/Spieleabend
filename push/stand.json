@@ -119,42 +119,17 @@
   }
  ],
  "geraete": 5,
- "zeit": 1794316544484,
+ "zeit": 1794338139631,
  "karten": {
-  "id": "kartenmwapql2j",
-  "zeit": 1794316572983,
+  "id": "kartenmwb2lfu1",
+  "zeit": 1794338160057,
   "ergebnis": {
-   "grund": {
+   "anniversary": {
     "anzahl": 84,
     "methode": "pdf-bilder"
    },
-   "quest": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "journey": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "origins": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "daydreams": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "memories": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "revelations": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
-   },
-   "harmonies": {
-    "anzahl": 84,
-    "methode": "pdf-bilder"
+   "mirrors": {
+    "fehler": "ValueError: In der Kartenübersicht wurden nur 1 Kartenbilder gefunden."
    }
   },
   "fehler": ""
