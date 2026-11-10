@@ -794,6 +794,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .erw-kachel.aus .erw-name{color:var(--leise)}
 .erw-haken{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--filz);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800;box-shadow:0 0 0 2px #fff}
 .erw-kachel.aus .erw-haken{display:none}
+.partie-erw{display:block;font-size:12.5px;color:var(--leise);font-weight:500}
 .dx-tipp{appearance:none;min-width:110px;min-height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);font:inherit;font-weight:600;cursor:pointer}
 .dx-tipp.leer{border-style:dashed;color:var(--leise);font-weight:500}
 .dx-tipp.richtig{background:var(--filz-hell);border-color:var(--filz);color:var(--filz)}
@@ -1162,7 +1163,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.04';
+const VERSION = 'v2.05';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1472,16 +1473,17 @@ function variantenVon(sp){
 /* ---------- Erweiterungen: bekannte Erweiterungen eines Spiels zum Abhaken, mit Bild ----------
    Gespeichert am Spiel: erweiterungen:[{ k, bild?, quelle? }] – nur, was der Haushalt hat. Bilder: eigenes Foto oder über den Abholdienst. */
 const ERWEITERUNGEN = [
-  { k:'dixit', name:'Dixit', passt:n => n.startsWith('dixit'), liste:[
-    { k:'quest', t:'Quest', nr:2, u:'Eine traumhafte Suche nach der Unschuld', f:'#D98B2B' },
-    { k:'journey', t:'Journey', nr:3, u:'Eine geheimnisvolle und zauberhafte Reise', f:'#8C6A3F' },
-    { k:'origins', t:'Origins', nr:4, u:'Die Entstehung fantastischer Welten', f:'#3E7C8C' },
-    { k:'daydreams', t:'Daydreams', nr:5, u:'Emotionale Tagträumereien', f:'#7A4E9C' },
-    { k:'memories', t:'Memories', nr:6, u:'Bunte Kindheitserinnerungen', f:'#2F7FB8' },
-    { k:'revelations', t:'Revelations', nr:7, u:'Die Enthüllung feenhafter Anmut', f:'#C9852A' },
-    { k:'harmonies', t:'Harmonies', nr:8, u:'Der Ursprung natürlicher Harmonie', f:'#5E5A8F' },
-    { k:'anniversary', t:'Anniversary', nr:9, u:'Wo sich all diese Welten treffen', f:'#2C8C86' },
-    { k:'mirrors', t:'Mirrors', nr:10, u:'Ein bittersüßes Abbild unserer Gesellschaft', f:'#D2553A' },
+  // Kartenübersichten: die offiziellen PDFs von Libellud (alle Karten einer Schachtel auf einen Blick) – nur verlinkt, nichts kopiert
+  { k:'dixit', name:'Dixit', passt:n => n.startsWith('dixit'), karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_OVERVIEW.pdf', kartenQuelle:'Libellud', liste:[
+    { k:'quest', t:'Quest', nr:2, u:'Eine traumhafte Suche nach der Unschuld', f:'#D98B2B' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_2_OVERVIEW.pdf' },
+    { k:'journey', t:'Journey', nr:3, u:'Eine geheimnisvolle und zauberhafte Reise', f:'#8C6A3F' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_3_OVERVIEW.pdf' },
+    { k:'origins', t:'Origins', nr:4, u:'Die Entstehung fantastischer Welten', f:'#3E7C8C' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_4_OVERVIEW.pdf' },
+    { k:'daydreams', t:'Daydreams', nr:5, u:'Emotionale Tagträumereien', f:'#7A4E9C' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_5_OVERVIEW.pdf' },
+    { k:'memories', t:'Memories', nr:6, u:'Bunte Kindheitserinnerungen', f:'#2F7FB8' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_6_OVERVIEW.pdf' },
+    { k:'revelations', t:'Revelations', nr:7, u:'Die Enthüllung feenhafter Anmut', f:'#C9852A' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_7_OVERVIEW.pdf' },
+    { k:'harmonies', t:'Harmonies', nr:8, u:'Der Ursprung natürlicher Harmonie', f:'#5E5A8F' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_8_OVERVIEW.pdf' },
+    { k:'anniversary', t:'Anniversary', nr:9, u:'Wo sich all diese Welten treffen', f:'#2C8C86' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_9_OVERVIEW.pdf' },
+    { k:'mirrors', t:'Mirrors', nr:10, u:'Ein bittersüßes Abbild unserer Gesellschaft', f:'#D2553A' , karten:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_10_OVERVIEW.pdf' },
     { k:'odyssey', t:'Odyssey', u:'Eigenständiges Spiel – die 84 Karten lassen sich dazumischen', f:'#35618F' }
   ] }
 ];
@@ -1510,15 +1512,32 @@ function erwKachelHtml(sp, e, { an=null, wahl=false } = {}){
     <span class="erw-bild"${b ? ` data-bild="${esc(b.bild)}"` : ''}><span class="platzhalter"><small>${esc(erwKatalog(sp.name).name)}</small>${esc(e.t)}</span></span>
     <span class="erw-name">${e.nr ? `<small>Nr. ${e.nr}</small>` : ''}${esc(e.t)}</span>${wahl ? '<span class="erw-haken" aria-hidden="true">✓</span>' : ''}</button>`;
 }
+/* „Quest, Journey“ – Namen gespielter Erweiterungen */
+function erwText(name, keys){
+  const kat = erwKatalog(name); if (!kat || !Array.isArray(keys) || !keys.length) return '';
+  return kat.liste.filter(e => keys.includes(e.k)).map(e => e.t).join(', ');
+}
+/* Erweiterungen, die es für dieses Spiel bei den sichtbaren Haushalten gibt (fürs Spielen zählt, was auf dem Tisch liegen kann) */
+function erwVorhanden(sp, name){
+  const kat = erwKatalog(name); if (!kat) return [];
+  const hat = new Set();
+  for (const x of [sp, ...alleSpiele().filter(y => y.id !== sp.id && erwKatalog(y.name) === kat)]) for (const e of x.erweiterungen || []) hat.add(e.k);
+  return kat.liste.filter(e => hat.has(e.k));
+}
+function erwKartenLink(url, text){
+  return url ? `<a class="detail-link" href="${esc(url)}" target="_blank" rel="noopener">${ic('buch')}${esc(text)}</a>` : '';
+}
 function erwDetailHtml(sp){
   const kat = erwKatalog(sp.name); if (!kat) return '';
+  const grund = kat.karten ? `<p style="margin:8px 0 0">${erwKartenLink(kat.karten, `Alle Karten des Grundspiels ansehen (${kat.kartenQuelle}, PDF)`)}</p>` : '';
   const hat = new Set((sp.erweiterungen || []).map(e => e.k)), liste = kat.liste.filter(e => hat.has(e.k));
   const ohneBild = liste.filter(e => !erwBild(sp, e.k));
-  if (!liste.length) return darfBearbeiten(sp.hid) ? `<p class="termin-abschnitt" style="margin-top:16px">Erweiterungen</p><p class="text-leise text-klein" style="margin:0">Noch keine angehakt – unter „Bearbeiten“ antippen, welche ihr habt.</p>` : '';
+  if (!liste.length) return `<p class="termin-abschnitt" style="margin-top:16px">Erweiterungen</p>${darfBearbeiten(sp.hid) ? '<p class="text-leise text-klein" style="margin:0">Noch keine angehakt – unter „Bearbeiten“ antippen, welche ihr habt.</p>' : ''}${grund}`;
   return `<p class="termin-abschnitt" style="margin-top:16px">Erweiterungen (${liste.length} von ${kat.liste.length})</p>
     <div class="erw-raster">${liste.map(e => erwKachelHtml(sp, e)).join('')}</div>
     ${darfBearbeiten(sp.hid) && ohneBild.length ? `<button class="knopf rahmen breit" type="button" data-erw-alle style="margin-top:10px">${ic('kamera')}Fehlende Bilder holen (${ohneBild.length})</button>
-      <p class="block-hinweis">Holt die Schachtelbilder bei Spiele-Offensive – oder eine Erweiterung antippen und selbst fotografieren.</p>` : ''}`;
+      <p class="block-hinweis">Holt die Schachtelbilder bei Spiele-Offensive – oder eine Erweiterung antippen und selbst fotografieren.</p>` : ''}
+    <p class="block-hinweis" style="margin-top:6px">Eine Erweiterung antippen: dort gibt es alle ihre Karten zum Ansehen.</p>${grund}`;
 }
 /* Ein Bild für eine Erweiterung speichern (wie ein Spielfoto: erst hier, beim Abgleich dann ins Repo) */
 async function erwBildSetzen(sp, k, blob, quelle){
@@ -1549,6 +1568,7 @@ function erwSheet(sp, k, fertig){
     <p style="margin:10px 0 2px">${e.nr ? `<b>Erweiterung Nr. ${e.nr}</b> · ` : ''}${esc(e.u)}</p>
     ${b && b.quelle ? `<p class="quelle-text">${esc(b.quelle)}</p>` : ''}
     ${b && !eigen ? '<p class="text-leise text-klein">Bild von einem anderen Haushalt.</p>' : ''}
+    ${e.karten ? `<p style="margin:10px 0 0">${erwKartenLink(e.karten, `Alle 84 Karten von ${e.t} ansehen (${kat.kartenQuelle}, PDF)`)}</p>` : ''}
     ${darf ? `<input type="file" accept="image/*" data-erw-datei hidden>
       <div class="knopfreihe" style="margin-top:14px"><button class="knopf zweit" type="button" data-erw-foto>${ic('kamera')}Foto</button>
         <button class="knopf zweit" type="button" data-erw-shop>${ic('suche')}Bild holen</button></div>
@@ -1717,7 +1737,8 @@ const BEKANNTE_ANLEITUNGEN = [
   { passt:n => n.startsWith('cleverhochdrei'), url:'https://www.Schmidtspiele.de/files/Retail/300dpi_JPG/49384_Clever_Hoch_Drei_DE.pdf' },
   { passt:n => n.startsWith('qwixxbigpoints'), url:'https://www.nsv.de/wp-content/uploads/2024/04/QwixxBP_D.pdf' },
   { passt:n => n.startsWith('qwixxbonus'), url:'https://www.nsv.de/wp-content/uploads/2024/04/Qwixx_Bonus_D.pdf' },
-  { passt:n => n.startsWith('qwixxconnected'), url:'https://www.nsv.de/wp-content/uploads/2024/04/Qwixx_connect_D.pdf' }
+  { passt:n => n.startsWith('qwixxconnected'), url:'https://www.nsv.de/wp-content/uploads/2024/04/Qwixx_connect_D.pdf' },
+  { passt:n => n === 'dixit', url:'https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_REFRESH_RULES_DE_HD_compressed.pdf' }
 ];
 function bekannteAnleitung(name){
   const n = nameSchluessel(name), n2 = n.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u');
@@ -4779,7 +4800,8 @@ function partieNorm(p){
     // aus dem Punkteblock: Mitspieler, Punkte bzw. Plätze, Anzahl Runden, Wertung
     ...(mit.length ? { mit } : {}), ...(Object.keys(punkte).length ? { punkte } : {}), ...(Object.keys(plaetze).length ? { plaetze } : {}),
     ...(zahl(p.runden) ? { runden:zahl(p.runden) } : {}), ...(w && w.art !== 'gewinner' ? { wertung:w } : {}),
-    ...(p.kreis ? { kreis:String(p.kreis) } : {}) };
+    ...(p.kreis ? { kreis:String(p.kreis) } : {}),
+    ...(erweiterungenNorm(p.erweiterungen).length ? { erweiterungen:erweiterungenNorm(p.erweiterungen).map(e => e.k) } : {}) };
 }
 /* Wer sieht eine Partie? Nur der Spielkreis, in dem gespielt wurde (und der Admin).
    Ohne Spielkreis: die Haushalte der Mitspieler und der Haushalt, der gespeichert hat. */
@@ -4845,7 +4867,7 @@ function gespieltHtml(sp){
     <p class="gespielt-zahl">${liste.length ? `${liste.length}× gespielt · zuletzt am ${datumText(liste[0].datum)}` : 'Noch nie gespielt'}</p>
     ${(() => { const w = wertungNorm(sp.wertung) || vorlageFuer(sp.name); return w && w.art !== 'gewinner' ? `<p class="wertung-text">${spezialVon(w) ? 'Spielblock' : 'Wertung'}: ${esc(wertungText(w))}</p>` : ''; })()}
     ${liste.length ? `<ul class="partien">${liste.slice(0, 6).map(p => `<li><span class="partie-datum">${datumText(p.datum)}</span>
-        <span class="partie-sieger">${nameSchluessel(p.name) !== k ? `<span class="partie-variante">${esc(p.name)}</span> ` : ''}${partieErgebnisText(p)}</span>
+        <span class="partie-sieger">${nameSchluessel(p.name) !== k ? `<span class="partie-variante">${esc(p.name)}</span> ` : ''}${partieErgebnisText(p)}${erwText(p.name, p.erweiterungen) ? `<small class="partie-erw">mit ${esc(erwText(p.name, p.erweiterungen))}</small>` : ''}</span>
         ${p.eigen ? `<button class="knopf-rund" type="button" data-gsp="bearbeiten" data-id="${esc(p.id)}" aria-label="Partie ändern">${ic('stift')}</button>` : ''}</li>`).join('')}</ul>` : ''}
     ${meinHaushaltGueltig() ? `<button class="knopf breit" type="button" data-gsp="block" style="margin-top:10px">${ic('pokal')}${LIVE && D.runden[LIVE.id] && D.runden[LIVE.id].sid === sp.id ? `${liveBlockName(D.runden[LIVE.id])} weiter` : B && B.sid === sp.id ? `${spezialVon(B.w) ? esc(spezialVon(B.w).t) : 'Punkteblock'} weiter` : `${esc((spezialVon(wertungNorm(sp.wertung) || vorlageFuer(sp.name)) || { t:'Punkteblock' }).t)} starten`}</button>
       ${extra.map(o => `<button class="knopf breit" type="button" data-gsp="block" data-variante="${esc(o.v)}" style="margin-top:8px">${ic('pokal')}${esc(o.x.t)} starten</button>`).join('')}
@@ -5132,6 +5154,7 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
   const s = sheet(`<form novalidate><div class="sheet-kopf"><h2>Punkteblock: <span data-pb-titel>${esc(spielName)}</span></h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div>
     ${namen.length > 1 ? `<div class="feld"><span class="feld-titel">Was wird gespielt?</span>${chipsHtml('pb-variante', namen.map(n => ({ w:n, t:n })), [spielName], { mehrfach:false, pflicht:true })}</div>` : ''}
     <div class="feld" data-art-feld>${artFeld(w0)}</div>
+    <div class="feld" data-erw-pb></div>
     <div data-grenze${w0.art === 'grenze' ? '' : ' hidden'}>
       <label class="feld"><span class="feld-titel">Grenze (Punkte)</span><input class="eingabe" type="number" name="grenze" value="${w0.grenze}" min="1"></label>
       <div class="feld"><span class="feld-titel">Wer gewinnt, wenn jemand die Grenze erreicht?</span>${chipsHtml('pb-sieger', [{ w:'tief', t:'Wenigste Punkte' }, { w:'hoch', t:'Meiste Punkte' }], [w0.sieger], { mehrfach:false, pflicht:true })}</div></div>
@@ -5166,6 +5189,17 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
       const mk = $('[data-merken-feld]', s); if (mk) mk.hidden = spielName !== sp.name;
     }
   });
+  // Erweiterungen: Mehrfachauswahl, womit gespielt wird (vorgewählt: was beim letzten Mal dabei war)
+  const erwPbZeigen = () => {
+    const el = $('[data-erw-pb]', s), kat = erwKatalog(spielName), da = erwVorhanden(sp, spielName);
+    if (!kat || !da.length){ el.innerHTML = ''; el.hidden = true; return; }
+    const zuletzt = ((E.erwZuletzt || {})[kat.k] || []).filter(k => da.some(e => e.k === k));
+    el.hidden = false;
+    el.innerHTML = `<span class="feld-titel">Mit welchen Erweiterungen?</span>${chipsHtml('pb-erw', da.map(e => ({ w:e.k, t:e.t })), zuletzt, { mehrfach:true })}
+      <p class="block-hinweis" style="margin-top:6px">Mehrere antippen – nichts angetippt heißt: nur das Grundspiel.</p>`;
+  };
+  erwPbZeigen();
+  s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'pb-variante') erwPbZeigen(); });
   // Ganz schön clever: „Wer bist du?“ aus den angetippten Spielern des eigenen Haushalts
   const ichZeigen = () => {
     const box = $('[data-gsc-ich]', s); if (!box) return;
@@ -5226,7 +5260,9 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
       const ich = modus === 'eins' ? '' : (gewaehlteChips($('[data-gsc-ich]', s))[0] || '');
       s.schliessen(); setTimeout(() => gscStarten({ sp:{ ...sp, name:spielName }, mit, modus, ich, kreis:kreisWahl || '', art }), 240); return;
     }
-    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:spielName, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{} };
+    const erwBox = $('[data-gruppe="pb-erw"]', s), erw = erwBox ? gewaehlteChips(erwBox) : [], kat = erwKatalog(spielName);
+    if (kat && erwBox){ E.erwZuletzt = { ...(E.erwZuletzt || {}), [kat.k]:erw }; einstSpeichern(); }
+    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:spielName, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{}, ...(erw.length ? { erw } : {}) };
     blockSpeichern(); s.schliessen(); setTimeout(punkteblockZeigen, 240);
   });
 }
@@ -5267,7 +5303,7 @@ function blockInhaltHtml(){
 function punkteblockZeigen(){
   if (!B) return;
   const s = sheet(`<div class="sheet-kopf"><h2>${esc(B.name)}</h2>${liveAnleitungKnopf(B)}<button class="knopf-rund" type="button" data-zu aria-label="Später weiter">${ic('x')}</button></div>
-    <p class="text-leise" style="margin-top:-6px">${esc(wertungText(B.w))}</p>
+    <p class="text-leise" style="margin-top:-6px">${esc(wertungText(B.w))}${erwText(B.name, B.erw) ? ` · mit ${esc(erwText(B.name, B.erw))}` : ''}</p>
     <div data-pb-inhalt></div>
     <button class="knopf gefahr breit" type="button" data-pb-weg style="margin-top:18px">${ic('muell')}Punkteblock verwerfen</button>
     <p class="block-hinweis">Schließen geht jederzeit – der Punkteblock bleibt auf diesem Gerät erhalten.</p>`, { klasse:'gross', beimSchliessen:blockHinweisZeigen });
@@ -7484,7 +7520,7 @@ function blockErgebnisSpeichern(){
   const mein = D.haushalte[E.meinHaushalt]; if (!mein || !B) return;
   const erg = blockErgebnis();
   const p = partieNorm({ id:neueId('g'), datum:B.datum, name:B.name, sid:B.sid, shid:B.shid, gewinner:erg.gewinner, mit:B.mit.map(x => x.pid),
-    punkte:erg.punkte, plaetze:erg.plaetze, runden:B.runden.length, wertung:B.w, tid:B.tid || '', kreis:B.kreis || '', stand:Date.now() });
+    punkte:erg.punkte, plaetze:erg.plaetze, runden:B.runden.length, wertung:B.w, tid:B.tid || '', kreis:B.kreis || '', erweiterungen:B.erw || [], stand:Date.now() });
   // ein „nur gespielt“-Eintrag desselben Tages ohne Ergebnis wird ersetzt
   const k = nameSchluessel(B.name);
   mein.partien = [...(mein.partien || []).filter(x => !(x.datum === p.datum && nameSchluessel(x.name) === k && !x.gewinner.length && !(x.mit || []).length)), p];
@@ -7983,7 +8019,7 @@ const HILFE = [
     <li><b>Varianten</b>: Unter <b>Bearbeiten</b> weitere Ausgaben zum selben Spiel eintragen, z. B. „Clever 4ever“ bei „Ganz schön clever“ (bekannte Varianten schlägt die App vor). Sie stehen auf der Kachel, die Suche findet sie, und hat eine Variante einen eigenen Spielblock, startet er direkt beim Spiel. Ergebnisse stehen beim Spiel unter „Gespielt“ mit dem Namen der Variante.</li>
     <li>Ist ein Haushalt in mehreren Spielkreisen, erscheint beim Eintragen <b>Nur sichtbar im Spielkreis …</b> – so bleibt ein Spiel, das nur einen eurer Spielkreise etwas angeht, für die anderen unsichtbar. Das Feld erscheint auch, wenn euer einziger Spielkreis „Nur eigene Spiele zeigen“ eingeschaltet hat – dann ist dieser Kreis schon vorgewählt.</li>
     <li><b>Eigene Kachel</b> (darunter <b>Platz im Gesamtbild</b>, 1 = oben links): Gleichnamige Spiele aus verschiedenen Haushalten fasst die App sonst zu einer Kachel zusammen. Mit diesem Haken bekommt das Spiel immer seine eigene Kachel mit eigenem Foto – z. B. für die einzelnen Spielbretter von Mättigopoly. In der Liste „doppelte Spiele“ taucht es dann auch nicht auf.</li>
-    <li><b>Erweiterungen</b> (bisher bei <b>Dixit</b>): Beim Bearbeiten antippen, welche Erweiterungen ihr habt. Beim Spiel stehen sie dann mit Bild – eine Erweiterung antippen und die Schachtel fotografieren oder „Bild holen“ (sucht das Schachtelbild bei Spiele-Offensive). „Fehlende Bilder holen“ holt alle auf einmal. Hat ein anderer Haushalt schon ein Bild, wird es mitbenutzt.</li></ul>` },
+    <li><b>Erweiterungen</b> (bisher bei <b>Dixit</b>): Beim Bearbeiten antippen, welche Erweiterungen ihr habt. Beim Spiel stehen sie dann mit Bild – eine Erweiterung antippen und die Schachtel fotografieren oder „Bild holen“ (sucht das Schachtelbild bei Spiele-Offensive). „Fehlende Bilder holen“ holt alle auf einmal. Hat ein anderer Haushalt schon ein Bild, wird es mitbenutzt. Im Fenster einer Erweiterung gibt es „Alle 84 Karten ansehen“ – die offizielle Kartenübersicht des Verlags (Libellud) als PDF; beim Spiel steht dasselbe für das Grundspiel.</li></ul>` },
   { id:'verliehen', titel:'Verliehen', seite:'spiele', fkt:'verleihen', text:`
     <p>Ein Spiel antippen → <b>Verleihen</b> und wählen, an welchen Haushalt (oder an wen sonst) es geht. Die Kachel zeigt dann „verliehen“ und darunter, bei wem es <b>jetzt</b> steht.</p>
     <p>Filterst du nach einem Haushalt, erscheinen auch die Spiele, die er gerade ausgeliehen hat. Unter <b>Haushalte</b> stehen sie als „ausgeliehen von …“.</p>
@@ -7999,7 +8035,7 @@ const HILFE = [
     <li><b>Azul</b> hat zwei Blöcke wie das Tableau: <b>Seite A</b> (farbige Wand) und <b>Seite B</b> (graue Wand). Am Rundenende die Fliesen antippen, die an die Wand kommen – die Reihenfolge ist egal, die App wertet von oben nach unten. Auf Seite B wählst du nach dem Antippen die Farbe (jede nur einmal pro Reihe und Spalte). Darunter die <b>Bodenreihe</b> (letztes belegtes Feld antippen), dann <b>Runde fertig</b>. Ist eine waagrechte Reihe voll, heißt es <b>Spielende</b>; die Endwertung und bei Gleichstand „mehr volle Reihen“ rechnet die App.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
-    <li><b>Dixit:</b> Jede Runde den Erzähler antippen (★, wechselt danach von selbst weiter) und bei jedem anderen, auf wessen Karte er getippt hat. Die App rechnet nach den Regeln: Haben alle oder niemand die Karte des Erzählers erraten, bekommt er 0 und alle anderen 2 Punkte – sonst bekommen der Erzähler und alle Richtigen 3. Dazu gibt es 1 Bonuspunkt für jeden Tipp auf die eigene Karte. Schluss ist bei 30 Punkten – bei großen Runden lässt sich das Ziel ändern.</li>
+    <li><b>Dixit:</b> Jede Runde den Erzähler antippen (★, wechselt danach von selbst weiter) und bei jedem anderen, auf wessen Karte er getippt hat. Die App rechnet nach den Regeln: Haben alle oder niemand die Karte des Erzählers erraten, bekommt er 0 und alle anderen 2 Punkte – sonst bekommen der Erzähler und alle Richtigen 3. Dazu gibt es 1 Bonuspunkt für jeden Tipp auf die eigene Karte. Schluss ist bei 30 Punkten – bei großen Runden lässt sich das Ziel ändern. Vor dem Start „Mit welchen Erweiterungen?“ antippen (mehrere möglich) – das steht dann bei der Partie.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
     <li>Der Punkteblock bleibt auf dem Gerät erhalten, auch wenn die App zwischendurch zu ist – oben steht dann <b>Punkteblock läuft … Weiter</b>.</li>
@@ -8163,6 +8199,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.05', datum:'10.11.2026', neu:[
+    'Dixit: bei jeder Erweiterung „Alle 84 Karten ansehen“ und beim Spiel die Karten des Grundspiels – die offiziellen Kartenübersichten des Verlags (PDF)',
+    'Spielblock: auswählen, mit welchen Erweiterungen gespielt wird (mehrere möglich) – steht danach bei der Partie',
+    'Dixit: die deutsche Spielanleitung des Verlags ist hinterlegt'
+  ]},
   { v:'v2.04', datum:'10.11.2026', neu:[
     'Dixit-Block: Erzähler und Tipps antippen, die App rechnet die Punkte nach den Regeln aus – für beliebig viele Spieler, Ziel 30 Punkte (änderbar)',
     'Erweiterungen bei Dixit: beim Bearbeiten anhaken, welche ihr habt (Quest bis Mirrors, Odyssey) – beim Spiel mit Bild, selbst fotografiert oder über „Bild holen“ aus dem Shop'
