@@ -143,7 +143,7 @@
    "bemerkung": "",
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Dixit_(Spiel)",
-   "anleitung": "https://share.google/sNyFhw02htwkPMkyO",
+   "anleitung": "https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_REFRESH_RULES_DE_HD_compressed.pdf",
    "wertung": {
     "art": "dixit"
    },
@@ -178,7 +178,7 @@
     }
    ],
    "erstellt": 1792864955609,
-   "geaendert": 1794299544160
+   "geaendert": 1794301677884
   },
   {
    "id": "smvmpwvne2qnm",
@@ -893,7 +893,7 @@
    "app": true,
    "version": "v2.05",
    "erst": 1792864131177,
-   "zuletzt": 1794301493814,
+   "zuletzt": 1794301679980,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
