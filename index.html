@@ -794,6 +794,28 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .erw-kachel.aus .erw-name{color:var(--leise)}
 .erw-haken{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--filz);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800;box-shadow:0 0 0 2px #fff}
 .erw-kachel.aus .erw-haken{display:none}
+.zuschau button, .zuschau input, .zuschau .chip{pointer-events:none}
+.zuschau details > summary{pointer-events:auto}
+.zuschau .knopf, .zuschau .knopfreihe, .zuschau input.pb-wert, .zuschau .block-hinweis, .zuschau .knopf-link{display:none}
+.zuschau-hinweis{background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
+.sort-kamera{position:relative;width:100%;max-width:340px;margin:0 auto;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#111}
+.sort-kamera video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sort-rahmen{position:absolute;left:50%;top:50%;height:72%;aspect-ratio:2/3;transform:translate(-50%,-50%);border:3px dashed rgba(255,255,255,.9);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.28)}
+.sort-erg{display:flex;flex-direction:column;align-items:center;gap:2px;margin:12px auto 0;max-width:340px;padding:12px 14px;border-radius:14px;background:var(--grund);border:1px solid var(--linie);text-align:center;min-height:64px;justify-content:center}
+.sort-erg b{font-family:var(--rund);font-size:22px;font-weight:800;line-height:1.15}
+.sort-erg span{font-size:14px;color:var(--leise)}
+.sort-erg.farbig{background:var(--ef);color:#fff}
+.sort-erg.farbig span{color:rgba(255,255,255,.9)}
+.sort-frage{margin:10px auto 0;max-width:340px;padding:10px 12px;border-radius:14px;border:2px solid var(--filz)}
+.sort-frage p{margin:0 0 8px;font-weight:600}
+.sort-zaehler{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px;margin-top:12px}
+.sort-stapel{appearance:none;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 10px;border:0;border-radius:12px;background:color-mix(in srgb, var(--ef) 14%, var(--karte));border-left:5px solid var(--ef);color:var(--tinte);font:inherit;text-align:left;cursor:pointer}
+.sort-stapel > b{font-size:13.5px}
+.sort-stapel span{font-size:13px;color:var(--leise)}
+.sort-stapel span b{font-size:20px;color:var(--tinte);font-family:var(--rund)}
+.sort-stapel.voll{background:color-mix(in srgb, var(--ef) 30%, var(--karte))}
+.sort-status{margin:8px 0 0;padding-left:20px;font-size:14.5px}
+.sort-status li{margin:2px 0}
 .partie-erw{display:block;font-size:12.5px;color:var(--leise);font-weight:500}
 .dx-tipp{appearance:none;min-width:110px;min-height:38px;padding:0 12px;border-radius:10px;border:1.5px solid var(--linie);background:var(--karte);color:var(--tinte);font:inherit;font-weight:600;cursor:pointer}
 .dx-tipp.leer{border-style:dashed;color:var(--leise);font-weight:500}
@@ -1096,6 +1118,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
   <div id="push-hinweis"></div>
   <div id="block-hinweis"></div>
   <div id="live-hinweis"></div>
+  <div id="zuschau-hinweis"></div>
   <div id="kreis-leiste" class="kreis-leiste" hidden></div>
 
   <!-- Spiele -->
@@ -1163,7 +1186,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.05';
+const VERSION = 'v2.08';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -1359,7 +1382,7 @@ function wuerfelHtml(klasse, n){ return `<span class="${klasse}" aria-hidden="tr
 /* Felder, die diese Version nicht kennt (z. B. aus einer neueren App-Version), bleiben beim Speichern erhalten */
 const SPIEL_FELDER = new Set(['id','name','varianten','anleitungen','bild','spielerMin','spielerMax','alterAb','dauer','kategorien','beschreibung','bemerkung','bildQuelle','bildPos','link','anleitung','verlag','verliehen','wertung','erstellt','geaendert','hid','nurKreis','eigeneKachel','teil','erweiterungen']);
 const SPIELER_FELDER = new Set(['id','name','stand']);
-const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','chat','geloescht','eingeladenAm']);
+const HH_FELDER = new Set(['format','app','id','name','farbe','stand','spiele','spieler','anfragen','partien','geraete','nachrichten','chat','live','geloescht','eingeladenAm']);
 /* Geräte melden sich in der Datei ihres Haushalts: Gerätetyp, App oder Browser, App-Version, wann zuletzt online */
 const GERAET_FELDER = new Set(['id','art','app','version','erst','zuletzt','name','nameStand','push','personen','personenStand']);
 const GERAET_ARTEN = ['iPhone','iPad','Android','Mac','Windows-PC','Computer'];
@@ -1515,7 +1538,7 @@ function erwKachelHtml(sp, e, { an=null, wahl=false } = {}){
 /* „Quest, Journey“ – Namen gespielter Erweiterungen */
 function erwText(name, keys){
   const kat = erwKatalog(name); if (!kat || !Array.isArray(keys) || !keys.length) return '';
-  return kat.liste.filter(e => keys.includes(e.k)).map(e => e.t).join(', ');
+  return [...(keys.includes('grund') ? ['Grundspiel'] : []), ...kat.liste.filter(e => keys.includes(e.k)).map(e => e.t)].join(', ');
 }
 /* Erweiterungen, die es für dieses Spiel bei den sichtbaren Haushalten gibt (fürs Spielen zählt, was auf dem Tisch liegen kann) */
 function erwVorhanden(sp, name){
@@ -1523,6 +1546,14 @@ function erwVorhanden(sp, name){
   const hat = new Set();
   for (const x of [sp, ...alleSpiele().filter(y => y.id !== sp.id && erwKatalog(y.name) === kat)]) for (const e of x.erweiterungen || []) hat.add(e.k);
   return kat.liste.filter(e => hat.has(e.k));
+}
+/* Im Spielblock: die Kartenübersichten der Erweiterungen, mit denen gespielt wird – und das Sortieren */
+function blockKartenHtml(b){
+  const kat = erwKatalog(b.name), keys = Array.isArray(b.erw) ? b.erw : []; if (!kat || !keys.length) return '';
+  const saetze = sortSaetze(kat).filter(e => keys.includes(e.k));
+  if (!saetze.length) return '';
+  return `<p class="text-klein block-karten" style="margin:-2px 0 10px">Karten ansehen: ${saetze.map(e => `<a href="${esc(e.karten)}" target="_blank" rel="noopener">${esc(e.t)}</a>`).join(' · ')}
+    · <button class="knopf-link" type="button" data-sort-start="${esc(b.name)}" data-sort-keys="${esc(saetze.map(e => e.k).join(','))}">📷 sortieren</button></p>`;
 }
 function erwKartenLink(url, text){
   return url ? `<a class="detail-link" href="${esc(url)}" target="_blank" rel="noopener">${ic('buch')}${esc(text)}</a>` : '';
@@ -1537,7 +1568,9 @@ function erwDetailHtml(sp){
     <div class="erw-raster">${liste.map(e => erwKachelHtml(sp, e)).join('')}</div>
     ${darfBearbeiten(sp.hid) && ohneBild.length ? `<button class="knopf rahmen breit" type="button" data-erw-alle style="margin-top:10px">${ic('kamera')}Fehlende Bilder holen (${ohneBild.length})</button>
       <p class="block-hinweis">Holt die Schachtelbilder bei Spiele-Offensive – oder eine Erweiterung antippen und selbst fotografieren.</p>` : ''}
-    <p class="block-hinweis" style="margin-top:6px">Eine Erweiterung antippen: dort gibt es alle ihre Karten zum Ansehen.</p>${grund}`;
+    <p class="block-hinweis" style="margin-top:6px">Eine Erweiterung antippen: dort gibt es alle ihre Karten zum Ansehen.</p>${grund}
+    <button class="knopf zweit breit" type="button" data-sort-start="${esc(sp.name)}" data-sort-keys="${esc(['grund', ...liste.map(e => e.k)].join(','))}" style="margin-top:12px">${ic('kamera')}Gemischte Karten sortieren</button>
+    <p class="block-hinweis">Die Kamera erkennt, zu welcher Erweiterung eine Karte gehört, sagt es an und zählt mit.</p>`;
 }
 /* Ein Bild für eine Erweiterung speichern (wie ein Spielfoto: erst hier, beim Abgleich dann ins Repo) */
 async function erwBildSetzen(sp, k, blob, quelle){
@@ -1783,6 +1816,7 @@ function haushaltNorm(h){
     geraete:(Array.isArray(h.geraete) ? h.geraete : []).filter(x => x && x.id).map(geraetNorm).filter(x => x.zuletzt > grenze).sort(geraeteSort),
     nachrichten:(Array.isArray(h.nachrichten) ? h.nachrichten : []).filter(x => x && x.id && String(x.text || '').trim()).map(nachrichtNorm).sort((a, b) => a.erstellt - b.erstellt || a.id.localeCompare(b.id)),
     chat:(Array.isArray(h.chat) ? h.chat : []).filter(chatGueltig).map(chatNorm).sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id)),
+    live:liveBlockNorm(h.live),
     ...(zahl(h.eingeladenAm) ? { eingeladenAm:zahl(h.eingeladenAm) } : {}),
     geloescht:g
   };
@@ -1791,7 +1825,7 @@ function dateiForm(h){
   const n = haushaltNorm(h);
   return { ...unbekannte(n, HH_FELDER), format:1, app:VERSION, id:n.id, name:n.name, farbe:n.farbe, stand:n.stand, spiele:n.spiele, spieler:n.spieler,
     ...(n.anfragen.length ? { anfragen:n.anfragen } : {}), ...(n.partien.length ? { partien:n.partien } : {}),
-    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}), ...(n.chat.length ? { chat:n.chat } : {}),
+    ...(n.geraete.length ? { geraete:n.geraete } : {}), ...(n.nachrichten.length ? { nachrichten:n.nachrichten } : {}), ...(n.chat.length ? { chat:n.chat } : {}), ...(Object.keys(n.live).length ? { live:n.live } : {}),
     ...(n.eingeladenAm ? { eingeladenAm:n.eingeladenAm } : {}), geloescht:n.geloescht };
 }
 function dateiName(id){ return `haushalt-${id}.json`; }
@@ -1846,8 +1880,10 @@ function zusammenfuehren(lokal, fern){
   // Chat: Nachrichten ändern sich nicht – beide Seiten zusammennehmen, gelöschte bleiben weg
   const ch = new Map(); for (const x of [...B.chat, ...A.chat]) ch.set(x.id, x);
   const chat = [...ch.values()].filter(x => !(tomb[x.id] && tomb[x.id] >= x.zeit)).sort((a, b) => a.zeit - b.zeit || a.id.localeCompare(b.id));
+  // Live-Spielstände: je Gerät gewinnt der neuere
+  const live = { ...B.live }; for (const [gid, x] of Object.entries(A.live || {})) if (!live[gid] || x.stand >= live[gid].stand) live[gid] = x;
   const eingeladenAm = Math.max(A.eingeladenAm || 0, B.eingeladenAm || 0) || undefined;
-  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, chat, ...(eingeladenAm ? { eingeladenAm } : {}), geloescht:tomb };
+  return { ...unbekannte(B, HH_FELDER), ...unbekannte(A, HH_FELDER), id:A.id, name:kopf.name, farbe:kopf.farbe, stand:kopf.stand, spiele, spieler, anfragen, partien, geraete, nachrichten, chat, live:liveBlockNorm(live), ...(eingeladenAm ? { eingeladenAm } : {}), geloescht:tomb };
 }
 /* Verwaltung: Admin-PIN und Spielkreise (wer sieht wessen Spiele) – liegt in daten/verwaltung.json */
 const V_DATEI = 'daten/verwaltung.json';
@@ -5103,7 +5139,7 @@ function wertungText(w){
 }
 function wenigGewinnt(w){ return !!w && (w.art === 'tief' || (w.art === 'grenze' && w.sieger === 'tief')); }
 let B = lesen(LS.block, null);
-function blockSpeichern(){ schreiben(LS.block, B); blockHinweisZeigen(); }
+function blockSpeichern(){ schreiben(LS.block, B); blockHinweisZeigen(); liveTeilen(); }
 function blockHinweisZeigen(){
   const el = $('#block-hinweis'); if (!el) return;
   if (!B){ el.innerHTML = ''; return; }
@@ -5155,6 +5191,7 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
     ${namen.length > 1 ? `<div class="feld"><span class="feld-titel">Was wird gespielt?</span>${chipsHtml('pb-variante', namen.map(n => ({ w:n, t:n })), [spielName], { mehrfach:false, pflicht:true })}</div>` : ''}
     <div class="feld" data-art-feld>${artFeld(w0)}</div>
     <div class="feld" data-erw-pb></div>
+    <div data-live-feld><label class="foto-wahl"><input type="checkbox" data-live-teilen>📡 Live teilen – die anderen sehen den Spielstand in ihrer App</label></div>
     <div data-grenze${w0.art === 'grenze' ? '' : ' hidden'}>
       <label class="feld"><span class="feld-titel">Grenze (Punkte)</span><input class="eingabe" type="number" name="grenze" value="${w0.grenze}" min="1"></label>
       <div class="feld"><span class="feld-titel">Wer gewinnt, wenn jemand die Grenze erreicht?</span>${chipsHtml('pb-sieger', [{ w:'tief', t:'Wenigste Punkte' }, { w:'hoch', t:'Meiste Punkte' }], [w0.sieger], { mehrfach:false, pflicht:true })}</div></div>
@@ -5193,13 +5230,26 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
   const erwPbZeigen = () => {
     const el = $('[data-erw-pb]', s), kat = erwKatalog(spielName), da = erwVorhanden(sp, spielName);
     if (!kat || !da.length){ el.innerHTML = ''; el.hidden = true; return; }
-    const zuletzt = ((E.erwZuletzt || {})[kat.k] || []).filter(k => da.some(e => e.k === k));
+    const wahl = [{ k:'grund', t:'Grundspiel' }, ...da];
+    const vorher = (E.erwZuletzt || {})[kat.k], zuletzt = (vorher && vorher.length ? vorher : ['grund']).filter(k => wahl.some(e => e.k === k));
     el.hidden = false;
-    el.innerHTML = `<span class="feld-titel">Mit welchen Erweiterungen?</span>${chipsHtml('pb-erw', da.map(e => ({ w:e.k, t:e.t })), zuletzt, { mehrfach:true })}
-      <p class="block-hinweis" style="margin-top:6px">Mehrere antippen – nichts angetippt heißt: nur das Grundspiel.</p>`;
+    el.innerHTML = `<span class="feld-titel">Womit wird gespielt?</span>${chipsHtml('pb-erw', wahl.map(e => ({ w:e.k, t:e.t })), zuletzt, { mehrfach:true })}
+      <p class="block-hinweis" style="margin-top:6px">Mehrere antippen – auch nur Erweiterungen ohne das Grundspiel.</p>`;
   };
   erwPbZeigen();
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'pb-variante') erwPbZeigen(); });
+  // Live teilen: vorgewählt, sobald Spieler aus mehreren Haushalten dabei sind (bis man selbst umschaltet); nicht bei „Ganz schön clever“ & Co.
+  const liveBox = $('[data-live-teilen]', s); let liveSelbst = false;
+  liveBox.addEventListener('change', () => { liveSelbst = true; });
+  const liveVorschlag = () => {
+    const art = gewaehlteChips($('[data-gruppe="pb-art"]', s))[0] || '';
+    $('[data-live-feld]', s).hidden = art === 'gsc' || !!CF[art];
+    if (liveSelbst) return;
+    const hids = new Set($$('[data-gruppe="pb-mit"] .chip[aria-pressed="true"]', s).map(c => spielerHaushalt(c.dataset.wert)).filter(Boolean));
+    liveBox.checked = hids.size > 1;
+  };
+  liveVorschlag();
+  s.addEventListener('wahl', () => setTimeout(liveVorschlag, 0));
   // Ganz schön clever: „Wer bist du?“ aus den angetippten Spielern des eigenen Haushalts
   const ichZeigen = () => {
     const box = $('[data-gsc-ich]', s); if (!box) return;
@@ -5261,8 +5311,9 @@ async function punkteblockStart(sp, { nurEintragenAnbieten = false, variante = '
       s.schliessen(); setTimeout(() => gscStarten({ sp:{ ...sp, name:spielName }, mit, modus, ich, kreis:kreisWahl || '', art }), 240); return;
     }
     const erwBox = $('[data-gruppe="pb-erw"]', s), erw = erwBox ? gewaehlteChips(erwBox) : [], kat = erwKatalog(spielName);
+    if (erwBox && !erw.length){ toast('Bitte antippen, womit gespielt wird – Grundspiel und/oder Erweiterungen.', 'fehler'); return; }
     if (kat && erwBox){ E.erwZuletzt = { ...(E.erwZuletzt || {}), [kat.k]:erw }; einstSpeichern(); }
-    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:spielName, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{}, ...(erw.length ? { erw } : {}) };
+    B = { sid:sp.id, shid:sp.ausgeliehenVon || sp.hid, name:spielName, w, mit, runden:[], plaetze:[], gewinner:[], ende:false, datum:heute(), start:Date.now(), kreis:kreisWahl || '', blatt:{}, ...(erw.length ? { erw } : {}), ...($('[data-live-teilen]', s).checked ? { live:true } : {}) };
     blockSpeichern(); s.schliessen(); setTimeout(punkteblockZeigen, 240);
   });
 }
@@ -5304,6 +5355,8 @@ function punkteblockZeigen(){
   if (!B) return;
   const s = sheet(`<div class="sheet-kopf"><h2>${esc(B.name)}</h2>${liveAnleitungKnopf(B)}<button class="knopf-rund" type="button" data-zu aria-label="Später weiter">${ic('x')}</button></div>
     <p class="text-leise" style="margin-top:-6px">${esc(wertungText(B.w))}${erwText(B.name, B.erw) ? ` · mit ${esc(erwText(B.name, B.erw))}` : ''}</p>
+    ${blockKartenHtml(B)}
+    <p class="text-klein" style="margin:-4px 0 10px" data-live-zeile>${B.live ? '📡 <b>Live geteilt</b> – die anderen sehen mit' : 'Nicht live geteilt'} · <button class="knopf-link" type="button" data-live-um>${B.live ? 'ausschalten' : 'live teilen'}</button></p>
     <div data-pb-inhalt></div>
     <button class="knopf gefahr breit" type="button" data-pb-weg style="margin-top:18px">${ic('muell')}Punkteblock verwerfen</button>
     <p class="block-hinweis">Schließen geht jederzeit – der Punkteblock bleibt auf diesem Gerät erhalten.</p>`, { klasse:'gross', beimSchliessen:blockHinweisZeigen });
@@ -5340,6 +5393,12 @@ function punkteblockZeigen(){
     if (was === 'beenden'){ B.ende = true; blockSpeichern(); zeichnen(); }
     if (was === 'weiter'){ B.ende = false; blockSpeichern(); zeichnen(); }
     if (was === 'speichern'){ blockErgebnisSpeichern(); s.schliessen(); }
+  });
+  $('[data-live-zeile]', s).addEventListener('click', e => {
+    if (!e.target.closest('[data-live-um]') || !B) return;
+    if (B.live) delete B.live; else B.live = true;
+    blockSpeichern(); liveTeilen(true);
+    $('[data-live-zeile]', s).innerHTML = `${B.live ? '📡 <b>Live geteilt</b> – die anderen sehen mit' : 'Nicht live geteilt'} · <button class="knopf-link" type="button" data-live-um>${B.live ? 'ausschalten' : 'live teilen'}</button>`;
   });
   $('[data-pb-weg]', s).addEventListener('click', async () => {
     if (!await frage('Punkteblock verwerfen?', 'Die eingetragenen Punkte gehen verloren. Es wird keine Partie gespeichert.', 'Verwerfen')) return;
@@ -8035,10 +8094,13 @@ const HILFE = [
     <li><b>Azul</b> hat zwei Blöcke wie das Tableau: <b>Seite A</b> (farbige Wand) und <b>Seite B</b> (graue Wand). Am Rundenende die Fliesen antippen, die an die Wand kommen – die Reihenfolge ist egal, die App wertet von oben nach unten. Auf Seite B wählst du nach dem Antippen die Farbe (jede nur einmal pro Reihe und Spalte). Darunter die <b>Bodenreihe</b> (letztes belegtes Feld antippen), dann <b>Runde fertig</b>. Ist eine waagrechte Reihe voll, heißt es <b>Spielende</b>; die Endwertung und bei Gleichstand „mehr volle Reihen“ rechnet die App.</li>
     <li><b>Jeder auf seinem Handy:</b> Wer die Partie startet, wählt das so aus. Die anderen bekommen in ihrer App oben „spielst du mit?“ und tippen auf <b>Mitspielen</b>. Jeder sieht die Punkte der anderen und kann deren Blätter ansehen (👁). Am Ende tippt einer auf <b>Spielende</b> und speichert das Ergebnis. Oder <b>Alle auf diesem Gerät</b>: oben zwischen den Spielern umschalten.</li>
     <li>Eingeben geht per Auswahlfenster: bei <b>Qwixx</b> die Karte eines Spielers antippen und je Farbe einmal die Zahl der Kreuze wählen („Weiter“ führt zum nächsten Spieler). Bei <b>Wizard</b> die Zahl antippen – danach öffnet sich automatisch der nächste Spieler.</li>
-    <li><b>Dixit:</b> Jede Runde den Erzähler antippen (★, wechselt danach von selbst weiter) und bei jedem anderen, auf wessen Karte er getippt hat. Die App rechnet nach den Regeln: Haben alle oder niemand die Karte des Erzählers erraten, bekommt er 0 und alle anderen 2 Punkte – sonst bekommen der Erzähler und alle Richtigen 3. Dazu gibt es 1 Bonuspunkt für jeden Tipp auf die eigene Karte. Schluss ist bei 30 Punkten – bei großen Runden lässt sich das Ziel ändern. Vor dem Start „Mit welchen Erweiterungen?“ antippen (mehrere möglich) – das steht dann bei der Partie.</li>
+    <li><b>Dixit:</b> Jede Runde den Erzähler antippen (★, wechselt danach von selbst weiter) und bei jedem anderen, auf wessen Karte er getippt hat. Die App rechnet nach den Regeln: Haben alle oder niemand die Karte des Erzählers erraten, bekommt er 0 und alle anderen 2 Punkte – sonst bekommen der Erzähler und alle Richtigen 3. Dazu gibt es 1 Bonuspunkt für jeden Tipp auf die eigene Karte. Schluss ist bei 30 Punkten – bei großen Runden lässt sich das Ziel ändern. Vor dem Start „Womit wird gespielt?“ antippen – Grundspiel und Erweiterungen, mehrere möglich, auch nur Erweiterungen. Das steht dann bei der Partie.</li>
     <li>Bekannte Spiele bekommen beim Eintragen gleich die übliche Wertung, z. B. 6 nimmt! bis 66 (wenigste gewinnt), UNO bis 500, Skyjo bis 100.</li>
     <li>Bei Punkten trägst du Runde für Runde ein, die App zählt zusammen und markiert, wer vorne liegt 👑. Bei „Bis zur Grenze“ erkennt sie das Spielende selbst. <b>Letzte Runde ändern</b> korrigiert Tippfehler.</li>
     <li>Der Punkteblock bleibt auf dem Gerät erhalten, auch wenn die App zwischendurch zu ist – oben steht dann <b>Punkteblock läuft … Weiter</b>.</li>
+    <li><b>📷 Dixit-Karten sortieren:</b> Beim Spiel unter den Erweiterungen <b>Gemischte Karten sortieren</b> (oder im Dixit-Block „📷 sortieren“). Antippen, was gemischt ist, <b>Kamera starten</b>, erst kurz nur den Tisch zeigen, dann eine Karte nach der anderen in den Rahmen legen. Die App sagt die Erweiterung an („Quest 12“) und zählt bis 84. Ist sie unsicher, fragt sie mit zwei Knöpfen nach; doppelt gezeigte Karten erkennt sie („schon gezählt“). Ein Stapel von Hand antippen zählt eine Karte dazu, <b>Rückgängig</b> nimmt die letzte zurück. Spiegelt die Karte, das Handy etwas kippen. Der Zählstand bleibt auf dem Gerät, bis du „wieder bei 0 anfangen“ tippst.</li>
+    <li>Damit das geht, braucht die App einmalig die <b>Kartendaten</b>: Dafür werden die Kartenübersichten des Verlags gelesen, und von jeder Karte bleibt nur ein grobes Farbmuster – keine Bilder. Das stößt der Admin im Sortier-Fenster an (dauert ein paar Minuten).</li>
+    <li><b>📡 Live teilen:</b> Beim Start eines Spielblocks ankreuzen (vorgewählt, sobald Spieler aus mehreren Haushalten mitspielen). Dann sehen die anderen im Spielkreis oben in ihrer App „📡 Dixit läuft bei … · Runde 4“ und können mit <b>Ansehen</b> das Blatt mitverfolgen – nur ansehen, eintragen kann weiter nur, wer zählt. Der Stand kommt etwa alle 10 bis 20 Sekunden an. Im laufenden Block lässt es sich aus- und wieder einschalten; nach dem Speichern oder Verwerfen ist es von selbst vorbei. Geht bei allen Blöcken außer denen, bei denen ohnehin jeder auf seinem Handy spielt.</li>
     <li><b>Wer sieht die Ergebnisse?</b> Nur die Haushalte des Spielkreises, in dem gespielt wurde (und der Admin). Die App nimmt den Kreis, zu dem alle Mitspieler gehören – passen mehrere, wählst du ihn im Punkteblock unter „Wer sieht das Ergebnis?“. Sind die Mitspieler in keinem gemeinsamen Kreis, sehen es nur ihre Haushalte.</li>
     <li>Ohne Punkteblock: <b>Nur Gewinner nachtragen</b> mit Datum und Gewinner (mehrere bei einem Team).</li>
     <li>Nach einem festen Termin gibt es dort <b>Gespielt eintragen</b> für alle Spiele des Abends.</li>
@@ -8199,9 +8261,20 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.08', datum:'10.11.2026', neu:[
+    'Dixit: „Gemischte Karten sortieren“ – die Kamera erkennt, zu welcher Erweiterung eine Karte gehört, sagt sie an und zählt bis 84 (fragt nach, wenn sie unsicher ist)',
+    'Dixit-Block: oben die Kartenübersichten der Erweiterungen, mit denen gespielt wird, und „📷 sortieren“',
+    { t:'Kartensortierer: Die Kartendaten (nur grobe Farbmuster je Karte) erstellt GitHub einmalig über den Mitteilungs-Ablauf aus den Kartenübersichten des Verlags – im Sortier-Fenster „Kartendaten erstellen lassen“. Die App legt dafür push/mitteilungen.py in Version 3 ab.', admin:true }
+  ]},
+  { v:'v2.07', datum:'10.11.2026', neu:[
+    'Spielblock „📡 Live teilen“: die Mitspieler im Spielkreis sehen den laufenden Spielstand in ihrer App (oben „… läuft · Runde 4“, dann „Ansehen“) – bei allen Spielblöcken, nur zum Ansehen'
+  ]},
+  { v:'v2.06', datum:'10.11.2026', neu:[
+    'Spielblock: bei „Womit wird gespielt?“ steht jetzt auch das Grundspiel zur Auswahl (vorgewählt) – so lässt sich auch nur mit Erweiterungen spielen'
+  ]},
   { v:'v2.05', datum:'10.11.2026', neu:[
     'Dixit: bei jeder Erweiterung „Alle 84 Karten ansehen“ und beim Spiel die Karten des Grundspiels – die offiziellen Kartenübersichten des Verlags (PDF)',
-    'Spielblock: auswählen, mit welchen Erweiterungen gespielt wird (mehrere möglich) – steht danach bei der Partie',
+    'Spielblock: auswählen, womit gespielt wird – Grundspiel und Erweiterungen, mehrere möglich – steht danach bei der Partie',
     'Dixit: die deutsche Spielanleitung des Verlags ist hinterlegt'
   ]},
   { v:'v2.04', datum:'10.11.2026', neu:[
@@ -9355,6 +9428,96 @@ function installHinweis(){
   });
 }
 
+/* ---------- Live zuschauen: der Stand eines Spielblocks für die Mitspieler ----------
+   Wer zählt, legt mit „Live teilen“ den aktuellen Block in die Datei seines Haushalts (h.live[Geräte-ID]).
+   Die anderen Geräte zeichnen daraus dasselbe Blatt – nur zum Ansehen. Nach Spielende, Verwerfen oder einem Tag ist er weg. */
+const LIVE_DAUER = 864e5, LIVE_TAKT = 10000;
+function liveBlockNorm(v){
+  const aus = {}, grenze = Date.now() - LIVE_DAUER;
+  if (v && typeof v === 'object') for (const [gid, x] of Object.entries(v)){
+    if (!x || typeof x !== 'object' || !/^[\w-]{1,60}$/.test(gid)) continue;
+    const stand = zahl(x.stand) || 0; if (stand < grenze) continue;
+    if (x.aus){ aus[gid] = { aus:true, stand }; continue; }
+    if (!x.w || !x.w.art || !Array.isArray(x.mit) || JSON.stringify(x).length > 80000) continue;
+    aus[gid] = { ...x, stand };
+  }
+  return aus;
+}
+function liveSchnappschuss(){
+  const x = JSON.parse(JSON.stringify(B)); delete x.live;
+  return { ...x, hid:E.meinHaushalt, stand:Date.now() };
+}
+let liveZuschauTimer = null, liveZuletzt = 0;
+/* Bei jeder Änderung am Block: gebündelt (höchstens alle 10 s) in die Haushaltsdatei – Spielende und Verwerfen sofort */
+function liveTeilen(sofort){
+  const h = D.haushalte[E.meinHaushalt]; if (!h || !E.geraetId) return;
+  const jetzt = (h.live || {})[E.geraetId], soll = B && B.live;
+  if (!soll && (!jetzt || jetzt.aus)) return;
+  clearTimeout(liveZuschauTimer);
+  const schreiben = () => {
+    const hh = D.haushalte[E.meinHaushalt]; if (!hh) return;
+    hh.live = { ...(hh.live || {}), [E.geraetId]:B && B.live ? liveSchnappschuss() : { aus:true, stand:Date.now() } };
+    liveZuletzt = Date.now(); markiere(hh.id, B && B.live ? `${B.name} live` : 'Live beendet'); speichern(); syncBald();
+  };
+  const warten = sofort || !soll || !jetzt || jetzt.aus ? 0 : Math.max(0, LIVE_TAKT - (Date.now() - liveZuletzt));
+  if (!warten) schreiben(); else liveZuschauTimer = setTimeout(schreiben, warten);
+}
+/* Wer darf zuschauen? Der Spielkreis des Ergebnisses – ohne Kreis die Haushalte der Mitspieler (und der Admin) */
+function liveDarfSehen(x){
+  if (E.admin) return true;
+  if (x.kreis){ const k = D.verwaltung.kreise.find(y => y.id === x.kreis); if (k) return k.haushalte.includes(E.meinHaushalt); }
+  return partieHaushalte(x.hid, (x.mit || []).map(p => p.pid)).includes(E.meinHaushalt);
+}
+function liveFremde(){
+  const l = [];
+  for (const h of Object.values(D.haushalte)) for (const [gid, x] of Object.entries(liveBlockNorm(h.live))){
+    if (x.aus || gid === E.geraetId || !liveDarfSehen(x)) continue;
+    l.push({ ...x, gid, hname:h.name, hfarbe:h.farbe });
+  }
+  return l.sort((a, b) => b.stand - a.stand);
+}
+function liveRundeText(x){
+  const n = (x.runden || []).length;
+  if (x.ende) return 'Spielende';
+  if (['hoch', 'tief', 'grenze', 'phase10', 'dixit', 'wizard'].includes(x.w.art)) return `Runde ${n + 1}`;
+  return '';
+}
+function zuschauHinweisZeigen(){
+  const el = $('#zuschau-hinweis'); if (!el) return;
+  const l = liveFremde();
+  el.innerHTML = l.map(x => `<div class="hinweis pb-hinweis zuschau-hinweis"><span>📡 <b>${esc(x.name)}</b> läuft bei ${esc(x.hname)}${liveRundeText(x) ? ` · ${esc(liveRundeText(x))}` : ''}</span>
+    <button class="knopf" type="button" data-zuschau="${esc(x.hid + '|' + x.gid)}" style="min-height:38px;padding:0 14px;flex:none">Ansehen</button></div>`).join('');
+  el.onclick = e => { const b = e.target.closest('[data-zuschau]'); if (b) zuschauSheet(b.dataset.zuschau); };
+}
+const ZUSCHAU = { s:null, key:'', timer:null };
+function zuschauInhalt(){
+  const [hid, gid] = ZUSCHAU.key.split('|'), h = D.haushalte[hid], x = h && liveBlockNorm(h.live)[gid];
+  if (!x || x.aus) return `<p class="hinweis" style="margin:0">Das Spiel ist vorbei – das Ergebnis steht nach dem Speichern beim Spiel unter „Gespielt“.</p>`;
+  const merk = B;
+  let html = '';
+  try{ B = JSON.parse(JSON.stringify(x)); html = blockInhaltHtml(); }catch(e){ html = '<p class="text-leise">Der Spielstand lässt sich gerade nicht anzeigen.</p>'; }
+  finally{ B = merk; }
+  const alter = Math.max(0, Math.round((Date.now() - x.stand) / 1000));
+  return `<p class="text-leise" style="margin:-6px 0 10px">${esc(wertungText(x.w))}${erwText(x.name, x.erw) ? ` · mit ${esc(erwText(x.name, x.erw))}` : ''} · bei ${esc(h.name)}<br>
+      <small>Stand ${alter < 60 ? 'gerade eben' : `vor ${Math.round(alter / 60)} Min.`} – aktualisiert sich von selbst</small></p>
+    <div class="zuschau">${html}</div>`;
+}
+function zuschauSheet(key){
+  if (ZUSCHAU.s){ ZUSCHAU.key = key; zuschauRender(); return; }
+  const [hid, gid] = key.split('|'), x = D.haushalte[hid] && liveBlockNorm(D.haushalte[hid].live)[gid];
+  const s = sheet(`<div class="sheet-kopf"><h2>📡 ${esc(x && !x.aus ? x.name : 'Live')}</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div><div data-zuschau-inhalt></div>`,
+    { klasse:'gross', beimSchliessen:() => { clearInterval(ZUSCHAU.timer); ZUSCHAU.s = null; } });
+  ZUSCHAU.s = s; ZUSCHAU.key = key;
+  ZUSCHAU.timer = setInterval(() => { if (document.visibilityState === 'visible' && !S.laeuft) sync('Live'); }, 15000);
+  zuschauRender();
+}
+function zuschauRender(){
+  const s = ZUSCHAU.s; if (!s) return;
+  const el = $('[data-zuschau-inhalt]', s), offen = new Set($$('details[open]', el).map(d => d.dataset.klapp));
+  el.innerHTML = zuschauInhalt();
+  for (const d of $$('details', el)) if (offen.has(d.dataset.klapp)) d.open = true;
+}
+
 /* ---------- Chat: Gruppe je Spielkreis und direkt an einzelne Personen ----------
    Jede Nachricht liegt in der Datei des Haushalts, der sie geschrieben hat (h.chat) – so schreibt jeder nur in seine eigene Datei.
    Unterhaltungen: 'k:<Spielkreis>' für die Gruppe, 'p:<Haushalt>:<Person>' für die Unterhaltung mit dieser Person (aus meiner Sicht). */
@@ -9569,7 +9732,7 @@ function chatSenden(){
    den öffentlichen Teil kennt die App (daten/verwaltung.json), den geheimen nur GitHub (Secret PUSH_SCHLUESSEL) – er steht in keiner Datei. */
 /*PUSH-DATEIEN-ANFANG*/
 const PUSH_SW = "// Spieleabend – Mitteilungen. Diese Datei legt die App selbst ins Repo und hält sie aktuell.\n// Sie zeigt eingehende Mitteilungen an, setzt die Zahl am App-Symbol und öffnet beim Antippen die passende Seite.\n// Sie speichert nichts zwischen und greift nicht in das Laden der App ein.\nconst SW_VERSION = 1;\nself.addEventListener('install', () => self.skipWaiting());\nself.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n\n// Zahl am App-Symbol: hochzählen bei jeder Mitteilung, die App setzt sie beim Öffnen auf den echten Stand\nasync function zahl(plus, setzen){\n  let n = 0;\n  try{\n    const c = await caches.open('spieleabend-zahl');\n    const r = await c.match('zahl'); n = r ? Number(await r.text()) || 0 : 0;\n    n = setzen != null ? setzen : n + plus;\n    await c.put('zahl', new Response(String(n)));\n  }catch(e){ n = setzen != null ? setzen : 1; }\n  try{\n    // (Der Test-Browser ohne Bildschirm stürzt hier ab – echte Handys und Computer nicht.)\n    if (self.navigator.setAppBadge && !/HeadlessChrome/.test(self.navigator.userAgent)){ if (n > 0) await self.navigator.setAppBadge(n); else await self.navigator.clearAppBadge(); }\n  }catch(e){}\n  return n;\n}\n\nself.addEventListener('push', e => {\n  let d = {};\n  try{ d = e.data ? e.data.json() : {}; }catch(err){ try{ d = { text:e.data.text() }; }catch(x){} }\n  e.waitUntil((async () => {\n    await zahl(1);\n    await self.registration.showNotification(d.titel || 'Spieleabend', {\n      body:d.text || '', tag:d.tag || undefined, renotify:!!d.tag, icon:'icon.png', badge:'icon.png', data:{ ziel:d.ziel || '' }\n    });\n  })());\n});\n\nself.addEventListener('notificationclick', e => {\n  e.notification.close();\n  const ziel = (e.notification.data && e.notification.data.ziel) || '';\n  e.waitUntil((async () => {\n    const fenster = await self.clients.matchAll({ type:'window', includeUncontrolled:true });\n    for (const f of fenster){\n      try{ await f.focus(); f.postMessage({ art:'ziel', ziel }); return; }catch(err){}\n    }\n    await self.clients.openWindow('./' + (ziel ? '#ziel=' + encodeURIComponent(ziel) : ''));\n  })());\n});\n\nself.addEventListener('message', e => {\n  if (e.data && e.data.art === 'zahl') e.waitUntil(zahl(0, Math.max(0, Number(e.data.n) || 0)));\n});\n";
-const PUSH_PY = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.\n# Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.\n# Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),\n# neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.\nMITTEILUNGEN_VERSION = 2\nimport base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request\nfrom urllib.parse import urlparse\n\nFRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)\nSTAND_DATEI, TEST_ORDNER = 'push/stand.json', 'push/test'\nNACHRICHT_ZEICHEN = {'fehler': '🐞', 'wunsch': '💡', 'kreis': '🏠', 'sonst': '💬'}\nTERMIN_ZEICHEN = {'spiele': '🎲', 'kino': '🎬', 'bowling': '🎳', 'essen': '🍽️', 'grillen': '🔥', 'sonst': '✨'}\nTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']\n\n\ndef b64u(b):\n    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()\n\n\ndef unb64u(s):\n    s = str(s).strip()\n    return base64.urlsafe_b64decode(s + '=' * (-len(s) % 4))\n\n\n# ---------- Web Push: Verschlüsselung (RFC 8291) und Absender-Ausweis (VAPID, RFC 8292) ----------\ndef _hkdf(salz, ikm, info, laenge):\n    prk = hmac.new(salz, ikm, hashlib.sha256).digest()\n    return hmac.new(prk, info + b'\\x01', hashlib.sha256).digest()[:laenge]\n\n\ndef schluessel_laden(text):\n    from cryptography.hazmat.primitives.asymmetric import ec\n    roh = unb64u(text)\n    if len(roh) != 32: raise ValueError('Der Schlüssel hat nicht die richtige Länge.')\n    return ec.derive_private_key(int.from_bytes(roh, 'big'), ec.SECP256R1())\n\n\ndef oeffentlich_roh(privat):\n    from cryptography.hazmat.primitives import serialization\n    return privat.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)\n\n\ndef verschluesseln(nutzlast, p256dh, auth, _salz=None, _privat=None):\n    \"\"\"Inhalt für genau ein Gerät verschlüsseln (aes128gcm, ein Datensatz).\"\"\"\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n    ua_public, auth_secret = unb64u(p256dh), unb64u(auth)\n    as_privat = _privat or ec.generate_private_key(ec.SECP256R1())\n    as_public = oeffentlich_roh(as_privat)\n    geraet = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), ua_public)\n    ecdh = as_privat.exchange(ec.ECDH(), geraet)\n    ikm = _hkdf(auth_secret, ecdh, b'WebPush: info\\x00' + ua_public + as_public, 32)\n    salz = _salz or os.urandom(16)\n    cek = _hkdf(salz, ikm, b'Content-Encoding: aes128gcm\\x00', 16)\n    nonce = _hkdf(salz, ikm, b'Content-Encoding: nonce\\x00', 12)\n    geheim = AESGCM(cek).encrypt(nonce, nutzlast + b'\\x02', None)\n    return salz + (4096).to_bytes(4, 'big') + bytes([len(as_public)]) + as_public + geheim\n\n\ndef vapid(endpunkt, privat, absender, jetzt=None):\n    from cryptography.hazmat.primitives import hashes\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature\n    u = urlparse(endpunkt)\n    kopf = b64u(json.dumps({'typ': 'JWT', 'alg': 'ES256'}, separators=(',', ':')).encode())\n    inhalt = b64u(json.dumps({'aud': f'{u.scheme}://{u.netloc}', 'exp': int(jetzt or time.time()) + 12 * 3600, 'sub': absender}, separators=(',', ':')).encode())\n    r, s = decode_dss_signature(privat.sign(f'{kopf}.{inhalt}'.encode(), ec.ECDSA(hashes.SHA256())))\n    return f'vapid t={kopf}.{inhalt}.{b64u(r.to_bytes(32, \"big\") + s.to_bytes(32, \"big\"))}, k={b64u(oeffentlich_roh(privat))}'\n\n\ndef senden(abo, daten, privat, absender):\n    \"\"\"Eine Mitteilung an ein Gerät. Antwort: HTTP-Code (201 = angenommen, 404/410 = Gerät hat sie abbestellt).\"\"\"\n    koerper = verschluesseln(json.dumps(daten, ensure_ascii=False).encode(), abo['p256dh'], abo['auth'])\n    req = urllib.request.Request(abo['endpoint'], data=koerper, method='POST', headers={\n        'TTL': '86400', 'Urgency': 'normal', 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream',\n        'Authorization': vapid(abo['endpoint'], privat, absender)})\n    try:\n        with urllib.request.urlopen(req, timeout=20) as r: return r.status\n    except urllib.error.HTTPError as e:\n        return e.code\n    except Exception:\n        return 0\n\n\n# ---------- GitHub ----------\nREPO = os.environ.get('GITHUB_REPOSITORY', '')\nZWEIG = os.environ.get('GITHUB_REF_NAME', 'main')\nTOKEN = os.environ.get('GH_TOKEN', '')\nAPI = os.environ.get('GITHUB_API_URL', 'https://api.github.com')\n\n\ndef gh(methode, pfad, daten=None, roh=False):\n    req = urllib.request.Request(f'{API}/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github.raw' if roh else 'application/vnd.github+json',\n                 'Content-Type': 'application/json', 'User-Agent': 'Spieleabend-Mitteilungen'})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                b = r.read()\n                return b if roh else json.loads(b or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\ndef json_lesen(pfad):\n    b = gh('GET', f'/contents/{pfad}?ref={ZWEIG}', roh=True)\n    if b is None: return None\n    try: return json.loads(b.decode('utf-8'))\n    except Exception: return None\n\n\ndef schreiben(pfad, daten, nachricht):\n    alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n    gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,\n        'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n\n\n# ---------- Wer bekommt was? ----------\ndef zeit_text(z):\n    try:\n        d = datetime.datetime.strptime(z, '%Y-%m-%dT%H:%M')\n        return f'{TAGE[d.weekday()]}, {d.day:02d}.{d.month:02d}. um {d.hour:02d}:{d.minute:02d} Uhr'\n    except Exception:\n        return ''\n\n\ndef kurz(text, n=140):\n    text = re.sub(r'\\s+', ' ', str(text or '')).strip()\n    return text if len(text) <= n else text[:n - 1].rsplit(' ', 1)[0] + ' …'\n\n\ndef abo_ok(p, schluessel):\n    return (isinstance(p, dict) and str(p.get('endpoint', '')).startswith('https://') and p.get('p256dh') and p.get('auth')\n            and p.get('schluessel') == schluessel)\n\n\ndef abos_sammeln(haushalte, verwaltung, schluessel):\n    \"\"\"Geräte mit erlaubten Mitteilungen: Geräte-ID -> {abo, hid}. Ein Gerät, das den Haushalt gewechselt hat, zählt beim neuesten.\"\"\"\n    abos = {}\n    for h in haushalte.values():\n        for g in h.get('geraete') or []:\n            p, gid = g.get('push'), str(g.get('id', ''))\n            if not gid or not abo_ok(p, schluessel): continue\n            alt = abos.get(gid)\n            if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:\n                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0, 'personen': [str(x) for x in (g.get('personen') or [])]}\n    for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt\n        p, gid = x.get('push'), str(x.get('id', ''))\n        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0, 'personen': []}\n    return abos\n\n\ndef ereignisse(haushalte, termine, verwaltung, abos):\n    \"\"\"Alle Ereignisse mit Schlüssel, Zeitpunkt, Empfängern und Text – gemeldet wird nur, was neu ist.\"\"\"\n    admin = {str(x.get('id')) for x in verwaltung.get('adminGeraete') or []}\n    an_admin = sorted(g for g in abos if g in admin)\n    def an_haushalte(hids, ohne_admin=False, ohne=()):\n        return sorted(g for g, a in abos.items() if a['hid'] in hids and g not in ohne and not (ohne_admin and g in admin))\n    liste = []\n    for h in haushalte.values():\n        name = h.get('name') or 'Ein Haushalt'\n        for n in h.get('nachrichten') or []:\n            if not n.get('id'): continue\n            zeichen = NACHRICHT_ZEICHEN.get(n.get('art'), '💬')\n            von = f\" ({n['von']})\" if n.get('von') else ''\n            liste.append({'k': 'n:' + str(n['id']), 'zeit': (n.get('erstellt') or 0) / 1000, 'an': an_admin,\n                'titel': f'Neue Nachricht von {name}{von}', 'text': f\"{zeichen} {kurz(n.get('text'))}\", 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n            for v in n.get('verlauf') or []:\n                if not v.get('id'): continue\n                if v.get('admin'):\n                    an, titel = an_haushalte({h.get('id')}, ohne_admin=True), 'Antwort vom Admin'\n                else:\n                    an, titel = an_admin, f\"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}\"\n                liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,\n                    'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n    # Chat\n    kreise = {str(k.get('id')): k for k in verwaltung.get('kreise') or [] if k.get('id')}\n    for h in haushalte.values():\n        hname = h.get('name') or 'Ein Haushalt'\n        namen = {str(p.get('id')): p.get('name') for p in h.get('spieler') or []}\n        for c in h.get('chat') or []:\n            if not c.get('id') or not str(c.get('text', '')).strip(): continue\n            von, an, geraet = str(c.get('von') or ''), str(c.get('an') or ''), str(c.get('geraet') or '')\n            wer = namen.get(von) or 'Jemand'\n            # nicht an das schreibende Gerät und nicht an andere Geräte, die allein dieser Person gehören\n            def ohne_absender(gids):\n                return sorted(g for g in gids if g != geraet and not (abos[g]['hid'] == h.get('id') and abos[g]['personen'] == [von]))\n            if an.startswith('k:'):\n                k = kreise.get(an[2:])\n                if not k or 'chat' in (k.get('aus') or []): continue\n                empf = ohne_absender(g for g, a in abos.items() if a['hid'] in set(k.get('haushalte') or []))\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {kurz(k.get('name') or 'Spielkreis', 60)}\", 'text': f\"{wer}: {kurz(c.get('text'))}\", 'ziel': 'chat:' + an, 'tag': 'c-' + an})\n            elif an.startswith('p:') and an.count(':') == 2:\n                _, zhid, zpid = an.split(':')\n                im_haus = [g for g, a in abos.items() if a['hid'] == zhid]\n                persoenlich = [g for g in im_haus if zpid in abos[g]['personen']]\n                empf = ohne_absender(persoenlich or im_haus)\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {wer} ({hname})\", 'text': kurz(c.get('text')), 'ziel': f\"chat:p:{h.get('id')}:{von}\", 'tag': f\"c-p-{h.get('id')}-{von}\"})\n    for t in termine.values():\n        if not t.get('id'): continue\n        eingeladen = set(t.get('haushalte') or []) or set(haushalte)\n        optionen = [o for o in t.get('optionen') or [] if o.get('zeit')]\n        wer = (haushalte.get(t.get('erstelltVon')) or {}).get('name') or 'Jemand'\n        wann = zeit_text(optionen[0]['zeit']) if len(optionen) == 1 else (f'{len(optionen)} Termine zur Auswahl' if optionen else '')\n        liste.append({'k': 't:' + str(t['id']), 'zeit': (t.get('erstellt') or 0) / 1000,\n            'an': an_haushalte(eingeladen, ohne={str(t.get('geraet') or '')}),\n            'titel': f\"Neuer Termin: {TERMIN_ZEICHEN.get(t.get('art'), '🎲')} {kurz(t.get('titel') or 'Spieleabend', 60)}\",\n            'text': f\"{wer} lädt ein{(' – ' + wann) if wann else ''}. Bitte in der App abstimmen.\", 'ziel': 'termin:' + str(t['id']), 'tag': 't-' + str(t['id'])})\n    return liste\n\n\ndef main():\n    jetzt = time.time()\n    owner, repo = (REPO.split('/') + [''])[:2]\n    absender = f'https://{owner.lower()}.github.io/{repo}/'\n    haushalte, termine = {}, {}\n    for f in gh('GET', f'/contents/daten?ref={ZWEIG}') or []:\n        n = f.get('name', '')\n        if f.get('type') != 'file' or not n.endswith('.json'): continue\n        if n.startswith('haushalt-'):\n            d = json_lesen(f'daten/{n}')\n            if d and d.get('id'): haushalte[str(d['id'])] = d\n        elif n.startswith('termin-'):\n            d = json_lesen(f'daten/{n}')\n            if d: d.setdefault('id', n[7:-5]); termine[str(d['id'])] = d\n    verwaltung = json_lesen('daten/verwaltung.json') or {}\n    schluessel = (verwaltung.get('push') or {}).get('schluessel') or ''\n    stand_alt = json_lesen(STAND_DATEI)\n    stand = dict(stand_alt or {})\n    stand.update({'version': MITTEILUNGEN_VERSION, 'fehler': ''})\n\n    privat = None\n    geheim = os.environ.get('PUSH_SCHLUESSEL', '').strip()\n    if not schluessel:\n        stand['fehler'] = 'In der App ist noch kein Schlüssel für Mitteilungen erzeugt.'\n    elif not geheim:\n        stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL fehlt.'\n    else:\n        try:\n            privat = schluessel_laden(geheim)\n            if b64u(oeffentlich_roh(privat)) != schluessel:\n                privat, stand['fehler'] = None, 'Das GitHub-Secret PUSH_SCHLUESSEL passt nicht zum Schlüssel der App – bitte den zuletzt angezeigten Schlüssel eintragen.'\n        except Exception:\n            stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL ist kein gültiger Schlüssel.'\n\n    abos = abos_sammeln(haushalte, verwaltung, schluessel)\n    liste = ereignisse(haushalte, termine, verwaltung, abos)\n    gesehen = set(stand.get('gesehen') or [])\n    erstes_mal = stand_alt is None or 'gesehen' not in stand_alt\n    abgelaufen = dict(stand.get('abgelaufen') or {})\n    gesendet = list(stand.get('gesendet') or [])\n\n    def zustellen(gids, daten):\n        ok = 0\n        for gid in gids:\n            code = senden(abos[gid]['abo'], daten, privat, absender)\n            print(f\"  {daten['titel'][:40]!r} -> {gid}: {code}\")\n            if 200 <= code < 300: ok += 1\n            elif code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n        return ok\n\n    if not erstes_mal and privat:\n        for e in liste:\n            if e['k'] in gesehen or not e['an'] or jetzt - e['zeit'] > FRISCH: continue\n            ok = zustellen(e['an'], {'titel': e['titel'], 'text': e['text'], 'ziel': e['ziel'], 'tag': e['tag']})\n            gesendet.append({'zeit': int(jetzt * 1000), 'titel': e['titel'], 'an': len(e['an']), 'ok': ok})\n    stand['gesehen'] = sorted({e['k'] for e in liste})       # nur, was es noch gibt – so wächst die Datei nicht\n\n    # Test-Mitteilungen aus der App\n    for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        auftrag = json_lesen(f'{TEST_ORDNER}/{f[\"name\"]}') or {}\n        gid = str(auftrag.get('geraet') or '')\n        if not privat: ergebnis = stand['fehler']\n        elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'\n        else:\n            code = senden(abos[gid]['abo'], {'titel': 'Test-Mitteilung', 'text': 'So sehen Mitteilungen vom Spieleabend aus. 🎲', 'ziel': 'einstellungen', 'tag': 'test'}, privat, absender)\n            if code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n            ergebnis = 'ok' if 200 <= code < 300 else f'Der Mitteilungsdienst hat abgelehnt (Code {code}).'\n        stand['test'] = {'id': f['name'][:-5], 'geraet': gid, 'zeit': int(jetzt * 1000), 'ergebnis': ergebnis}\n        print('Test', gid, ergebnis)\n        gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Mitteilungen: Test erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n\n    stand['abgelaufen'] = {g: z for g, z in abgelaufen.items() if jetzt * 1000 - z < 60 * 86400000}\n    stand['gesendet'] = gesendet[-30:]\n    stand['geraete'] = len(abos)\n    if stand != stand_alt:\n        stand['zeit'] = int(jetzt * 1000)\n        schreiben(STAND_DATEI, stand, 'Mitteilungen: ' + ('eingerichtet' if erstes_mal else 'verschickt'))\n    print('Geräte mit Mitteilungen:', len(abos), '| Fehler:', stand['fehler'] or '–')\n\n\nif __name__ == '__main__':\n    main()\n";
+const PUSH_PY = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen an die Geräte, die sie erlaubt haben.\n# Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.\n# Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),\n# neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.\n# Nebenbei, auf Wunsch aus der App: Fingerabdrücke der Dixit-Karten für den Kartensortierer (aus den Kartenübersichten des Verlags; gespeichert werden nur grobe Farbmuster, keine Bilder).\nMITTEILUNGEN_VERSION = 3\nimport base64, datetime, hashlib, hmac, json, os, re, sys, time, urllib.error, urllib.request\nfrom urllib.parse import urlparse\n\nFRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)\nSTAND_DATEI, TEST_ORDNER = 'push/stand.json', 'push/test'\nNACHRICHT_ZEICHEN = {'fehler': '🐞', 'wunsch': '💡', 'kreis': '🏠', 'sonst': '💬'}\nTERMIN_ZEICHEN = {'spiele': '🎲', 'kino': '🎬', 'bowling': '🎳', 'essen': '🍽️', 'grillen': '🔥', 'sonst': '✨'}\nTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']\n\n\ndef b64u(b):\n    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()\n\n\ndef unb64u(s):\n    s = str(s).strip()\n    return base64.urlsafe_b64decode(s + '=' * (-len(s) % 4))\n\n\n# ---------- Web Push: Verschlüsselung (RFC 8291) und Absender-Ausweis (VAPID, RFC 8292) ----------\ndef _hkdf(salz, ikm, info, laenge):\n    prk = hmac.new(salz, ikm, hashlib.sha256).digest()\n    return hmac.new(prk, info + b'\\x01', hashlib.sha256).digest()[:laenge]\n\n\ndef schluessel_laden(text):\n    from cryptography.hazmat.primitives.asymmetric import ec\n    roh = unb64u(text)\n    if len(roh) != 32: raise ValueError('Der Schlüssel hat nicht die richtige Länge.')\n    return ec.derive_private_key(int.from_bytes(roh, 'big'), ec.SECP256R1())\n\n\ndef oeffentlich_roh(privat):\n    from cryptography.hazmat.primitives import serialization\n    return privat.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)\n\n\ndef verschluesseln(nutzlast, p256dh, auth, _salz=None, _privat=None):\n    \"\"\"Inhalt für genau ein Gerät verschlüsseln (aes128gcm, ein Datensatz).\"\"\"\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n    ua_public, auth_secret = unb64u(p256dh), unb64u(auth)\n    as_privat = _privat or ec.generate_private_key(ec.SECP256R1())\n    as_public = oeffentlich_roh(as_privat)\n    geraet = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), ua_public)\n    ecdh = as_privat.exchange(ec.ECDH(), geraet)\n    ikm = _hkdf(auth_secret, ecdh, b'WebPush: info\\x00' + ua_public + as_public, 32)\n    salz = _salz or os.urandom(16)\n    cek = _hkdf(salz, ikm, b'Content-Encoding: aes128gcm\\x00', 16)\n    nonce = _hkdf(salz, ikm, b'Content-Encoding: nonce\\x00', 12)\n    geheim = AESGCM(cek).encrypt(nonce, nutzlast + b'\\x02', None)\n    return salz + (4096).to_bytes(4, 'big') + bytes([len(as_public)]) + as_public + geheim\n\n\ndef vapid(endpunkt, privat, absender, jetzt=None):\n    from cryptography.hazmat.primitives import hashes\n    from cryptography.hazmat.primitives.asymmetric import ec\n    from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature\n    u = urlparse(endpunkt)\n    kopf = b64u(json.dumps({'typ': 'JWT', 'alg': 'ES256'}, separators=(',', ':')).encode())\n    inhalt = b64u(json.dumps({'aud': f'{u.scheme}://{u.netloc}', 'exp': int(jetzt or time.time()) + 12 * 3600, 'sub': absender}, separators=(',', ':')).encode())\n    r, s = decode_dss_signature(privat.sign(f'{kopf}.{inhalt}'.encode(), ec.ECDSA(hashes.SHA256())))\n    return f'vapid t={kopf}.{inhalt}.{b64u(r.to_bytes(32, \"big\") + s.to_bytes(32, \"big\"))}, k={b64u(oeffentlich_roh(privat))}'\n\n\ndef senden(abo, daten, privat, absender):\n    \"\"\"Eine Mitteilung an ein Gerät. Antwort: HTTP-Code (201 = angenommen, 404/410 = Gerät hat sie abbestellt).\"\"\"\n    koerper = verschluesseln(json.dumps(daten, ensure_ascii=False).encode(), abo['p256dh'], abo['auth'])\n    req = urllib.request.Request(abo['endpoint'], data=koerper, method='POST', headers={\n        'TTL': '86400', 'Urgency': 'normal', 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream',\n        'Authorization': vapid(abo['endpoint'], privat, absender)})\n    try:\n        with urllib.request.urlopen(req, timeout=20) as r: return r.status\n    except urllib.error.HTTPError as e:\n        return e.code\n    except Exception:\n        return 0\n\n\n# ---------- GitHub ----------\nREPO = os.environ.get('GITHUB_REPOSITORY', '')\nZWEIG = os.environ.get('GITHUB_REF_NAME', 'main')\nTOKEN = os.environ.get('GH_TOKEN', '')\nAPI = os.environ.get('GITHUB_API_URL', 'https://api.github.com')\n\n\ndef gh(methode, pfad, daten=None, roh=False):\n    req = urllib.request.Request(f'{API}/repos/{REPO}{pfad}', method=methode,\n        data=None if daten is None else json.dumps(daten).encode(),\n        headers={'Authorization': 'Bearer ' + TOKEN, 'Accept': 'application/vnd.github.raw' if roh else 'application/vnd.github+json',\n                 'Content-Type': 'application/json', 'User-Agent': 'Spieleabend-Mitteilungen'})\n    for versuch in range(4):\n        try:\n            with urllib.request.urlopen(req, timeout=30) as r:\n                b = r.read()\n                return b if roh else json.loads(b or b'null')\n        except urllib.error.HTTPError as e:\n            if e.code == 404 and methode == 'GET': return None\n            if e.code in (409, 422, 500, 502, 503) and versuch < 3: time.sleep(2 + 2 * versuch); continue\n            raise\n\n\ndef json_lesen(pfad):\n    b = gh('GET', f'/contents/{pfad}?ref={ZWEIG}', roh=True)\n    if b is None: return None\n    try: return json.loads(b.decode('utf-8'))\n    except Exception: return None\n\n\ndef schreiben(pfad, daten, nachricht):\n    alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')\n    gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,\n        'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})\n\n\n# ---------- Dixit-Karten: Fingerabdrücke für den Kartensortierer der App ----------\n# Jede Karte wird auf 10 × 15 Farbfelder verkleinert (ohne 6 % Rand), daraus Helligkeit und zwei Farbachsen, jeweils\n# auf Mittelwert 0 gebracht – so stört es wenig, ob das Licht heller, dunkler oder gelblicher ist. Die App rechnet genauso.\nKARTEN_ORDNER, KARTEN_QUELLE, KARTEN_ZEIT = 'karten', 'https://cdn.svc.asmodee.net/', 200\nRASTER_B, RASTER_H, RAND = 10, 15, 0.06\n\n\ndef karten_pakete():\n    try:\n        import fitz, numpy, scipy.ndimage, PIL  # noqa: F401\n    except ImportError:\n        import importlib, site, subprocess\n        subprocess.run([sys.executable, '-m', 'pip', 'install', '--quiet', '--user', '--break-system-packages',\n                        'pymupdf', 'numpy', 'scipy', 'pillow'], check=True)\n        p = site.getusersitepackages()\n        if p not in sys.path: sys.path.insert(0, p)\n        importlib.invalidate_caches()\n\n\ndef merkmal(zellen):\n    \"\"\"zellen: 150 × 3 Mittelwerte (R, G, B) – Zeile für Zeile von oben links. Ergebnis: 450 Zahlen als int8.\"\"\"\n    import numpy as np\n    a = np.asarray(zellen, dtype=np.float64).reshape(-1, 3)\n    hell = a.mean(1); rg = a[:, 0] - a[:, 1]; gb = (a[:, 0] + a[:, 1]) / 2 - a[:, 2]\n    hell = (hell - hell.mean()) / max(hell.std(), 4.0)\n    rg, gb = rg - rg.mean(), gb - gb.mean()\n    s = max(rg.std(), gb.std(), 6.0)\n    v = np.stack([hell, 0.7 * rg / s, 0.7 * gb / s], 1).reshape(-1)\n    return np.clip(np.round(v * 32), -127, 127).astype(np.int8)\n\n\ndef fingerabdruck(bild):\n    \"\"\"bild: PIL-Bild einer ganzen Karte.\"\"\"\n    import numpy as np\n    from PIL import Image\n    w, h = bild.size\n    innen = bild.convert('RGB').crop((round(w * RAND), round(h * RAND), w - round(w * RAND), h - round(h * RAND)))\n    zellen = np.asarray(innen.resize((RASTER_B, RASTER_H), Image.BOX), dtype=np.float64)\n    return merkmal(zellen)\n\n\ndef kartig(r, W, H):\n    w, h = r[2] - r[0], r[3] - r[1]\n    return h > 0 and w > 0 and 0.55 <= w / h <= 0.80 and 0.0015 * W * H <= w * h <= 0.45 * W * H\n\n\ndef flaechen(seite):\n    \"\"\"Karten auf einer gerenderten Seite finden: alles, was sich deutlich vom Seitenhintergrund abhebt.\"\"\"\n    import numpy as np\n    import scipy.ndimage as nd\n    rand = np.concatenate([seite[:4].reshape(-1, 3), seite[-4:].reshape(-1, 3), seite[:, :4].reshape(-1, 3), seite[:, -4:].reshape(-1, 3)])\n    hg = np.median(rand, 0)\n    maske = np.abs(seite.astype(np.int16) - hg).max(2) > 28\n    maske = nd.binary_fill_holes(nd.binary_closing(maske, iterations=2))\n    lab, _ = nd.label(maske)\n    return [(s[1].start, s[0].start, s[1].stop, s[0].stop) for s in nd.find_objects(lab) if s]\n\n\ndef karten_finden(seiten):\n    \"\"\"seiten: [(Bild als H×W×3, Rechtecke der eingebetteten Bilder in Pixeln)]. Ergebnis: [(Seite, Rechteck)] in Lesereihenfolge.\"\"\"\n    kand, methoden = [], set()\n    for nr, (bild, bilder) in enumerate(seiten):\n        H, W = bild.shape[:2]\n        eins = []\n        for r in bilder:\n            r = (max(0, r[0]), max(0, r[1]), min(W, r[2]), min(H, r[3]))\n            if kartig(r, W, H) and not any(abs(r[0] - x[0]) < 3 and abs(r[1] - x[1]) < 3 and abs(r[2] - x[2]) < 3 for x in eins): eins.append(r)\n        if len(eins) >= 4: methoden.add('bilder')\n        else: eins = [r for r in flaechen(bild) if kartig(r, W, H)]; methoden.add('flaechen') if eins else None\n        kand += [(nr, r) for r in eins]\n    if not kand: return [], ''\n    hoehen = sorted(r[3] - r[1] for _, r in kand)\n    mh = hoehen[len(hoehen) // 2]\n    kand = [(nr, r) for nr, r in kand if abs((r[3] - r[1]) - mh) <= 0.12 * mh]\n    # Lesereihenfolge: Seite, Zeile (gleiche Höhe ± halbe Karte), dann von links\n    kand.sort(key=lambda x: (x[0], x[1][1]))\n    reihen, zeile = [], None\n    for nr, r in kand:\n        if zeile is None or nr != zeile[0] or r[1] - zeile[1] > mh / 2: zeile = (nr, r[1]); reihen.append([])\n        reihen[-1].append((nr, r))\n    return [x for reihe in reihen for x in sorted(reihe, key=lambda y: y[1][0])], '+'.join(sorted(methoden))\n\n\ndef pdf_seiten(daten):\n    import fitz\n    import numpy as np\n    doc = fitz.open(stream=daten, filetype='pdf')\n    for seite in doc:\n        z = min(200 / 72, 5000 / max(seite.rect.width, seite.rect.height))\n        pix = seite.get_pixmap(matrix=fitz.Matrix(z, z), alpha=False, colorspace=fitz.csRGB)\n        bild = np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.stride)[:, :pix.width * 3].reshape(pix.height, pix.width, 3)\n        bilder = []\n        try:\n            for i in seite.get_image_info():\n                x0, y0, x1, y1 = i['bbox']\n                bilder.append((round(x0 * z), round(y0 * z), round(x1 * z), round(y1 * z)))\n        except Exception:\n            pass\n        yield bild.copy(), bilder\n\n\ndef herunterladen(url):\n    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Spieleabend)'})\n    with urllib.request.urlopen(req, timeout=60) as r:\n        daten = r.read(120 * 1024 * 1024 + 1)\n    if len(daten) > 120 * 1024 * 1024: raise ValueError('Die Datei ist zu groß.')\n    return daten\n\n\ndef karten_berechnen(seiten):\n    from PIL import Image\n    gefunden, methode = karten_finden(seiten)\n    abdruecke = [base64.b64encode(fingerabdruck(Image.fromarray(seiten[nr][0]).crop(r)).tobytes()).decode() for nr, r in gefunden]\n    return abdruecke, methode\n\n\ndef karten_auftrag(auftrag, start, laden=herunterladen, seiten_aus=pdf_seiten):\n    karten_pakete()\n    ergebnis = {}\n    for e in (auftrag.get('liste') or [])[:12]:\n        k = re.sub(r'[^a-z0-9-]', '', str(e.get('k', '')).lower())[:30]\n        url = str(e.get('url', ''))\n        if not k or not url.startswith(KARTEN_QUELLE) or not url.lower().endswith('.pdf'): continue\n        if time.time() - start > KARTEN_ZEIT:\n            ergebnis[k] = {'fehler': 'Die Zeit hat nicht gereicht – bitte nochmal anstoßen, dann geht es weiter.'}; continue\n        try:\n            seiten = list(seiten_aus(laden(url)))\n            abdruecke, methode = karten_berechnen(seiten)\n            if not abdruecke: raise ValueError('In der Kartenübersicht wurden keine Karten gefunden.')\n            schreiben(f'{KARTEN_ORDNER}/dixit-{k}.json', {'format': 1, 'k': k, 'quelle': url, 'raster': [RASTER_B, RASTER_H], 'rand': RAND,\n                       'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten), 'karten': abdruecke, 'zeit': int(time.time() * 1000)},\n                      f'Kartensortierer: {k} ({len(abdruecke)} Karten)')\n            ergebnis[k] = {'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten)}\n            print('Karten', k, len(abdruecke), methode, len(seiten), 'Seiten')\n        except Exception as ex:\n            ergebnis[k] = {'fehler': f'{type(ex).__name__}: {ex}'[:240]}\n            print('Karten', k, 'Fehler', ex)\n    return ergebnis\n\n\n# ---------- Wer bekommt was? ----------\ndef zeit_text(z):\n    try:\n        d = datetime.datetime.strptime(z, '%Y-%m-%dT%H:%M')\n        return f'{TAGE[d.weekday()]}, {d.day:02d}.{d.month:02d}. um {d.hour:02d}:{d.minute:02d} Uhr'\n    except Exception:\n        return ''\n\n\ndef kurz(text, n=140):\n    text = re.sub(r'\\s+', ' ', str(text or '')).strip()\n    return text if len(text) <= n else text[:n - 1].rsplit(' ', 1)[0] + ' …'\n\n\ndef abo_ok(p, schluessel):\n    return (isinstance(p, dict) and str(p.get('endpoint', '')).startswith('https://') and p.get('p256dh') and p.get('auth')\n            and p.get('schluessel') == schluessel)\n\n\ndef abos_sammeln(haushalte, verwaltung, schluessel):\n    \"\"\"Geräte mit erlaubten Mitteilungen: Geräte-ID -> {abo, hid}. Ein Gerät, das den Haushalt gewechselt hat, zählt beim neuesten.\"\"\"\n    abos = {}\n    for h in haushalte.values():\n        for g in h.get('geraete') or []:\n            p, gid = g.get('push'), str(g.get('id', ''))\n            if not gid or not abo_ok(p, schluessel): continue\n            alt = abos.get(gid)\n            if not alt or (g.get('zuletzt') or 0) > alt['zuletzt']:\n                abos[gid] = {'abo': p, 'hid': h.get('id'), 'zuletzt': g.get('zuletzt') or 0, 'personen': [str(x) for x in (g.get('personen') or [])]}\n    for x in verwaltung.get('adminGeraete') or []:            # Admin-Gerät ohne eigenen Haushalt\n        p, gid = x.get('push'), str(x.get('id', ''))\n        if gid and gid not in abos and abo_ok(p, schluessel): abos[gid] = {'abo': p, 'hid': None, 'zuletzt': x.get('stand') or 0, 'personen': []}\n    return abos\n\n\ndef ereignisse(haushalte, termine, verwaltung, abos):\n    \"\"\"Alle Ereignisse mit Schlüssel, Zeitpunkt, Empfängern und Text – gemeldet wird nur, was neu ist.\"\"\"\n    admin = {str(x.get('id')) for x in verwaltung.get('adminGeraete') or []}\n    an_admin = sorted(g for g in abos if g in admin)\n    def an_haushalte(hids, ohne_admin=False, ohne=()):\n        return sorted(g for g, a in abos.items() if a['hid'] in hids and g not in ohne and not (ohne_admin and g in admin))\n    liste = []\n    for h in haushalte.values():\n        name = h.get('name') or 'Ein Haushalt'\n        for n in h.get('nachrichten') or []:\n            if not n.get('id'): continue\n            zeichen = NACHRICHT_ZEICHEN.get(n.get('art'), '💬')\n            von = f\" ({n['von']})\" if n.get('von') else ''\n            liste.append({'k': 'n:' + str(n['id']), 'zeit': (n.get('erstellt') or 0) / 1000, 'an': an_admin,\n                'titel': f'Neue Nachricht von {name}{von}', 'text': f\"{zeichen} {kurz(n.get('text'))}\", 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n            for v in n.get('verlauf') or []:\n                if not v.get('id'): continue\n                if v.get('admin'):\n                    an, titel = an_haushalte({h.get('id')}, ohne_admin=True), 'Antwort vom Admin'\n                else:\n                    an, titel = an_admin, f\"Antwort von {name}{(' (' + v['von'] + ')') if v.get('von') else ''}\"\n                liste.append({'k': 'v:' + str(v['id']), 'zeit': (v.get('zeit') or 0) / 1000, 'an': an, 'titel': titel,\n                    'text': kurz(v.get('text')), 'ziel': 'nachrichten', 'tag': 'n-' + str(n['id'])})\n    # Chat\n    kreise = {str(k.get('id')): k for k in verwaltung.get('kreise') or [] if k.get('id')}\n    for h in haushalte.values():\n        hname = h.get('name') or 'Ein Haushalt'\n        namen = {str(p.get('id')): p.get('name') for p in h.get('spieler') or []}\n        for c in h.get('chat') or []:\n            if not c.get('id') or not str(c.get('text', '')).strip(): continue\n            von, an, geraet = str(c.get('von') or ''), str(c.get('an') or ''), str(c.get('geraet') or '')\n            wer = namen.get(von) or 'Jemand'\n            # nicht an das schreibende Gerät und nicht an andere Geräte, die allein dieser Person gehören\n            def ohne_absender(gids):\n                return sorted(g for g in gids if g != geraet and not (abos[g]['hid'] == h.get('id') and abos[g]['personen'] == [von]))\n            if an.startswith('k:'):\n                k = kreise.get(an[2:])\n                if not k or 'chat' in (k.get('aus') or []): continue\n                empf = ohne_absender(g for g, a in abos.items() if a['hid'] in set(k.get('haushalte') or []))\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {kurz(k.get('name') or 'Spielkreis', 60)}\", 'text': f\"{wer}: {kurz(c.get('text'))}\", 'ziel': 'chat:' + an, 'tag': 'c-' + an})\n            elif an.startswith('p:') and an.count(':') == 2:\n                _, zhid, zpid = an.split(':')\n                im_haus = [g for g, a in abos.items() if a['hid'] == zhid]\n                persoenlich = [g for g in im_haus if zpid in abos[g]['personen']]\n                empf = ohne_absender(persoenlich or im_haus)\n                liste.append({'k': 'c:' + str(c['id']), 'zeit': (c.get('zeit') or 0) / 1000, 'an': empf,\n                    'titel': f\"💬 {wer} ({hname})\", 'text': kurz(c.get('text')), 'ziel': f\"chat:p:{h.get('id')}:{von}\", 'tag': f\"c-p-{h.get('id')}-{von}\"})\n    for t in termine.values():\n        if not t.get('id'): continue\n        eingeladen = set(t.get('haushalte') or []) or set(haushalte)\n        optionen = [o for o in t.get('optionen') or [] if o.get('zeit')]\n        wer = (haushalte.get(t.get('erstelltVon')) or {}).get('name') or 'Jemand'\n        wann = zeit_text(optionen[0]['zeit']) if len(optionen) == 1 else (f'{len(optionen)} Termine zur Auswahl' if optionen else '')\n        liste.append({'k': 't:' + str(t['id']), 'zeit': (t.get('erstellt') or 0) / 1000,\n            'an': an_haushalte(eingeladen, ohne={str(t.get('geraet') or '')}),\n            'titel': f\"Neuer Termin: {TERMIN_ZEICHEN.get(t.get('art'), '🎲')} {kurz(t.get('titel') or 'Spieleabend', 60)}\",\n            'text': f\"{wer} lädt ein{(' – ' + wann) if wann else ''}. Bitte in der App abstimmen.\", 'ziel': 'termin:' + str(t['id']), 'tag': 't-' + str(t['id'])})\n    return liste\n\n\ndef main():\n    jetzt = time.time()\n    owner, repo = (REPO.split('/') + [''])[:2]\n    absender = f'https://{owner.lower()}.github.io/{repo}/'\n    haushalte, termine = {}, {}\n    for f in gh('GET', f'/contents/daten?ref={ZWEIG}') or []:\n        n = f.get('name', '')\n        if f.get('type') != 'file' or not n.endswith('.json'): continue\n        if n.startswith('haushalt-'):\n            d = json_lesen(f'daten/{n}')\n            if d and d.get('id'): haushalte[str(d['id'])] = d\n        elif n.startswith('termin-'):\n            d = json_lesen(f'daten/{n}')\n            if d: d.setdefault('id', n[7:-5]); termine[str(d['id'])] = d\n    verwaltung = json_lesen('daten/verwaltung.json') or {}\n    schluessel = (verwaltung.get('push') or {}).get('schluessel') or ''\n    stand_alt = json_lesen(STAND_DATEI)\n    stand = dict(stand_alt or {})\n    stand.update({'version': MITTEILUNGEN_VERSION, 'fehler': ''})\n\n    privat = None\n    geheim = os.environ.get('PUSH_SCHLUESSEL', '').strip()\n    if not schluessel:\n        stand['fehler'] = 'In der App ist noch kein Schlüssel für Mitteilungen erzeugt.'\n    elif not geheim:\n        stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL fehlt.'\n    else:\n        try:\n            privat = schluessel_laden(geheim)\n            if b64u(oeffentlich_roh(privat)) != schluessel:\n                privat, stand['fehler'] = None, 'Das GitHub-Secret PUSH_SCHLUESSEL passt nicht zum Schlüssel der App – bitte den zuletzt angezeigten Schlüssel eintragen.'\n        except Exception:\n            stand['fehler'] = 'Das GitHub-Secret PUSH_SCHLUESSEL ist kein gültiger Schlüssel.'\n\n    abos = abos_sammeln(haushalte, verwaltung, schluessel)\n    liste = ereignisse(haushalte, termine, verwaltung, abos)\n    gesehen = set(stand.get('gesehen') or [])\n    erstes_mal = stand_alt is None or 'gesehen' not in stand_alt\n    abgelaufen = dict(stand.get('abgelaufen') or {})\n    gesendet = list(stand.get('gesendet') or [])\n\n    def zustellen(gids, daten):\n        ok = 0\n        for gid in gids:\n            code = senden(abos[gid]['abo'], daten, privat, absender)\n            print(f\"  {daten['titel'][:40]!r} -> {gid}: {code}\")\n            if 200 <= code < 300: ok += 1\n            elif code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n        return ok\n\n    if not erstes_mal and privat:\n        for e in liste:\n            if e['k'] in gesehen or not e['an'] or jetzt - e['zeit'] > FRISCH: continue\n            ok = zustellen(e['an'], {'titel': e['titel'], 'text': e['text'], 'ziel': e['ziel'], 'tag': e['tag']})\n            gesendet.append({'zeit': int(jetzt * 1000), 'titel': e['titel'], 'an': len(e['an']), 'ok': ok})\n    stand['gesehen'] = sorted({e['k'] for e in liste})       # nur, was es noch gibt – so wächst die Datei nicht\n\n    # Test-Mitteilungen aus der App\n    for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:\n        if f.get('type') != 'file': continue\n        auftrag = json_lesen(f'{TEST_ORDNER}/{f[\"name\"]}') or {}\n        if auftrag.get('art') == 'karten':\n            try: ergebnis, fehler = karten_auftrag(auftrag, jetzt), ''\n            except Exception as ex: ergebnis, fehler = {}, f'{type(ex).__name__}: {ex}'[:300]\n            stand['karten'] = {'id': f['name'][:-5], 'zeit': int(time.time() * 1000), 'ergebnis': ergebnis, 'fehler': fehler}\n            gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Kartensortierer: erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n            continue\n        gid = str(auftrag.get('geraet') or '')\n        if not privat: ergebnis = stand['fehler']\n        elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'\n        else:\n            code = senden(abos[gid]['abo'], {'titel': 'Test-Mitteilung', 'text': 'So sehen Mitteilungen vom Spieleabend aus. 🎲', 'ziel': 'einstellungen', 'tag': 'test'}, privat, absender)\n            if code in (404, 410): abgelaufen[gid] = int(jetzt * 1000)\n            ergebnis = 'ok' if 200 <= code < 300 else f'Der Mitteilungsdienst hat abgelehnt (Code {code}).'\n        stand['test'] = {'id': f['name'][:-5], 'geraet': gid, 'zeit': int(jetzt * 1000), 'ergebnis': ergebnis}\n        print('Test', gid, ergebnis)\n        gh('DELETE', f'/contents/{TEST_ORDNER}/{f[\"name\"]}', {'message': 'Mitteilungen: Test erledigt', 'sha': f['sha'], 'branch': ZWEIG})\n\n    stand['abgelaufen'] = {g: z for g, z in abgelaufen.items() if jetzt * 1000 - z < 60 * 86400000}\n    stand['gesendet'] = gesendet[-30:]\n    stand['geraete'] = len(abos)\n    if stand != stand_alt:\n        stand['zeit'] = int(jetzt * 1000)\n        schreiben(STAND_DATEI, stand, 'Mitteilungen: ' + ('eingerichtet' if erstes_mal else 'verschickt'))\n    print('Geräte mit Mitteilungen:', len(abos), '| Fehler:', stand['fehler'] or '–')\n\n\nif __name__ == '__main__':\n    main()\n";
 const PUSH_YML = "# Mitteilungen der Spieleabend-App – schickt Push-Mitteilungen bei neuen Nachrichten, Antworten und Terminen.\n# Das eigentliche Programm (push/mitteilungen.py) legt die App selbst ins Repo und hält es aktuell.\n# Der geheime Schlüssel steht nur in den Repo-Einstellungen (Secret PUSH_SCHLUESSEL), nie in einer Datei.\nname: Mitteilungen\non:\n  push:\n    paths: ['daten/**', 'push/test/**']\n  workflow_dispatch:\npermissions:\n  contents: write\nconcurrency:\n  group: mitteilungen\n  cancel-in-progress: false\njobs:\n  senden:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - name: Mitteilungen verschicken\n        env:\n          GH_TOKEN: ${{ github.token }}\n          PUSH_SCHLUESSEL: ${{ secrets.PUSH_SCHLUESSEL }}\n        run: |\n          curl -fsSL -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github.raw\" -o mitteilungen.py \\\n            \"https://api.github.com/repos/$GITHUB_REPOSITORY/contents/push/mitteilungen.py?ref=$GITHUB_SHA\"\n          python3 -c \"import cryptography\" 2>/dev/null || python3 -m pip install --quiet --user --break-system-packages cryptography\n          python3 mitteilungen.py\n";
 /*PUSH-DATEIEN-ENDE*/
 const PUSH_WORKFLOW = '.github/workflows/mitteilungen.yml', PUSH_PY_PFAD = 'push/mitteilungen.py', PUSH_SW_PFAD = 'sw.js', PUSH_STAND_PFAD = 'push/stand.json';
@@ -9880,6 +10043,412 @@ function pushEinrichtenSheet(){
   zeigen(); pruefen();
 }
 
+/* ---------- Dixit-Karten sortieren: die Kamera erkennt, zu welcher Erweiterung eine Karte gehört ----------
+   Grundlage sind Fingerabdrücke der Karten (karten/dixit-<k>.json), die GitHub einmalig aus den Kartenübersichten des Verlags
+   berechnet: je Karte 10 × 15 Farbfelder (ohne 6 % Rand) als Helligkeit und zwei Farbachsen – keine Bilder.
+   Erkennung: Ausschnitt im Rahmen (in 9 Lagen, auch auf dem Kopf) mit allen Karten vergleichen, die 10 besten nochmal genau
+   (überstrahlte Stellen und die 20 % am schlechtesten passenden Felder bleiben außen vor). Angesagt wird nur, wenn eine Karte
+   klar vorne liegt – zweimal hintereinander. Den leeren Tisch merkt sich die App beim Start und ignoriert ihn. */
+const SORT_LS = 'spieleabend.sortieren';
+const SORT_GRENZE = { einfach:0.6, robust:0.65, luecke:0.12, tisch:0.85, glanz:0.08 };
+const SORT_LAGEN = [[0, 0, 1], [-.03, 0, 1], [.03, 0, 1], [0, -.03, 1], [0, .03, 1], [0, 0, .93], [0, 0, 1.07], [-.03, -.03, 1], [.03, .03, 1]];
+const SORT_KANAL = [1, .5, .5];
+const KARTENDATEN = {};                 // k → { v:[Float32Array], sq:[Float32Array], n:[Zahl], anzahl, zeit } – oder null: fehlt
+let SORT = null;
+
+function sortSaetze(kat){ return kat ? [{ k:'grund', t:'Grundspiel', f:'#1E6B52', karten:kat.karten }, ...kat.liste.filter(e => e.karten)] : []; }
+function sortSatz(kat, k){ return sortSaetze(kat).find(e => e.k === k); }
+
+/* Fingerabdruck aus 150 Zellen (R, G, B) – genau wie bei GitHub (push/mitteilungen.py: merkmal), nur ohne Rundung */
+function sortMerkmal(z, frei){
+  const h = new Float64Array(150), r = new Float64Array(150), g = new Float64Array(150);
+  let n = 0, mh = 0, mr = 0, mg = 0;
+  for (let i = 0; i < 150; i++){
+    const R = z[i * 3], G = z[i * 3 + 1], Bl = z[i * 3 + 2];
+    h[i] = (R + G + Bl) / 3; r[i] = R - G; g[i] = (R + G) / 2 - Bl;
+    if (frei[i]){ n++; mh += h[i]; mr += r[i]; mg += g[i]; }
+  }
+  if (n < 40) return null;
+  mh /= n; mr /= n; mg /= n;
+  let sh = 0, sr = 0, sg = 0;
+  for (let i = 0; i < 150; i++) if (frei[i]){ sh += (h[i] - mh) ** 2; sr += (r[i] - mr) ** 2; sg += (g[i] - mg) ** 2; }
+  const dh = Math.max(Math.sqrt(sh / n), 4), s = Math.max(Math.sqrt(sr / n), Math.sqrt(sg / n), 6);
+  const v = new Float32Array(450);
+  for (let i = 0; i < 150; i++) if (frei[i]){ v[i * 3] = (h[i] - mh) / dh; v[i * 3 + 1] = .7 * (r[i] - mr) / s; v[i * 3 + 2] = .7 * (g[i] - mg) / s; }
+  return v;
+}
+function sortUmdrehen(z, frei){
+  const z2 = new Float64Array(450), f2 = new Uint8Array(150);
+  for (let i = 0; i < 150; i++){ const j = 149 - i; f2[i] = frei[j]; z2[i * 3] = z[j * 3]; z2[i * 3 + 1] = z[j * 3 + 1]; z2[i * 3 + 2] = z[j * 3 + 2]; }
+  return [z2, f2];
+}
+function sortNorm(v){ let s = 0; for (let i = 0; i < v.length; i++) s += v[i] * v[i]; return Math.sqrt(s); }
+
+async function kartenDatenLaden(k, neu){
+  if (!neu && k in KARTENDATEN) return KARTENDATEN[k];
+  let text = neu ? null : await IDB.get('karten:dixit-' + k);
+  if (!text){
+    if (!E.token) return KARTENDATEN[k] = null;
+    const r = await gh('GET', `/contents/karten/dixit-${encodeURIComponent(k)}.json?ref=${encodeURIComponent(E.branch)}`, null, { Accept:'application/vnd.github.raw' });
+    if (r.status === 404) return KARTENDATEN[k] = null;
+    if (!r.ok) throw await fehlerAus(r, 'Kartendaten');
+    text = await r.text();
+    await IDB.put('karten:dixit-' + k, text);
+  }
+  const j = JSON.parse(text), v = [], sq = [], n = [];
+  for (const b of j.karten || []){
+    const by = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+    if (by.length !== 450) continue;
+    const q = new Int8Array(by.buffer), f = new Float32Array(450), s = new Float32Array(150);
+    for (let i = 0; i < 450; i++){ f[i] = q[i] / 32; s[(i / 3) | 0] += f[i] * f[i]; }
+    v.push(f); sq.push(s); n.push(sortNorm(f));
+  }
+  return KARTENDATEN[k] = { v, sq, n, anzahl:v.length, zeit:zahl(j.zeit) || 0, methode:String(j.methode || '') };
+}
+
+/* ---------- Zählstand (bleibt auf dem Gerät, auch wenn das Fenster zu ist) ---------- */
+function sortStandLaden(katK, keys){
+  const alle = lesen(SORT_LS, {}), x = alle[katK];
+  return x && typeof x === 'object' ? { keys:Array.isArray(x.keys) ? x.keys : keys, n:x.n || {}, gezaehlt:Array.isArray(x.gezaehlt) ? x.gezaehlt : [], verlauf:Array.isArray(x.verlauf) ? x.verlauf : [] }
+    : { keys, n:{}, gezaehlt:[], verlauf:[] };
+}
+function sortStandSpeichern(){
+  if (!SORT) return;
+  const alle = lesen(SORT_LS, {}); alle[SORT.kat.k] = SORT.z; schreiben(SORT_LS, alle);
+}
+
+/* ---------- Ansage ---------- */
+function sortSagen(text){
+  if (!SORT || !SORT.ansage || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; u.rate = 1.05;
+    const stimme = speechSynthesis.getVoices().find(v => /^de/i.test(v.lang)); if (stimme) u.voice = stimme;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- Kamera ---------- */
+function sortRahmen(){
+  const v = SORT.video, box = v.getBoundingClientRect(), vw = v.videoWidth, vh = v.videoHeight;
+  if (!vw || !vh || box.width < 20 || box.height < 20) return null;
+  const sc = Math.max(box.width / vw, box.height / vh);
+  const rh = box.height * .72, rw = rh * 2 / 3;
+  const ox = (vw * sc - box.width) / 2, oy = (vh * sc - box.height) / 2;
+  return { x:((box.width - rw) / 2 + ox) / sc, y:((box.height - rh) / 2 + oy) / sc, w:rw / sc, h:rh / sc, vw, vh };
+}
+function sortZellen(x0, y0, x1, y1){
+  const c = SORT.ctx;
+  c.drawImage(SORT.video, x0, y0, x1 - x0, y1 - y0, 0, 0, 120, 180);
+  const d = c.getImageData(0, 0, 120, 180).data, z = new Float64Array(450), hell = new Float64Array(150);
+  for (let y = 0; y < 180; y++){
+    const zy = ((y / 12) | 0) * 10;
+    for (let x = 0; x < 120; x++){
+      const i = (y * 120 + x) * 4, k = zy + ((x / 12) | 0);
+      z[k * 3] += d[i]; z[k * 3 + 1] += d[i + 1]; z[k * 3 + 2] += d[i + 2];
+      if (d[i] >= 235 && d[i + 1] >= 235 && d[i + 2] >= 235) hell[k]++;
+    }
+  }
+  const frei = new Uint8Array(150); let glanz = 0;
+  for (let k = 0; k < 150; k++){ z[k * 3] /= 144; z[k * 3 + 1] /= 144; z[k * 3 + 2] /= 144; frei[k] = hell[k] / 144 < .2 ? 1 : 0; glanz += 1 - frei[k]; }
+  return { z, frei, glanz:glanz / 150 };
+}
+/* Pearson je Kanal über die Felder, die zusammenpassen (die schlechtesten 20 % fallen weg) */
+function sortRobust(v, c, frei){
+  const idx = []; for (let i = 0; i < 150; i++) if (frei[i]) idx.push(i);
+  if (idx.length < 40) return -1;
+  const z = (a) => { const m = [0, 0, 0], s = [0, 0, 0];
+    for (const i of idx) for (let j = 0; j < 3; j++) m[j] += a[i * 3 + j];
+    for (let j = 0; j < 3; j++) m[j] /= idx.length;
+    for (const i of idx) for (let j = 0; j < 3; j++) s[j] += (a[i * 3 + j] - m[j]) ** 2;
+    for (let j = 0; j < 3; j++) s[j] = Math.sqrt(s[j] / idx.length) || 1;
+    return i => [0, 1, 2].map(j => (a[i * 3 + j] - m[j]) / s[j]); };
+  const zv = z(v), zc = z(c);
+  const d = idx.map(i => { const a = zv(i), b = zc(i); return [SORT_KANAL[0] * (a[0] - b[0]) ** 2 + SORT_KANAL[1] * (a[1] - b[1]) ** 2 + SORT_KANAL[2] * (a[2] - b[2]) ** 2, i]; });
+  d.sort((a, b) => a[0] - b[0]);
+  const behalten = d.slice(0, Math.max(30, Math.ceil(d.length * .8))).map(x => x[1]);
+  let summe = 0;
+  for (let j = 0; j < 3; j++){
+    let ma = 0, mb = 0; for (const i of behalten){ ma += v[i * 3 + j]; mb += c[i * 3 + j]; }
+    ma /= behalten.length; mb /= behalten.length;
+    let ab = 0, aa = 0, bb = 0;
+    for (const i of behalten){ const a = v[i * 3 + j] - ma, b = c[i * 3 + j] - mb; ab += a * b; aa += a * a; bb += b * b; }
+    summe += SORT_KANAL[j] * ab / (Math.sqrt(aa * bb) + 1e-9);
+  }
+  return summe / (SORT_KANAL[0] + SORT_KANAL[1] + SORT_KANAL[2]);
+}
+function sortBild(){
+  const r = sortRahmen(); if (!r) return null;
+  const lagen = []; let mitte = null, glanz = 0;
+  for (const [dx, dy, f] of SORT_LAGEN){
+    const w = r.w * f, h = r.h * f, cx = r.x + r.w / 2 + dx * r.w, cy = r.y + r.h / 2 + dy * r.h;
+    const x0 = cx - w / 2 + w * .06, y0 = cy - h / 2 + h * .06, x1 = cx + w / 2 - w * .06, y1 = cy + h / 2 - h * .06;
+    if (x0 < 0 || y0 < 0 || x1 > r.vw || y1 > r.vh) continue;
+    const zl = sortZellen(x0, y0, x1, y1);
+    const v = sortMerkmal(zl.z, zl.frei);
+    if (!mitte){ mitte = v || new Float32Array(450); glanz = zl.glanz; }
+    if (!v) continue;
+    lagen.push({ v, frei:zl.frei, n:sortNorm(v), voll:zl.glanz === 0 });
+    const [z2, f2] = sortUmdrehen(zl.z, zl.frei), v2 = sortMerkmal(z2, f2);
+    if (v2) lagen.push({ v:v2, frei:f2, n:sortNorm(v2), voll:zl.glanz === 0 });
+  }
+  return { lagen, mitte, glanz };
+}
+function sortVergleichen(bild){
+  const kand = [];
+  for (const k of SORT.z.keys){
+    const d = KARTENDATEN[k]; if (!d) continue;
+    for (let j = 0; j < d.v.length; j++){
+      const c = d.v[j]; let best = -2, bl = 0;
+      for (let l = 0; l < bild.lagen.length; l++){
+        const L = bild.lagen[l], v = L.v; let dot = 0;
+        for (let i = 0; i < 450; i++) dot += v[i] * c[i];
+        let nc = d.n[j];
+        if (!L.voll){ let s = 0; for (let i = 0; i < 150; i++) if (L.frei[i]) s += d.sq[j][i]; nc = Math.sqrt(s); }
+        const sc = dot / (nc * L.n + 1e-9);
+        if (sc > best){ best = sc; bl = l; }
+      }
+      kand.push({ k, j, s:best, l:bl });
+    }
+  }
+  kand.sort((a, b) => b.s - a.s);
+  const top = kand.slice(0, 10).map(x => ({ ...x, r:sortRobust(bild.lagen[x.l].v, KARTENDATEN[x.k].v[x.j], bild.lagen[x.l].frei) }));
+  top.sort((a, b) => b.r - a.r);
+  return top;
+}
+function sortTischAehnlich(mitte){
+  const n = sortNorm(mitte); if (!n) return 1;
+  let best = 0;
+  for (const t of SORT.tisch){ let dot = 0; for (let i = 0; i < 450; i++) dot += mitte[i] * t[i]; best = Math.max(best, dot / (n * sortNorm(t) + 1e-9)); }
+  return best;
+}
+function sortTick(){
+  const S = SORT; if (!S || !S.laeuft) return;
+  S.timer = setTimeout(sortTick, 220);
+  if (document.visibilityState !== 'visible' || S.video.readyState < 2) return;
+  let bild; try{ bild = sortBild(); }catch(e){ return; }
+  if (!bild || !bild.mitte) return;
+  // Zuerst den leeren Tisch merken
+  if (S.tischMerken > 0){
+    S.tisch.push(bild.mitte); S.tischMerken--;
+    if (!S.tischMerken) sortAnzeige({ art:'bereit' }); else sortAnzeige({ art:'tisch' });
+    return;
+  }
+  const t0 = performance.now();
+  const top = bild.lagen.length && sortTischAehnlich(bild.mitte) < SORT_GRENZE.tisch ? sortVergleichen(bild) : [];
+  S.dauer = Math.round(performance.now() - t0);
+  const a = top[0], b = top[1];
+  const id = a ? `${a.k}:${a.j}` : '';
+  const sicher = !!a && a.s >= SORT_GRENZE.einfach && a.r >= SORT_GRENZE.robust && a.r - (b ? b.r : 0) >= SORT_GRENZE.luecke;
+  S.info = a ? `bester ${a.k} ${a.j + 1}: ${a.s.toFixed(2)} / ${a.r.toFixed(2)} · Abstand ${(a.r - (b ? b.r : 0)).toFixed(2)} · Spiegelung ${Math.round(bild.glanz * 100)} % · ${S.dauer} ms` : `kein Kandidat · Spiegelung ${Math.round(bild.glanz * 100)} %`;
+  const info = $('[data-sort-info]', S.s); if (info) info.textContent = S.info;
+  if (S.gesperrt){                                     // die angesagte Karte liegt noch – warten, bis sie weg ist
+    if (!sicher || id !== S.gesperrt){ if (++S.weg >= 2){ S.gesperrt = ''; S.weg = 0; sortAnzeige({ art:'bereit', nachTreffer:true }); } }
+    else S.weg = 0;
+    return;
+  }
+  if (sicher){
+    S.unsicher = 0;
+    if (id === S.kandidat) S.stabil++; else { S.kandidat = id; S.stabil = 1; }
+    if (S.stabil >= 2){ S.kandidat = ''; S.stabil = 0; sortTreffer(a.k, a.j); }
+    return;
+  }
+  S.kandidat = ''; S.stabil = 0;
+  if (a && a.s >= .5 && a.r >= .5){
+    if (++S.unsicher >= 7 && !S.frage){
+      const andere = top.find(x => x.k !== a.k && x.r >= .4);
+      S.frage = { optionen:[a, ...(andere ? [andere] : [])].map(x => ({ k:x.k, j:x.j })) };
+      sortFrageZeigen();
+    }
+  } else S.unsicher = 0;
+  sortAnzeige({ art:bild.glanz >= SORT_GRENZE.glanz ? 'glanz' : a && a.s >= .5 ? 'suche' : 'leer' });
+}
+function sortTreffer(k, j){
+  const S = SORT, satz = sortSatz(S.kat, k); if (!satz) return;
+  const id = j == null ? '' : `${k}:${j}`;
+  S.frage = null; sortFrageZeigen();
+  if (id && S.z.gezaehlt.includes(id)){
+    S.gesperrt = id; S.weg = 0;
+    sortSagen(`${satz.t}, schon gezählt`); sortAnzeige({ art:'schon', satz }); return;
+  }
+  const n = (S.z.n[k] || 0) + 1, gesamt = (KARTENDATEN[k] && KARTENDATEN[k].anzahl) || 84;
+  S.z.n[k] = n; if (id) S.z.gezaehlt.push(id); S.z.verlauf.push({ k, id });
+  if (S.z.verlauf.length > 1200) S.z.verlauf = S.z.verlauf.slice(-1200);
+  if (id){ S.gesperrt = id; S.weg = 0; }
+  sortStandSpeichern();
+  sortSagen(n >= gesamt ? `${satz.t} ${n}, komplett` : `${satz.t} ${n}`);
+  sortAnzeige({ art:'treffer', satz, n, gesamt });
+  sortZaehlerZeigen();
+}
+function sortRueckgaengig(){
+  const S = SORT, x = S.z.verlauf.pop(); if (!x) return;
+  S.z.n[x.k] = Math.max(0, (S.z.n[x.k] || 0) - 1);
+  if (x.id) S.z.gezaehlt = S.z.gezaehlt.filter(y => y !== x.id);
+  S.gesperrt = ''; sortStandSpeichern(); sortZaehlerZeigen();
+  const satz = sortSatz(S.kat, x.k); sortAnzeige({ art:'zurueck', satz });
+}
+
+/* ---------- Anzeige ---------- */
+function sortAnzeige(z){
+  const S = SORT, el = S && $('[data-sort-erg]', S.s); if (!el) return;
+  if (z.art === 'treffer' || z.art === 'schon' || z.art === 'zurueck'){ S.letzte = z; S.letzteZeit = Date.now(); }
+  else if (S.letzte && Date.now() - S.letzteZeit < 2500 && !z.nachTreffer) z = S.letzte;     // ein Ergebnis bleibt kurz stehen
+  const farbe = z.satz ? z.satz.f : '';
+  el.style.setProperty('--ef', farbe || 'var(--filz)');
+  el.classList.toggle('farbig', !!farbe && z.art !== 'zurueck');
+  el.innerHTML = z.art === 'treffer' ? `<b>${esc(z.satz.t)}</b><span>${z.n} von ${z.gesamt}${z.n >= z.gesamt ? ' – komplett ✓' : ''}</span>`
+    : z.art === 'schon' ? `<b>${esc(z.satz.t)}</b><span>diese Karte ist schon gezählt</span>`
+    : z.art === 'zurueck' ? `<b>Rückgängig</b><span>${esc(z.satz ? z.satz.t : '')} wieder abgezogen</span>`
+    : z.art === 'tisch' ? '<b>Kurz nur den Tisch zeigen …</b><span>die App merkt sich, wie er aussieht</span>'
+    : z.art === 'glanz' ? '<b>Spiegelung</b><span>das Handy etwas kippen oder anders zum Licht halten</span>'
+    : z.art === 'suche' ? '<b>Moment …</b><span>Karte ruhig halten, ganz im Rahmen</span>'
+    : '<b>Bereit</b><span>eine Karte in den Rahmen legen</span>';
+}
+function sortFrageZeigen(){
+  const S = SORT, el = S && $('[data-sort-frage]', S.s); if (!el) return;
+  if (!S.frage){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="sort-frage"><p>Nicht ganz sicher – welche ist es?</p><div class="knopfreihe">${S.frage.optionen.map((o, i) => { const satz = sortSatz(S.kat, o.k);
+    return `<button class="knopf" type="button" data-sort-antwort="${i}" style="background:${esc(satz.f)}">${esc(satz.t)}</button>`; }).join('')}
+    <button class="knopf zweit" type="button" data-sort-antwort="nein">Keine davon</button></div></div>`;
+}
+function sortZaehlerZeigen(){
+  const S = SORT, el = S && $('[data-sort-zaehler]', S.s); if (!el) return;
+  el.innerHTML = S.z.keys.map(k => { const satz = sortSatz(S.kat, k); if (!satz) return '';
+    const n = S.z.n[k] || 0, gesamt = (KARTENDATEN[k] && KARTENDATEN[k].anzahl) || 84;
+    return `<button type="button" class="sort-stapel${n >= gesamt ? ' voll' : ''}" data-sort-plus="${esc(k)}" style="--ef:${esc(satz.f)}" aria-label="${esc(satz.t)} von Hand zählen">
+      <b>${esc(satz.t)}</b><span><b>${n}</b>/${gesamt}</span></button>`; }).join('');
+  const z = $('[data-sort-zurueck]', S.s); if (z) z.disabled = !S.z.verlauf.length;
+}
+
+/* ---------- Kartendaten bei GitHub erstellen lassen ---------- */
+async function sortErstellen(keys){
+  const S = SORT; if (!S || S.erstellt) return;
+  const liste = keys.map(k => sortSatz(S.kat, k)).filter(Boolean).map(e => ({ k:e.k, url:e.karten }));
+  if (!liste.length) return;
+  S.erstellt = { start:Date.now(), keys }; sortWahlZeigen();
+  try{
+    if (E.admin){ pushDateienOk = false; await pushDateienAktuell(); }          // GitHub braucht die neue Fassung des Programms
+    const id = 'karten' + Date.now().toString(36);
+    const r = await gh('PUT', `/contents/push/test/${id}.json`, { message:'Kartensortierer: Kartendaten erstellen', branch:E.branch, content:b64AusText(JSON.stringify({ art:'karten', liste, zeit:Date.now() })) });
+    if (!r.ok) throw await fehlerAus(r, 'Kartendaten');
+    while (SORT === S && Date.now() - S.erstellt.start < 420000){
+      await warte(8000);
+      await pushStandLaden(true);
+      const kt = PUSHSTAND && PUSHSTAND.karten;
+      if (kt && kt.id === id){
+        for (const k of keys){ await IDB.del('karten:dixit-' + k); delete KARTENDATEN[k]; await kartenDatenLaden(k, true).catch(() => null); }
+        S.ergebnis = kt; S.erstellt = null; sortWahlZeigen();
+        const fehler = Object.entries(kt.ergebnis || {}).filter(([, x]) => x.fehler);
+        toast(kt.fehler || fehler.length ? `Kartendaten: ${kt.fehler || fehler.map(([k, x]) => `${(sortSatz(S.kat, k) || {}).t || k}: ${x.fehler}`).join(' · ')}` : 'Kartendaten sind fertig ✓', kt.fehler || fehler.length ? 'fehler' : '');
+        return;
+      }
+    }
+    if (SORT === S){ S.erstellt = null; sortWahlZeigen(); toast(E.admin ? 'Von GitHub kam keine Rückmeldung – sind die Mitteilungen eingerichtet (Einstellungen → Mitteilungen)?' : 'Keine Rückmeldung – der Admin muss die App einmal öffnen, dann nochmal versuchen.', 'fehler'); }
+  }catch(e){ if (SORT === S){ S.erstellt = null; sortWahlZeigen(); } toast(e.message, 'fehler'); }
+}
+
+/* ---------- Fenster ---------- */
+function sortSheet(name, vorschlag){
+  const kat = erwKatalog(name); if (!kat) return;
+  const saetze = sortSaetze(kat);
+  const keys = (vorschlag || []).filter(k => saetze.some(e => e.k === k));
+  const s = sheet(`<div class="sheet-kopf"><h2>📷 Karten sortieren</h2><button class="knopf-rund" type="button" data-zu aria-label="Schließen">${ic('x')}</button></div><div data-sort></div>`,
+    { klasse:'gross', beimSchliessen:() => { sortStopp(); SORT = null; } });
+  SORT = { s, kat, z:sortStandLaden(kat.k, keys.length ? keys : ['grund']), ansage:lesen(SORT_LS + '.ansage', true) !== false, tisch:[], laeuft:false };
+  if (keys.length && !SORT.z.verlauf.length) SORT.z.keys = keys;              // noch nichts gezählt: die Auswahl vom Spiel nehmen
+  s.addEventListener('click', sortKlick);
+  sortWahlZeigen();
+}
+async function sortWahlZeigen(){
+  const S = SORT; if (!S) return;
+  const el = $('[data-sort]', S.s);
+  for (const k of S.z.keys) if (!(k in KARTENDATEN)) await kartenDatenLaden(k).catch(() => null);
+  if (SORT !== S || S.laeuft) return;
+  const fehlt = S.z.keys.filter(k => !KARTENDATEN[k]);
+  const darfErstellen = E.token && pushEingerichtet();
+  const status = S.z.keys.map(k => { const satz = sortSatz(S.kat, k), d = KARTENDATEN[k], e = S.ergebnis && S.ergebnis.ergebnis && S.ergebnis.ergebnis[k];
+    return `<li><b>${esc(satz.t)}</b>: ${d ? `${d.anzahl === 84 ? '✓ bereit' : `⚠️ ${d.anzahl} statt 84 Karten gefunden`}` : e && e.fehler ? `⚠️ ${esc(e.fehler)}` : S.erstellt && S.erstellt.keys.includes(k) ? '⏳ wird erstellt …' : 'Kartendaten fehlen noch'}</li>`; }).join('');
+  const gezaehlt = S.z.verlauf.length;
+  el.innerHTML = `<p class="text-leise" style="margin-top:-4px">Die Kamera erkennt, zu welcher Erweiterung eine Karte gehört, und sagt es an. Es wird kein Foto gemacht.</p>
+    <p class="termin-abschnitt">Was ist gemischt?</p>
+    <div class="chips">${sortSaetze(S.kat).map(e => `<button type="button" class="chip" data-sort-satz="${esc(e.k)}" aria-pressed="${S.z.keys.includes(e.k)}">${esc(e.t)}</button>`).join('')}</div>
+    <ul class="sort-status">${status}</ul>
+    ${fehlt.length ? S.erstellt ? `<p class="hinweis" style="margin:8px 0">⏳ ${technikSichtbar() ? 'GitHub erstellt' : 'Im Hintergrund entstehen'} die Kartendaten aus den Kartenübersichten des Verlags – das dauert 2 bis 5 Minuten. Das Fenster kann offen bleiben.</p>`
+      : darfErstellen ? `<button class="knopf zweit breit" type="button" data-sort-erstellen style="margin-top:8px">Kartendaten erstellen lassen (${fehlt.length})</button>
+        <p class="block-hinweis">Einmalig: ${technikSichtbar() ? 'GitHub liest' : 'Es werden'} die Kartenübersichten des Verlags ${technikSichtbar() ? 'und merkt sich' : 'gelesen, gemerkt wird'} von jeder Karte nur ein grobes Farbmuster (keine Bilder). Danach geht das Sortieren auf allen Geräten.</p>`
+      : `<p class="block-hinweis">Die Kartendaten fehlen noch – das kann der Admin einmal erstellen lassen.</p>` : ''}
+    <button class="knopf breit" type="button" data-sort-los style="margin-top:14px" ${!fehlt.length && S.z.keys.length >= 2 ? '' : 'disabled'}>${ic('kamera')}Kamera starten</button>
+    ${S.z.keys.length < 2 ? '<p class="block-hinweis">Mindestens zwei antippen – sonst gibt es nichts zu sortieren.</p>' : ''}
+    ${gezaehlt ? `<p class="text-klein" style="margin:12px 0 0">Bisher gezählt: ${S.z.keys.map(k => `${esc(sortSatz(S.kat, k).t)} ${S.z.n[k] || 0}`).join(' · ')} · <button class="knopf-link" type="button" data-sort-neu>wieder bei 0 anfangen</button></p>` : ''}
+    <p class="block-hinweis" style="margin-top:12px">So geht's: Erst kurz nur den Tisch zeigen. Dann eine Karte nach der anderen hinlegen und das Handy so darüber halten, dass die Karte den Rahmen ausfüllt (etwa 15 cm). Die App sagt zum Beispiel „Quest 12“ – Karte auf den Quest-Stapel, nächste Karte. Ist sie unsicher, fragt sie nach.</p>
+    ${E.admin && !fehlt.length && darfErstellen ? '<p class="text-klein" style="margin:8px 0 0"><button class="knopf-link" type="button" data-sort-erstellen="alle">Kartendaten neu erstellen lassen</button></p>' : ''}`;
+}
+async function sortStarten(){
+  const S = SORT; if (!S) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast('Dieses Gerät lässt die App nicht an die Kamera.', 'fehler'); return; }
+  sortSagen('');                                                          // iPhone: Sprache muss mit einem Tipp freigegeben werden
+  const el = $('[data-sort]', S.s);
+  el.innerHTML = `<div class="sort-kamera"><video playsinline muted autoplay></video><div class="sort-rahmen"></div></div>
+    <div class="sort-erg" data-sort-erg aria-live="polite"></div>
+    <div data-sort-frage></div>
+    <div class="sort-zaehler" data-sort-zaehler></div>
+    <div class="knopfreihe" style="margin-top:10px"><button class="knopf zweit" type="button" data-sort-zurueck>↶ Rückgängig</button>
+      <button class="knopf zweit" type="button" data-sort-ansage>${S.ansage ? '🔊 Ansage an' : '🔇 Ansage aus'}</button></div>
+    <p class="block-hinweis">Einen Stapel antippen zählt eine Karte von Hand dazu.</p>
+    ${klapp('sort-mehr', 'Mehr', `<p class="text-klein" style="margin:0 0 8px" data-sort-info>…</p>
+      <div class="knopfreihe"><button class="knopf rahmen" type="button" data-sort-tisch>Tisch neu merken</button><button class="knopf rahmen" type="button" data-sort-ende>Andere Auswahl</button></div>`, { klasse:'leicht' })}`;
+  S.video = $('video', el);
+  const cv = document.createElement('canvas'); cv.width = 120; cv.height = 180;
+  S.ctx = cv.getContext('2d', { willReadFrequently:true }); S.ctx.imageSmoothingEnabled = true; S.ctx.imageSmoothingQuality = 'high';
+  try{
+    S.stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false });
+  }catch(e){
+    toast(e && e.name === 'NotAllowedError' ? 'Die Kamera ist nicht erlaubt – in den Einstellungen des iPhones bei Safari bzw. der App die Kamera erlauben.' : 'Die Kamera ließ sich nicht starten.', 'fehler');
+    sortWahlZeigen(); return;
+  }
+  if (SORT !== S){ S.stream.getTracks().forEach(t => t.stop()); return; }
+  S.video.srcObject = S.stream;
+  try{ await S.video.play(); }catch(e){}
+  Object.assign(S, { laeuft:true, tisch:[], tischMerken:7, gesperrt:'', weg:0, kandidat:'', stabil:0, unsicher:0, frage:null, letzte:null });
+  sortAnzeige({ art:'tisch' }); sortZaehlerZeigen();
+  sortTick();
+}
+function sortStopp(){
+  const S = SORT; if (!S) return;
+  S.laeuft = false; clearTimeout(S.timer);
+  if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+  S.stream = null;
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+function sortKlick(e){
+  const S = SORT; if (!S) return;
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.sortSatz){
+    const k = d.sortSatz;
+    if (S.z.keys.includes(k) && (S.z.n[k] || 0) > 0){ toast('Von dieser Erweiterung ist schon etwas gezählt – erst „wieder bei 0 anfangen“.'); return; }
+    S.z.keys = S.z.keys.includes(k) ? S.z.keys.filter(x => x !== k) : [...S.z.keys, k];
+    sortStandSpeichern(); sortWahlZeigen();
+  }
+  else if ('sortErstellen' in d) sortErstellen(d.sortErstellen === 'alle' ? S.z.keys : S.z.keys.filter(k => !KARTENDATEN[k]));
+  else if ('sortLos' in d) sortStarten();
+  else if ('sortNeu' in d){ S.z = { keys:S.z.keys, n:{}, gezaehlt:[], verlauf:[] }; sortStandSpeichern(); sortWahlZeigen(); }
+  else if ('sortPlus' in d) sortTreffer(d.sortPlus, null);
+  else if ('sortZurueck' in d) sortRueckgaengig();
+  else if ('sortAnsage' in d){ S.ansage = !S.ansage; schreiben(SORT_LS + '.ansage', S.ansage); b.textContent = S.ansage ? '🔊 Ansage an' : '🔇 Ansage aus'; }
+  else if ('sortTisch' in d){ S.tisch = []; S.tischMerken = 7; sortAnzeige({ art:'tisch' }); }
+  else if ('sortEnde' in d){ sortStopp(); sortWahlZeigen(); }
+  else if (d.sortAntwort){
+    const o = S.frage && S.frage.optionen[Number(d.sortAntwort)];
+    if (o) sortTreffer(o.k, o.j); else { S.frage = null; S.unsicher = -15; sortFrageZeigen(); }
+  }
+}
+/* Aufruf von überall (Spiel, Spielblock): <button data-sort-start="Spielname" data-sort-keys="grund,quest"> */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-sort-start]'); if (!b || b.closest('.zuschau')) return;
+  sortSheet(b.dataset.sortStart, String(b.dataset.sortKeys || '').split(',').filter(Boolean));
+});
+
 /* ---------- Navigation & Verdrahtung ---------- */
 let aktiveSeite = 'spiele';
 function seiteZeigen(name){
@@ -9901,7 +10470,7 @@ function renderSeite(name){
 function renderAlles(){
   funktionenAnpassen();
   renderSpiele();
-  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); liveHinweisZeigen(); kreisLeisteZeigen(); gscNeuZeichnen();
+  termineZahlZeigen(); anfragenZahlZeigen(); nachrichtenZahlZeigen(); blockHinweisZeigen(); liveHinweisZeigen(); kreisLeisteZeigen(); gscNeuZeichnen(); zuschauHinweisZeigen(); if (ZUSCHAU.s) zuschauRender();
   pushHinweisZeigen(); chatKnopfZeigen(); if (CHATUI.s) chatRender(); badgeZeigen();
   if (aktiveSeite !== 'spiele') renderSeite(aktiveSeite);
   $('#plus').classList.toggle('versteckt', aktiveSeite !== 'spiele' || !Object.keys(D.haushalte).length);
@@ -10021,7 +10590,7 @@ function start(){
   blockHinweisZeigen();
   installHinweis();
   seiteZeigen('spiele');
-  try{ chatKnopfZeigen(); badgeZeigen(); }catch(e){}      // gleich beim Start – nicht erst, wenn der Abgleich etwas Neues bringt (darf den Start nie aufhalten)
+  try{ chatKnopfZeigen(); badgeZeigen(); zuschauHinweisZeigen(); }catch(e){}      // gleich beim Start – nicht erst, wenn der Abgleich etwas Neues bringt (darf den Start nie aufhalten)
   terminLinkPruefen();
   if (eingeladen && !istStandalone()) ueberSheet(true);      // sofort, damit die Haushaltsfrage danach kommt
   else if (eingeladen) setTimeout(haushaltWechselPruefen, 500);
