@@ -162,8 +162,7 @@
     },
     {
      "k": "memories",
-     "bild": "bilder/smvmpi5egc06c-erw-memories-mwaexhh8.jpg",
-     "quelle": "Foto: Spiele-Offensive.de"
+     "bild": "bilder/smvmpi5egc06c-erw-memories-mwafiqol.jpg"
     },
     {
      "k": "revelations",
@@ -174,7 +173,7 @@
     }
    ],
    "erstellt": 1792864955609,
-   "geaendert": 1794299164480
+   "geaendert": 1794299375258
   },
   {
    "id": "smvmpwvne2qnm",
@@ -889,7 +888,7 @@
    "app": true,
    "version": "v2.04",
    "erst": 1792864131177,
-   "zuletzt": 1794299308497,
+   "zuletzt": 1794299377286,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
