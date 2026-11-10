@@ -113,7 +113,7 @@
    "app": true,
    "version": "v2.04",
    "erst": 1792865586242,
-   "zuletzt": 1794298030552,
+   "zuletzt": 1794298878515,
    "name": "Rolf",
    "nameStand": 1792866969029,
    "personen": [
@@ -170,6 +170,16 @@
      "zeit": 1793130432280
     }
    ]
+  }
+ ],
+ "chat": [
+  {
+   "id": "cmwaf82q9q8fe",
+   "an": "p:hmvl3fteujlp7:pmvl9l3p8z309",
+   "von": "pmvlefhlltxh1",
+   "text": "Aha",
+   "zeit": 1794298877650,
+   "geraet": "gmvlfo7oo0u75"
   }
  ],
  "geloescht": {}
