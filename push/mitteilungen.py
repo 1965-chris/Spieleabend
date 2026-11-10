@@ -3,7 +3,7 @@
 # Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),
 # neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.
 # Nebenbei, auf Wunsch aus der App: Fingerabdrücke der Dixit-Karten für den Kartensortierer (aus den Kartenübersichten des Verlags; gespeichert werden nur grobe Farbmuster, keine Bilder).
-MITTEILUNGEN_VERSION = 3
+MITTEILUNGEN_VERSION = 4
 import base64, datetime, hashlib, hmac, json, os, re, sys, time, urllib.error, urllib.request
 from urllib.parse import urlparse
 
@@ -120,7 +120,7 @@ def schreiben(pfad, daten, nachricht):
 
 
 # ---------- Dixit-Karten: Fingerabdrücke für den Kartensortierer der App ----------
-# Jede Karte wird auf 10 × 15 Farbfelder verkleinert (ohne 6 % Rand), daraus Helligkeit und zwei Farbachsen, jeweils
+# Die Kartenbilder kommen direkt aus dem PDF (eingebettete Bilder). Jede Karte wird auf 10 × 15 Farbfelder verkleinert (ohne 6 % Rand), daraus Helligkeit und zwei Farbachsen, jeweils
 # auf Mittelwert 0 gebracht – so stört es wenig, ob das Licht heller, dunkler oder gelblicher ist. Die App rechnet genauso.
 KARTEN_ORDNER, KARTEN_QUELLE, KARTEN_ZEIT = 'karten', 'https://cdn.svc.asmodee.net/', 200
 RASTER_B, RASTER_H, RAND = 10, 15, 0.06
@@ -128,11 +128,11 @@ RASTER_B, RASTER_H, RAND = 10, 15, 0.06
 
 def karten_pakete():
     try:
-        import fitz, numpy, scipy.ndimage, PIL  # noqa: F401
+        import pikepdf, numpy, PIL  # noqa: F401
     except ImportError:
         import importlib, site, subprocess
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--quiet', '--user', '--break-system-packages',
-                        'pymupdf', 'numpy', 'scipy', 'pillow'], check=True)
+                        'pikepdf', 'numpy', 'pillow'], check=True)
         p = site.getusersitepackages()
         if p not in sys.path: sys.path.insert(0, p)
         importlib.invalidate_caches()
@@ -160,64 +160,71 @@ def fingerabdruck(bild):
     return merkmal(zellen)
 
 
-def kartig(r, W, H):
-    w, h = r[2] - r[0], r[3] - r[1]
-    return h > 0 and w > 0 and 0.55 <= w / h <= 0.80 and 0.0015 * W * H <= w * h <= 0.45 * W * H
-
-
-def flaechen(seite):
-    """Karten auf einer gerenderten Seite finden: alles, was sich deutlich vom Seitenhintergrund abhebt."""
-    import numpy as np
-    import scipy.ndimage as nd
-    rand = np.concatenate([seite[:4].reshape(-1, 3), seite[-4:].reshape(-1, 3), seite[:, :4].reshape(-1, 3), seite[:, -4:].reshape(-1, 3)])
-    hg = np.median(rand, 0)
-    maske = np.abs(seite.astype(np.int16) - hg).max(2) > 28
-    maske = nd.binary_fill_holes(nd.binary_closing(maske, iterations=2))
-    lab, _ = nd.label(maske)
-    return [(s[1].start, s[0].start, s[1].stop, s[0].stop) for s in nd.find_objects(lab) if s]
-
-
-def karten_finden(seiten):
-    """seiten: [(Bild als H×W×3, Rechtecke der eingebetteten Bilder in Pixeln)]. Ergebnis: [(Seite, Rechteck)] in Lesereihenfolge."""
-    kand, methoden = [], set()
-    for nr, (bild, bilder) in enumerate(seiten):
-        H, W = bild.shape[:2]
-        eins = []
-        for r in bilder:
-            r = (max(0, r[0]), max(0, r[1]), min(W, r[2]), min(H, r[3]))
-            if kartig(r, W, H) and not any(abs(r[0] - x[0]) < 3 and abs(r[1] - x[1]) < 3 and abs(r[2] - x[2]) < 3 for x in eins): eins.append(r)
-        if len(eins) >= 4: methoden.add('bilder')
-        else: eins = [r for r in flaechen(bild) if kartig(r, W, H)]; methoden.add('flaechen') if eins else None
-        kand += [(nr, r) for r in eins]
+def pdf_kartenbilder(daten):
+    """Alle eingebetteten Bilder mit ihrer Lage auf der Seite; Karten sind die, die einzeln vorkommen, hochkant sind
+    und alle etwa gleich groß dargestellt werden (Schatten kommen 84-mal vor, Logo und Zierbilder haben andere Maße)."""
+    import io, math
+    import pikepdf
+    from PIL import Image, ImageChops
+    pdf = pikepdf.open(io.BytesIO(daten))
+    def mal(m, n):
+        a, b, c, d, e, f = m; A, B, C, D, E, F = n
+        return [a * A + b * C, a * B + b * D, c * A + d * C, c * B + d * D, e * A + f * C + E, e * B + f * D + F]
+    gefunden = []
+    def gehen(inhalt, res, ctm, seite, tiefe):
+        if tiefe > 8: return
+        stapel, xobj = [], (res.get('/XObject') if res is not None else None) or {}
+        for operanden, op in pikepdf.parse_content_stream(inhalt):
+            op = str(op)
+            if op == 'q': stapel.append(ctm)
+            elif op == 'Q': ctm = stapel.pop() if stapel else ctm
+            elif op == 'cm' and len(operanden) == 6: ctm = mal([float(x) for x in operanden], ctm)
+            elif op == 'Do' and operanden:
+                x = xobj.get(operanden[0])
+                if x is None: continue
+                art = x.get('/Subtype')
+                if art == '/Image': gefunden.append((seite, x.objgen, x, ctm))
+                elif art == '/Form':
+                    m = [float(v) for v in x.get('/Matrix', [1, 0, 0, 1, 0, 0])]
+                    gehen(x, x.get('/Resources', res), mal(m, ctm), seite, tiefe + 1)
+    for nr, s in enumerate(pdf.pages):
+        gehen(s, s.get('/Resources'), [1, 0, 0, 1, 0, 0], nr, 0)
+    zahl = {}
+    for _, og, _, _ in gefunden: zahl[og] = zahl.get(og, 0) + 1
+    kand = []
+    for seite, og, x, m in gefunden:
+        if zahl[og] > 2: continue                                   # z. B. der Schatten unter jeder Karte
+        w, h = int(x.get('/Width', 0)), int(x.get('/Height', 0))
+        if w < 40 or h < 40: continue
+        drehung = round(math.degrees(math.atan2(m[1], m[0])) / 90) % 4      # wie das Bild auf der Seite liegt (kleine Schräglagen egal)
+        if drehung % 2: w, h = h, w
+        if not 0.6 <= w / h <= 0.8: continue
+        bh = math.hypot(m[2], m[3]) if drehung % 2 == 0 else math.hypot(m[0], m[1])      # dargestellte Höhe
+        cx, cy = m[0] / 2 + m[2] / 2 + m[4], m[1] / 2 + m[3] / 2 + m[5]
+        kand.append({'seite': seite, 'x': x, 'drehung': drehung, 'bh': bh, 'cx': cx, 'cy': cy})
     if not kand: return [], ''
-    hoehen = sorted(r[3] - r[1] for _, r in kand)
-    mh = hoehen[len(hoehen) // 2]
-    kand = [(nr, r) for nr, r in kand if abs((r[3] - r[1]) - mh) <= 0.12 * mh]
-    # Lesereihenfolge: Seite, Zeile (gleiche Höhe ± halbe Karte), dann von links
-    kand.sort(key=lambda x: (x[0], x[1][1]))
+    hoehen = sorted(k['bh'] for k in kand); mh = hoehen[len(hoehen) // 2]
+    kand = [k for k in kand if abs(k['bh'] - mh) <= 0.15 * mh]
+    # Lesereihenfolge: Seite, Zeile (von oben), dann von links
+    kand.sort(key=lambda k: (k['seite'], -k['cy']))
     reihen, zeile = [], None
-    for nr, r in kand:
-        if zeile is None or nr != zeile[0] or r[1] - zeile[1] > mh / 2: zeile = (nr, r[1]); reihen.append([])
-        reihen[-1].append((nr, r))
-    return [x for reihe in reihen for x in sorted(reihe, key=lambda y: y[1][0])], '+'.join(sorted(methoden))
-
-
-def pdf_seiten(daten):
-    import fitz
-    import numpy as np
-    doc = fitz.open(stream=daten, filetype='pdf')
-    for seite in doc:
-        z = min(200 / 72, 5000 / max(seite.rect.width, seite.rect.height))
-        pix = seite.get_pixmap(matrix=fitz.Matrix(z, z), alpha=False, colorspace=fitz.csRGB)
-        bild = np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.stride)[:, :pix.width * 3].reshape(pix.height, pix.width, 3)
-        bilder = []
-        try:
-            for i in seite.get_image_info():
-                x0, y0, x1, y1 = i['bbox']
-                bilder.append((round(x0 * z), round(y0 * z), round(x1 * z), round(y1 * z)))
-        except Exception:
-            pass
-        yield bild.copy(), bilder
+    for k in kand:
+        if zeile is None or k['seite'] != zeile[0] or zeile[1] - k['cy'] > mh / 2: zeile = (k['seite'], k['cy']); reihen.append([])
+        reihen[-1].append(k)
+    bilder = []
+    for k in [k for r in reihen for k in sorted(r, key=lambda y: y['cx'])]:
+        img = pikepdf.PdfImage(k['x']).as_pil_image()
+        if img.mode == 'CMYK':
+            # Adobe-CMYK-JPEGs dreht PIL beim Lesen um, im PDF gelten aber die gespeicherten Werte (außer /Decode dreht sie selbst um)
+            filt = k['x'].get('/Filter')
+            adobe = str(filt if not isinstance(filt, pikepdf.Array) else (filt[-1] if len(filt) else '')) == '/DCTDecode' and b'Adobe' in k['x'].read_raw_bytes()[:4000]
+            dec = k['x'].get('/Decode')
+            umgedreht = dec is not None and len(dec) >= 2 and float(dec[0]) > float(dec[1])
+            if adobe != umgedreht: img = ImageChops.invert(img)
+        img = img.convert('RGB')
+        if k['drehung']: img = img.rotate(90 * k['drehung'], expand=True)
+        bilder.append(img)
+    return bilder, 'pdf-bilder'
 
 
 def herunterladen(url):
@@ -228,14 +235,7 @@ def herunterladen(url):
     return daten
 
 
-def karten_berechnen(seiten):
-    from PIL import Image
-    gefunden, methode = karten_finden(seiten)
-    abdruecke = [base64.b64encode(fingerabdruck(Image.fromarray(seiten[nr][0]).crop(r)).tobytes()).decode() for nr, r in gefunden]
-    return abdruecke, methode
-
-
-def karten_auftrag(auftrag, start, laden=herunterladen, seiten_aus=pdf_seiten):
+def karten_auftrag(auftrag, start, laden=herunterladen, bilder_aus=pdf_kartenbilder):
     karten_pakete()
     ergebnis = {}
     for e in (auftrag.get('liste') or [])[:12]:
@@ -245,14 +245,14 @@ def karten_auftrag(auftrag, start, laden=herunterladen, seiten_aus=pdf_seiten):
         if time.time() - start > KARTEN_ZEIT:
             ergebnis[k] = {'fehler': 'Die Zeit hat nicht gereicht – bitte nochmal anstoßen, dann geht es weiter.'}; continue
         try:
-            seiten = list(seiten_aus(laden(url)))
-            abdruecke, methode = karten_berechnen(seiten)
-            if not abdruecke: raise ValueError('In der Kartenübersicht wurden keine Karten gefunden.')
+            bilder, methode = bilder_aus(laden(url))
+            if len(bilder) < 20: raise ValueError(f'In der Kartenübersicht wurden nur {len(bilder)} Kartenbilder gefunden.')
+            abdruecke = [base64.b64encode(fingerabdruck(b).tobytes()).decode() for b in bilder]
             schreiben(f'{KARTEN_ORDNER}/dixit-{k}.json', {'format': 1, 'k': k, 'quelle': url, 'raster': [RASTER_B, RASTER_H], 'rand': RAND,
-                       'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten), 'karten': abdruecke, 'zeit': int(time.time() * 1000)},
+                       'anzahl': len(abdruecke), 'methode': methode, 'karten': abdruecke, 'zeit': int(time.time() * 1000)},
                       f'Kartensortierer: {k} ({len(abdruecke)} Karten)')
-            ergebnis[k] = {'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten)}
-            print('Karten', k, len(abdruecke), methode, len(seiten), 'Seiten')
+            ergebnis[k] = {'anzahl': len(abdruecke), 'methode': methode}
+            print('Karten', k, len(abdruecke), methode)
         except Exception as ex:
             ergebnis[k] = {'fehler': f'{type(ex).__name__}: {ex}'[:240]}
             print('Karten', k, 'Fehler', ex)
