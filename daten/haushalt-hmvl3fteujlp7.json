@@ -132,7 +132,7 @@
    "name": "Dixit",
    "bild": "bilder/smvmpi5egc06c-mvmpi5eh.jpg",
    "spielerMin": 3,
-   "spielerMax": 6,
+   "spielerMax": 12,
    "alterAb": 8,
    "dauer": 45,
    "kategorien": [
@@ -144,8 +144,34 @@
    "bildQuelle": "",
    "link": "https://de.wikipedia.org/wiki/Dixit_(Spiel)",
    "anleitung": "https://share.google/sNyFhw02htwkPMkyO",
+   "wertung": {
+    "art": "dixit"
+   },
+   "erweiterungen": [
+    {
+     "k": "quest"
+    },
+    {
+     "k": "journey"
+    },
+    {
+     "k": "origins"
+    },
+    {
+     "k": "daydreams"
+    },
+    {
+     "k": "memories"
+    },
+    {
+     "k": "revelations"
+    },
+    {
+     "k": "harmonies"
+    }
+   ],
    "erstellt": 1792864955609,
-   "geaendert": 1792864996673
+   "geaendert": 1794298137414
   },
   {
    "id": "smvmpwvne2qnm",
@@ -860,7 +886,7 @@
    "app": true,
    "version": "v2.04",
    "erst": 1792864131177,
-   "zuletzt": 1794297859598,
+   "zuletzt": 1794298139664,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
