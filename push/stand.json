@@ -9,6 +9,7 @@
   "c:cmw9hm6lf65nt",
   "c:cmw9hn0pwo7tn",
   "c:cmwaf0fsouukd",
+  "c:cmwaf82q9q8fe",
   "n:nmvnon9z9bovg",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
@@ -88,8 +89,14 @@
    "titel": "Neuer Termin: 🎲 Spieleabend",
    "an": 3,
    "ok": 3
+  },
+  {
+   "zeit": 1794298886119,
+   "titel": "💬 Rolf (Familie Mättig Hilden)",
+   "an": 3,
+   "ok": 3
   }
  ],
  "geraete": 4,
- "zeit": 1794298529756
+ "zeit": 1794298886119
 }
