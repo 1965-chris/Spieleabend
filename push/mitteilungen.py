@@ -2,8 +2,9 @@
 # Diese Datei legt die App selbst ins Repo (push/mitteilungen.py) und hält sie aktuell; gestartet wird sie von .github/workflows/mitteilungen.yml.
 # Gemeldet wird: neue Nachricht an den Admin (an die Admin-Geräte), Antwort vom Admin (an den Haushalt), Antwort des Haushalts (an den Admin),
 # neuer Termin (an die eingeladenen Haushalte), Chat (Gruppe: alle im Spielkreis; direkt: die Geräte der Person, sonst ihr Haushalt). Der geheime Schlüssel liegt nur als GitHub-Secret PUSH_SCHLUESSEL vor, nie im Repo.
-MITTEILUNGEN_VERSION = 2
-import base64, datetime, hashlib, hmac, json, os, re, time, urllib.error, urllib.request
+# Nebenbei, auf Wunsch aus der App: Fingerabdrücke der Dixit-Karten für den Kartensortierer (aus den Kartenübersichten des Verlags; gespeichert werden nur grobe Farbmuster, keine Bilder).
+MITTEILUNGEN_VERSION = 3
+import base64, datetime, hashlib, hmac, json, os, re, sys, time, urllib.error, urllib.request
 from urllib.parse import urlparse
 
 FRISCH = 3 * 86400           # ältere Ereignisse nicht mehr melden (z. B. nach verlorenem Zustand)
@@ -116,6 +117,146 @@ def schreiben(pfad, daten, nachricht):
     alt = gh('GET', f'/contents/{pfad}?ref={ZWEIG}')
     gh('PUT', f'/contents/{pfad}', {'message': nachricht, 'branch': ZWEIG,
         'content': base64.b64encode(json.dumps(daten, ensure_ascii=False, indent=1).encode()).decode(), **({'sha': alt['sha']} if alt else {})})
+
+
+# ---------- Dixit-Karten: Fingerabdrücke für den Kartensortierer der App ----------
+# Jede Karte wird auf 10 × 15 Farbfelder verkleinert (ohne 6 % Rand), daraus Helligkeit und zwei Farbachsen, jeweils
+# auf Mittelwert 0 gebracht – so stört es wenig, ob das Licht heller, dunkler oder gelblicher ist. Die App rechnet genauso.
+KARTEN_ORDNER, KARTEN_QUELLE, KARTEN_ZEIT = 'karten', 'https://cdn.svc.asmodee.net/', 200
+RASTER_B, RASTER_H, RAND = 10, 15, 0.06
+
+
+def karten_pakete():
+    try:
+        import fitz, numpy, scipy.ndimage, PIL  # noqa: F401
+    except ImportError:
+        import importlib, site, subprocess
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '--quiet', '--user', '--break-system-packages',
+                        'pymupdf', 'numpy', 'scipy', 'pillow'], check=True)
+        p = site.getusersitepackages()
+        if p not in sys.path: sys.path.insert(0, p)
+        importlib.invalidate_caches()
+
+
+def merkmal(zellen):
+    """zellen: 150 × 3 Mittelwerte (R, G, B) – Zeile für Zeile von oben links. Ergebnis: 450 Zahlen als int8."""
+    import numpy as np
+    a = np.asarray(zellen, dtype=np.float64).reshape(-1, 3)
+    hell = a.mean(1); rg = a[:, 0] - a[:, 1]; gb = (a[:, 0] + a[:, 1]) / 2 - a[:, 2]
+    hell = (hell - hell.mean()) / max(hell.std(), 4.0)
+    rg, gb = rg - rg.mean(), gb - gb.mean()
+    s = max(rg.std(), gb.std(), 6.0)
+    v = np.stack([hell, 0.7 * rg / s, 0.7 * gb / s], 1).reshape(-1)
+    return np.clip(np.round(v * 32), -127, 127).astype(np.int8)
+
+
+def fingerabdruck(bild):
+    """bild: PIL-Bild einer ganzen Karte."""
+    import numpy as np
+    from PIL import Image
+    w, h = bild.size
+    innen = bild.convert('RGB').crop((round(w * RAND), round(h * RAND), w - round(w * RAND), h - round(h * RAND)))
+    zellen = np.asarray(innen.resize((RASTER_B, RASTER_H), Image.BOX), dtype=np.float64)
+    return merkmal(zellen)
+
+
+def kartig(r, W, H):
+    w, h = r[2] - r[0], r[3] - r[1]
+    return h > 0 and w > 0 and 0.55 <= w / h <= 0.80 and 0.0015 * W * H <= w * h <= 0.45 * W * H
+
+
+def flaechen(seite):
+    """Karten auf einer gerenderten Seite finden: alles, was sich deutlich vom Seitenhintergrund abhebt."""
+    import numpy as np
+    import scipy.ndimage as nd
+    rand = np.concatenate([seite[:4].reshape(-1, 3), seite[-4:].reshape(-1, 3), seite[:, :4].reshape(-1, 3), seite[:, -4:].reshape(-1, 3)])
+    hg = np.median(rand, 0)
+    maske = np.abs(seite.astype(np.int16) - hg).max(2) > 28
+    maske = nd.binary_fill_holes(nd.binary_closing(maske, iterations=2))
+    lab, _ = nd.label(maske)
+    return [(s[1].start, s[0].start, s[1].stop, s[0].stop) for s in nd.find_objects(lab) if s]
+
+
+def karten_finden(seiten):
+    """seiten: [(Bild als H×W×3, Rechtecke der eingebetteten Bilder in Pixeln)]. Ergebnis: [(Seite, Rechteck)] in Lesereihenfolge."""
+    kand, methoden = [], set()
+    for nr, (bild, bilder) in enumerate(seiten):
+        H, W = bild.shape[:2]
+        eins = []
+        for r in bilder:
+            r = (max(0, r[0]), max(0, r[1]), min(W, r[2]), min(H, r[3]))
+            if kartig(r, W, H) and not any(abs(r[0] - x[0]) < 3 and abs(r[1] - x[1]) < 3 and abs(r[2] - x[2]) < 3 for x in eins): eins.append(r)
+        if len(eins) >= 4: methoden.add('bilder')
+        else: eins = [r for r in flaechen(bild) if kartig(r, W, H)]; methoden.add('flaechen') if eins else None
+        kand += [(nr, r) for r in eins]
+    if not kand: return [], ''
+    hoehen = sorted(r[3] - r[1] for _, r in kand)
+    mh = hoehen[len(hoehen) // 2]
+    kand = [(nr, r) for nr, r in kand if abs((r[3] - r[1]) - mh) <= 0.12 * mh]
+    # Lesereihenfolge: Seite, Zeile (gleiche Höhe ± halbe Karte), dann von links
+    kand.sort(key=lambda x: (x[0], x[1][1]))
+    reihen, zeile = [], None
+    for nr, r in kand:
+        if zeile is None or nr != zeile[0] or r[1] - zeile[1] > mh / 2: zeile = (nr, r[1]); reihen.append([])
+        reihen[-1].append((nr, r))
+    return [x for reihe in reihen for x in sorted(reihe, key=lambda y: y[1][0])], '+'.join(sorted(methoden))
+
+
+def pdf_seiten(daten):
+    import fitz
+    import numpy as np
+    doc = fitz.open(stream=daten, filetype='pdf')
+    for seite in doc:
+        z = min(200 / 72, 5000 / max(seite.rect.width, seite.rect.height))
+        pix = seite.get_pixmap(matrix=fitz.Matrix(z, z), alpha=False, colorspace=fitz.csRGB)
+        bild = np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.stride)[:, :pix.width * 3].reshape(pix.height, pix.width, 3)
+        bilder = []
+        try:
+            for i in seite.get_image_info():
+                x0, y0, x1, y1 = i['bbox']
+                bilder.append((round(x0 * z), round(y0 * z), round(x1 * z), round(y1 * z)))
+        except Exception:
+            pass
+        yield bild.copy(), bilder
+
+
+def herunterladen(url):
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Spieleabend)'})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        daten = r.read(120 * 1024 * 1024 + 1)
+    if len(daten) > 120 * 1024 * 1024: raise ValueError('Die Datei ist zu groß.')
+    return daten
+
+
+def karten_berechnen(seiten):
+    from PIL import Image
+    gefunden, methode = karten_finden(seiten)
+    abdruecke = [base64.b64encode(fingerabdruck(Image.fromarray(seiten[nr][0]).crop(r)).tobytes()).decode() for nr, r in gefunden]
+    return abdruecke, methode
+
+
+def karten_auftrag(auftrag, start, laden=herunterladen, seiten_aus=pdf_seiten):
+    karten_pakete()
+    ergebnis = {}
+    for e in (auftrag.get('liste') or [])[:12]:
+        k = re.sub(r'[^a-z0-9-]', '', str(e.get('k', '')).lower())[:30]
+        url = str(e.get('url', ''))
+        if not k or not url.startswith(KARTEN_QUELLE) or not url.lower().endswith('.pdf'): continue
+        if time.time() - start > KARTEN_ZEIT:
+            ergebnis[k] = {'fehler': 'Die Zeit hat nicht gereicht – bitte nochmal anstoßen, dann geht es weiter.'}; continue
+        try:
+            seiten = list(seiten_aus(laden(url)))
+            abdruecke, methode = karten_berechnen(seiten)
+            if not abdruecke: raise ValueError('In der Kartenübersicht wurden keine Karten gefunden.')
+            schreiben(f'{KARTEN_ORDNER}/dixit-{k}.json', {'format': 1, 'k': k, 'quelle': url, 'raster': [RASTER_B, RASTER_H], 'rand': RAND,
+                       'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten), 'karten': abdruecke, 'zeit': int(time.time() * 1000)},
+                      f'Kartensortierer: {k} ({len(abdruecke)} Karten)')
+            ergebnis[k] = {'anzahl': len(abdruecke), 'methode': methode, 'seiten': len(seiten)}
+            print('Karten', k, len(abdruecke), methode, len(seiten), 'Seiten')
+        except Exception as ex:
+            ergebnis[k] = {'fehler': f'{type(ex).__name__}: {ex}'[:240]}
+            print('Karten', k, 'Fehler', ex)
+    return ergebnis
 
 
 # ---------- Wer bekommt was? ----------
@@ -275,6 +416,12 @@ def main():
     for f in gh('GET', f'/contents/{TEST_ORDNER}?ref={ZWEIG}') or []:
         if f.get('type') != 'file': continue
         auftrag = json_lesen(f'{TEST_ORDNER}/{f["name"]}') or {}
+        if auftrag.get('art') == 'karten':
+            try: ergebnis, fehler = karten_auftrag(auftrag, jetzt), ''
+            except Exception as ex: ergebnis, fehler = {}, f'{type(ex).__name__}: {ex}'[:300]
+            stand['karten'] = {'id': f['name'][:-5], 'zeit': int(time.time() * 1000), 'ergebnis': ergebnis, 'fehler': fehler}
+            gh('DELETE', f'/contents/{TEST_ORDNER}/{f["name"]}', {'message': 'Kartensortierer: erledigt', 'sha': f['sha'], 'branch': ZWEIG})
+            continue
         gid = str(auftrag.get('geraet') or '')
         if not privat: ergebnis = stand['fehler']
         elif gid not in abos: ergebnis = 'Dieses Gerät hat (noch) keine Mitteilungen erlaubt – oder der Abgleich lief noch nicht.'
