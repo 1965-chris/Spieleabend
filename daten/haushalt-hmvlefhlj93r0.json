@@ -113,9 +113,16 @@
    "app": true,
    "version": "v2.04",
    "erst": 1792865586242,
-   "zuletzt": 1794298878515,
+   "zuletzt": 1794298929858,
    "name": "Rolf",
    "nameStand": 1792866969029,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QO0pXpR-8B-jfwWis_2HD81xoP53G37jScUkBTvqJlS4SGPDwmfMAOeFgnYywJzPPjaUsO8KxSkRHyr-odrch_BO0lWMa3c7LkOyXBl10vR1px20ZcL1LzLg-6-Knoe-jFBRicq3y1ww09xPdoy-Y15vk0iEiPuM9jksE0UVKIk",
+    "p256dh": "BMPHuFcI1ZqBzcF5dEVQNvGu1tFIxhlKmCKVaaRLrsYhXW5czMscXey50srM7mnRDgtnhcQMEAKfYxTVWcYTSGI",
+    "auth": "8Joib0KBfDj4_wRsc7YiZA",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794298929857
+   },
    "personen": [
     "pmvlefhlltxh1"
    ],
