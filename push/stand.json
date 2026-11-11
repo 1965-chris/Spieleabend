@@ -14,6 +14,7 @@
   "c:cmwafc8rrtnkf",
   "c:cmwafh9mippfg",
   "n:nmvnon9z9bovg",
+  "t:tmwbt9adxz3bk",
   "v:amvnq9o9n63es",
   "v:amvnxqo9ezzjk",
   "v:amvqp2hnokqeq",
@@ -116,10 +117,16 @@
    "titel": "💬 Christian (Familie Mättig Baumberg)",
    "an": 1,
    "ok": 1
+  },
+  {
+   "zeit": 1794382925540,
+   "titel": "Neuer Termin: 🎲 Spieleabend",
+   "an": 3,
+   "ok": 3
   }
  ],
  "geraete": 5,
- "zeit": 1794339642078,
+ "zeit": 1794382925540,
  "karten": {
   "id": "kartenmwb3hm7a",
   "zeit": 1794339654324,
