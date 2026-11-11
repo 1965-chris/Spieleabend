@@ -812,6 +812,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .wer-tabelle td.leer{color:var(--leise)}
 .wer-offen{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--linie)}
 .wer-offen span{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.wer-offen .wer-still{flex-basis:100%;color:#9A6B00;font-size:12.5px}
 .wer-offen .knopf{min-height:38px;padding:0 12px;flex:none;font-size:14px}
 .zuschau-hinweis{background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
 .sort-kamera{position:relative;width:100%;max-width:340px;margin:0 auto;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#111}
@@ -1202,7 +1203,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.13';
+const VERSION = 'v2.14';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -4420,14 +4421,14 @@ function terminUebersichtHtml(t){
       ${g.leute.map(p => `<tr><td class="wer-name">${esc(p.name)}</td>${spalten.map(o => zelle(o, p)).join('')}</tr>`).join('')}`).join('')}</tbody></table></div>
     <p class="text-leise text-klein" style="margin:6px 0 0">✓ kann · ? vielleicht · ✗ kann nicht · – noch keine Antwort</p>`;
   const ohne = offen.length ? `<p class="termin-abschnitt" style="margin-top:14px">Noch keine Antwort (${offen.length})</p>
-    ${offen.map(x => { const perChat = terminPerChat(x.h.id);
-      return `<div class="wer-offen"><span>${figur(x.h.farbe, 14)}<b>${esc(x.name)}</b> <small class="text-leise">${esc(x.h.name)}</small></span>
+    ${offen.map(x => { const perChat = terminPerChat(x.h.id, x.pid);
+      return `<div class="wer-offen"><span>${figur(x.h.farbe, 14)}<b>${esc(x.name)}</b> <small class="text-leise">${esc(x.h.name)}</small>${perChat && chatPersonOhneMitteilung(x.h.id, x.pid) ? `<small class="wer-still">${esc(OHNE_MITTEILUNG)}</small>` : ''}</span>
         ${x.h.id === E.meinHaushalt && !perChat ? '' : `<button class="knopf zweit" type="button" data-t="erinnern" data-id="${esc(t.id)}" data-hid="${esc(x.h.id)}" data-pid="${esc(x.pid)}">${perChat ? '💬 Anschreiben' : `${ic('teilen')}Erinnern`}</button>`}</div>`; }).join('')}
-    <p class="block-hinweis">„Anschreiben“ öffnet den Chat mit einem fertigen Text. „Erinnern“ gibt es für alle ohne Chat – der Text geht dann z. B. per WhatsApp raus.</p>` : '';
+    <p class="block-hinweis">„Anschreiben“ öffnet den Chat mit einem fertigen Text. „Erinnern“ gibt es für alle, die den Chat nicht lesen (kein eigenes Gerät mit der App) – der Text geht dann z. B. per WhatsApp raus.</p>` : '';
   return `<div style="margin-top:12px">${klapp('wer-' + t.id, 'Wer hat wie abgestimmt?', tabelle + ohne, { klasse:'leicht', klein:`${gemeldet} von ${leute}` })}</div>`;
 }
 /* Erreicht man diesen Haushalt im Chat? (Chat an, dort läuft eine App mit Chat) */
-function terminPerChat(hid){ return chatMoeglich() && chatHaushaltStand(hid) === 'ok' && !!D.haushalte[hid]; }
+function terminPerChat(hid, pid){ return chatMoeglich() && !!D.haushalte[hid] && chatPersonErreichbar(hid, pid); }
 function terminErinnerungText(t, name){
   return [`Hallo ${name}, magst du noch abstimmen? ${terminArt(t).e} ${t.titel}${ortAbstimmung(t) ? '' : terminWo(t) ? ` (${terminWo(t)})` : ''} – zur Auswahl:`,
     ...t.optionen.map((o, i) => `${i + 1}. ${terminZeitText(o.zeit)}`),
@@ -4435,8 +4436,8 @@ function terminErinnerungText(t, name){
 }
 function terminErinnern(t, hid, pid){
   const name = personName(hid, pid), text = terminErinnerungText(t, name);
-  if (terminPerChat(hid)){ CHATUI.vorlage = text; chatSheet(`p:${hid}:${pid}`); return; }
-  teilenSheet(`Erinnerung an ${name}`, text, `<p class="hinweis" style="margin:0">${esc(name)} (${esc((D.haushalte[hid] || {}).name || '')}) ist im Chat nicht erreichbar – schick die Erinnerung einfach so.</p>`);
+  if (terminPerChat(hid, pid)){ CHATUI.vorlage = text; chatSheet(`p:${hid}:${pid}`); return; }
+  teilenSheet(`Erinnerung an ${name}`, text, `<p class="hinweis" style="margin:0">${esc(name)} (${esc((D.haushalte[hid] || {}).name || '')}) ist im Chat nicht erreichbar – kein eigenes Gerät mit der App. Schick die Erinnerung einfach so.</p>`);
 }
 function terminKarteHtml(t){
   const fest = t.optionen.find(o => o.id === t.festgelegt);
@@ -8322,6 +8323,11 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.14', datum:'11.11.2026', neu:[
+    'Termine/Chat: „Anschreiben“ nur noch für Personen, die den Chat auch lesen – mit eigenem Gerät (oder einem gemeinsamen des Haushalts). Alle anderen: „Erinnern“ per WhatsApp & Co.',
+    'Chat „Neue Nachricht an …“: Personen ohne eigenes Gerät sind gekennzeichnet',
+    'Chat und Termine: 🔕 zeigt, wer keine Mitteilungen eingeschaltet hat – die Nachricht kommt an, wird aber erst beim nächsten Öffnen der App gelesen'
+  ]},
   { v:'v2.13', datum:'11.11.2026', neu:[
     'Termine: „Wer hat wie abgestimmt?“ – jede eingeladene Person mit ihrer Antwort zu jedem Datum',
     'Termine: „Noch keine Antwort“ – wer sich noch nicht gemeldet hat, lässt sich direkt anschreiben (Chat) oder per WhatsApp erinnern'
@@ -9659,7 +9665,8 @@ function chatGelesenSetzen(key, liste){
 function chatTitel(key){
   if (key.startsWith('k:')){ const k = D.verwaltung.kreise.find(x => x.id === key.slice(2)); return { t:k ? k.name : 'Spielkreis', u:'Gruppe' + (k ? ` · ${k.haushalte.filter(id => D.haushalte[id]).length} Haushalte` : '') }; }
   const [, hid, pid] = key.split(':'); const h = D.haushalte[hid], st = chatHaushaltStand(hid);
-  return { t:personName(hid, pid), u:(h ? h.name : '') + (st === 'alt' ? ' · liest es erst nach dem App-Update' : st === 'ohne' ? ' · noch nicht in der App' : '') };
+  return { t:personName(hid, pid), u:(h ? h.name : '') + (st === 'alt' ? ' · liest es erst nach dem App-Update' : st === 'ohne' ? ' · noch nicht in der App'
+    : hid !== E.meinHaushalt && chatPersonOhneMitteilung(hid, pid) ? ' · 🔕 ohne Mitteilungen' : '') };
 }
 function chatKnopfZeigen(){
   const b = $('#chat-knopf'); if (!b) return;
@@ -9720,6 +9727,16 @@ function chatHaushaltStand(hid){
   if (!g.length) return 'ohne';                                           // noch nie ein Gerät gemeldet – liest niemand
   return g.some(x => versionZahl(x.version) >= versionZahl(CHAT_AB)) ? 'ok' : 'alt';
 }
+/* Liest diese Person den Chat? Nur wenn ein Gerät mit Chat ihr gehört – oder dem ganzen Haushalt (nicht festgelegt) */
+function chatPersonErreichbar(hid, pid){
+  return ((D.haushalte[hid] || {}).geraete || []).some(g => versionZahl(g.version) >= versionZahl(CHAT_AB) && (!(g.personen || []).length || g.personen.includes(pid)));
+}
+/* Liest den Chat, bekommt aber keine Mitteilung (auf keinem ihrer Geräte eingeschaltet) – sieht es erst beim nächsten Öffnen */
+function chatPersonOhneMitteilung(hid, pid){
+  const g = ((D.haushalte[hid] || {}).geraete || []).filter(x => versionZahl(x.version) >= versionZahl(CHAT_AB) && (!(x.personen || []).length || x.personen.includes(pid)));
+  return g.length > 0 && !g.some(x => x.push);
+}
+const OHNE_MITTEILUNG = '🔕 ohne Mitteilungen – liest es beim nächsten Öffnen der App';
 function chatNeuHtml(){
   const ich = chatIch(), ids = [...sichtbareIds(true)].filter(id => D.haushalte[id] && D.haushalte[id].spieler.length).sort((a, b) => (a === E.meinHaushalt ? -1 : b === E.meinHaushalt ? 1 : D.haushalte[a].name.localeCompare(D.haushalte[b].name, 'de')));
   const ohne = ids.filter(id => chatHaushaltStand(id) === 'ohne');
@@ -9727,7 +9744,9 @@ function chatNeuHtml(){
     ${ids.filter(id => chatHaushaltStand(id) !== 'ohne').map(id => { const h = D.haushalte[id], leute = h.spieler.filter(p => !(ich && id === E.meinHaushalt && p.id === ich));
       return leute.length ? `<p class="chat-abschnitt"><span class="hh-punkt" style="background:${esc(h.farbe)}"></span>${esc(h.name)}</p>
         ${chatHaushaltStand(id) === 'alt' ? '<p class="text-leise text-klein" style="margin:-4px 0 6px">Hat noch eine ältere App-Version – liest es erst nach dem Update.</p>' : ''}
-        <div class="chips" style="margin-bottom:10px">${leute.map(p => `<button type="button" class="chip" data-chat-auf="${esc('p:' + id + ':' + p.id)}">${esc(p.name)}</button>`).join('')}</div>` : ''; }).join('')}
+        <div class="chips" style="margin-bottom:10px">${leute.map(p => chatHaushaltStand(id) !== 'ok' || chatPersonErreichbar(id, p.id) ? `<button type="button" class="chip" data-chat-auf="${esc('p:' + id + ':' + p.id)}"${chatPersonOhneMitteilung(id, p.id) ? ` title="${esc(OHNE_MITTEILUNG)}"` : ''}>${esc(p.name)}${chatPersonOhneMitteilung(id, p.id) ? ' 🔕' : ''}</button>`
+          : `<button type="button" class="chip" disabled title="hat kein eigenes Gerät mit der App">${esc(p.name)} <small>(kein eigenes Gerät)</small></button>`).join('')}</div>` : ''; }).join('')}
+    ${ids.some(id => id !== E.meinHaushalt && chatHaushaltStand(id) === 'ok' && D.haushalte[id].spieler.some(p => chatPersonOhneMitteilung(id, p.id))) ? `<p class="text-leise text-klein" style="margin:0 0 12px">${esc(OHNE_MITTEILUNG)}.</p>` : ''}
     ${ohne.length ? `<p class="chat-abschnitt">Noch nicht in der App</p><p class="text-leise text-klein" style="margin:0" data-chat-ohne>${esc(ohne.map(id => D.haushalte[id].name).join(', '))} – dort hat noch niemand die App geöffnet, Nachrichten würden nicht gelesen.</p>` : ''}`;
 }
 function chatVerlaufHtml(key){
