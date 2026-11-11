@@ -44,7 +44,20 @@
   }
  ],
  "spiele": [],
- "stimmen": {},
+ "stimmen": {
+  "omwbt70zg50dr|pmvl9l3p8z309": {
+   "a": "ja",
+   "stand": 1794383241309
+  },
+  "omwbt82bjnlod|pmvl9l3p8z309": {
+   "a": "ja",
+   "stand": 1794383242348
+  },
+  "omwbt86tmkfmg|pmvl9l3p8z309": {
+   "a": "ja",
+   "stand": 1794383244149
+  }
+ },
  "festgelegt": "",
  "festOrt": "",
  "festStand": 1794382915028,
