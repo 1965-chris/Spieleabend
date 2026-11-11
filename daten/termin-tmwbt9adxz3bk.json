@@ -1,0 +1,50 @@
+{
+ "format": 1,
+ "app": "v2.11",
+ "geraet": "gmvlch98lgubm",
+ "id": "tmwbt9adxz3bk",
+ "art": "spiele",
+ "titel": "Spieleabend",
+ "notiz": "",
+ "ort": "",
+ "gastgeber": "hmvl3fteujlp7",
+ "erstelltVon": "hmvl3fteujlp7",
+ "erstellt": 1794382915028,
+ "stand": 1794382915028,
+ "haushalte": [
+  "hmvl3fteujlp7",
+  "hmvlejsgars5t"
+ ],
+ "optionen": [
+  {
+   "id": "omwbt70zg50dr",
+   "zeit": "2027-01-09T18:00",
+   "stand": 1794382915028
+  },
+  {
+   "id": "omwbt82bjnlod",
+   "zeit": "2027-01-23T18:00",
+   "stand": 1794382915028
+  },
+  {
+   "id": "omwbt86tmkfmg",
+   "zeit": "2027-02-06T18:00",
+   "stand": 1794382915028
+  }
+ ],
+ "orte": [
+  {
+   "id": "wmwbt70zjub34",
+   "hid": "hmvl3fteujlp7",
+   "text": "",
+   "pos": 0,
+   "stand": 0
+  }
+ ],
+ "spiele": [],
+ "stimmen": {},
+ "festgelegt": "",
+ "festOrt": "",
+ "festStand": 1794382915028,
+ "geloescht": {}
+}
