@@ -797,6 +797,22 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
 .zuschau button, .zuschau input, .zuschau .chip{pointer-events:none}
 .zuschau details > summary{pointer-events:auto}
 .zuschau .knopf, .zuschau .knopfreihe, .zuschau input.pb-wert, .zuschau .block-hinweis, .zuschau .knopf-link{display:none}
+.wer-tabelle-rahmen{overflow-x:auto;margin:0 -2px}
+.wer-tabelle{border-collapse:collapse;font-size:14px;min-width:100%}
+.wer-tabelle th{font-size:12px;font-weight:700;color:var(--leise);padding:4px 6px;white-space:nowrap;text-align:center}
+.wer-tabelle th.fest{color:var(--filz)}
+.wer-tabelle td{padding:4px 6px;border-top:1px solid var(--linie)}
+.wer-tabelle td.wer-name{white-space:nowrap;padding-left:22px}
+.wer-tabelle tr.wer-hh td{font-weight:700;font-size:13px;padding-top:10px;border-top:0;white-space:nowrap}
+.wer-tabelle tr.wer-hh td svg{vertical-align:-2px;margin-right:4px}
+.wer-tabelle td.ant{text-align:center;font-weight:800;width:1%}
+.wer-tabelle td.ja{color:#1F8A4C;background:color-mix(in srgb, #1F8A4C 10%, transparent)}
+.wer-tabelle td.vl{color:#B07A00;background:color-mix(in srgb, #E0A000 12%, transparent)}
+.wer-tabelle td.nein{color:#C0392B;background:color-mix(in srgb, #C0392B 9%, transparent)}
+.wer-tabelle td.leer{color:var(--leise)}
+.wer-offen{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--linie)}
+.wer-offen span{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.wer-offen .knopf{min-height:38px;padding:0 12px;flex:none;font-size:14px}
 .zuschau-hinweis{background:color-mix(in srgb, var(--filz) 10%, var(--karte))}
 .sort-kamera{position:relative;width:100%;max-width:340px;margin:0 auto;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#111}
 .sort-kamera video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -1186,7 +1202,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.12';
+const VERSION = 'v2.13';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -4383,6 +4399,45 @@ function abstimmungHtml(t, liste, titelHtml, festId, meine){
     </div>`;
   }).join('');
 }
+/* Wer hat wie abgestimmt? Jede eingeladene Person mit ihrer Antwort je Termin (und Ort) – und wer sich noch nicht gemeldet hat */
+const ANTWORT_KLASSE = { ja:'ja', vielleicht:'vl', nein:'nein', '':'leer' };
+function terminKurz(z){ const d = new Date(z); return `${['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]} ${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}.`; }
+function terminOhneAntwort(t){
+  const aus = [];
+  for (const g of terminTeilnehmer(t)) for (const p of g.leute)
+    if (!t.optionen.some(o => stimmeVon(t, o.id, p.pid))) aus.push({ h:g.h, pid:p.pid, name:p.name });
+  return aus;
+}
+function terminUebersichtHtml(t){
+  const gruppen = terminTeilnehmer(t), leute = gruppen.reduce((n, g) => n + g.leute.length, 0);
+  if (leute < 2 || !t.optionen.length) return '';
+  const spalten = [...t.optionen.map(o => ({ id:o.id, t:terminKurz(o.zeit), fest:o.id === t.festgelegt })),
+    ...(ortAbstimmung(t) ? t.orte.map((o, i) => ({ id:o.id, t:`Ort ${'abcdefghij'[i] || i + 1}`, fest:o.id === t.festOrt, titel:ortText(o) })) : [])];
+  const offen = terminOhneAntwort(t), gemeldet = leute - offen.length;
+  const zelle = (o, p) => { const a = stimmeVon(t, o.id, p.pid); return `<td class="ant ${ANTWORT_KLASSE[a]}">${a ? ANTWORT_ZEICHEN[a] : '–'}</td>`; };
+  const tabelle = `<div class="wer-tabelle-rahmen"><table class="wer-tabelle"><thead><tr><th></th>${spalten.map(o => `<th${o.titel ? ` title="${esc(o.titel)}"` : ''}${o.fest ? ' class="fest"' : ''}>${esc(o.t)}</th>`).join('')}</tr></thead>
+    <tbody>${gruppen.map(g => `<tr class="wer-hh"><td colspan="${spalten.length + 1}">${figur(g.h.farbe, 14)}${esc(g.h.name)}</td></tr>
+      ${g.leute.map(p => `<tr><td class="wer-name">${esc(p.name)}</td>${spalten.map(o => zelle(o, p)).join('')}</tr>`).join('')}`).join('')}</tbody></table></div>
+    <p class="text-leise text-klein" style="margin:6px 0 0">✓ kann · ? vielleicht · ✗ kann nicht · – noch keine Antwort</p>`;
+  const ohne = offen.length ? `<p class="termin-abschnitt" style="margin-top:14px">Noch keine Antwort (${offen.length})</p>
+    ${offen.map(x => { const perChat = terminPerChat(x.h.id);
+      return `<div class="wer-offen"><span>${figur(x.h.farbe, 14)}<b>${esc(x.name)}</b> <small class="text-leise">${esc(x.h.name)}</small></span>
+        ${x.h.id === E.meinHaushalt && !perChat ? '' : `<button class="knopf zweit" type="button" data-t="erinnern" data-id="${esc(t.id)}" data-hid="${esc(x.h.id)}" data-pid="${esc(x.pid)}">${perChat ? '💬 Anschreiben' : `${ic('teilen')}Erinnern`}</button>`}</div>`; }).join('')}
+    <p class="block-hinweis">„Anschreiben“ öffnet den Chat mit einem fertigen Text. „Erinnern“ gibt es für alle ohne Chat – der Text geht dann z. B. per WhatsApp raus.</p>` : '';
+  return `<div style="margin-top:12px">${klapp('wer-' + t.id, 'Wer hat wie abgestimmt?', tabelle + ohne, { klasse:'leicht', klein:`${gemeldet} von ${leute}` })}</div>`;
+}
+/* Erreicht man diesen Haushalt im Chat? (Chat an, dort läuft eine App mit Chat) */
+function terminPerChat(hid){ return chatMoeglich() && chatHaushaltStand(hid) === 'ok' && !!D.haushalte[hid]; }
+function terminErinnerungText(t, name){
+  return [`Hallo ${name}, magst du noch abstimmen? ${terminArt(t).e} ${t.titel}${ortAbstimmung(t) ? '' : terminWo(t) ? ` (${terminWo(t)})` : ''} – zur Auswahl:`,
+    ...t.optionen.map((o, i) => `${i + 1}. ${terminZeitText(o.zeit)}`),
+    'In der Spieleabend-App unter „Termine“ einfach deinen Namen antippen. Danke!'].join('\n');
+}
+function terminErinnern(t, hid, pid){
+  const name = personName(hid, pid), text = terminErinnerungText(t, name);
+  if (terminPerChat(hid)){ CHATUI.vorlage = text; chatSheet(`p:${hid}:${pid}`); return; }
+  teilenSheet(`Erinnerung an ${name}`, text, `<p class="hinweis" style="margin:0">${esc(name)} (${esc((D.haushalte[hid] || {}).name || '')}) ist im Chat nicht erreichbar – schick die Erinnerung einfach so.</p>`);
+}
 function terminKarteHtml(t){
   const fest = t.optionen.find(o => o.id === t.festgelegt);
   const mehrOrte = ortAbstimmung(t), wo = festerOrt(t);
@@ -4403,6 +4458,7 @@ function terminKarteHtml(t){
       ${mehrOrte ? '<p class="termin-abschnitt">Wann?</p>' : ''}
       ${zeiten || '<p class="text-leise">Noch keine Termine vorgeschlagen.</p>'}
       ${mehrOrte ? `<p class="termin-abschnitt">Wo?</p>${orte}` : ''}
+      ${terminUebersichtHtml(t)}
       ${istSpieleabend(t) ? terminTeileHtml(t) + spieleVorschlagHtml(t, meine) + terminSpieleHtml(t) : ''}
       <div class="termin-knoepfe">
         ${fest ? `<button class="knopf zweit" type="button" data-t="kalender" data-id="${esc(t.id)}">In den Kalender</button>
@@ -4421,6 +4477,7 @@ function terminKlick(e){
   if (was === 'neu') return terminFormular(null, b.dataset.art);
   if (!t) return;
   if (was === 'stimme') return stimmeSetzen(t, b.dataset.opt, b.dataset.pid);
+  if (was === 'erinnern') return terminErinnern(t, b.dataset.hid, b.dataset.pid);
   if (was === 'lust') return lustSetzen(t, b.dataset.sp, b.dataset.pid);
   if (was === 'spiel-vorschlagen') return spielVorschlagen(t);
   if (was === 'spiel-weg') return spielVorschlagWeg(t, b.dataset.sp);
@@ -8145,6 +8202,8 @@ const HILFE = [
     <li><b>Wo?</b> Ein Ort ist ein Gastgeber-Haushalt und/oder eine Adresse. Mit <b>+ Weiteren Ort zur Abstimmung</b> schlägst du mehrere vor – dann stimmen alle auch über den Ort ab.</li>
     <li><b>Abstimmen</b>: Jede Person stimmt einzeln ab. Unter jedem Termin stehen die Namen deines Haushalts – antippen wechselt zwischen ✓ kann, ? vielleicht, ✗ kann nicht und wieder leer.</li>
     <li>Der grüne Balken zeigt, wie viele können; <b>beste Wahl</b> markiert den Termin mit den meisten Zusagen. Darunter steht, wer wie abgestimmt hat.</li>
+    <li><b>Wer hat wie abgestimmt?</b> Unter den Terminen aufklappen: eine Übersicht mit jeder eingeladenen Person und ihrer Antwort zu jedem Datum (✓ ? ✗, – = noch keine Antwort).</li>
+    <li><b>Noch keine Antwort</b>: Darunter stehen alle, die sich noch nicht gemeldet haben. <b>💬 Anschreiben</b> öffnet den Chat mit einer fertigen Erinnerung; wer keinen Chat hat, bekommt sie über <b>Erinnern</b> z. B. per WhatsApp.</li>
     <li>Wer eingeladen hat (oder der Admin), tippt auf <b>Termin festlegen</b>. Danach gibt es <b>In den Kalender</b> und einen Text „Es steht fest …“ zum Teilen. <b>Wieder öffnen</b> macht die Abstimmung erneut möglich.</li>
     <li><b>Was spielen wir?</b> Jeder schlägt Spiele der eingeladenen Haushalte vor, alle tippen bei ihrem Namen 👍 an. „Es steht fest …“ nennt die beliebtesten Spiele.</li>
     <li><b>Gesamtbild (z. B. Mättigopoly)</b>: Sind alle Eingeladenen in einem Spielkreis, dessen Spiele aus Teilen bestehen (Spiele mit „Eigene Kachel“, beschränkt auf diesen Spielkreis), zeigt der Termin die Teile als ein zusammenhängendes Bild – 6 Felder, je 3 nebeneinander. Ein Teil erscheint, sobald jemand aus seinem Haushalt ✓ getippt hat – für den festgelegten Termin, vorher für die beste Wahl. Fehlende Felder bleiben leer, darunter steht, wer noch fehlt. Den Platz eines Teils legt man beim Spiel unter <b>Platz im Gesamtbild</b> fest.</li>
@@ -8263,6 +8322,10 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.13', datum:'11.11.2026', neu:[
+    'Termine: „Wer hat wie abgestimmt?“ – jede eingeladene Person mit ihrer Antwort zu jedem Datum',
+    'Termine: „Noch keine Antwort“ – wer sich noch nicht gemeldet hat, lässt sich direkt anschreiben (Chat) oder per WhatsApp erinnern'
+  ]},
   { v:'v2.12', datum:'11.11.2026', neu:[
     'Termin planen/bearbeiten: Beim Antippen eines Spielkreises lassen sich jetzt alle seine Haushalte einladen – auch die, die nicht im oben gewählten Spielkreis sind'
   ]},
@@ -9604,7 +9667,7 @@ function chatKnopfZeigen(){
   const n = b.hidden ? 0 : chatUngelesenZahl(), z = $('#chat-zahl');
   if (z){ z.textContent = n; z.hidden = !n; }
 }
-const CHATUI = { s:null, key:'', timer:null, wem:false };
+const CHATUI = { s:null, key:'', timer:null, wem:false, vorlage:'' };
 function chatSheet(key=''){
   if (!chatMoeglich()) return;
   if (CHATUI.s){ CHATUI.key = key; chatRender(true); return; }
@@ -9703,6 +9766,8 @@ function chatRender(neu){
     el.innerHTML = key === 'neu' ? chatNeuHtml() : key ? chatGespraechHtml(key) : chatListeHtml();
     $$('[data-zu]', el).forEach(b => b.addEventListener('click', () => s.schliessen()));
     const v = $('[data-chat-verlauf]', el); if (v) v.scrollTop = v.scrollHeight;
+    const feld = $('[data-chat-text]', el);
+    if (feld && CHATUI.vorlage){ feld.value = CHATUI.vorlage; CHATUI.vorlage = ''; feld.style.height = 'auto'; feld.style.height = Math.min(140, feld.scrollHeight) + 'px'; }
   }
   if (key && key !== 'neu') chatGelesenSetzen(key, chatUnterhaltungen().get(key) || []);
   chatKnopfZeigen(); badgeZeigen();
