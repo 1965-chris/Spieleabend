@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.13",
+ "app": "v2.14",
  "geraet": "gmvlch98lgubm",
  "id": "tmwbt9adxz3bk",
  "art": "spiele",
@@ -85,6 +85,10 @@
   "omwbt86tmkfmg|pmvl9layukjpl": {
    "a": "ja",
    "stand": 1794403360766
+  },
+  "vmwbtgmp99uki|pmvl9layukjpl": {
+   "a": "ja",
+   "stand": 1794423623777
   }
  },
  "festgelegt": "",
