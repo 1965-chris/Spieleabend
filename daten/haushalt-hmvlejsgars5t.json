@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.01",
+ "app": "v2.11",
  "id": "hmvlejsgars5t",
  "name": "Familie Joester Schwelm",
  "farbe": "#8E5BD8",
@@ -290,9 +290,9 @@
    "id": "gmvmsq2m8zrb6",
    "art": "iPhone",
    "app": false,
-   "version": "v1.65",
+   "version": "v2.11",
    "erst": 1792870366996,
-   "zuletzt": 1792870366996,
+   "zuletzt": 1794385207372,
    "name": "Verena",
    "nameStand": 1792870463038,
    "personen": [
