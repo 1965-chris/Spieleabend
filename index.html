@@ -1186,7 +1186,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.11';
+const VERSION = 'v2.12';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -4528,16 +4528,18 @@ function terminFormular(t, artVorwahl){
   const startArt = t ? terminArt(t).k : (artVorwahl === undefined ? 'spiele' : artVorwahl);
   if (neu && !E.admin && !meinHaushaltGueltig()){ haushaltWaehlen(); return; }
   if (!neu && !darfTermin(t)) return;
-  // Zur Wahl stehen die Haushalte des gewählten Spielkreises – beim Bearbeiten auch die schon Eingeladenen
+  // Zur Wahl stehen die Haushalte aller eigenen Spielkreise (damit die Spielkreis-Knöpfe im Formular auch wirklich alle erreichen) –
+  // vorgewählt ist beim neuen Termin der oben gewählte Spielkreis; beim Bearbeiten auch die schon Eingeladenen
   const ganz = sichtbareIds(true), jetztSicht = sichtbareIds(), ak = aktiverKreis();
-  const sichtbar = haushaltListe(true).filter(h => jetztSicht.has(h.id) || (t && t.haushalte.includes(h.id) && ganz.has(h.id)))
+  const ausKreisen = new Set(meineKreise().flatMap(k => k.haushalte));
+  const sichtbar = haushaltListe(true).filter(h => jetztSicht.has(h.id) || ausKreisen.has(h.id) || (t && t.haushalte.includes(h.id) && ganz.has(h.id)))
     .filter(h => funktionAn('termine', h.id) || (t && t.haushalte.includes(h.id)) || h.id === E.meinHaushalt);
   // Ohne gewählten Spielkreis, aber in mehreren: erst mal nur der eigene Haushalt – den Kreis wählt man oben
   const erstNurIch = !t && !ak && arbeitsKreise().length > 1 && meinHaushaltGueltig();
   const startOrtHh = !!startArt && (TERMIN_ARTEN.find(a => a.k === startArt) || {}).ort === 'hh';
   const w = t ? terminNorm(t) : { art:startArt || 'sonst', titel:startArt ? terminArt({ art:startArt }).t : '', ort:'', notiz:'',
     gastgeber:!startOrtHh ? '' : meinHaushaltGueltig() ? E.meinHaushalt : (sichtbar[0] || {}).id || '',
-    haushalte:erstNurIch ? [E.meinHaushalt] : sichtbar.map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
+    haushalte:erstNurIch ? [E.meinHaushalt] : sichtbar.filter(h => jetztSicht.has(h.id)).map(h => h.id), optionen:[{ id:neueId('o'), zeit:naechsterSamstag(), stand:Date.now() }], orte:[] };
   const orteVorher = t ? terminOrte(w) : [{ id:neueId('w'), hid:w.gastgeber, text:'', pos:0, stand:0 }];
   const ortPlatzhalter = k => { const a = TERMIN_ARTEN.find(x => x.k === k); return a && a.ort !== 'hh' ? a.ort : 'Adresse oder Ort (wenn nötig)'; };
   const ortZeile = o => `<div class="ort-reihe" data-ortzeile="${esc(o.id)}">
@@ -8261,6 +8263,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.12', datum:'11.11.2026', neu:[
+    'Termin planen/bearbeiten: Beim Antippen eines Spielkreises lassen sich jetzt alle seine Haushalte einladen – auch die, die nicht im oben gewählten Spielkreis sind'
+  ]},
   { v:'v2.11', datum:'10.11.2026', neu:[
     'Dixit-Kartensortierer: jetzt auch Mirrors (Nr. 10) – dessen Kartenübersicht ist anders aufgebaut, die Kartendaten sind deshalb fest hinterlegt',
     { t:'Kartensortierer: push/mitteilungen.py Version 6 – danach bei Mirrors „Kartendaten erstellen lassen“.', admin:true }
