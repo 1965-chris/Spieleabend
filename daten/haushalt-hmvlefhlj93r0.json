@@ -31,30 +31,6 @@
    "geaendert": 1793430785751
   },
   {
-   "id": "smwgohq5wj4ss",
-   "name": "Dixit",
-   "bild": "",
-   "spielerMin": 3,
-   "spielerMax": 6,
-   "alterAb": 8,
-   "dauer": 45,
-   "kategorien": [
-    "Kartenspiel",
-    "Kommunikation"
-   ],
-   "beschreibung": "Dixit (lateinisch für „er/sie/es hat [es] gesagt“) ist ein einfaches Ratespiel mit hohem Kommunikationspotenzial. Es erschien 2008 im französischen Libellud-Verlag. Zum Spiel gehörten in der Originalausgabe die in die Schachtel integrierte Spielstandsanzeige in Form einer Kramerleiste, 6 hölzerne Hasenfiguren als Fortschrittsanzeiger, 84 verschiedene handgroße illustrierte Bildkarten mit neutraler Rückseite, 36 Abstimmungsplättchen im Wert von je 1–6 sowie die Spielregeln. In späteren Ausgaben wurden die Abstimmungsplättchen durch 8 drehbare Ziffernblätter (eines pro Spieler) ersetzt und ein separater, aus der Schachtel herausnehmbarer Spielplan ersetzte den in die Box integrierten Spielplan. Zu Beginn erhält jeder Mitspieler sechs der Bildkarten. Wer an der Reihe ist, nennt einen Begriff, ein Wort, einen Satz oder ein Zitat zu einer seiner Karten, die er verdeckt in die Mitte legt. Die übrigen Mitspieler suchen aus ihren Handkarten eine aus, die dem genannten Begriff in etwa entsprechen könnte und legen sie ebenfalls in die Mitte. Alle in der Mitte liegenden Karten werden nun gemischt und offen ausgelegt.\nVon Jean-Louis Roubira, erschienen 2008 bei Libellud.",
-   "bemerkung": "",
-   "bildQuelle": "",
-   "link": "https://de.wikipedia.org/wiki/Dixit_(Spiel)",
-   "anleitung": "",
-   "verlag": "Libellud",
-   "wertung": {
-    "art": "dixit"
-   },
-   "erstellt": 1794677241524,
-   "geaendert": 1794677241524
-  },
-  {
    "id": "smvmf4u04ymd3",
    "name": "Phase 10",
    "bild": "bilder/smvmf4u04ymd3-mvmfk31c.jpg",
@@ -221,5 +197,7 @@
    "geraet": "gmvlfo7oo0u75"
   }
  ],
- "geloescht": {}
+ "geloescht": {
+  "smwgohq5wj4ss": 1794677299405
+ }
 }
