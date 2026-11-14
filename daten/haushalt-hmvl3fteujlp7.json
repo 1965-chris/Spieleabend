@@ -901,7 +901,7 @@
    "app": true,
    "version": "v2.14",
    "erst": 1792864131177,
-   "zuletzt": 1794687029080,
+   "zuletzt": 1794689709554,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
@@ -1080,88 +1080,8 @@
  ],
  "live": {
   "gmvlch98lgubm": {
-   "sid": "smvmpi5egc06c",
-   "shid": "hmvl3fteujlp7",
-   "name": "Dixit",
-   "w": {
-    "art": "dixit"
-   },
-   "mit": [
-    {
-     "pid": "pmvl9layukjpl",
-     "name": "Birgit",
-     "farbe": "#2F6FDE"
-    },
-    {
-     "pid": "pmvl9l3p8z309",
-     "name": "Christian",
-     "farbe": "#2F6FDE"
-    },
-    {
-     "pid": "pmvlejsgaqpm0",
-     "name": "André",
-     "farbe": "#8E5BD8"
-    },
-    {
-     "pid": "pmvlejsgaz739",
-     "name": "Verena",
-     "farbe": "#8E5BD8"
-    },
-    {
-     "pid": "pmvlehndgkxwl",
-     "name": "Anke",
-     "farbe": "#E0A100"
-    },
-    {
-     "pid": "pmvlehndgo9xg",
-     "name": "Jörg",
-     "farbe": "#E0A100"
-    },
-    {
-     "pid": "pmvleifcab9b1",
-     "name": "Alina",
-     "farbe": "#1A9AA0"
-    }
-   ],
-   "runden": [
-    {
-     "erz": "pmvl9layukjpl",
-     "tipps": {
-      "pmvl9l3p8z309": "pmvlejsgaz739",
-      "pmvlejsgaqpm0": "pmvlejsgaz739",
-      "pmvlejsgaz739": "pmvl9layukjpl",
-      "pmvlehndgkxwl": "pmvlejsgaqpm0",
-      "pmvlehndgo9xg": "pmvlehndgkxwl",
-      "pmvleifcab9b1": "pmvlehndgo9xg"
-     },
-     "p": {
-      "pmvl9layukjpl": 3,
-      "pmvl9l3p8z309": 0,
-      "pmvlejsgaqpm0": 1,
-      "pmvlejsgaz739": 5,
-      "pmvlehndgkxwl": 1,
-      "pmvlehndgo9xg": 1,
-      "pmvleifcab9b1": 0
-     }
-    }
-   ],
-   "plaetze": [],
-   "gewinner": [],
-   "ende": false,
-   "datum": "2026-11-14",
-   "start": 1794687027185,
-   "kreis": "kmvl9j0zyt6wq",
-   "blatt": {},
-   "erw": [
-    "quest"
-   ],
-   "dx": {
-    "erz": 1,
-    "tipps": {},
-    "ziel": 30
-   },
-   "hid": "hmvl3fteujlp7",
-   "stand": 1794687078968
+   "aus": true,
+   "stand": 1794689707594
   }
  },
  "geloescht": {
