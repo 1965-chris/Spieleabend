@@ -31,6 +31,29 @@
    "geaendert": 1793430785751
   },
   {
+   "id": "smwgol252wuze",
+   "name": "Dixit",
+   "bild": "bilder/smvmpi5egc06c-mvmpi5eh.jpg",
+   "spielerMin": 3,
+   "spielerMax": 12,
+   "alterAb": 8,
+   "dauer": 45,
+   "kategorien": [
+    "Kartenspiel",
+    "Kommunikation"
+   ],
+   "beschreibung": "Dixit (lateinisch für „er/sie/es hat [es] gesagt“) ist ein einfaches Ratespiel mit hohem Kommunikationspotenzial. Zum Spiel gehörten in der Originalausgabe die in die Schachtel integrierte Spielstandsanzeige in Form einer Kramerleiste, 6 hölzerne Hasenfiguren als Fortschrittsanzeiger, 84 verschiedene handgroße illustrierte Bildkarten mit neutraler Rückseite, 36 Abstimmungsplättchen im Wert von je 1–6 sowie die Spielregeln. In späteren Ausgaben wurden die Abstimmungsplättchen durch 8 drehbare Ziffernblätter (eines pro Spieler) ersetzt und ein separater, aus der Schachtel herausnehmbarer Spielpl",
+   "bemerkung": "",
+   "bildQuelle": "",
+   "link": "https://de.wikipedia.org/wiki/Dixit_(Spiel)",
+   "anleitung": "https://cdn.svc.asmodee.net/production-libelludv2/uploads/2026/08/DIXIT_REFRESH_RULES_DE_HD_compressed.pdf",
+   "wertung": {
+    "art": "dixit"
+   },
+   "erstellt": 1794677397014,
+   "geaendert": 1794677397014
+  },
+  {
    "id": "smvmf4u04ymd3",
    "name": "Phase 10",
    "bild": "bilder/smvmf4u04ymd3-mvmfk31c.jpg",
