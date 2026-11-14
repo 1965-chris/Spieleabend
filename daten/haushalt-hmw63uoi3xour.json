@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.93",
+ "app": "v2.14",
  "id": "hmw63uoi3xour",
  "name": "Familie Wolfdieter Mättig",
  "farbe": "#1A9AA0",
@@ -13,5 +13,6 @@
    "stand": 1794133485886
   }
  ],
+ "eingeladenAm": 1794678276423,
  "geloescht": {}
 }
