@@ -901,7 +901,7 @@
    "app": true,
    "version": "v2.14",
    "erst": 1792864131177,
-   "zuletzt": 1794677171669,
+   "zuletzt": 1794687029080,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
@@ -1078,6 +1078,66 @@
    "geraet": "gmvlch98lgubm"
   }
  ],
+ "live": {
+  "gmvlch98lgubm": {
+   "sid": "smvmpi5egc06c",
+   "shid": "hmvl3fteujlp7",
+   "name": "Dixit",
+   "w": {
+    "art": "dixit"
+   },
+   "mit": [
+    {
+     "pid": "pmvl9layukjpl",
+     "name": "Birgit",
+     "farbe": "#2F6FDE"
+    },
+    {
+     "pid": "pmvl9l3p8z309",
+     "name": "Christian",
+     "farbe": "#2F6FDE"
+    },
+    {
+     "pid": "pmvlejsgaqpm0",
+     "name": "André",
+     "farbe": "#8E5BD8"
+    },
+    {
+     "pid": "pmvlejsgaz739",
+     "name": "Verena",
+     "farbe": "#8E5BD8"
+    },
+    {
+     "pid": "pmvlehndgkxwl",
+     "name": "Anke",
+     "farbe": "#E0A100"
+    },
+    {
+     "pid": "pmvlehndgo9xg",
+     "name": "Jörg",
+     "farbe": "#E0A100"
+    },
+    {
+     "pid": "pmvleifcab9b1",
+     "name": "Alina",
+     "farbe": "#1A9AA0"
+    }
+   ],
+   "runden": [],
+   "plaetze": [],
+   "gewinner": [],
+   "ende": false,
+   "datum": "2026-11-14",
+   "start": 1794687027185,
+   "kreis": "kmvl9j0zyt6wq",
+   "blatt": {},
+   "erw": [
+    "quest"
+   ],
+   "hid": "hmvl3fteujlp7",
+   "stand": 1794687027186
+  }
+ },
  "geloescht": {
   "smvl5fcpzf8ho": 1792790445845,
   "smvmkrhu8f0ir": 1792857440174,
