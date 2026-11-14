@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.93",
+ "app": "v2.14",
  "id": "hmw63sypv8s3h",
  "name": "Familie Nele Mättig",
  "farbe": "#2E9E5B",
@@ -18,5 +18,6 @@
    "stand": 1794133983322
   }
  ],
+ "eingeladenAm": 1794686424626,
  "geloescht": {}
 }
