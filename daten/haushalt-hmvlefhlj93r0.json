@@ -50,8 +50,25 @@
    "wertung": {
     "art": "dixit"
    },
+   "erweiterungen": [
+    {
+     "k": "origins"
+    },
+    {
+     "k": "daydreams"
+    },
+    {
+     "k": "memories"
+    },
+    {
+     "k": "harmonies"
+    },
+    {
+     "k": "anniversary"
+    }
+   ],
    "erstellt": 1794677397014,
-   "geaendert": 1794677397014
+   "geaendert": 1794677437286
   },
   {
    "id": "smvmf4u04ymd3",
