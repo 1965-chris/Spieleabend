@@ -1123,7 +1123,28 @@
      "farbe": "#1A9AA0"
     }
    ],
-   "runden": [],
+   "runden": [
+    {
+     "erz": "pmvl9layukjpl",
+     "tipps": {
+      "pmvl9l3p8z309": "pmvlejsgaz739",
+      "pmvlejsgaqpm0": "pmvlejsgaz739",
+      "pmvlejsgaz739": "pmvl9layukjpl",
+      "pmvlehndgkxwl": "pmvlejsgaqpm0",
+      "pmvlehndgo9xg": "pmvlehndgkxwl",
+      "pmvleifcab9b1": "pmvlehndgo9xg"
+     },
+     "p": {
+      "pmvl9layukjpl": 3,
+      "pmvl9l3p8z309": 0,
+      "pmvlejsgaqpm0": 1,
+      "pmvlejsgaz739": 5,
+      "pmvlehndgkxwl": 1,
+      "pmvlehndgo9xg": 1,
+      "pmvleifcab9b1": 0
+     }
+    }
+   ],
    "plaetze": [],
    "gewinner": [],
    "ende": false,
@@ -1135,19 +1156,12 @@
     "quest"
    ],
    "dx": {
-    "erz": 0,
-    "tipps": {
-     "pmvl9l3p8z309": "pmvlejsgaz739",
-     "pmvlejsgaqpm0": "pmvlejsgaz739",
-     "pmvlejsgaz739": "pmvl9layukjpl",
-     "pmvlehndgkxwl": "pmvlejsgaqpm0",
-     "pmvlehndgo9xg": "pmvlehndgkxwl",
-     "pmvleifcab9b1": "pmvlehndgo9xg"
-    },
+    "erz": 1,
+    "tipps": {},
     "ziel": 30
    },
    "hid": "hmvl3fteujlp7",
-   "stand": 1794687066311
+   "stand": 1794687078968
   }
  },
  "geloescht": {
