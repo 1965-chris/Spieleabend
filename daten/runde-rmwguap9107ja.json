@@ -58,8 +58,8 @@
    "geraet": ""
   }
  },
- "ende": false,
- "endeStand": 0,
+ "ende": true,
+ "endeStand": 1794689737050,
  "gespeichert": false,
- "stand": 1794686991445
+ "stand": 1794689737050
 }
