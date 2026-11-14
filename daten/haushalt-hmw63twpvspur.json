@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v1.93",
+ "app": "v2.14",
  "id": "hmw63twpvspur",
  "name": "Familie Runzer",
  "farbe": "#D64545",
@@ -18,5 +18,6 @@
    "stand": 1794134075420
   }
  ],
+ "eingeladenAm": 1794683772594,
  "geloescht": {}
 }
