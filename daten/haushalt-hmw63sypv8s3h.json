@@ -18,6 +18,18 @@
    "stand": 1794133983322
   }
  ],
+ "geraete": [
+  {
+   "id": "gmwgtzm2s2foq",
+   "art": "iPhone",
+   "app": false,
+   "version": "v2.14",
+   "erst": 1794686480691,
+   "zuletzt": 1794686480691,
+   "name": "",
+   "nameStand": 0
+  }
+ ],
  "eingeladenAm": 1794686424626,
  "geloescht": {}
 }
