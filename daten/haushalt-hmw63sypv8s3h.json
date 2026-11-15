@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.14",
+ "app": "v2.15",
  "id": "hmw63sypv8s3h",
  "name": "Familie Nele Mättig",
  "farbe": "#2E9E5B",
@@ -69,6 +69,23 @@
    "zuletzt": 1794736722327,
    "name": "",
    "nameStand": 0
+  },
+  {
+   "id": "gmvlch98lgubm",
+   "art": "iPhone",
+   "app": true,
+   "version": "v2.15",
+   "erst": 1794760222915,
+   "zuletzt": 1794760222915,
+   "name": "",
+   "nameStand": 0,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QN9pW0AAPk2RVb5EzXVd-3QbFljTlg_y1pS_FYgP64tq0X39F-rRGerftjIAuPuaqTKGzPRPACfm6BUY-Nk9KNDrdh2VyLlc5L1CwbigSIr8VeHvKNLBxPlCln4R00cJxpUP5oJLEjX25loiDYcPaNbbiBZBXpEl5n9j5alOmQU",
+    "p256dh": "BO4J59RAzSp-azrOsrO7ANvaQR1DegG3Mmv6ZFkJxcKa19wj5LXUx1_3L5TQEOvAZtUAP6XypywwN1857Cm0DJg",
+    "auth": "59wBaZj9uGqoxmWJ0SdhxA",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794239662910
+   }
   }
  ],
  "eingeladenAm": 1794686424626,
