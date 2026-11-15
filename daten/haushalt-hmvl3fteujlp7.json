@@ -901,15 +901,15 @@
    "app": true,
    "version": "v2.15",
    "erst": 1792864131177,
-   "zuletzt": 1794758311898,
+   "zuletzt": 1794762452606,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
-    "endpoint": "https://web.push.apple.com/QN9pW0AAPk2RVb5EzXVd-3QbFljTlg_y1pS_FYgP64tq0X39F-rRGerftjIAuPuaqTKGzPRPACfm6BUY-Nk9KNDrdh2VyLlc5L1CwbigSIr8VeHvKNLBxPlCln4R00cJxpUP5oJLEjX25loiDYcPaNbbiBZBXpEl5n9j5alOmQU",
-    "p256dh": "BO4J59RAzSp-azrOsrO7ANvaQR1DegG3Mmv6ZFkJxcKa19wj5LXUx1_3L5TQEOvAZtUAP6XypywwN1857Cm0DJg",
-    "auth": "59wBaZj9uGqoxmWJ0SdhxA",
+    "endpoint": "https://web.push.apple.com/QP6945DgERfEH4QSWbRjQ7FVPLcPXhH4Z9DNMwlrnGxfKh8GAWzirVx1fZUEccztAtoKb9rBrzoB7Eq2vZkcLMd2h4ad91qCLvyte8PxD3YxJEFMserBn_O7dDNYU_NKmS89R_45nerGJKyuVUTwf41fcX9SzRaMSX82ckVGgBk",
+    "p256dh": "BFIEOHM7A6Huy-7Y8wczUP60BQMNNAJkeB5ALYLMSWxMjHANUT9QejKj4x3OzkVMdgPvmTOGm7DUWDqGZdXJYMo",
+    "auth": "lGIaPiWj77rQ60BSQBw0pg",
     "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
-    "stand": 1794239662910
+    "stand": 1794762452606
    },
    "personen": [
     "pmvl9l3p8z309"
