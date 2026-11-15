@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.14",
+ "app": "v2.15",
  "id": "hmvlefhlj93r0",
  "name": "Familie Mättig Hilden",
  "farbe": "#2E9E5B",
@@ -86,9 +86,10 @@
    "bildQuelle": "",
    "link": "",
    "anleitung": "https://drive.google.com/file/d/1vKDjvt5rBJKiOI_C0unTsmP5IvjSqo5S/view?usp=drivesdk",
+   "nurKreis": "kmw63pk36uumu",
    "eigeneKachel": true,
    "erstellt": 1794755411769,
-   "geaendert": 1794755411769
+   "geaendert": 1794761886699
   },
   {
    "id": "smvmf4u04ymd3",
