@@ -1,6 +1,6 @@
 {
  "format": 1,
- "app": "v2.02",
+ "app": "v2.15",
  "pinHash": "bbadc6e05980bbd1cb3a18da8ab6f99dff455a73a70a03113383f701e842c00f",
  "pinSalz": "bf42f5c2140250f126bdf921",
  "pinStand": 1792777561392,
@@ -79,12 +79,6 @@
     "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
     "stand": 1794239662910
    }
-  },
-  {
-   "id": "gmvlci8srx8ih",
-   "name": "iPhone – Familie Mättig Berlin",
-   "seit": 1794244060352,
-   "stand": 1794244060352
   }
  ],
  "push": {
@@ -131,6 +125,7 @@
  },
  "geloescht": {
   "gmvxkreolqt28": 1793551667839,
-  "gmvlcjlfyw1x1": 1794234813862
+  "gmvlcjlfyw1x1": 1794234813862,
+  "gmvlci8srx8ih": 1794758781604
  }
 }
