@@ -1,0 +1,79 @@
+{
+ "format": 1,
+ "app": "v2.15",
+ "id": "rmwi7hdrrtxci",
+ "art": "c3",
+ "name": "Clever hoch drei",
+ "sid": "smvmlb1ssz2x6",
+ "shid": "hmvl3fteujlp7",
+ "hid": "hmvl3fteujlp7",
+ "geraet": "gmvlch98lgubm",
+ "datum": "2026-11-15",
+ "start": 1794769604343,
+ "kreis": "kmw63pk36uumu",
+ "mit": [
+  {
+   "pid": "pmvl9layukjpl",
+   "name": "Birgit",
+   "farbe": "#2F6FDE"
+  },
+  {
+   "pid": "pmvl9l3p8z309",
+   "name": "Christian",
+   "farbe": "#2F6FDE"
+  },
+  {
+   "pid": "pmvlf8xrosytd",
+   "name": "Pia",
+   "farbe": "#EB7A2F"
+  },
+  {
+   "pid": "pmvlefhlltxh1",
+   "name": "Rolf",
+   "farbe": "#2E9E5B"
+  }
+ ],
+ "modus": "jeder",
+ "blaetter": {
+  "pmvl9layukjpl": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1794769604343,
+   "geraet": ""
+  },
+  "pmvl9l3p8z309": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1794769604343,
+   "geraet": "gmvlch98lgubm"
+  },
+  "pmvlf8xrosytd": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1794769604343,
+   "geraet": ""
+  },
+  "pmvlefhlltxh1": {
+   "log": [
+    {
+     "t": "runde"
+    }
+   ],
+   "stand": 1794769604343,
+   "geraet": ""
+  }
+ },
+ "ende": false,
+ "endeStand": 0,
+ "gespeichert": false,
+ "stand": 1794769604343
+}
