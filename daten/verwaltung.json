@@ -71,7 +71,14 @@
    "id": "gmvlch98lgubm",
    "name": "iPhone – Familie Mättig Baumberg",
    "seit": 1792782806189,
-   "stand": 1794762430338
+   "stand": 1794762452615,
+   "push": {
+    "endpoint": "https://web.push.apple.com/QP6945DgERfEH4QSWbRjQ7FVPLcPXhH4Z9DNMwlrnGxfKh8GAWzirVx1fZUEccztAtoKb9rBrzoB7Eq2vZkcLMd2h4ad91qCLvyte8PxD3YxJEFMserBn_O7dDNYU_NKmS89R_45nerGJKyuVUTwf41fcX9SzRaMSX82ckVGgBk",
+    "p256dh": "BFIEOHM7A6Huy-7Y8wczUP60BQMNNAJkeB5ALYLMSWxMjHANUT9QejKj4x3OzkVMdgPvmTOGm7DUWDqGZdXJYMo",
+    "auth": "lGIaPiWj77rQ60BSQBw0pg",
+    "schluessel": "BPPMZep4YiX4VPKOERRelmH6qIF0sc0icBtYZUB0w_PFKbF1YS-w5vVolg79bpqJFqd32ngHnUlltwNzUQxJG-U",
+    "stand": 1794762452606
+   }
   }
  ],
  "push": {
