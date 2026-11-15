@@ -1203,7 +1203,7 @@ details summary{cursor:pointer;color:var(--filz);font-weight:600;font-size:14.5p
    Daten:  daten/haushalt-<id>.json  (eine Datei pro Haushalt)
    Fotos:  bilder/<spiel>-<zeit>.jpg (eine Datei pro Foto)
    ===================================================================== */
-const VERSION = 'v2.14';
+const VERSION = 'v2.15';
 /* Erhöht sich, wenn neue Angaben dazukommen (2 = Mitspieler). Dann holt jedes Gerät einmal alle Dateien neu,
    damit nichts fehlt, was eine ältere App-Version beim Laden weggelassen hat. */
 const DATENSTAND = 2;
@@ -2580,6 +2580,15 @@ function alleSpiele(){
   return [...m.values()];
 }
 function spielFinden(id){ return alleSpiele().find(s => s.id === id); }
+/* Alle Spiele aller Haushalte in der App (unabhängig von Spielkreisen) – zum Übernehmen von Angaben und Foto beim Anlegen.
+   Haushalte außerhalb der eigenen Spielkreise erscheinen dabei ohne Namen. */
+function spieleUebergreifend(){
+  const m = new Map();
+  for (const h of Object.values(D.haushalte)){
+    for (const s of h.spiele){ const x = m.get(s.id); if (!x || s.geaendert > x.geaendert) m.set(s.id, { ...s, hid:h.id }); }
+  }
+  return [...m.values()];
+}
 function passt(s, f){
   if (f.personen != null){ const mn = s.spielerMin ?? 1, mx = s.spielerMax ?? mn; if (f.personen < mn || f.personen > mx) return false; }
   if (f.alter != null && s.alterAb != null && s.alterAb > f.alter) return false;
@@ -3977,17 +3986,18 @@ function spielFormular(sp, vorgabe){
     if (!vorhandenEl || uebernahme) return;
     const q = normText(feldVon(form, 'name').value).trim(), ziel = gewaehltesHh();
     if (q.length < 2){ vorhandenEl.innerHTML = ''; return; }
-    const gruppen = spielGruppen(alleSpiele()).filter(g => normText(g.haupt.name).includes(q) && !g.kopien.some(k => k.hid === ziel))
+    const gruppen = spielGruppen(spieleUebergreifend()).filter(g => normText(g.haupt.name).includes(q) && !g.kopien.some(k => k.hid === ziel))
       .sort((a, b) => (normText(a.haupt.name).startsWith(q) ? 0 : 1) - (normText(b.haupt.name).startsWith(q) ? 0 : 1) || nachName(a.haupt, b.haupt)).slice(0, 3);
     vorhandenEl.innerHTML = gruppen.length ? `<p class="text-leise text-klein" style="margin:10px 0 6px">Schon in der App – Angaben und Foto übernehmen:</p>
-      ${gruppen.map(g => `<button type="button" class="vorschlag" data-uebernehmen="${esc(g.haupt.id)}">${figur(farbeVon(g.haupt.hid), 16)}<span><b>${esc(g.haupt.name)}</b> von ${esc((D.haushalte[g.haupt.hid] || {}).name || '')}</span>${ic('plus')}</button>`).join('')}` : '';
+      ${gruppen.map(g => { const bekannt = sichtbareIds(true).has(g.haupt.hid);
+        return `<button type="button" class="vorschlag" data-uebernehmen="${esc(g.haupt.id)}">${bekannt ? figur(farbeVon(g.haupt.hid), 16) : figur('#9AA3A0', 16)}<span><b>${esc(g.haupt.name)}</b> von ${bekannt ? esc((D.haushalte[g.haupt.hid] || {}).name || '') : 'einem anderen Haushalt'}</span>${ic('plus')}</button>`; }).join('')}` : '';
   };
   let vorhandenTimer = null;
   feldVon(form, 'name').addEventListener('input', () => { clearTimeout(vorhandenTimer); vorhandenTimer = setTimeout(vorhandeneZeigen, 150); });
   s.addEventListener('wahl', e => { if (e.target.dataset.gruppe === 'hh'){ vorhandeneZeigen(); kreisFeldZeigen(); } });
   if (vorhandenEl) vorhandenEl.addEventListener('click', e => {
     const b = e.target.closest('[data-uebernehmen]'); if (!b) return;
-    const q = alleSpiele().find(x => x.id === b.dataset.uebernehmen); if (!q) return;
+    const q = spieleUebergreifend().find(x => x.id === b.dataset.uebernehmen); if (!q) return;
     feldVon(form, 'name').value = q.name;
     const st = n => $(`[data-name="${n}"]`, s);
     stepperSetzen(st('spielerMin'), q.spielerMin ?? null); stepperSetzen(st('spielerMax'), q.spielerMax ?? q.spielerMin ?? null); stepperSetzen(st('alterAb'), q.alterAb ?? null);
@@ -8323,6 +8333,9 @@ function NUR_ADMIN(t){ return { t, admin:true }; }
 function neuSichtbar(n){ return typeof n === 'string' || !n.admin || E.admin; }
 function neuText(n){ return typeof n === 'string' ? n : n.t; }
 const VERSIONEN = [
+  { v:'v2.15', datum:'15.11.2026', neu:[
+    'Spiel eintragen: „Schon in der App – Angaben und Foto übernehmen“ sucht jetzt in allen Haushalten der App, nicht nur im oben gewählten Spielkreis (Haushalte außerhalb der eigenen Spielkreise erscheinen als „ein anderer Haushalt“)'
+  ]},
   { v:'v2.14', datum:'11.11.2026', neu:[
     'Termine/Chat: „Anschreiben“ nur noch für Personen, die den Chat auch lesen – mit eigenem Gerät (oder einem gemeinsamen des Haushalts). Alle anderen: „Erinnern“ per WhatsApp & Co.',
     'Chat „Neue Nachricht an …“: Personen ohne eigenes Gerät sind gekennzeichnet',
