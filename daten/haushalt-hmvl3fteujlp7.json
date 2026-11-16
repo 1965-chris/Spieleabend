@@ -901,7 +901,7 @@
    "app": true,
    "version": "v2.15",
    "erst": 1792864131177,
-   "zuletzt": 1794769700747,
+   "zuletzt": 1794838778397,
    "name": "iPhone 16pro Max / Christian",
    "nameStand": 1792941230430,
    "push": {
@@ -1078,12 +1078,6 @@
    "geraet": "gmvlch98lgubm"
   }
  ],
- "live": {
-  "gmvlch98lgubm": {
-   "aus": true,
-   "stand": 1794689707594
-  }
- },
  "geloescht": {
   "smvl5fcpzf8ho": 1792790445845,
   "smvmkrhu8f0ir": 1792857440174,
