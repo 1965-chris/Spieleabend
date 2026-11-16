@@ -62,16 +62,6 @@
    "nameStand": 0
   },
   {
-   "id": "gmwhnw5v75uwo",
-   "art": "iPhone",
-   "app": true,
-   "version": "v2.14",
-   "erst": 1794736722327,
-   "zuletzt": 1794736722327,
-   "name": "Nele",
-   "nameStand": 1794762094529
-  },
-  {
    "id": "gmvlch98lgubm",
    "art": "iPhone",
    "app": true,
@@ -90,5 +80,7 @@
   }
  ],
  "eingeladenAm": 1794686424626,
- "geloescht": {}
+ "geloescht": {
+  "gmwhnw5v75uwo": 1794848886014
+ }
 }
